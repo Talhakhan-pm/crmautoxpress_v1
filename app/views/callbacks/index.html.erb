@@ -1,0 +1,330 @@
+<!-- Sidebar -->
+<nav class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="fas fa-car"></i>
+            <span>AutoXpress</span>
+        </div>
+    </div>
+    
+    <div class="nav-menu">
+        <div class="nav-section">
+            <div class="nav-section-title">CRM</div>
+            <a href="#" class="nav-item">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Orders</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-truck"></i>
+                <span>Dispatching</span>
+            </a>
+            <%= link_to callbacks_path, class: "nav-item active" do %>
+                <i class="fas fa-phone"></i>
+                <span>Callbacks</span>
+            <% end %>
+            <a href="#" class="nav-item">
+                <i class="fas fa-users"></i>
+                <span>Customers</span>
+            </a>
+        </div>
+        
+        <div class="nav-section">
+            <div class="nav-section-title">Management</div>
+            <a href="#" class="nav-item">
+                <i class="fas fa-user-tie"></i>
+                <span>Agents</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-boxes"></i>
+                <span>Products</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-undo"></i>
+                <span>Refunds & Returns</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-industry"></i>
+                <span>Suppliers</span>
+            </a>
+        </div>
+        
+        <div class="nav-section">
+            <div class="nav-section-title">System</div>
+            <a href="#" class="nav-item">
+                <i class="fas fa-link"></i>
+                <span>Links</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-file-invoice"></i>
+                <span>Invoicebook</span>
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<main class="main-content">
+    <!-- Header -->
+    <header class="main-header">
+        <div class="header-left">
+            <h1>Callbacks</h1>
+            <div class="breadcrumb">CRM › Callbacks › Overview</div>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-secondary">
+                <i class="fas fa-download"></i>
+                Export
+            </button>
+            <button class="btn btn-primary" onclick="openModal()">
+                <i class="fas fa-plus"></i>
+                Add Callback
+            </button>
+        </div>
+    </header>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <div class="toolbar-left">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search callbacks, customers, products...">
+            </div>
+            <div class="filter-group">
+                <button class="filter-btn active">All</button>
+                <button class="filter-btn">Pending</button>
+                <button class="filter-btn">Follow-up Later</button>
+                <button class="filter-btn">Not Interested</button>
+            </div>
+        </div>
+        <div class="toolbar-right">
+            <button class="filter-btn">
+                <i class="fas fa-filter"></i>
+                Filter
+            </button>
+            <button class="filter-btn">
+                <i class="fas fa-sort"></i>
+                Sort
+            </button>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-container">
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Product</th>
+                        <th>Car Make & Model</th>
+                        <th>Year</th>
+                        <th>ZIP</th>
+                        <th>Customer Name</th>
+                        <th>Callback Number</th>
+                        <th>Follow-up Date</th>
+                        <th>Agent</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2025-05-23</td>
+                        <td><span class="status-badge status-pending">Pending</span></td>
+                        <td>Motor Mounts</td>
+                        <td>Ford Fusion</td>
+                        <td>2007</td>
+                        <td>76107</td>
+                        <td>Joe</td>
+                        <td>(817) 489-4064</td>
+                        <td>2025-05-23</td>
+                        <td>Ayesha</td>
+                        <td>
+                            <button class="action-btn"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn"><i class="fas fa-phone"></i></button>
+                            <button class="action-btn"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2025-05-21</td>
+                        <td><span class="status-badge status-purchased">Already Purchased</span></td>
+                        <td>Rear Right Door Lock Actuator</td>
+                        <td>Ford E150</td>
+                        <td>2003</td>
+                        <td></td>
+                        <td>Murtaza</td>
+                        <td>(301) 943-2129</td>
+                        <td>2025-05-21</td>
+                        <td>Murtaza</td>
+                        <td>
+                            <button class="action-btn"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn"><i class="fas fa-phone"></i></button>
+                            <button class="action-btn"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2025-05-21</td>
+                        <td><span class="status-badge status-later">Follow-up Later</span></td>
+                        <td>Rear Quarter Panels  Rocker Panel/Inner  Outer  LH Front Fender Extension</td>
+                        <td>Ford Galaxie 500</td>
+                        <td>1969</td>
+                        <td>55332</td>
+                        <td>Jerry Steinbach</td>
+                        <td>(320) 522-8169</td>
+                        <td>2025-05-21</td>
+                        <td>Murtaza</td>
+                        <td>
+                            <button class="action-btn"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn"><i class="fas fa-phone"></i></button>
+                            <button class="action-btn"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2025-05-23</td>
+                        <td><span class="status-badge status-answered">No answer</span></td>
+                        <td>Clutch Release Bearing Hub</td>
+                        <td>Ford V8 Custom Made</td>
+                        <td>1950</td>
+                        <td></td>
+                        <td>David</td>
+                        <td>(570) 332-5035</td>
+                        <td>2025-05-21</td>
+                        <td>Murtaza</td>
+                        <td>
+                            <button class="action-btn"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn"><i class="fas fa-phone"></i></button>
+                            <button class="action-btn"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2025-05-20</td>
+                        <td><span class="status-badge status-interested">Not Interested</span></td>
+                        <td>4 Brake Linings And 4 Complete Drum Sets For 2 And 3 Axle</td>
+                        <td>Freightliner Cascadia</td>
+                        <td>2013</td>
+                        <td></td>
+                        <td>Jose</td>
+                        <td>(626) 866-8758</td>
+                        <td>2025-05-19</td>
+                        <td>Roy</td>
+                        <td>
+                            <button class="action-btn"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn"><i class="fas fa-phone"></i></button>
+                            <button class="action-btn"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2025-05-18</td>
+                        <td><span class="status-badge status-sold">Sold</span></td>
+                        <td>Driver Taillight Assembly</td>
+                        <td>Ford F100</td>
+                        <td>2013</td>
+                        <td>30281</td>
+                        <td>Charles Russell</td>
+                        <td>(404) 831-6938</td>
+                        <td>2025-05-14</td>
+                        <td>Murtaza</td>
+                        <td>
+                            <button class="action-btn"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn"><i class="fas fa-phone"></i></button>
+                            <button class="action-btn"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination">
+            <div class="pagination-info">
+                Showing 1-6 of 24 results
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Add Callback Modal -->
+<div class="modal-overlay" id="addCallbackModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 class="modal-title">Add New Callback</h2>
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <%= form_with url: callbacks_path, local: true do |form| %>
+                <div class="form-row">
+                    <div class="form-group">
+                        <%= form.label :customer_name, "Customer Name", class: "form-label" %>
+                        <%= form.text_field :customer_name, class: "form-input", placeholder: "Enter customer name" %>
+                    </div>
+                    <div class="form-group">
+                        <%= form.label :phone_number, "Phone Number", class: "form-label" %>
+                        <%= form.telephone_field :phone_number, class: "form-input", placeholder: "(xxx) xxx-xxxx" %>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <%= form.label :car_make_model, "Car Make & Model", class: "form-label" %>
+                        <%= form.text_field :car_make_model, class: "form-input", placeholder: "e.g., Ford Fusion" %>
+                    </div>
+                    <div class="form-group">
+                        <%= form.label :year, "Year", class: "form-label" %>
+                        <%= form.number_field :year, class: "form-input", placeholder: "2023" %>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <%= form.label :product, "Product", class: "form-label" %>
+                    <%= form.text_field :product, class: "form-input", placeholder: "Enter product name" %>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <%= form.label :zip_code, "ZIP Code", class: "form-label" %>
+                        <%= form.text_field :zip_code, class: "form-input", placeholder: "12345" %>
+                    </div>
+                    <div class="form-group">
+                        <%= form.label :status, "Status", class: "form-label" %>
+                        <%= form.select :status, options_for_select([
+                            ['Pending', 'pending'],
+                            ['Follow-up Later', 'later'],
+                            ['Not Interested', 'interested'],
+                            ['Already Purchased', 'purchased'],
+                            ['No Answer', 'answered'],
+                            ['Sold', 'sold']
+                        ]), {}, { class: "form-select" } %>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <%= form.label :follow_up_date, "Follow-up Date", class: "form-label" %>
+                        <%= form.date_field :follow_up_date, class: "form-input" %>
+                    </div>
+                    <div class="form-group">
+                        <%= form.label :agent, "Assigned Agent", class: "form-label" %>
+                        <%= form.select :agent, options_for_select([
+                            ['Ayesha', 'ayesha'],
+                            ['Murtaza', 'murtaza'],
+                            ['Roy', 'roy'],
+                            ['Khan', 'khan'],
+                            ['Luis', 'luis']
+                        ]), {}, { class: "form-select" } %>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <%= form.label :notes, "Notes", class: "form-label" %>
+                    <%= form.text_area :notes, class: "form-textarea", placeholder: "Add any additional notes about this callback..." %>
+                </div>
+            <% end %>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            <button class="btn btn-primary">Create Callback</button>
+        </div>
+    </div>
+</div>
