@@ -68,27 +68,28 @@
 
 <!-- Main Content -->
 <main class="main-content">
-    <!-- Header -->
-    <header class="main-header">
-        <div class="header-left">
-            <h1>Callbacks</h1>
-            <div class="breadcrumb">CRM › Callbacks › Overview</div>
-        </div>
-        <div class="header-actions">
-            <button class="btn btn-secondary">
-                <i class="fas fa-download"></i>
-                Export
-            </button>
-            <%= link_to new_callback_path, class: "btn btn-primary" do %>
-                <i class="fas fa-plus"></i>
-                Add Callback
-            <% end %>
-            <button class="btn btn-secondary" onclick="openModal()">
-                <i class="fas fa-plus"></i>
-                Quick Add
-            </button>
-        </div>
-    </header>
+    <%= turbo_frame_tag "main_content" do %>
+        <!-- Header -->
+        <header class="main-header">
+            <div class="header-left">
+                <h1>Callbacks</h1>
+                <div class="breadcrumb">CRM › Callbacks › Overview</div>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary">
+                    <i class="fas fa-download"></i>
+                    Export
+                </button>
+                <%= link_to new_callback_path, class: "btn btn-primary", data: { turbo_frame: "main_content" } do %>
+                    <i class="fas fa-plus"></i>
+                    Add Callback
+                <% end %>
+                <button class="btn btn-secondary" onclick="openModal()">
+                    <i class="fas fa-plus"></i>
+                    Quick Add
+                </button>
+            </div>
+        </header>
 
     <!-- Toolbar -->
     <div class="toolbar">
@@ -168,6 +169,7 @@
             </div>
         </div>
     </div>
+    <% end %>
 </main>
 
 <!-- Add Callback Modal -->

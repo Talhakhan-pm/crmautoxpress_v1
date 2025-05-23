@@ -68,19 +68,20 @@
 
 <!-- Main Content -->
 <main class="main-content">
-    <!-- Header -->
-    <header class="main-header">
-        <div class="header-left">
-            <h1>New Callback</h1>
-            <div class="breadcrumb">CRM › Callbacks › New</div>
-        </div>
-        <div class="header-actions">
-            <%= link_to callbacks_path, class: "btn btn-secondary" do %>
-                <i class="fas fa-arrow-left"></i>
-                Back to Callbacks
-            <% end %>
-        </div>
-    </header>
+    <%= turbo_frame_tag "main_content" do %>
+        <!-- Header -->
+        <header class="main-header">
+            <div class="header-left">
+                <h1>New Callback</h1>
+                <div class="breadcrumb">CRM › Callbacks › New</div>
+            </div>
+            <div class="header-actions">
+                <%= link_to callbacks_path, class: "btn btn-secondary", data: { turbo_frame: "main_content" } do %>
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Callbacks
+                <% end %>
+            </div>
+        </header>
 
     <!-- Form Content -->
     <div class="content-card">
@@ -164,9 +165,10 @@
             </div>
 
             <div class="form-actions">
-                <%= link_to "Cancel", callbacks_path, class: "btn btn-secondary" %>
+                <%= link_to "Cancel", callbacks_path, class: "btn btn-secondary", data: { turbo_frame: "main_content" } %>
                 <%= form.submit "Create Callback", class: "btn btn-primary" %>
             </div>
         <% end %>
     </div>
+    <% end %>
 </main>
