@@ -15,10 +15,14 @@ class CallbacksController < ApplicationController
   def create
     @callback = AgentCallback.new(callback_params)
     
-    if @callback.save
-      redirect_to callbacks_path, notice: 'Callback was successfully created.'
-    else
-      render :new, status: :unprocessable_entity
+    respond_to do |format|
+      if @callback.save
+        format.html { redirect_to callbacks_path, notice: 'Callback was successfully created.' }
+        format.turbo_stream { redirect_to callbacks_path, notice: 'Callback was successfully created.' }
+      else
+        format.html { render :new, status: :unprocessable_entity }
+        format.turbo_stream { render :new, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -26,16 +30,23 @@ class CallbacksController < ApplicationController
   end
 
   def update
-    if @callback.update(callback_params)
-      redirect_to callbacks_path, notice: 'Callback was successfully updated.'
-    else
-      render :edit, status: :unprocessable_entity
+    respond_to do |format|
+      if @callback.update(callback_params)
+        format.html { redirect_to callbacks_path, notice: 'Callback was successfully updated.' }
+        format.turbo_stream { redirect_to callbacks_path, notice: 'Callback was successfully updated.' }
+      else
+        format.html { render :edit, status: :unprocessable_entity }
+        format.turbo_stream { render :edit, status: :unprocessable_entity }
+      end
     end
   end
 
   def destroy
     @callback.destroy
-    redirect_to callbacks_path, notice: 'Callback was successfully deleted.'
+    respond_to do |format|
+      format.html { redirect_to callbacks_path, notice: 'Callback was successfully deleted.' }
+      format.turbo_stream { head :ok }
+    end
   end
 
   private

@@ -12,4 +12,8 @@ class AgentCallback < ApplicationRecord
   validates :phone_number, presence: true
   validates :product, presence: true
   validates :status, presence: true
+
+  after_create_commit { broadcast_prepend_to "callbacks", target: "callbacks" }
+  after_update_commit { broadcast_replace_to "callbacks" }
+  after_destroy_commit { broadcast_remove_to "callbacks" }
 end

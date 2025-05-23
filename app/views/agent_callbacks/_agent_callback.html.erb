@@ -1,0 +1,21 @@
+<tr id="<%= dom_id(agent_callback) %>">
+    <td><%= agent_callback.created_at.strftime('%Y-%m-%d') %></td>
+    <td><span class="status-badge status-<%= agent_callback.status %>"><%= agent_callback.status.humanize %></span></td>
+    <td><%= agent_callback.product %></td>
+    <td><%= agent_callback.car_make_model %></td>
+    <td><%= agent_callback.year %></td>
+    <td><%= agent_callback.zip_code %></td>
+    <td><%= agent_callback.customer_name %></td>
+    <td><%= agent_callback.phone_number %></td>
+    <td><%= agent_callback.follow_up_date %></td>
+    <td><%= agent_callback.agent %></td>
+    <td>
+        <%= link_to edit_callback_path(agent_callback), class: "action-btn" do %>
+            <i class="fas fa-edit"></i>
+        <% end %>
+        <button class="action-btn"><i class="fas fa-phone"></i></button>
+        <%= link_to callback_path(agent_callback), method: :delete, class: "action-btn", confirm: "Are you sure?" do %>
+            <i class="fas fa-trash"></i>
+        <% end %>
+    </td>
+</tr>

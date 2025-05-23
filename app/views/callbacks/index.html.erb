@@ -1,6 +1,7 @@
 <!-- Main Content -->
 <main class="main-content">
     <%= turbo_frame_tag "main_content" do %>
+        <%= turbo_stream_from "callbacks" %>
         <!-- Header -->
         <header class="main-header">
             <div class="header-left">
@@ -68,9 +69,9 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="callbacks">
                     <% @callbacks.each do |callback| %>
-                        <tr>
+                        <tr id="<%= dom_id(callback) %>">
                             <td><%= callback.created_at.strftime('%Y-%m-%d') %></td>
                             <td><span class="status-badge status-<%= callback.status %>"><%= callback.status.humanize %></span></td>
                             <td><%= callback.product %></td>
