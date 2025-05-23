@@ -13,73 +13,75 @@
   </head>
 
   <body>
-    <!-- Sidebar -->
-    <nav class="sidebar">
-        <div class="sidebar-header">
-            <div class="logo">
-                <i class="fas fa-car"></i>
-                <span>AutoXpress</span>
-            </div>
-        </div>
-        
-        <div class="nav-menu">
-            <div class="nav-section">
-                <div class="nav-section-title">CRM</div>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-tachometer-alt"></i>
-                    <span>Dashboard</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span>Orders</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-truck"></i>
-                    <span>Dispatching</span>
-                </a>
-                <%= link_to callbacks_path, class: "nav-item active" do %>
-                    <i class="fas fa-phone"></i>
-                    <span>Callbacks</span>
-                <% end %>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-users"></i>
-                    <span>Customers</span>
-                </a>
-            </div>
-            
-            <div class="nav-section">
-                <div class="nav-section-title">Management</div>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-user-tie"></i>
-                    <span>Agents</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-boxes"></i>
-                    <span>Products</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-undo"></i>
-                    <span>Refunds & Returns</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-industry"></i>
-                    <span>Suppliers</span>
-                </a>
-            </div>
-            
-            <div class="nav-section">
-                <div class="nav-section-title">System</div>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-link"></i>
-                    <span>Links</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-file-invoice"></i>
-                    <span>Invoicebook</span>
-                </a>
-            </div>
-        </div>
-    </nav>
+    <% unless devise_controller? %>
+      <!-- Sidebar -->
+      <nav class="sidebar">
+          <div class="sidebar-header">
+              <div class="logo">
+                  <i class="fas fa-car"></i>
+                  <span>AutoXpress</span>
+              </div>
+          </div>
+          
+          <div class="nav-menu">
+              <div class="nav-section">
+                  <div class="nav-section-title">CRM</div>
+                  <a href="#" class="nav-item">
+                      <i class="fas fa-tachometer-alt"></i>
+                      <span>Dashboard</span>
+                  </a>
+                  <a href="#" class="nav-item">
+                      <i class="fas fa-shopping-cart"></i>
+                      <span>Orders</span>
+                  </a>
+                  <a href="#" class="nav-item">
+                      <i class="fas fa-truck"></i>
+                      <span>Dispatching</span>
+                  </a>
+                  <%= link_to callbacks_path, class: "nav-item active" do %>
+                      <i class="fas fa-phone"></i>
+                      <span>Callbacks</span>
+                  <% end %>
+                  <a href="#" class="nav-item">
+                      <i class="fas fa-users"></i>
+                      <span>Customers</span>
+                  </a>
+              </div>
+              
+              <div class="nav-section">
+                  <div class="nav-section-title">Management</div>
+                  <a href="#" class="nav-item">
+                      <i class="fas fa-user-tie"></i>
+                      <span>Agents</span>
+                  </a>
+                  <a href="#" class="nav-item">
+                      <i class="fas fa-boxes"></i>
+                      <span>Products</span>
+                  </a>
+                  <a href="#" class="nav-item">
+                      <i class="fas fa-undo"></i>
+                      <span>Refunds & Returns</span>
+                  </a>
+                  <a href="#" class="nav-item">
+                      <i class="fas fa-industry"></i>
+                      <span>Suppliers</span>
+                  </a>
+              </div>
+              
+              <div class="nav-section">
+                  <div class="nav-section-title">System</div>
+                  <a href="#" class="nav-item">
+                      <i class="fas fa-link"></i>
+                      <span>Links</span>
+                  </a>
+                  <a href="#" class="nav-item">
+                      <i class="fas fa-file-invoice"></i>
+                      <span>Invoicebook</span>
+                  </a>
+              </div>
+          </div>
+      </nav>
+    <% end %>
 
     <%= yield %>
   </body>
