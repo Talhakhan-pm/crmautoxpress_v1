@@ -1,19 +1,17 @@
-<!-- Main Content -->
-<main class="main-content">
-    <%= turbo_frame_tag "main_content" do %>
-        <!-- Header -->
-        <header class="main-header">
-            <div class="header-left">
-                <h1>New Callback</h1>
-                <div class="breadcrumb">CRM › Callbacks › New</div>
-            </div>
-            <div class="header-actions">
-                <%= link_to callbacks_path, class: "btn btn-secondary", data: { turbo_frame: "main_content" } do %>
-                    <i class="fas fa-arrow-left"></i>
-                    Back to Callbacks
-                <% end %>
-            </div>
-        </header>
+<%= turbo_stream.replace "main_content" do %>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="header-left">
+            <h1>New Callback</h1>
+            <div class="breadcrumb">CRM › Callbacks › New</div>
+        </div>
+        <div class="header-actions">
+            <%= link_to callbacks_path, class: "btn btn-secondary", data: { turbo_frame: "main_content" } do %>
+                <i class="fas fa-arrow-left"></i>
+                Back to Callbacks
+            <% end %>
+        </div>
+    </header>
 
     <!-- Form Content -->
     <div class="content-card">
@@ -136,5 +134,4 @@
             </div>
         <% end %>
     </div>
-    <% end %>
-</main>
+<% end %>

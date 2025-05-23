@@ -14,7 +14,7 @@ class CallbacksController < ApplicationController
   end
 
   def create
-    @callback = AgentCallback.new(callback_params)
+    @callback = current_user.agent_callbacks.build(callback_params)
     
     respond_to do |format|
       if @callback.save

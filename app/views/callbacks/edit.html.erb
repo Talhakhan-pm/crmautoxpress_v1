@@ -1,0 +1,202 @@
+<main class="main-content">
+    <!-- Header -->
+    <header class="main-header">
+        <div class="header-left">
+            <h1>Edit Callback #CB-<%= Date.current.year %>-<%= @callback.id.to_s.rjust(4, '0') %></h1>
+            <div class="breadcrumb">CRM › Callbacks › <%= link_to "Callback Details", callback_path(@callback), style: "color: #dc2626; text-decoration: none;" %> › Edit</div>
+        </div>
+        <div class="header-actions">
+            <%= link_to callback_path(@callback), class: "btn btn-secondary" do %>
+                <i class="fas fa-arrow-left"></i>
+                Back to Details
+            <% end %>
+            <button form="callback-form" type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i>
+                Save Changes
+            </button>
+        </div>
+    </header>
+
+    <!-- Content -->
+    <div class="content-card">
+        <div class="callback-form">
+            <%= form_with model: @callback, url: callback_path(@callback), method: :patch, local: false, id: "callback-form", data: { turbo_frame: "_top" } do |form| %>
+                
+                <!-- Error Messages -->
+                <% if @callback.errors.any? %>
+                    <div class="alert alert-danger">
+                        <h4><%= pluralize(@callback.errors.count, "error") %> prohibited this callback from being saved:</h4>
+                        <ul>
+                            <% @callback.errors.full_messages.each do |message| %>
+                                <li><%= message %></li>
+                            <% end %>
+                        </ul>
+                    </div>
+                <% end %>
+
+                <!-- Customer Information Section -->
+                <div class="form-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-user"></i>
+                        Customer Information
+                    </h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <%= form.label :customer_name, "Customer Name", class: "form-label" %>
+                            <%= form.text_field :customer_name, class: "form-input", placeholder: "Enter customer name" %>
+                        </div>
+                        <div class="form-group">
+                            <%= form.label :phone_number, "Phone Number", class: "form-label" %>
+                            <%= form.telephone_field :phone_number, class: "form-input", placeholder: "(xxx) xxx-xxxx" %>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <%= form.label :zip_code, "ZIP Code", class: "form-label" %>
+                        <%= form.text_field :zip_code, class: "form-input", placeholder: "12345", style: "max-width: 200px;" %>
+                    </div>
+                </div>
+
+                <!-- Vehicle Information Section -->
+                <div class="form-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-car"></i>
+                        Vehicle Information
+                    </h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <%= form.label :car_make_model, "Car Make & Model", class: "form-label" %>
+                            <%= form.text_field :car_make_model, class: "form-input", placeholder: "e.g., Ford Fusion" %>
+                        </div>
+                        <div class="form-group">
+                            <%= form.label :year, "Year", class: "form-label" %>
+                            <%= form.number_field :year, class: "form-input", placeholder: "2023" %>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Information Section -->
+                <div class="form-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-cog"></i>
+                        Product Information
+                    </h2>
+                    
+                    <div class="form-group">
+                        <%= form.label :product, "Product", class: "form-label" %>
+                        <%= form.text_field :product, class: "form-input", placeholder: "Enter product name" %>
+                    </div>
+                </div>
+
+                <!-- Callback Management Section -->
+                <div class="form-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-tasks"></i>
+                        Callback Management
+                    </h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <%= form.label :status, "Status", class: "form-label" %>
+                            <%= form.select :status, options_for_select([
+                                ['Pending', 'pending'],
+                                ['Follow-up Later', 'later'],
+                                ['Interested', 'interested'],
+                                ['Already Purchased', 'purchased'],
+                                ['Answered', 'answered'],
+                                ['Sold', 'sold']
+                            ], @callback.status), {}, { class: "form-select" } %>
+                        </div>
+                        <div class="form-group">
+                            <%= form.label :follow_up_date, "Follow-up Date", class: "form-label" %>
+                            <%= form.date_field :follow_up_date, class: "form-input" %>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <%= form.label :agent, "Assigned Agent", class: "form-label" %>
+                        <%= form.select :agent, options_for_select([
+                            ['Ayesha Rahman', 'Ayesha Rahman'],
+                            ['Murtaza Khan', 'Murtaza Khan'],
+                            ['Roy Smith', 'Roy Smith'],
+                            ['Khan Ali', 'Khan Ali'],
+                            ['Luis Garcia', 'Luis Garcia']
+                        ], @callback.agent), {}, { class: "form-select", style: "max-width: 300px;" } %>
+                    </div>
+                </div>
+
+                <!-- Notes Section -->
+                <div class="form-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-sticky-note"></i>
+                        Additional Notes
+                    </h2>
+                    
+                    <div class="form-group">
+                        <%= form.label :notes, "Notes", class: "form-label" %>
+                        <%= form.text_area :notes, class: "form-textarea", placeholder: "Add any additional notes about this callback...", rows: 4 %>
+                        <small class="text-muted">Include any relevant information about customer preferences, call history, or special requirements.</small>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <%= link_to callback_path(@callback), class: "btn btn-secondary" do %>
+                        <i class="fas fa-times"></i>
+                        Cancel
+                    <% end %>
+                    <%= form.submit "Save Changes", class: "btn btn-primary" do %>
+                        <i class="fas fa-save"></i>
+                        Save Changes
+                    <% end %>
+                </div>
+            <% end %>
+        </div>
+    </div>
+</main>
+
+<script>
+    // Form validation and enhancement
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('callback-form');
+        const phoneInput = document.querySelector('input[name="agent_callback[phone_number]"]');
+        
+        // Phone number formatting
+        if (phoneInput) {
+            phoneInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 6) {
+                    value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6,10)}`;
+                } else if (value.length >= 3) {
+                    value = `(${value.slice(0,3)}) ${value.slice(3)}`;
+                }
+                e.target.value = value;
+            });
+        }
+        
+        // Form submission feedback
+        form.addEventListener('submit', function() {
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                submitBtn.disabled = true;
+            }
+        });
+    });
+    
+    // Handle Turbo form responses
+    document.addEventListener('turbo:submit-end', function(event) {
+        if (event.detail.success) {
+            console.log('Form submitted successfully');
+        } else {
+            // Re-enable form if there were errors
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+                submitBtn.disabled = false;
+            }
+        }
+    });
+</script>
