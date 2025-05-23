@@ -168,7 +168,97 @@ To implement this pattern for any other model (e.g., `products`):
 ## System dependencies
 * Redis server
 
+## Live Broadcasting Implementation Guide
+
+### Real-time Updates with Turbo Streams
+
+The callbacks table now supports live broadcasting - users will see real-time updates when callbacks are created, updated, or deleted across all browser sessions.
+
+#### How It Works
+
+1. **Model Broadcasting**: The `AgentCallback` model automatically broadcasts changes:
+```ruby
+# app/models/agent_callback.rb
+after_create_commit { broadcast_prepend_to "callbacks", target: "callbacks" }
+after_update_commit { broadcast_replace_to "callbacks" }
+after_destroy_commit { broadcast_remove_to "callbacks" }
+```
+
+2. **View Subscription**: The index view subscribes to live updates:
+```erb
+<!-- app/views/callbacks/index.html.erb -->
+<%= turbo_stream_from "callbacks" %>
+<tbody id="callbacks">
+  <% @callbacks.each do |callback| %>
+    <tr id="<%= dom_id(callback) %>">
+      <!-- callback data -->
+    </tr>
+  <% end %>
+</tbody>
+```
+
+3. **Partial Template**: Individual callback rows are rendered using:
+```erb
+<!-- app/views/agent_callbacks/_agent_callback.html.erb -->
+<tr id="<%= dom_id(agent_callback) %>">
+  <!-- callback row content -->
+</tr>
+```
+
+4. **Controller Support**: Controllers handle turbo stream responses:
+```ruby
+def create
+  respond_to do |format|
+    if @callback.save
+      format.html { redirect_to callbacks_path, notice: 'Callback was successfully created.' }
+      format.turbo_stream { redirect_to callbacks_path, notice: 'Callback was successfully created.' }
+    else
+      format.html { render :new, status: :unprocessable_entity }
+      format.turbo_stream { render :new, status: :unprocessable_entity }
+    end
+  end
+end
+```
+
+#### Live Update Behaviors
+
+- **New Callback Created**: Appears at the top of the table instantly
+- **Callback Updated**: Row updates with new data in real-time
+- **Callback Deleted**: Row disappears immediately
+
+#### Requirements for Live Broadcasting
+
+1. **Redis Server**: Must be running for ActionCable
+   ```bash
+   redis-server
+   ```
+
+2. **Cable Configuration**: Already set up in `config/cable.yml`:
+   ```yaml
+   development:
+     adapter: async
+   production:
+     adapter: redis
+   ```
+
+3. **ActionCable Integration**: No additional JavaScript imports needed - Turbo Rails handles ActionCable automatically
+
+#### Testing Live Broadcasting
+
+1. Open multiple browser windows to the callbacks index
+2. Create/edit/delete a callback in one window
+3. Watch the changes appear instantly in all other windows
+4. Check browser network tab for WebSocket connections
+
+#### Troubleshooting Live Updates
+
+- **No live updates**: Check if Redis is running
+- **WebSocket errors**: Verify ActionCable routes in `config/routes.rb`
+- **Updates not appearing**: Ensure `turbo_stream_from "callbacks"` is in the view
+- **Wrong target**: Verify `tbody id="callbacks"` matches the broadcast target
+
 ## Getting Started
 * `bundle install`
 * `rails db:create db:migrate db:seed`
+* Start Redis: `redis-server`
 * `rails server`
