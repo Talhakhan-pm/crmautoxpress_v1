@@ -1,4 +1,4 @@
-<%= turbo_frame_tag "main_content" do %>
+<%= turbo_stream.replace "main_content" do %>
     <%= turbo_stream_from "callback_#{@callback.id}_activities" %>
     <!-- Header -->
     <header class="main-header">
@@ -165,55 +165,54 @@
             </div>
         </div>
     </div>
-</main>
 
-<script>
-    // Tab switching functionality
-    document.querySelectorAll('.tab-item').forEach(tab => {
-        tab.addEventListener('click', function() {
-            // Remove active class from all tabs
-            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
-            
-            // Add active class to clicked tab
-            this.classList.add('active');
-            
-            // Show corresponding content
-            const index = Array.from(this.parentNode.children).indexOf(this);
-            document.querySelectorAll('.tab-content')[index].style.display = 'block';
+    <script>
+        // Tab switching functionality
+        document.querySelectorAll('.tab-item').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs
+                document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+                
+                // Add active class to clicked tab
+                this.classList.add('active');
+                
+                // Show corresponding content
+                const index = Array.from(this.parentNode.children).indexOf(this);
+                document.querySelectorAll('.tab-content')[index].style.display = 'block';
+            });
         });
-    });
 
-    // Filter functionality
-    function applyActivityFilter() {
-        const activeFilter = document.querySelector('.filter-chip.active');
-        if (!activeFilter) return;
+        // Filter functionality
+        function applyActivityFilter() {
+            const activeFilter = document.querySelector('.filter-chip.active');
+            if (!activeFilter) return;
+            
+            const filter = activeFilter.dataset.filter;
+            const activityItems = document.querySelectorAll('.activity-item');
+            
+            activityItems.forEach(item => {
+                if (filter === 'all' || item.dataset.action === filter) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
         
-        const filter = activeFilter.dataset.filter;
-        const activityItems = document.querySelectorAll('.activity-item');
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                applyActivityFilter();
+            });
+        });
         
-        activityItems.forEach(item => {
-            if (filter === 'all' || item.dataset.action === filter) {
-                item.style.display = 'block';
-            } else {
-                item.style.display = 'none';
-            }
+        // Apply filter to new items when they're added via turbo streams
+        document.addEventListener('turbo:before-stream-render', function(event) {
+            setTimeout(() => {
+                applyActivityFilter();
+            }, 10);
         });
-    }
-    
-    document.querySelectorAll('.filter-chip').forEach(chip => {
-        chip.addEventListener('click', function() {
-            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-            this.classList.add('active');
-            applyActivityFilter();
-        });
-    });
-    
-    // Apply filter to new items when they're added via turbo streams
-    document.addEventListener('turbo:before-stream-render', function(event) {
-        setTimeout(() => {
-            applyActivityFilter();
-        }, 10);
-    });
-</script>
+    </script>
 <% end %>
