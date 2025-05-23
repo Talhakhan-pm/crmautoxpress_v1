@@ -117,12 +117,8 @@
                     
                     <div class="form-group">
                         <%= form.label :agent, "Assigned Agent", class: "form-label" %>
-                        <%= form.hidden_field :agent, value: current_user.email %>
-                        <div class="form-input-readonly">
-                            <i class="fas fa-user"></i>
-                            <%= current_user.email %>
-                        </div>
-                        <small class="text-muted">You are editing this callback</small>
+                        <%= form.select :agent, options_from_collection_for_select(User.all, :email, :email, @callback.agent), 
+                            { prompt: 'Select agent' }, { class: "form-select", style: "max-width: 300px;" } %>
                     </div>
                 </div>
 
