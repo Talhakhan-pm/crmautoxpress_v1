@@ -1,0 +1,28 @@
+<div class="activity-item" data-action="<%= activity.action %>" id="<%= dom_id(activity) %>">
+    <div class="activity-content">
+        <div class="activity-main">
+            <div class="activity-text">
+                <strong><%= activity.action.humanize %></strong>
+                <% if activity.field_changed.present? %>
+                    field '<%= activity.field_changed.humanize %>'
+                <% elsif activity.action == 'viewed' %>
+                    callback details
+                <% elsif activity.action == 'created' %>
+                    callback
+                <% end %>
+            </div>
+            <div class="activity-time"><%= time_ago_in_words(activity.created_at) %> ago</div>
+        </div>
+        <% if activity.old_value.present? && activity.new_value.present? %>
+            <div class="activity-change">
+                <span class="change-from"><%= activity.old_value %></span>
+                <i class="fas fa-arrow-right" style="color: #6b7280; font-size: 10px;"></i>
+                <span class="change-to"><%= activity.new_value %></span>
+            </div>
+        <% end %>
+        <div class="activity-user">
+            <div class="user-avatar"><%= activity.user.email.first(2).upcase %></div>
+            <span class="user-name"><%= activity.user.email %></span>
+        </div>
+    </div>
+</div>

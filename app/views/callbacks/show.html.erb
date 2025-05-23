@@ -1,3 +1,4 @@
+<%= turbo_stream_from "callback_#{@callback.id}_activities" %>
 <main class="main-content">
     <!-- Header -->
     <header class="main-header">
@@ -83,15 +84,15 @@
                 <div class="tab-content" style="display: none;">
                     <div class="metrics-grid">
                         <div class="metric-card">
-                            <div class="metric-value"><%= @callback.activities.where(action: 'viewed').count %></div>
+                            <div class="metric-value" id="total-views"><%= @callback.activities.where(action: 'viewed').count %></div>
                             <div class="metric-label">Total Views</div>
                         </div>
                         <div class="metric-card">
-                            <div class="metric-value"><%= @callback.activities.where(action: 'updated').count %></div>
+                            <div class="metric-value" id="total-edits"><%= @callback.activities.where(action: 'updated').count %></div>
                             <div class="metric-label">Edits Made</div>
                         </div>
                         <div class="metric-card">
-                            <div class="metric-value"><%= @callback.activities.joins(:user).distinct('users.id').count('users.id') %></div>
+                            <div class="metric-value" id="agents-involved"><%= @callback.activities.joins(:user).distinct('users.id').count('users.id') %></div>
                             <div class="metric-label">Agents Involved</div>
                         </div>
                     </div>
@@ -146,7 +147,7 @@
                 <div class="activity-title">
                     <i class="fas fa-history"></i>
                     Activity Log
-                    <span class="activity-count"><%= @callback.activities.count %></span>
+                    <span class="activity-count" id="activity-count"><%= @callback.activities.count %></span>
                 </div>
             </div>
 
@@ -157,36 +158,9 @@
                 <div class="filter-chip" data-filter="created">Created</div>
             </div>
 
-            <div class="activity-list">
+            <div class="activity-list" id="activity-list">
                 <% @callback.activities.recent.includes(:user).each do |activity| %>
-                    <div class="activity-item" data-action="<%= activity.action %>">
-                        <div class="activity-content">
-                            <div class="activity-main">
-                                <div class="activity-text">
-                                    <strong><%= activity.action.humanize %></strong>
-                                    <% if activity.field_changed.present? %>
-                                        field '<%= activity.field_changed.humanize %>'
-                                    <% elsif activity.action == 'viewed' %>
-                                        callback details
-                                    <% elsif activity.action == 'created' %>
-                                        callback
-                                    <% end %>
-                                </div>
-                                <div class="activity-time"><%= time_ago_in_words(activity.created_at) %> ago</div>
-                            </div>
-                            <% if activity.old_value.present? && activity.new_value.present? %>
-                                <div class="activity-change">
-                                    <span class="change-from"><%= activity.old_value %></span>
-                                    <i class="fas fa-arrow-right" style="color: #6b7280; font-size: 10px;"></i>
-                                    <span class="change-to"><%= activity.new_value %></span>
-                                </div>
-                            <% end %>
-                            <div class="activity-user">
-                                <div class="user-avatar"><%= activity.user.email.first(2).upcase %></div>
-                                <span class="user-name"><%= activity.user.email %></span>
-                            </div>
-                        </div>
-                    </div>
+                    <%= render 'activities/activity', activity: activity %>
                 <% end %>
             </div>
         </div>
@@ -211,21 +185,34 @@
     });
 
     // Filter functionality
+    function applyActivityFilter() {
+        const activeFilter = document.querySelector('.filter-chip.active');
+        if (!activeFilter) return;
+        
+        const filter = activeFilter.dataset.filter;
+        const activityItems = document.querySelectorAll('.activity-item');
+        
+        activityItems.forEach(item => {
+            if (filter === 'all' || item.dataset.action === filter) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+    
     document.querySelectorAll('.filter-chip').forEach(chip => {
         chip.addEventListener('click', function() {
             document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
             this.classList.add('active');
-            
-            const filter = this.dataset.filter;
-            const activityItems = document.querySelectorAll('.activity-item');
-            
-            activityItems.forEach(item => {
-                if (filter === 'all' || item.dataset.action === filter) {
-                    item.style.display = 'block';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
+            applyActivityFilter();
         });
+    });
+    
+    // Apply filter to new items when they're added via turbo streams
+    document.addEventListener('turbo:before-stream-render', function(event) {
+        setTimeout(() => {
+            applyActivityFilter();
+        }, 10);
     });
 </script>
