@@ -78,7 +78,7 @@
                             <td><%= callback.car_make_model %></td>
                             <td><%= callback.year %></td>
                             <td><%= callback.zip_code %></td>
-                            <td><%= callback.customer_name %></td>
+                            <td><%= link_to callback.customer_name, callback_path(callback), style: "color: #dc2626; text-decoration: none; font-weight: 500;" %></td>
                             <td><%= callback.phone_number %></td>
                             <td><%= callback.follow_up_date %></td>
                             <td><%= callback.agent %></td>

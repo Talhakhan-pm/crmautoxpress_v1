@@ -10,7 +10,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_05_23_133629) do
+ActiveRecord::Schema[7.1].define(version: 2025_05_23_192648) do
+  create_table "activities", force: :cascade do |t|
+    t.string "trackable_type", null: false
+    t.integer "trackable_id", null: false
+    t.integer "user_id", null: false
+    t.string "action"
+    t.string "field_changed"
+    t.text "old_value"
+    t.text "new_value"
+    t.string "ip_address"
+    t.text "user_agent"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["trackable_type", "trackable_id"], name: "index_activities_on_trackable"
+    t.index ["user_id"], name: "index_activities_on_user_id"
+  end
+
   create_table "agent_callbacks", force: :cascade do |t|
     t.string "customer_name"
     t.string "phone_number"
@@ -24,6 +40,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_23_133629) do
     t.text "notes"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "user_id"
+    t.index ["user_id"], name: "index_agent_callbacks_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -38,4 +56,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_23_133629) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "activities", "users"
+  add_foreign_key "agent_callbacks", "users"
 end

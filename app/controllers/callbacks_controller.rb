@@ -6,6 +6,7 @@ class CallbacksController < ApplicationController
   end
 
   def show
+    @callback.track_view
   end
 
   def new

@@ -1,0 +1,231 @@
+<main class="main-content">
+    <!-- Header -->
+    <header class="main-header">
+        <div class="header-left">
+            <h1>Callback #CB-<%= Date.current.year %>-<%= @callback.id.to_s.rjust(4, '0') %></h1>
+            <div class="breadcrumb">CRM › Callbacks › Callback Details</div>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-secondary">
+                <i class="fas fa-phone"></i>
+                Call Customer
+            </button>
+            <%= link_to edit_callback_path(@callback), class: "btn btn-primary" do %>
+                <i class="fas fa-edit"></i>
+                Edit Callback
+            <% end %>
+        </div>
+    </header>
+
+    <!-- Content -->
+    <div class="content-container">
+        <!-- Main Callback Detail -->
+        <div class="callback-detail">
+            <div class="callback-header">
+                <h2 class="callback-title">Callback Details</h2>
+            </div>
+            
+            <div class="callback-content">
+                <div class="tab-container">
+                    <div class="tab-list">
+                        <div class="tab-item active">Details</div>
+                        <div class="tab-item">Performance</div>
+                        <div class="tab-item">Analytics</div>
+                    </div>
+                </div>
+
+                <!-- Tab Content: Details -->
+                <div class="tab-content active">
+                    <div class="field-group">
+                        <div class="field">
+                            <div class="field-label">Customer</div>
+                            <div class="field-value"><%= @callback.customer_name %></div>
+                        </div>
+                        <div class="field">
+                            <div class="field-label">Phone</div>
+                            <div class="field-value"><%= @callback.phone_number %></div>
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <div class="field">
+                            <div class="field-label">Product</div>
+                            <div class="field-value"><%= @callback.product %></div>
+                        </div>
+                        <div class="field">
+                            <div class="field-label">Status</div>
+                            <div class="field-value">
+                                <span class="status-badge status-<%= @callback.status %>"><%= @callback.status.humanize %></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <div class="field">
+                            <div class="field-label">Vehicle</div>
+                            <div class="field-value"><%= @callback.year %> <%= @callback.car_make_model %></div>
+                        </div>
+                        <div class="field">
+                            <div class="field-label">Assigned Agent</div>
+                            <div class="field-value"><%= @callback.agent %></div>
+                        </div>
+                    </div>
+
+                    <% if @callback.notes.present? %>
+                    <div class="field">
+                        <div class="field-label">Notes</div>
+                        <div class="field-value"><%= @callback.notes %></div>
+                    </div>
+                    <% end %>
+                </div>
+
+                <!-- Tab Content: Performance (hidden by default) -->
+                <div class="tab-content" style="display: none;">
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-value"><%= @callback.activities.where(action: 'viewed').count %></div>
+                            <div class="metric-label">Total Views</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value"><%= @callback.activities.where(action: 'updated').count %></div>
+                            <div class="metric-label">Edits Made</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value"><%= @callback.activities.joins(:user).distinct('users.id').count('users.id') %></div>
+                            <div class="metric-label">Agents Involved</div>
+                        </div>
+                    </div>
+
+                    <div class="performance-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-users"></i>
+                            Agent Performance
+                        </h3>
+                        <div class="agent-list">
+                            <% @callback.activities.joins(:user).group('users.id', 'users.email').count.each do |user_data, activity_count| %>
+                                <% user_id, user_email = user_data %>
+                                <% user = User.find(user_id) %>
+                                <div class="agent-row">
+                                    <div class="agent-info">
+                                        <div class="agent-avatar"><%= user_email.first(2).upcase %></div>
+                                        <div class="agent-name"><%= user_email %></div>
+                                    </div>
+                                    <div class="agent-stats">
+                                        <div class="stat-item">
+                                            <div class="stat-value"><%= @callback.activities.where(user: user, action: 'viewed').count %></div>
+                                            <div class="stat-label">Views</div>
+                                        </div>
+                                        <div class="stat-item">
+                                            <div class="stat-value"><%= @callback.activities.where(user: user, action: 'updated').count %></div>
+                                            <div class="stat-label">Edits</div>
+                                        </div>
+                                        <div class="stat-item">
+                                            <div class="stat-value"><%= activity_count %></div>
+                                            <div class="stat-label">Total Actions</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% end %>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Content: Analytics (hidden by default) -->
+                <div class="tab-content" style="display: none;">
+                    <div class="analytics-section">
+                        <h3>Activity Timeline</h3>
+                        <p>Analytics and charts will be implemented here.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Panel -->
+        <div class="activity-panel">
+            <div class="activity-header">
+                <div class="activity-title">
+                    <i class="fas fa-history"></i>
+                    Activity Log
+                    <span class="activity-count"><%= @callback.activities.count %></span>
+                </div>
+            </div>
+
+            <div class="activity-filters">
+                <div class="filter-chip active" data-filter="all">All</div>
+                <div class="filter-chip" data-filter="viewed">Views</div>
+                <div class="filter-chip" data-filter="updated">Edits</div>
+                <div class="filter-chip" data-filter="created">Created</div>
+            </div>
+
+            <div class="activity-list">
+                <% @callback.activities.recent.includes(:user).each do |activity| %>
+                    <div class="activity-item" data-action="<%= activity.action %>">
+                        <div class="activity-content">
+                            <div class="activity-main">
+                                <div class="activity-text">
+                                    <strong><%= activity.action.humanize %></strong>
+                                    <% if activity.field_changed.present? %>
+                                        field '<%= activity.field_changed.humanize %>'
+                                    <% elsif activity.action == 'viewed' %>
+                                        callback details
+                                    <% elsif activity.action == 'created' %>
+                                        callback
+                                    <% end %>
+                                </div>
+                                <div class="activity-time"><%= time_ago_in_words(activity.created_at) %> ago</div>
+                            </div>
+                            <% if activity.old_value.present? && activity.new_value.present? %>
+                                <div class="activity-change">
+                                    <span class="change-from"><%= activity.old_value %></span>
+                                    <i class="fas fa-arrow-right" style="color: #6b7280; font-size: 10px;"></i>
+                                    <span class="change-to"><%= activity.new_value %></span>
+                                </div>
+                            <% end %>
+                            <div class="activity-user">
+                                <div class="user-avatar"><%= activity.user.email.first(2).upcase %></div>
+                                <span class="user-name"><%= activity.user.email %></span>
+                            </div>
+                        </div>
+                    </div>
+                <% end %>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    // Tab switching functionality
+    document.querySelectorAll('.tab-item').forEach(tab => {
+        tab.addEventListener('click', function() {
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+            
+            // Add active class to clicked tab
+            this.classList.add('active');
+            
+            // Show corresponding content
+            const index = Array.from(this.parentNode.children).indexOf(this);
+            document.querySelectorAll('.tab-content')[index].style.display = 'block';
+        });
+    });
+
+    // Filter functionality
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.addEventListener('click', function() {
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            
+            const filter = this.dataset.filter;
+            const activityItems = document.querySelectorAll('.activity-item');
+            
+            activityItems.forEach(item => {
+                if (filter === 'all' || item.dataset.action === filter) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>

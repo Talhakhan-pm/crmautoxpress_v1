@@ -1,4 +1,7 @@
 class AgentCallback < ApplicationRecord
+  belongs_to :user
+  has_many :activities, as: :trackable, dependent: :destroy
+  
   enum status: {
     pending: 0,
     later: 1,
@@ -13,6 +16,8 @@ class AgentCallback < ApplicationRecord
   validates :product, presence: true
   validates :status, presence: true
 
+  include Trackable
+  
   after_create_commit { broadcast_prepend_to "callbacks", target: "callbacks" }
   after_update_commit { broadcast_replace_to "callbacks" }
   after_destroy_commit { broadcast_remove_to "callbacks" }
