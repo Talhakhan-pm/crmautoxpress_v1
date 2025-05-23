@@ -86,7 +86,7 @@ Use the same turbo frame ID and add data attributes to back/cancel links:
 - **DO NOT add `data: { turbo_frame: "frame_id" }`** to the form itself - forms automatically submit within their containing frame
 
 #### 6. Controller Requirements
-No special changes needed in the controller. Standard redirect behavior works:
+No special changes needed in the controller. Standard redirect and validation behavior works:
 
 ```ruby
 def create
@@ -95,20 +95,57 @@ def create
   if @callback.save
     redirect_to callbacks_path, notice: 'Callback was successfully created.'
   else
-    render :new, status: :unprocessable_entity
+    render :new, status: :unprocessable_entity  # This renders errors within turbo frame
   end
 end
 ```
 
-#### 7. Critical Requirements Checklist
+#### 7. Validation Error Handling
+Add error display to your form view:
+
+```erb
+<% if @callback.errors.any? %>
+    <div class="alert alert-danger">
+        <h4><%= pluralize(@callback.errors.count, "error") %> prohibited this callback from being saved:</h4>
+        <ul>
+            <% @callback.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+            <% end %>
+        </ul>
+    </div>
+<% end %>
+```
+
+Add CSS for error styling:
+```scss
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    padding: 16px;
+    margin-bottom: 24px;
+    border-radius: 8px;
+}
+
+.field_with_errors input,
+.field_with_errors select,
+.field_with_errors textarea {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+}
+```
+
+#### 8. Critical Requirements Checklist
 - [ ] `bin/rails turbo:install` has been run
 - [ ] Browser console shows "Turbo loaded: yes"
 - [ ] Both views use identical `turbo_frame_tag` ID (e.g., "main_content")
 - [ ] Navigation links include `data: { turbo_frame: "main_content" }`
 - [ ] Forms use `local: true` (not `local: false`)
 - [ ] Forms do NOT have `data: { turbo_frame: "frame_id" }` attribute
+- [ ] Error handling added to form views for validation failures
+- [ ] CSS styling added for error alerts and field highlighting
 
-#### 8. Troubleshooting
+#### 9. Troubleshooting
 If turbo frames aren't working:
 
 1. **Check console**: Should show "Turbo loaded: yes"

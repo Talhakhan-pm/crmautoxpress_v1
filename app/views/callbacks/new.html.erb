@@ -85,6 +85,17 @@
 
     <!-- Form Content -->
     <div class="content-card">
+        <% if @callback.errors.any? %>
+            <div class="alert alert-danger">
+                <h4><%= pluralize(@callback.errors.count, "error") %> prohibited this callback from being saved:</h4>
+                <ul>
+                    <% @callback.errors.full_messages.each do |message| %>
+                        <li><%= message %></li>
+                    <% end %>
+                </ul>
+            </div>
+        <% end %>
+
         <%= form_with model: @callback, url: callbacks_path, local: true, class: "callback-form" do |form| %>
             <div class="form-section">
                 <h3 class="section-title">Customer Information</h3>
