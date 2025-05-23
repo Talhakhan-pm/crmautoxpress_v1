@@ -1,4 +1,4 @@
-<%= turbo_frame_tag "main_content" do %>
+<%= turbo_stream.replace "main_content" do %>
     <!-- Header -->
     <header class="main-header">
         <div class="header-left">
@@ -6,9 +6,9 @@
             <div class="breadcrumb">CRM › Callbacks › <%= link_to "Callback Details", callback_path(@callback), style: "color: #dc2626; text-decoration: none;" %> › Edit</div>
         </div>
         <div class="header-actions">
-            <%= link_to callbacks_path, class: "btn btn-secondary", data: { turbo_frame: "main_content" } do %>
+            <%= link_to callback_path(@callback), class: "btn btn-secondary" do %>
                 <i class="fas fa-arrow-left"></i>
-                Back to Callbacks
+                Back to Details
             <% end %>
             <button form="callback-form" type="submit" class="btn btn-primary">
                 <i class="fas fa-save"></i>
@@ -117,13 +117,12 @@
                     
                     <div class="form-group">
                         <%= form.label :agent, "Assigned Agent", class: "form-label" %>
-                        <%= form.select :agent, options_for_select([
-                            ['Ayesha Rahman', 'Ayesha Rahman'],
-                            ['Murtaza Khan', 'Murtaza Khan'],
-                            ['Roy Smith', 'Roy Smith'],
-                            ['Khan Ali', 'Khan Ali'],
-                            ['Luis Garcia', 'Luis Garcia']
-                        ], @callback.agent), {}, { class: "form-select", style: "max-width: 300px;" } %>
+                        <%= form.hidden_field :agent, value: current_user.email %>
+                        <div class="form-input-readonly">
+                            <i class="fas fa-user"></i>
+                            <%= current_user.email %>
+                        </div>
+                        <small class="text-muted">You are editing this callback</small>
                     </div>
                 </div>
 
@@ -143,7 +142,7 @@
 
                 <!-- Form Actions -->
                 <div class="form-actions">
-                    <%= link_to callbacks_path, class: "btn btn-secondary", data: { turbo_frame: "main_content" } do %>
+                    <%= link_to callback_path(@callback), class: "btn btn-secondary" do %>
                         <i class="fas fa-times"></i>
                         Cancel
                     <% end %>
@@ -155,49 +154,48 @@
             <% end %>
         </div>
     </div>
-</main>
 
-<script>
-    // Form validation and enhancement
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('callback-form');
-        const phoneInput = document.querySelector('input[name="agent_callback[phone_number]"]');
-        
-        // Phone number formatting
-        if (phoneInput) {
-            phoneInput.addEventListener('input', function(e) {
-                let value = e.target.value.replace(/\D/g, '');
-                if (value.length >= 6) {
-                    value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6,10)}`;
-                } else if (value.length >= 3) {
-                    value = `(${value.slice(0,3)}) ${value.slice(3)}`;
+    <script>
+        // Form validation and enhancement
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('callback-form');
+            const phoneInput = document.querySelector('input[name="agent_callback[phone_number]"]');
+            
+            // Phone number formatting
+            if (phoneInput) {
+                phoneInput.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    if (value.length >= 6) {
+                        value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6,10)}`;
+                    } else if (value.length >= 3) {
+                        value = `(${value.slice(0,3)}) ${value.slice(3)}`;
+                    }
+                    e.target.value = value;
+                });
+            }
+            
+            // Form submission feedback
+            form.addEventListener('submit', function() {
+                const submitBtn = form.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                    submitBtn.disabled = true;
                 }
-                e.target.value = value;
             });
-        }
+        });
         
-        // Form submission feedback
-        form.addEventListener('submit', function() {
-            const submitBtn = form.querySelector('button[type="submit"]');
-            if (submitBtn) {
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-                submitBtn.disabled = true;
+        // Handle Turbo form responses
+        document.addEventListener('turbo:submit-end', function(event) {
+            if (event.detail.success) {
+                console.log('Form submitted successfully');
+            } else {
+                // Re-enable form if there were errors
+                const submitBtn = event.target.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+                    submitBtn.disabled = false;
+                }
             }
         });
-    });
-    
-    // Handle Turbo form responses
-    document.addEventListener('turbo:submit-end', function(event) {
-        if (event.detail.success) {
-            console.log('Form submitted successfully');
-        } else {
-            // Re-enable form if there were errors
-            const submitBtn = event.target.querySelector('button[type="submit"]');
-            if (submitBtn) {
-                submitBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
-                submitBtn.disabled = false;
-            }
-        }
-    });
-</script>
+    </script>
 <% end %>
