@@ -20,6 +20,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Handle form submission
+    const callbackForm = document.getElementById('callback-form');
+    if (callbackForm) {
+        callbackForm.addEventListener('submit', function(e) {
+            // Form will submit normally, but we can add validation here if needed
+            console.log('Submitting callback form...');
+        });
+    }
+
     // Filter functionality
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.addEventListener('click', function() {

@@ -79,9 +79,13 @@
                 <i class="fas fa-download"></i>
                 Export
             </button>
-            <button class="btn btn-primary" onclick="openModal()">
+            <%= link_to new_callback_path, class: "btn btn-primary" do %>
                 <i class="fas fa-plus"></i>
                 Add Callback
+            <% end %>
+            <button class="btn btn-secondary" onclick="openModal()">
+                <i class="fas fa-plus"></i>
+                Quick Add
             </button>
         </div>
     </header>
@@ -132,108 +136,29 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>2025-05-23</td>
-                        <td><span class="status-badge status-pending">Pending</span></td>
-                        <td>Motor Mounts</td>
-                        <td>Ford Fusion</td>
-                        <td>2007</td>
-                        <td>76107</td>
-                        <td>Joe</td>
-                        <td>(817) 489-4064</td>
-                        <td>2025-05-23</td>
-                        <td>Ayesha</td>
-                        <td>
-                            <button class="action-btn"><i class="fas fa-edit"></i></button>
-                            <button class="action-btn"><i class="fas fa-phone"></i></button>
-                            <button class="action-btn"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>2025-05-21</td>
-                        <td><span class="status-badge status-purchased">Already Purchased</span></td>
-                        <td>Rear Right Door Lock Actuator</td>
-                        <td>Ford E150</td>
-                        <td>2003</td>
-                        <td></td>
-                        <td>Murtaza</td>
-                        <td>(301) 943-2129</td>
-                        <td>2025-05-21</td>
-                        <td>Murtaza</td>
-                        <td>
-                            <button class="action-btn"><i class="fas fa-edit"></i></button>
-                            <button class="action-btn"><i class="fas fa-phone"></i></button>
-                            <button class="action-btn"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>2025-05-21</td>
-                        <td><span class="status-badge status-later">Follow-up Later</span></td>
-                        <td>Rear Quarter Panels  Rocker Panel/Inner  Outer  LH Front Fender Extension</td>
-                        <td>Ford Galaxie 500</td>
-                        <td>1969</td>
-                        <td>55332</td>
-                        <td>Jerry Steinbach</td>
-                        <td>(320) 522-8169</td>
-                        <td>2025-05-21</td>
-                        <td>Murtaza</td>
-                        <td>
-                            <button class="action-btn"><i class="fas fa-edit"></i></button>
-                            <button class="action-btn"><i class="fas fa-phone"></i></button>
-                            <button class="action-btn"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>2025-05-23</td>
-                        <td><span class="status-badge status-answered">No answer</span></td>
-                        <td>Clutch Release Bearing Hub</td>
-                        <td>Ford V8 Custom Made</td>
-                        <td>1950</td>
-                        <td></td>
-                        <td>David</td>
-                        <td>(570) 332-5035</td>
-                        <td>2025-05-21</td>
-                        <td>Murtaza</td>
-                        <td>
-                            <button class="action-btn"><i class="fas fa-edit"></i></button>
-                            <button class="action-btn"><i class="fas fa-phone"></i></button>
-                            <button class="action-btn"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>2025-05-20</td>
-                        <td><span class="status-badge status-interested">Not Interested</span></td>
-                        <td>4 Brake Linings And 4 Complete Drum Sets For 2 And 3 Axle</td>
-                        <td>Freightliner Cascadia</td>
-                        <td>2013</td>
-                        <td></td>
-                        <td>Jose</td>
-                        <td>(626) 866-8758</td>
-                        <td>2025-05-19</td>
-                        <td>Roy</td>
-                        <td>
-                            <button class="action-btn"><i class="fas fa-edit"></i></button>
-                            <button class="action-btn"><i class="fas fa-phone"></i></button>
-                            <button class="action-btn"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>2025-05-18</td>
-                        <td><span class="status-badge status-sold">Sold</span></td>
-                        <td>Driver Taillight Assembly</td>
-                        <td>Ford F100</td>
-                        <td>2013</td>
-                        <td>30281</td>
-                        <td>Charles Russell</td>
-                        <td>(404) 831-6938</td>
-                        <td>2025-05-14</td>
-                        <td>Murtaza</td>
-                        <td>
-                            <button class="action-btn"><i class="fas fa-edit"></i></button>
-                            <button class="action-btn"><i class="fas fa-phone"></i></button>
-                            <button class="action-btn"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>
+                    <% @callbacks.each do |callback| %>
+                        <tr>
+                            <td><%= callback.created_at.strftime('%Y-%m-%d') %></td>
+                            <td><span class="status-badge status-<%= callback.status %>"><%= callback.status.humanize %></span></td>
+                            <td><%= callback.product %></td>
+                            <td><%= callback.car_make_model %></td>
+                            <td><%= callback.year %></td>
+                            <td><%= callback.zip_code %></td>
+                            <td><%= callback.customer_name %></td>
+                            <td><%= callback.phone_number %></td>
+                            <td><%= callback.follow_up_date %></td>
+                            <td><%= callback.agent %></td>
+                            <td>
+                                <%= link_to edit_callback_path(callback), class: "action-btn" do %>
+                                    <i class="fas fa-edit"></i>
+                                <% end %>
+                                <button class="action-btn"><i class="fas fa-phone"></i></button>
+                                <%= link_to callback_path(callback), method: :delete, class: "action-btn", confirm: "Are you sure?" do %>
+                                    <i class="fas fa-trash"></i>
+                                <% end %>
+                            </td>
+                        </tr>
+                    <% end %>
                 </tbody>
             </table>
         </div>
@@ -252,8 +177,8 @@
             <h2 class="modal-title">Add New Callback</h2>
             <button class="close-btn" onclick="closeModal()">&times;</button>
         </div>
-        <div class="modal-body">
-            <%= form_with url: callbacks_path, local: true do |form| %>
+        <%= form_with model: AgentCallback.new, url: callbacks_path, local: true, id: "callback-form" do |form| %>
+            <div class="modal-body">
                 <div class="form-row">
                     <div class="form-group">
                         <%= form.label :customer_name, "Customer Name", class: "form-label" %>
@@ -307,11 +232,11 @@
                     <div class="form-group">
                         <%= form.label :agent, "Assigned Agent", class: "form-label" %>
                         <%= form.select :agent, options_for_select([
-                            ['Ayesha', 'ayesha'],
-                            ['Murtaza', 'murtaza'],
-                            ['Roy', 'roy'],
-                            ['Khan', 'khan'],
-                            ['Luis', 'luis']
+                            ['Ayesha', 'Ayesha'],
+                            ['Murtaza', 'Murtaza'],
+                            ['Roy', 'Roy'],
+                            ['Khan', 'Khan'],
+                            ['Luis', 'Luis']
                         ]), {}, { class: "form-select" } %>
                     </div>
                 </div>
@@ -320,11 +245,11 @@
                     <%= form.label :notes, "Notes", class: "form-label" %>
                     <%= form.text_area :notes, class: "form-textarea", placeholder: "Add any additional notes about this callback..." %>
                 </div>
-            <% end %>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-            <button class="btn btn-primary">Create Callback</button>
-        </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <%= form.submit "Create Callback", class: "btn btn-primary" %>
+            </div>
+        <% end %>
     </div>
 </div>

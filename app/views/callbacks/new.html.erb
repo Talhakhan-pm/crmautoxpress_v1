@@ -1,0 +1,172 @@
+<!-- Sidebar -->
+<nav class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="fas fa-car"></i>
+            <span>AutoXpress</span>
+        </div>
+    </div>
+    
+    <div class="nav-menu">
+        <div class="nav-section">
+            <div class="nav-section-title">CRM</div>
+            <a href="#" class="nav-item">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Orders</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-truck"></i>
+                <span>Dispatching</span>
+            </a>
+            <%= link_to callbacks_path, class: "nav-item active" do %>
+                <i class="fas fa-phone"></i>
+                <span>Callbacks</span>
+            <% end %>
+            <a href="#" class="nav-item">
+                <i class="fas fa-users"></i>
+                <span>Customers</span>
+            </a>
+        </div>
+        
+        <div class="nav-section">
+            <div class="nav-section-title">Management</div>
+            <a href="#" class="nav-item">
+                <i class="fas fa-user-tie"></i>
+                <span>Agents</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-boxes"></i>
+                <span>Products</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-undo"></i>
+                <span>Refunds & Returns</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-industry"></i>
+                <span>Suppliers</span>
+            </a>
+        </div>
+        
+        <div class="nav-section">
+            <div class="nav-section-title">System</div>
+            <a href="#" class="nav-item">
+                <i class="fas fa-link"></i>
+                <span>Links</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-file-invoice"></i>
+                <span>Invoicebook</span>
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<main class="main-content">
+    <!-- Header -->
+    <header class="main-header">
+        <div class="header-left">
+            <h1>New Callback</h1>
+            <div class="breadcrumb">CRM › Callbacks › New</div>
+        </div>
+        <div class="header-actions">
+            <%= link_to callbacks_path, class: "btn btn-secondary" do %>
+                <i class="fas fa-arrow-left"></i>
+                Back to Callbacks
+            <% end %>
+        </div>
+    </header>
+
+    <!-- Form Content -->
+    <div class="content-card">
+        <%= form_with model: @callback, url: callbacks_path, local: true, class: "callback-form" do |form| %>
+            <div class="form-section">
+                <h3 class="section-title">Customer Information</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <%= form.label :customer_name, "Customer Name", class: "form-label" %>
+                        <%= form.text_field :customer_name, class: "form-input", placeholder: "Enter customer name" %>
+                    </div>
+                    <div class="form-group">
+                        <%= form.label :phone_number, "Phone Number", class: "form-label" %>
+                        <%= form.telephone_field :phone_number, class: "form-input", placeholder: "(xxx) xxx-xxxx" %>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <%= form.label :zip_code, "ZIP Code", class: "form-label" %>
+                    <%= form.text_field :zip_code, class: "form-input", placeholder: "12345" %>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3 class="section-title">Vehicle Information</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <%= form.label :car_make_model, "Car Make & Model", class: "form-label" %>
+                        <%= form.text_field :car_make_model, class: "form-input", placeholder: "e.g., Ford Fusion" %>
+                    </div>
+                    <div class="form-group">
+                        <%= form.label :year, "Year", class: "form-label" %>
+                        <%= form.number_field :year, class: "form-input", placeholder: "2023" %>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <%= form.label :product, "Product", class: "form-label" %>
+                    <%= form.text_area :product, class: "form-textarea", rows: 3, placeholder: "Enter product name or description" %>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3 class="section-title">Callback Details</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <%= form.label :status, "Status", class: "form-label" %>
+                        <%= form.select :status, options_for_select([
+                            ['Pending', 'pending'],
+                            ['Follow-up Later', 'later'],
+                            ['Not Interested', 'interested'],
+                            ['Already Purchased', 'purchased'],
+                            ['No Answer', 'answered'],
+                            ['Sold', 'sold']
+                        ]), { prompt: 'Select status' }, { class: "form-select" } %>
+                    </div>
+                    <div class="form-group">
+                        <%= form.label :agent, "Assigned Agent", class: "form-label" %>
+                        <%= form.select :agent, options_for_select([
+                            ['Ayesha', 'Ayesha'],
+                            ['Murtaza', 'Murtaza'],
+                            ['Roy', 'Roy'],
+                            ['Khan', 'Khan'],
+                            ['Luis', 'Luis']
+                        ]), { prompt: 'Select agent' }, { class: "form-select" } %>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <%= form.label :follow_up_date, "Follow-up Date", class: "form-label" %>
+                    <%= form.date_field :follow_up_date, class: "form-input" %>
+                </div>
+                
+                <div class="form-group">
+                    <%= form.label :notes, "Notes", class: "form-label" %>
+                    <%= form.text_area :notes, class: "form-textarea", rows: 4, placeholder: "Add any additional notes about this callback..." %>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <%= link_to "Cancel", callbacks_path, class: "btn btn-secondary" %>
+                <%= form.submit "Create Callback", class: "btn btn-primary" %>
+            </div>
+        <% end %>
+    </div>
+</main>
