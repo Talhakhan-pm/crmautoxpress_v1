@@ -1346,3 +1346,284 @@ body {
 .nav-menu {
     padding: 20px 0 120px 0; /* Add bottom padding for user profile */
 }
+
+/* Modern Timeline Styles */
+.timeline-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+    position: relative;
+}
+
+.timeline-container::before {
+    content: '';
+    position: absolute;
+    left: 24px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, #e5e7eb 0%, #f3f4f6 50%, #e5e7eb 100%);
+    z-index: 1;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 0 24px;
+    z-index: 2;
+}
+
+.timeline-marker {
+    position: relative;
+    flex-shrink: 0;
+    z-index: 3;
+}
+
+.timeline-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+    border: 3px solid white;
+    position: relative;
+}
+
+.timeline-avatar i {
+    font-size: 12px;
+}
+
+.timeline-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.timeline-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    overflow: hidden;
+}
+
+.timeline-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+}
+
+.timeline-header {
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.timeline-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.timeline-user .user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.user-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.user-info .user-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.timeline-time {
+    font-size: 11px;
+    color: #6b7280;
+    margin: 0;
+    display: block;
+    margin-top: 2px;
+}
+
+.action-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    flex-shrink: 0;
+}
+
+.action-created {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.action-updated {
+    background: linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%);
+    color: #1e40af;
+    border: 1px solid #93c5fd;
+}
+
+.action-viewed {
+    background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%);
+    color: #92400e;
+    border: 1px solid #fcd34d;
+}
+
+.timeline-body {
+    padding: 16px 20px;
+}
+
+.activity-description {
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+
+.activity-description strong {
+    color: #111827;
+    font-weight: 600;
+}
+
+.timeline-changes {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 8px;
+}
+
+.change-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.change-item:last-child {
+    margin-bottom: 0;
+}
+
+.change-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    min-width: 35px;
+}
+
+.change-from {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #dc2626;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid #fecaca;
+}
+
+.change-to {
+    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+    color: #166534;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid #bbf7d0;
+}
+
+/* Timeline item animations */
+.timeline-item {
+    opacity: 0;
+    transform: translateX(-20px);
+    animation: slideInTimeline 0.4s ease-out forwards;
+}
+
+.timeline-item:nth-child(1) { animation-delay: 0.1s; }
+.timeline-item:nth-child(2) { animation-delay: 0.2s; }
+.timeline-item:nth-child(3) { animation-delay: 0.3s; }
+.timeline-item:nth-child(4) { animation-delay: 0.4s; }
+.timeline-item:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes slideInTimeline {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Update activity list container to support timeline */
+.activity-list {
+    /* Remove old styles */
+}
+
+/* Responsive timeline adjustments */
+@media (max-width: 768px) {
+    .timeline-container::before {
+        left: 16px;
+    }
+    
+    .timeline-item {
+        padding: 0 16px;
+        gap: 12px;
+    }
+    
+    .timeline-header {
+        padding: 12px 16px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .timeline-user {
+        width: 100%;
+    }
+    
+    .action-badge {
+        align-self: flex-start;
+    }
+    
+    .timeline-body {
+        padding: 12px 16px;
+    }
+}

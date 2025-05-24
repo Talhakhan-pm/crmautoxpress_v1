@@ -150,7 +150,7 @@
                 <div class="filter-chip" data-filter="created">Created</div>
             </div>
 
-            <div class="activity-list" id="activity-list">
+            <div class="timeline-container" id="activity-list">
                 <% @callback.activities.recent.includes(:user).each do |activity| %>
                     <%= render 'activities/activity', activity: activity %>
                 <% end %>
@@ -182,7 +182,7 @@
         if (!activeFilter) return;
         
         const filter = activeFilter.dataset.filter;
-        const activityItems = document.querySelectorAll('.activity-item');
+        const activityItems = document.querySelectorAll('.timeline-item');
         
         activityItems.forEach(item => {
             if (filter === 'all' || item.dataset.action === filter) {
