@@ -1,4 +1,4 @@
-<tr id="<%= dom_id(agent_callback) %>">
+<tr id="<%= dom_id(agent_callback) %>" data-status="<%= agent_callback.status %>">
     <td><%= agent_callback.created_at.strftime('%Y-%m-%d') %></td>
     <td><span class="status-badge status-<%= agent_callback.status %>"><%= agent_callback.status.humanize %></span></td>
     <td><%= agent_callback.product %></td>

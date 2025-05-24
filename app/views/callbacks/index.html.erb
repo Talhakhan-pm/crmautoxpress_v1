@@ -32,11 +32,13 @@
                 <input type="text" placeholder="Search callbacks, customers, products...">
             </div>
             <div class="filter-group">
-                <button class="filter-btn active">All</button>
-                <button class="filter-btn">Pending</button>
-                <button class="filter-btn">Not Interested</button>
-                <button class="filter-btn">Follow Up</button>
-                <button class="filter-btn">Sale</button>
+                <button class="filter-btn active" data-status="all">All</button>
+                <button class="filter-btn" data-status="pending">Pending</button>
+                <button class="filter-btn" data-status="not_interested">Not Interested</button>
+                <button class="filter-btn" data-status="already_purchased">Already Purchased</button>
+                <button class="filter-btn" data-status="sale">Sale</button>
+                <button class="filter-btn" data-status="payment_link">Payment Link</button>
+                <button class="filter-btn" data-status="follow_up">Follow Up</button>
             </div>
         </div>
         <div class="toolbar-right">
@@ -72,7 +74,7 @@
                 </thead>
                 <tbody id="callbacks">
                     <% @callbacks.each do |callback| %>
-                        <tr id="<%= dom_id(callback) %>">
+                        <tr id="<%= dom_id(callback) %>" data-status="<%= callback.status %>">
                             <td><%= callback.created_at.strftime('%Y-%m-%d') %></td>
                             <td><span class="status-badge status-<%= callback.status %>"><%= callback.status.humanize %></span></td>
                             <td><%= callback.product %></td>
@@ -104,7 +106,7 @@
         </div>
         <div class="pagination">
             <div class="pagination-info">
-                Showing 1-6 of 24 results
+                Showing <%= @callbacks.count %> of <%= @callbacks.count %> results
             </div>
         </div>
     </div>
@@ -193,3 +195,4 @@
         <% end %>
     </div>
 </div>
+
