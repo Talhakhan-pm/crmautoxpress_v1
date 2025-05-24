@@ -80,6 +80,30 @@
                   </a>
               </div>
           </div>
+          
+          <!-- User Profile Section -->
+          <% if user_signed_in? %>
+            <div class="user-profile">
+              <div class="user-info">
+                <div class="user-avatar">
+                  <%= current_user.email.first.upcase %>
+                </div>
+                <div class="user-details">
+                  <div class="user-name"><%= current_user.email.split('@').first.humanize %></div>
+                  <div class="user-status">
+                    <i class="fas fa-circle online-indicator"></i>
+                    <span>Online</span>
+                  </div>
+                </div>
+              </div>
+              <div class="user-actions">
+                <%= link_to destroy_user_session_path, method: :delete, class: "logout-btn", 
+                    title: "Sign out", data: { confirm: "Are you sure you want to sign out?" } do %>
+                  <i class="fas fa-sign-out-alt"></i>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
       </nav>
     <% end %>
 
