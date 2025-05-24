@@ -112,35 +112,7 @@
           <a href="<%= callbacks_path %>" class="view-all">View All</a>
         </div>
         <div class="activity-feed" id="dashboard-activity">
-          <% @recent_activities.each do |activity| %>
-            <div class="activity-item">
-              <div class="activity-avatar">
-                <% case activity.action %>
-                <% when 'created' %>
-                  <i class="fas fa-plus activity-icon-create"></i>
-                <% when 'updated' %>
-                  <i class="fas fa-edit activity-icon-update"></i>
-                <% when 'viewed' %>
-                  <i class="fas fa-eye activity-icon-view"></i>
-                <% end %>
-              </div>
-              <div class="activity-content">
-                <p class="activity-text">
-                  <strong><%= activity.user.email.split('@').first.humanize %></strong>
-                  <%= activity.action.humanize.downcase %>
-                  <% if activity.trackable.is_a?(AgentCallback) %>
-                    callback for <strong><%= activity.trackable.customer_name %></strong>
-                  <% end %>
-                  <% if activity.action == 'updated' && activity.field_changed == 'status' %>
-                    <span class="status-change">
-                      to <span class="status-badge status-<%= activity.new_value %>"><%= activity.new_value.humanize %></span>
-                    </span>
-                  <% end %>
-                </p>
-                <span class="activity-time"><%= time_ago_in_words(activity.created_at) %> ago</span>
-              </div>
-            </div>
-          <% end %>
+          <%= render 'activity_feed', activities: @recent_activities %>
         </div>
       </div>
 
@@ -244,11 +216,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Real-time updates
-  const eventSource = new EventSource('/dashboard');
-  eventSource.onmessage = function(event) {
-    // Handle live updates here
-  };
+  // Turbo Streams handle real-time updates automatically
 });
 </script>
 
