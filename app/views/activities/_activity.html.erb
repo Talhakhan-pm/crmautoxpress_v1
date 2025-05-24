@@ -21,49 +21,47 @@
                     <div class="user-avatar">
                         <%= activity.user.email.first(2).upcase %>
                     </div>
-                    <div class="user-info">
-                        <span class="user-name"><%= activity.user.email %></span>
-                        <span class="timeline-time">
-                            <%= time_ago_in_words(activity.created_at) %> ago
-                        </span>
-                    </div>
+                    <span class="user-name"><%= activity.user.email %></span>
                 </div>
-                <div class="action-badge action-<%= activity.action %>">
-                    <%= activity.action.humanize %>
+                <div class="timeline-meta">
+                    <div class="action-badge action-<%= activity.action %>">
+                        <%= activity.action.humanize %>
+                    </div>
+                    <span class="timeline-time">
+                        <%= time_ago_in_words(activity.created_at) %> ago
+                    </span>
                 </div>
             </div>
             
-            <div class="timeline-body">
-                <div class="activity-description">
-                    <% case activity.action %>
-                    <% when 'created' %>
-                        Created this callback
-                    <% when 'viewed' %>
-                        Viewed callback details
-                    <% when 'updated' %>
-                        <% if activity.field_changed.present? %>
-                            Updated <strong><%= activity.field_changed.humanize %></strong>
+            <% unless ['viewed', 'created'].include?(activity.action) %>
+                <div class="timeline-body">
+                    <div class="activity-description">
+                        <% case activity.action %>
+                        <% when 'updated' %>
+                            <% if activity.field_changed.present? %>
+                                Updated <strong><%= activity.field_changed.humanize %></strong>
+                            <% else %>
+                                Updated callback
+                            <% end %>
                         <% else %>
-                            Updated callback
+                            <%= activity.action.humanize %> callback
                         <% end %>
-                    <% else %>
-                        <%= activity.action.humanize %> callback
+                    </div>
+                    
+                    <% if activity.old_value.present? && activity.new_value.present? %>
+                        <div class="timeline-changes">
+                            <div class="change-item">
+                                <span class="change-label">From:</span>
+                                <span class="change-from"><%= activity.old_value %></span>
+                            </div>
+                            <div class="change-item">
+                                <span class="change-label">To:</span>
+                                <span class="change-to"><%= activity.new_value %></span>
+                            </div>
+                        </div>
                     <% end %>
                 </div>
-                
-                <% if activity.old_value.present? && activity.new_value.present? %>
-                    <div class="timeline-changes">
-                        <div class="change-item">
-                            <span class="change-label">From:</span>
-                            <span class="change-from"><%= activity.old_value %></span>
-                        </div>
-                        <div class="change-item">
-                            <span class="change-label">To:</span>
-                            <span class="change-to"><%= activity.new_value %></span>
-                        </div>
-                    </div>
-                <% end %>
-            </div>
+            <% end %>
         </div>
     </div>
 </div>

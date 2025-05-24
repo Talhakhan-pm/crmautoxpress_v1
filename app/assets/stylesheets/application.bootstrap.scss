@@ -1440,26 +1440,21 @@ body {
 }
 
 .timeline-user .user-avatar {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     flex-shrink: 0;
 }
 
-.user-info {
-    flex: 1;
-    min-width: 0;
-}
-
-.user-info .user-name {
-    font-size: 13px;
+.timeline-user .user-name {
+    font-size: 14px;
     font-weight: 600;
     color: #374151;
     margin: 0;
@@ -1468,12 +1463,19 @@ body {
     text-overflow: ellipsis;
 }
 
+.timeline-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
 .timeline-time {
     font-size: 11px;
     color: #6b7280;
     margin: 0;
-    display: block;
-    margin-top: 2px;
+    font-weight: 500;
 }
 
 .action-badge {
@@ -1612,15 +1614,18 @@ body {
         padding: 12px 16px;
         flex-direction: column;
         align-items: flex-start;
-        gap: 8px;
+        gap: 12px;
     }
     
     .timeline-user {
         width: 100%;
     }
     
-    .action-badge {
-        align-self: flex-start;
+    .timeline-meta {
+        flex-direction: row;
+        align-items: center;
+        width: 100%;
+        justify-content: space-between;
     }
     
     .timeline-body {
