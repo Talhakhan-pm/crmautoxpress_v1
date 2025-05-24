@@ -1,4 +1,5 @@
 <%= turbo_frame_tag "main_content" do %>
+    <%= turbo_stream_from "callback_#{@callback.id}_activities" %>
     <!-- Header -->
     <header class="main-header">
         <div class="header-left">
@@ -6,10 +7,10 @@
             <div class="breadcrumb">CRM › Callbacks › <%= link_to "Callback Details", callback_path(@callback), style: "color: #dc2626; text-decoration: none;" %> › Edit</div>
         </div>
         <div class="header-actions">
-            <%= link_to callbacks_path, class: "btn btn-secondary", data: { turbo_frame: "main_content" } do %>
-                <i class="fas fa-arrow-left"></i>
-                Back to Callbacks
-            <% end %>
+            <button class="btn btn-secondary">
+                <i class="fas fa-phone"></i>
+                Call Customer
+            </button>
             <button form="callback-form" type="submit" class="btn btn-primary">
                 <i class="fas fa-save"></i>
                 Save Changes
@@ -18,8 +19,13 @@
     </header>
 
     <!-- Content -->
-    <div class="content-card">
-        <div class="callback-form">
+    <div class="content-container">
+        <!-- Main Callback Detail -->
+        <div class="callback-detail">
+            <div class="callback-header">
+                <h2 class="callback-title">Edit Callback Details</h2>
+            </div>
+            
             <%= form_with model: @callback, url: callback_path(@callback), method: :patch, local: false, id: "callback-form", data: { turbo_frame: "_top" } do |form| %>
                 
                 <!-- Error Messages -->
@@ -34,125 +40,196 @@
                     </div>
                 <% end %>
 
-                <!-- Customer Information Section -->
-                <div class="form-section">
-                    <h2 class="section-title">
-                        <i class="fas fa-user"></i>
-                        Customer Information
-                    </h2>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <%= form.label :customer_name, "Customer Name", class: "form-label" %>
-                            <%= form.text_field :customer_name, class: "form-input", placeholder: "Enter customer name" %>
-                        </div>
-                        <div class="form-group">
-                            <%= form.label :phone_number, "Phone Number", class: "form-label" %>
-                            <%= form.telephone_field :phone_number, class: "form-input", placeholder: "(xxx) xxx-xxxx" %>
+                <div class="callback-content">
+                    <div class="tab-container">
+                        <div class="tab-list">
+                            <div class="tab-item active">Details</div>
+                            <div class="tab-item">Performance</div>
                         </div>
                     </div>
-                    
-                    <div class="form-group">
-                        <%= form.label :zip_code, "ZIP Code", class: "form-label" %>
-                        <%= form.text_field :zip_code, class: "form-input", placeholder: "12345", style: "max-width: 200px;" %>
-                    </div>
-                </div>
 
-                <!-- Vehicle Information Section -->
-                <div class="form-section">
-                    <h2 class="section-title">
-                        <i class="fas fa-car"></i>
-                        Vehicle Information
-                    </h2>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <%= form.label :car_make_model, "Car Make & Model", class: "form-label" %>
-                            <%= form.text_field :car_make_model, class: "form-input", placeholder: "e.g., Ford Fusion" %>
+                    <!-- Tab Content: Details -->
+                    <div class="tab-content active">
+                        <div class="field-group">
+                            <div class="field">
+                                <div class="field-label">Customer</div>
+                                <%= form.text_field :customer_name, class: "form-input", placeholder: "Enter customer name" %>
+                            </div>
+                            <div class="field">
+                                <div class="field-label">Phone</div>
+                                <%= form.telephone_field :phone_number, class: "form-input", placeholder: "(xxx) xxx-xxxx" %>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <%= form.label :year, "Year", class: "form-label" %>
-                            <%= form.number_field :year, class: "form-input", placeholder: "2023" %>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Product Information Section -->
-                <div class="form-section">
-                    <h2 class="section-title">
-                        <i class="fas fa-cog"></i>
-                        Product Information
-                    </h2>
-                    
-                    <div class="form-group">
-                        <%= form.label :product, "Product", class: "form-label" %>
-                        <%= form.text_field :product, class: "form-input", placeholder: "Enter product name" %>
-                    </div>
-                </div>
-
-                <!-- Callback Management Section -->
-                <div class="form-section">
-                    <h2 class="section-title">
-                        <i class="fas fa-tasks"></i>
-                        Callback Management
-                    </h2>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <%= form.label :status, "Status", class: "form-label" %>
-                            <%= form.select :status, options_for_select([
-                                ['Pending', 'pending'],
-                                ['Not Interested', 'not_interested'],
-                                ['Already Purchased', 'already_purchased'],
-                                ['Sale', 'sale'],
-                                ['Payment Link', 'payment_link'],
-                                ['Follow Up', 'follow_up']
-                            ], @callback.status), {}, { class: "form-select" } %>
+                        <div class="field-group">
+                            <div class="field">
+                                <div class="field-label">Product</div>
+                                <%= form.text_field :product, class: "form-input", placeholder: "Enter product name" %>
+                            </div>
+                            <div class="field">
+                                <div class="field-label">Status</div>
+                                <%= form.select :status, options_for_select([
+                                    ['Pending', 'pending'],
+                                    ['Not Interested', 'not_interested'],
+                                    ['Already Purchased', 'already_purchased'],
+                                    ['Sale', 'sale'],
+                                    ['Payment Link', 'payment_link'],
+                                    ['Follow Up', 'follow_up']
+                                ], @callback.status), {}, { class: "form-select" } %>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <%= form.label :follow_up_date, "Follow-up Date", class: "form-label" %>
-                            <%= form.date_field :follow_up_date, class: "form-input" %>
+
+                        <div class="field-group">
+                            <div class="field">
+                                <div class="field-label">Vehicle</div>
+                                <div style="display: flex; gap: 8px;">
+                                    <%= form.number_field :year, class: "form-input", placeholder: "Year", style: "width: 80px;" %>
+                                    <%= form.text_field :car_make_model, class: "form-input", placeholder: "Make & Model", style: "flex: 1;" %>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="field-label">Assigned Agent</div>
+                                <%= form.select :agent, options_from_collection_for_select(User.all, :email, :email, @callback.agent), 
+                                    { prompt: 'Select agent' }, { class: "form-select" } %>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <div class="field-label">Notes</div>
+                            <%= form.text_area :notes, class: "form-textarea", placeholder: "Add any additional notes about this callback...", rows: 3 %>
                         </div>
                     </div>
-                    
-                    <div class="form-group">
-                        <%= form.label :agent, "Assigned Agent", class: "form-label" %>
-                        <%= form.select :agent, options_from_collection_for_select(User.all, :email, :email, @callback.agent), 
-                            { prompt: 'Select agent' }, { class: "form-select", style: "max-width: 300px;" } %>
-                    </div>
-                </div>
 
-                <!-- Notes Section -->
-                <div class="form-section">
-                    <h2 class="section-title">
-                        <i class="fas fa-sticky-note"></i>
-                        Additional Notes
-                    </h2>
-                    
-                    <div class="form-group">
-                        <%= form.label :notes, "Notes", class: "form-label" %>
-                        <%= form.text_area :notes, class: "form-textarea", placeholder: "Add any additional notes about this callback...", rows: 4 %>
-                        <small class="text-muted">Include any relevant information about customer preferences, call history, or special requirements.</small>
-                    </div>
-                </div>
+                    <!-- Tab Content: Performance (hidden by default) -->
+                    <div class="tab-content" style="display: none;">
+                        <div class="metrics-grid">
+                            <div class="metric-card">
+                                <div class="metric-value" id="total-views"><%= @callback.activities.where(action: 'viewed').count %></div>
+                                <div class="metric-label">Total Views</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value" id="total-edits"><%= @callback.activities.where(action: 'updated').count %></div>
+                                <div class="metric-label">Edits Made</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value" id="agents-involved"><%= @callback.activities.joins(:user).distinct('users.id').count('users.id') %></div>
+                                <div class="metric-label">Agents Involved</div>
+                            </div>
+                        </div>
 
-                <!-- Form Actions -->
-                <div class="form-actions">
-                    <%= link_to callbacks_path, class: "btn btn-secondary", data: { turbo_frame: "main_content" } do %>
-                        <i class="fas fa-times"></i>
-                        Cancel
-                    <% end %>
-                    <%= form.submit "Save Changes", class: "btn btn-primary" do %>
-                        <i class="fas fa-save"></i>
-                        Save Changes
-                    <% end %>
+                        <div class="performance-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-users"></i>
+                                Agent Performance
+                            </h3>
+                            <div class="agent-list">
+                                <% @callback.activities.joins(:user).group('users.id', 'users.email').count.each do |user_data, activity_count| %>
+                                    <% user_id, user_email = user_data %>
+                                    <% user = User.find(user_id) %>
+                                    <div class="agent-row">
+                                        <div class="agent-info">
+                                            <div class="agent-avatar"><%= user_email.first(2).upcase %></div>
+                                            <div class="agent-name"><%= user_email %></div>
+                                        </div>
+                                        <div class="agent-stats">
+                                            <div class="stat-item">
+                                                <div class="stat-value"><%= @callback.activities.where(user: user, action: 'viewed').count %></div>
+                                                <div class="stat-label">Views</div>
+                                            </div>
+                                            <div class="stat-item">
+                                                <div class="stat-value"><%= @callback.activities.where(user: user, action: 'updated').count %></div>
+                                                <div class="stat-label">Edits</div>
+                                            </div>
+                                            <div class="stat-item">
+                                                <div class="stat-value"><%= activity_count %></div>
+                                                <div class="stat-label">Total Actions</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% end %>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             <% end %>
+        </div>
+
+        <!-- Activity Panel -->
+        <div class="activity-panel">
+            <div class="activity-header">
+                <div class="activity-title">
+                    <i class="fas fa-history"></i>
+                    Activity Log
+                    <span class="activity-count" id="activity-count"><%= @callback.activities.count %></span>
+                </div>
+            </div>
+
+            <div class="activity-filters">
+                <div class="filter-chip active" data-filter="all">All</div>
+                <div class="filter-chip" data-filter="viewed">Views</div>
+                <div class="filter-chip" data-filter="updated">Edits</div>
+                <div class="filter-chip" data-filter="created">Created</div>
+            </div>
+
+            <div class="timeline-container" id="activity-list">
+                <% @callback.activities.recent.includes(:user).each do |activity| %>
+                    <%= render 'activities/activity', activity: activity %>
+                <% end %>
+            </div>
         </div>
     </div>
 </main>
 
 <script>
+    // Tab switching functionality
+    document.querySelectorAll('.tab-item').forEach(tab => {
+        tab.addEventListener('click', function() {
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+            
+            // Add active class to clicked tab
+            this.classList.add('active');
+            
+            // Show corresponding content
+            const index = Array.from(this.parentNode.children).indexOf(this);
+            document.querySelectorAll('.tab-content')[index].style.display = 'block';
+        });
+    });
+
+    // Filter functionality
+    function applyActivityFilter() {
+        const activeFilter = document.querySelector('.filter-chip.active');
+        if (!activeFilter) return;
+        
+        const filter = activeFilter.dataset.filter;
+        const activityItems = document.querySelectorAll('.timeline-item');
+        
+        activityItems.forEach(item => {
+            if (filter === 'all' || item.dataset.action === filter) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+    
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.addEventListener('click', function() {
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            applyActivityFilter();
+        });
+    });
+    
+    // Apply filter to new items when they're added via turbo streams
+    document.addEventListener('turbo:before-stream-render', function(event) {
+        setTimeout(() => {
+            applyActivityFilter();
+        }, 10);
+    });
+
     // Form validation and enhancement
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('callback-form');
