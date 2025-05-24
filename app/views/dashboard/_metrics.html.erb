@@ -1,0 +1,43 @@
+<div class="metric-card primary">
+  <div class="metric-icon">
+    <i class="fas fa-chart-line"></i>
+  </div>
+  <div class="metric-content">
+    <h3 class="metric-value"><%= stats[:total_leads] %></h3>
+    <p class="metric-label">Total Leads</p>
+    <span class="metric-change positive">Live Updated</span>
+  </div>
+</div>
+
+<div class="metric-card success">
+  <div class="metric-icon">
+    <i class="fas fa-trophy"></i>
+  </div>
+  <div class="metric-content">
+    <h3 class="metric-value"><%= stats[:sales_closed] %></h3>
+    <p class="metric-label">Sales Closed</p>
+    <span class="metric-change positive">Live Updated</span>
+  </div>
+</div>
+
+<div class="metric-card warning">
+  <div class="metric-icon">
+    <i class="fas fa-percent"></i>
+  </div>
+  <div class="metric-content">
+    <h3 class="metric-value"><%= stats[:total_leads] > 0 ? ((stats[:sales_closed].to_f / stats[:total_leads]) * 100).round(1) : 0 %>%</h3>
+    <p class="metric-label">Conversion Rate</p>
+    <span class="metric-change positive">Live Updated</span>
+  </div>
+</div>
+
+<div class="metric-card info">
+  <div class="metric-icon">
+    <i class="fas fa-clock"></i>
+  </div>
+  <div class="metric-content">
+    <h3 class="metric-value"><%= stats[:follow_ups_due] %></h3>
+    <p class="metric-label">Follow-ups Due</p>
+    <span class="metric-change neutral">Next 3 days</span>
+  </div>
+</div>

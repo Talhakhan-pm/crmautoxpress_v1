@@ -1,6 +1,9 @@
 @use 'bootstrap/scss/bootstrap' as bootstrap;
 @use 'bootstrap-icons/font/bootstrap-icons' as bootstrap-icons;
 
+// Import dashboard styles
+@use 'dashboard';
+
 /* Error alerts for validation */
 .alert {
     padding: 16px;

@@ -26,10 +26,10 @@
           <div class="nav-menu">
               <div class="nav-section">
                   <div class="nav-section-title">CRM</div>
-                  <a href="#" class="nav-item <%= 'active' if current_page?(root_path) %>">
+                  <%= link_to dashboard_path, class: "nav-item #{'active' if current_page?(dashboard_path) || current_page?(root_path)}" do %>
                       <i class="fas fa-tachometer-alt"></i>
                       <span>Dashboard</span>
-                  </a>
+                  <% end %>
                   <a href="#" class="nav-item">
                       <i class="fas fa-shopping-cart"></i>
                       <span>Orders</span>

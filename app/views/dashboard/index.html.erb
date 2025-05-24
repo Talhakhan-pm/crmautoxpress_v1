@@ -1,0 +1,255 @@
+<!-- Main Content -->
+<main class="main-content">
+  <%= turbo_stream_from "dashboard" %>
+
+  <div class="dashboard-container">
+  <!-- Header Section -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <h1 class="dashboard-title">Sales Dashboard</h1>
+      <p class="dashboard-subtitle">Monitor your automotive sales performance</p>
+    </div>
+    <div class="header-actions">
+      <div class="time-filter">
+        <button class="filter-btn active" data-period="today">Today</button>
+        <button class="filter-btn" data-period="week">Week</button>
+        <button class="filter-btn" data-period="month">Month</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key Metrics Grid -->
+  <div class="metrics-grid" id="dashboard-metrics">
+    <%= render 'metrics', stats: @stats %>
+  </div>
+
+  <!-- Dashboard Content Grid -->
+  <div class="dashboard-grid">
+    <!-- Chart Section -->
+    <div class="chart-section">
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Lead Status Distribution</h3>
+          <div class="chart-controls">
+            <button class="chart-btn active" data-chart="donut">
+              <i class="fas fa-chart-pie"></i>
+            </button>
+            <button class="chart-btn" data-chart="bar">
+              <i class="fas fa-chart-bar"></i>
+            </button>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="statusChart" width="400" height="200"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Sales Trend (7 Days)</h3>
+        </div>
+        <div class="chart-container">
+          <canvas id="trendChart" width="400" height="200"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Team Performance -->
+    <div class="team-section">
+      <div class="section-card">
+        <div class="section-header">
+          <h3>Top Performers</h3>
+          <a href="#" class="view-all">View All</a>
+        </div>
+        <div class="performers-list">
+          <% @top_performers.each_with_index do |performer, index| %>
+            <div class="performer-item">
+              <div class="performer-rank">
+                <span class="rank-badge rank-<%= index + 1 %>">#<%= index + 1 %></span>
+              </div>
+              <div class="performer-info">
+                <div class="performer-avatar">
+                  <i class="fas fa-user"></i>
+                </div>
+                <div class="performer-details">
+                  <h4><%= performer[:name] %></h4>
+                  <p><%= performer[:total_leads] %> leads • <%= performer[:sales] %> sales</p>
+                </div>
+              </div>
+              <div class="performer-stats">
+                <span class="conversion-rate"><%= performer[:conversion_rate] %>%</span>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Conversion Funnel -->
+      <div class="section-card">
+        <div class="section-header">
+          <h3>Conversion Funnel</h3>
+        </div>
+        <div class="funnel-container">
+          <% @chart_data[:conversion_funnel].each_with_index do |stage, index| %>
+            <div class="funnel-stage">
+              <div class="funnel-bar" style="width: <%= stage[:percentage] %>%">
+                <span class="funnel-label"><%= stage[:stage] %></span>
+                <span class="funnel-count"><%= stage[:count] %></span>
+              </div>
+              <span class="funnel-percentage"><%= stage[:percentage] %>%</span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity & Follow-ups -->
+    <div class="activity-section">
+      <!-- Recent Activity -->
+      <div class="section-card">
+        <div class="section-header">
+          <h3>Recent Activity</h3>
+          <a href="<%= callbacks_path %>" class="view-all">View All</a>
+        </div>
+        <div class="activity-feed" id="dashboard-activity">
+          <% @recent_activities.each do |activity| %>
+            <div class="activity-item">
+              <div class="activity-avatar">
+                <% case activity.action %>
+                <% when 'created' %>
+                  <i class="fas fa-plus activity-icon-create"></i>
+                <% when 'updated' %>
+                  <i class="fas fa-edit activity-icon-update"></i>
+                <% when 'viewed' %>
+                  <i class="fas fa-eye activity-icon-view"></i>
+                <% end %>
+              </div>
+              <div class="activity-content">
+                <p class="activity-text">
+                  <strong><%= activity.user.email.split('@').first.humanize %></strong>
+                  <%= activity.action.humanize.downcase %>
+                  <% if activity.trackable.is_a?(AgentCallback) %>
+                    callback for <strong><%= activity.trackable.customer_name %></strong>
+                  <% end %>
+                  <% if activity.action == 'updated' && activity.field_changed == 'status' %>
+                    <span class="status-change">
+                      to <span class="status-badge status-<%= activity.new_value %>"><%= activity.new_value.humanize %></span>
+                    </span>
+                  <% end %>
+                </p>
+                <span class="activity-time"><%= time_ago_in_words(activity.created_at) %> ago</span>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Upcoming Follow-ups -->
+      <div class="section-card">
+        <div class="section-header">
+          <h3>Upcoming Follow-ups</h3>
+          <span class="follow-up-count"><%= @upcoming_followups.count %></span>
+        </div>
+        <div class="followup-list">
+          <% @upcoming_followups.each do |callback| %>
+            <div class="followup-item">
+              <div class="followup-date">
+                <span class="date-day"><%= callback.follow_up_date.strftime('%d') %></span>
+                <span class="date-month"><%= callback.follow_up_date.strftime('%b') %></span>
+              </div>
+              <div class="followup-details">
+                <h4><%= callback.customer_name %></h4>
+                <p><%= callback.phone_number %></p>
+                <p class="car-info"><%= callback.car_make_model %> <%= callback.year %></p>
+              </div>
+              <div class="followup-actions">
+                <a href="<%= callback_path(callback) %>" class="action-btn primary">
+                  <i class="fas fa-phone"></i>
+                </a>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart.js Integration -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Status Distribution Chart
+  const statusCtx = document.getElementById('statusChart').getContext('2d');
+  const statusData = <%= raw @chart_data[:lead_status_distribution].to_json %>;
+  
+  new Chart(statusCtx, {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(statusData),
+      datasets: [{
+        data: Object.values(statusData),
+        backgroundColor: [
+          '#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'
+        ],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { usePointStyle: true }
+        }
+      }
+    }
+  });
+
+  // Trend Chart
+  const trendCtx = document.getElementById('trendChart').getContext('2d');
+  const trendData = <%= raw @chart_data[:daily_leads_trend].to_json %>;
+  
+  new Chart(trendCtx, {
+    type: 'line',
+    data: {
+      labels: trendData.map(d => d.date),
+      datasets: [{
+        label: 'Leads',
+        data: trendData.map(d => d.leads),
+        borderColor: '#6366f1',
+        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+        tension: 0.4,
+        fill: true
+      }, {
+        label: 'Sales',
+        data: trendData.map(d => d.sales),
+        borderColor: '#10b981',
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        tension: 0.4,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { intersect: false },
+      plugins: {
+        legend: { display: true }
+      },
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+
+  // Real-time updates
+  const eventSource = new EventSource('/dashboard');
+  eventSource.onmessage = function(event) {
+    // Handle live updates here
+  };
+});
+</script>
+
+</main>
