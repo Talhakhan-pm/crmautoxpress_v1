@@ -34,8 +34,9 @@
             <div class="filter-group">
                 <button class="filter-btn active">All</button>
                 <button class="filter-btn">Pending</button>
-                <button class="filter-btn">Follow-up Later</button>
                 <button class="filter-btn">Not Interested</button>
+                <button class="filter-btn">Follow Up</button>
+                <button class="filter-btn">Sale</button>
             </div>
         </div>
         <div class="toolbar-right">
@@ -155,11 +156,11 @@
                         <%= form.label :status, "Status", class: "form-label" %>
                         <%= form.select :status, options_for_select([
                             ['Pending', 'pending'],
-                            ['Follow-up Later', 'later'],
-                            ['Not Interested', 'interested'],
-                            ['Already Purchased', 'purchased'],
-                            ['No Answer', 'answered'],
-                            ['Sold', 'sold']
+                            ['Not Interested', 'not_interested'],
+                            ['Already Purchased', 'already_purchased'],
+                            ['Sale', 'sale'],
+                            ['Payment Link', 'payment_link'],
+                            ['Follow Up', 'follow_up']
                         ]), {}, { class: "form-select" } %>
                     </div>
                 </div>

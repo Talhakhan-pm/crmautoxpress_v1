@@ -525,29 +525,29 @@ body {
     color: #92400e;
 }
 
-.status-purchased {
+.status-not_interested {
     background: #fee2e2;
     color: #dc2626;
 }
 
-.status-later {
+.status-already_purchased {
+    background: #f3e8ff;
+    color: #7c3aed;
+}
+
+.status-sale {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-payment_link {
     background: #dbeafe;
     color: #1d4ed8;
 }
 
-.status-answered {
-    background: #dcfce7;
-    color: #166534;
-}
-
-.status-interested {
+.status-follow_up {
     background: #fce7f3;
     color: #be185d;
-}
-
-.status-sold {
-    background: #d1fae5;
-    color: #065f46;
 }
 
 /* Action buttons */

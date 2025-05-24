@@ -102,11 +102,11 @@
                             <%= form.label :status, "Status", class: "form-label" %>
                             <%= form.select :status, options_for_select([
                                 ['Pending', 'pending'],
-                                ['Follow-up Later', 'later'],
-                                ['Interested', 'interested'],
-                                ['Already Purchased', 'purchased'],
-                                ['Answered', 'answered'],
-                                ['Sold', 'sold']
+                                ['Not Interested', 'not_interested'],
+                                ['Already Purchased', 'already_purchased'],
+                                ['Sale', 'sale'],
+                                ['Payment Link', 'payment_link'],
+                                ['Follow Up', 'follow_up']
                             ], @callback.status), {}, { class: "form-select" } %>
                         </div>
                         <div class="form-group">

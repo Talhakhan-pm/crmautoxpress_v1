@@ -4,11 +4,11 @@ class AgentCallback < ApplicationRecord
   
   enum status: {
     pending: 0,
-    later: 1,
-    interested: 2,
-    purchased: 3,
-    answered: 4,
-    sold: 5
+    not_interested: 1,
+    already_purchased: 2,
+    sale: 3,
+    payment_link: 4,
+    follow_up: 5
   }
 
   validates :customer_name, presence: true
