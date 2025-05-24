@@ -19,9 +19,12 @@
             <div class="timeline-header">
                 <div class="timeline-user">
                     <div class="user-avatar">
-                        <%= activity.user.email.first(2).upcase %>
+                        <i class="fas fa-user"></i>
                     </div>
-                    <span class="user-name"><%= activity.user.email %></span>
+                    <div class="user-details">
+                        <span class="user-name"><%= activity.user.email.split('@').first.humanize %></span>
+                        <span class="user-email"><%= activity.user.email %></span>
+                    </div>
                 </div>
                 <div class="timeline-meta">
                     <div class="action-badge action-<%= activity.action %>">
