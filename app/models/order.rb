@@ -52,9 +52,9 @@ class Order < ApplicationRecord
   include Trackable
 
   # Turbo Stream broadcasts
-  after_create_commit { broadcast_prepend_to "orders", target: "orders" }
-  after_update_commit { broadcast_replace_to "orders" }
-  after_destroy_commit { broadcast_remove_to "orders" }
+  # after_create_commit { broadcast_prepend_to "orders", target: "orders" }
+  # after_update_commit { broadcast_replace_to "orders" }
+  # after_destroy_commit { broadcast_remove_to "orders" }
 
   # Scopes
   scope :recent, -> { order(created_at: :desc) }

@@ -1,4 +1,6 @@
 class Product < ApplicationRecord
+  include ActionView::RecordIdentifier
+  
   has_many :activities, as: :trackable, dependent: :destroy
   
   enum status: {
@@ -16,9 +18,9 @@ class Product < ApplicationRecord
 
   include Trackable
   
-  after_create_commit { broadcast_product_created }
-  after_update_commit { broadcast_product_updated }
-  after_destroy_commit { broadcast_product_destroyed }
+  # after_create_commit { broadcast_product_created }
+  # after_update_commit { broadcast_product_updated }
+  # after_destroy_commit { broadcast_product_destroyed }
   
   
   scope :by_category, ->(category) { where(category: category) }

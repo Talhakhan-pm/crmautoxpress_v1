@@ -4,7 +4,7 @@ class Dispatch < ApplicationRecord
   has_many :activities, as: :trackable, dependent: :destroy
 
   enum payment_status: {
-    pending: 0,
+    payment_pending: 0,
     paid: 1,
     failed: 2,
     refunded: 3,
@@ -12,21 +12,21 @@ class Dispatch < ApplicationRecord
   }
 
   enum shipment_status: {
-    pending: 0,
-    picked_up: 1,
-    in_transit: 2,
-    delivered: 3,
-    exception: 4,
-    returned_to_sender: 5
+    shipment_pending: 10,
+    picked_up: 11,
+    in_transit: 12,
+    delivered: 13,
+    exception: 14,
+    returned_to_sender: 15
   }
 
   enum dispatch_status: {
-    pending: 0,
-    assigned: 1,
-    processing: 2,
-    shipped: 3,
-    completed: 4,
-    cancelled: 5
+    pending: 20,
+    assigned: 21,
+    processing: 22,
+    shipped: 23,
+    completed: 24,
+    cancelled: 25
   }
 
   # Validations
@@ -50,9 +50,9 @@ class Dispatch < ApplicationRecord
   include Trackable
 
   # Turbo Stream broadcasts
-  after_create_commit { broadcast_prepend_to "dispatches", target: "dispatches" }
-  after_update_commit { broadcast_replace_to "dispatches" }
-  after_destroy_commit { broadcast_remove_to "dispatches" }
+  # after_create_commit { broadcast_prepend_to "dispatches", target: "dispatches" }
+  # after_update_commit { broadcast_replace_to "dispatches" }
+  # after_destroy_commit { broadcast_remove_to "dispatches" }
 
   # Scopes
   scope :recent, -> { order(created_at: :desc) }
@@ -62,7 +62,7 @@ class Dispatch < ApplicationRecord
   scope :by_agent, ->(agent_id) { where(processing_agent_id: agent_id) }
   scope :by_supplier, ->(supplier) { where(supplier_name: supplier) }
   scope :today, -> { where(created_at: Date.current.beginning_of_day..Date.current.end_of_day) }
-  scope :pending_payment, -> { where(payment_status: :pending) }
+  scope :pending_payment, -> { where(payment_status: :payment_pending) }
   scope :ready_to_ship, -> { where(dispatch_status: :processing, payment_status: :paid) }
 
   def status_color
@@ -79,7 +79,7 @@ class Dispatch < ApplicationRecord
 
   def payment_status_color
     case payment_status
-    when 'pending' then 'warning'
+    when 'payment_pending' then 'warning'
     when 'paid' then 'success'
     when 'failed' then 'danger'
     when 'refunded' then 'info'
@@ -90,7 +90,7 @@ class Dispatch < ApplicationRecord
 
   def shipment_status_color
     case shipment_status
-    when 'pending' then 'secondary'
+    when 'shipment_pending' then 'secondary'
     when 'picked_up' then 'info'
     when 'in_transit' then 'primary'
     when 'delivered' then 'success'
@@ -145,8 +145,8 @@ class Dispatch < ApplicationRecord
 
   def set_defaults
     self.dispatch_status ||= 'pending'
-    self.payment_status ||= 'pending'
-    self.shipment_status ||= 'pending'
+    self.payment_status ||= 'payment_pending'
+    self.shipment_status ||= 'shipment_pending'
     self.condition ||= 'new'
   end
 

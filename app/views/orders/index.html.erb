@@ -1,2 +1,423 @@
-<h1>Orders#index</h1>
-<p>Find me in app/views/orders/index.html.erb</p>
+<div class="main-content">
+  <div class="orders-container">
+    <!-- Hero Section -->
+    <div class="orders-hero">
+      <div class="orders-hero-content">
+        <div class="hero-left">
+          <h1 class="hero-title">
+            <i class="fas fa-shopping-cart"></i>
+            Order Management
+          </h1>
+          <p class="hero-subtitle">Track, manage, and fulfill customer orders with intelligent automation</p>
+          
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <span class="stat-value"><%= @orders.count %></span>
+              <span class="stat-label">Total Orders</span>
+            </div>
+            <div class="hero-stat">
+              <span class="stat-value"><%= @orders.where(order_status: ['pending', 'confirmed']).count %></span>
+              <span class="stat-label">Active</span>
+            </div>
+            <div class="hero-stat">
+              <span class="stat-value"><%= @orders.where(order_status: 'shipped').count %></span>
+              <span class="stat-label">In Transit</span>
+            </div>
+            <div class="hero-stat">
+              <span class="stat-value">$<%= @orders.sum(:total_amount).to_i.to_s.gsub(/\B(?=(\d{3})+(?!\d))/, ',') %></span>
+              <span class="stat-label">Total Value</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="hero-actions">
+          <%= link_to new_order_path, class: "btn-hero btn-hero-primary" do %>
+            <i class="fas fa-plus"></i>
+            New Order
+          <% end %>
+          
+          <a href="#" class="btn-hero" onclick="showAdvancedFilters()">
+            <i class="fas fa-filter"></i>
+            Advanced Filters
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Smart Filters -->
+    <div class="smart-filters">
+      <%= form_with url: orders_path, method: :get, local: true, class: "filters-form" do |form| %>
+        <div class="filters-grid">
+          <div class="search-group">
+            <i class="fas fa-search search-icon"></i>
+            <%= form.text_field :search, 
+                placeholder: "Search orders, customers, products...", 
+                value: params[:search],
+                class: "search-input",
+                autocomplete: "off" %>
+          </div>
+          
+          <%= form.select :status, 
+              options_for_select([
+                ['All Status', ''],
+                ['Pending', 'pending'],
+                ['Confirmed', 'confirmed'], 
+                ['Processing', 'processing'],
+                ['Shipped', 'shipped'],
+                ['Delivered', 'delivered'],
+                ['Cancelled', 'cancelled']
+              ], params[:status]),
+              {}, 
+              { class: "filter-select", onchange: "this.form.submit();" } %>
+          
+          <%= form.select :priority,
+              options_for_select([
+                ['All Priorities', ''],
+                ['Low', 'low'],
+                ['Standard', 'standard'],
+                ['High', 'high'],
+                ['Rush', 'rush'],
+                ['Urgent', 'urgent']
+              ], params[:priority]),
+              {},
+              { class: "filter-select", onchange: "this.form.submit();" } %>
+              
+          <div class="view-toggle">
+            <button type="button" class="view-btn <%= 'active' unless params[:view] == 'table' %>" 
+                    onclick="setView('cards')">
+              <i class="fas fa-th-large"></i>
+            </button>
+            <button type="button" class="view-btn <%= 'active' if params[:view] == 'table' %>" 
+                    onclick="setView('table')">
+              <i class="fas fa-list"></i>
+            </button>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Orders Content -->
+    <div id="orders-content">
+      <% if params[:view] == 'table' %>
+        <!-- Table View -->
+        <div class="orders-table-view">
+          <div class="table-wrapper">
+            <table class="orders-table">
+              <thead>
+                <tr>
+                  <th>Order</th>
+                  <th>Customer</th>
+                  <th>Product</th>
+                  <th>Vehicle</th>
+                  <th>Status</th>
+                  <th>Priority</th>
+                  <th>Amount</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if @orders.any? %>
+                  <% @orders.each do |order| %>
+                    <tr onclick="window.location.href='<%= order_path(order) %>'" style="cursor: pointer;">
+                      <td>
+                        <div class="order-number">
+                          <span class="order-id"><%= order.order_number %></span>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="customer-info">
+                          <div class="customer-name"><%= order.customer_name %></div>
+                          <div class="customer-contact">
+                            <i class="fas fa-phone"></i>
+                            <%= order.customer_phone %>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="product-name"><%= order.product_name %></div>
+                      </td>
+                      <td>
+                        <div class="vehicle-info">
+                          <% if order.vehicle_info.present? %>
+                            <i class="fas fa-car"></i>
+                            <%= order.vehicle_info %>
+                          <% else %>
+                            <span class="text-muted">N/A</span>
+                          <% end %>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="status-badge status-<%= order.order_status %>">
+                          <span class="status-icon"></span>
+                          <%= order.order_status.humanize %>
+                        </span>
+                      </td>
+                      <td>
+                        <span class="priority-badge priority-<%= order.priority %>">
+                          <%= order.priority.humanize %>
+                        </span>
+                      </td>
+                      <td>
+                        <div class="total-amount">$<%= number_with_delimiter(order.total_amount) %></div>
+                      </td>
+                      <td>
+                        <div class="order-date">
+                          <i class="fas fa-calendar"></i>
+                          <%= order.order_date.strftime("%m/%d/%y") %>
+                        </div>
+                      </td>
+                      <td onclick="event.stopPropagation();">
+                        <div class="action-menu">
+                          <%= link_to order_path(order), class: "action-btn" do %>
+                            <i class="fas fa-eye"></i>
+                            View
+                          <% end %>
+                          <%= link_to edit_order_path(order), class: "action-btn" do %>
+                            <i class="fas fa-edit"></i>
+                            Edit
+                          <% end %>
+                        </div>
+                      </td>
+                    </tr>
+                  <% end %>
+                <% else %>
+                  <tr>
+                    <td colspan="9" class="text-center py-5">
+                      <div class="empty-state">
+                        <i class="fas fa-shopping-cart empty-icon"></i>
+                        <h3 class="empty-title">No Orders Found</h3>
+                        <p class="empty-message">Start by creating your first order or adjust your search filters.</p>
+                        <%= link_to "Create Order", new_order_path, class: "btn btn-primary" %>
+                      </div>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      <% else %>
+        <!-- Card View (Default) -->
+        <div class="orders-grid">
+          <% if @orders.any? %>
+            <% @orders.each do |order| %>
+              <div class="order-card" onclick="window.location.href='<%= order_path(order) %>'" style="cursor: pointer;">
+                <!-- Status stripe indicator -->
+                
+                <div class="card-header">
+                  <div class="order-number">
+                    <span class="order-id">#<%= order.order_number %></span>
+                    <% if order.agent_callback.present? %>
+                      <i class="fas fa-phone" title="Created from callback" style="color: #dc2626;"></i>
+                    <% end %>
+                  </div>
+                  <div class="order-meta">
+                    <div class="order-date">
+                      <i class="fas fa-calendar"></i>
+                      <%= order.order_date.strftime("%b %d, %Y") %>
+                    </div>
+                    <span class="priority-badge priority-<%= order.priority %>">
+                      <%= order.priority.humanize %>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="card-body">
+                  <div class="customer-info">
+                    <div class="customer-name"><%= order.customer_name %></div>
+                    <div class="customer-contact">
+                      <i class="fas fa-phone"></i>
+                      <%= order.customer_phone %>
+                      <% if order.customer_email.present? %>
+                        <i class="fas fa-envelope"></i>
+                        <%= order.customer_email %>
+                      <% end %>
+                    </div>
+                  </div>
+
+                  <div class="product-section">
+                    <div class="product-name"><%= order.product_name %></div>
+                    <% if order.vehicle_info.present? %>
+                      <div class="vehicle-info">
+                        <i class="fas fa-car"></i>
+                        <%= order.vehicle_info %>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+
+                <div class="card-footer">
+                  <div class="status-section">
+                    <span class="status-badge status-<%= order.order_status %>">
+                      <span class="status-icon"></span>
+                      <%= order.order_status.humanize %>
+                    </span>
+                  </div>
+                  
+                  <div class="price-section">
+                    <div class="total-amount">$<%= number_with_delimiter(order.total_amount) %></div>
+                    <div class="price-breakdown">
+                      Product: $<%= number_with_delimiter(order.product_price) %>
+                      <% if order.tax_amount.present? && order.tax_amount > 0 %>
+                        + Tax: $<%= number_with_delimiter(order.tax_amount) %>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Hover Actions -->
+                <div class="card-actions" onclick="event.stopPropagation();">
+                  <div class="action-menu">
+                    <%= link_to order_path(order), class: "action-btn" do %>
+                      <i class="fas fa-eye"></i>
+                      View Details
+                    <% end %>
+                    <%= link_to edit_order_path(order), class: "action-btn" do %>
+                      <i class="fas fa-edit"></i>
+                      Edit Order
+                    <% end %>
+                    <% if order.dispatch.present? %>
+                      <%= link_to dispatch_path(order.dispatch), class: "action-btn" do %>
+                        <i class="fas fa-truck"></i>
+                        View Dispatch
+                      <% end %>
+                    <% else %>
+                      <%= link_to new_dispatch_path(order_id: order.id), class: "action-btn" do %>
+                        <i class="fas fa-plus"></i>
+                        Create Dispatch
+                      <% end %>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="empty-state">
+              <i class="fas fa-shopping-cart empty-icon"></i>
+              <h3 class="empty-title">No Orders Found</h3>
+              <p class="empty-message">
+                <% if params[:search].present? || params[:status].present? || params[:priority].present? %>
+                  No orders match your current filters. Try adjusting your search criteria.
+                <% else %>
+                  You haven't created any orders yet. Start by creating your first order from a customer callback or manually.
+                <% end %>
+              </p>
+              <%= link_to "Create New Order", new_order_path, class: "btn btn-primary" %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Quick Action Button -->
+    <div class="quick-actions">
+      <%= link_to new_order_path do %>
+        <button class="quick-action-btn" title="Quick Create Order">
+          <i class="fas fa-plus"></i>
+        </button>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- Advanced Filters Modal -->
+<div id="advanced-filters" class="advanced-filters">
+  <div class="filters-modal">
+    <div class="modal-header">
+      <h3 class="modal-title">Advanced Filters</h3>
+      <button type="button" onclick="hideAdvancedFilters()" class="close-btn">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <%= form_with url: orders_path, method: :get, local: true, class: "advanced-filters-form" do |form| %>
+      <div class="modal-body">
+        <div class="filter-group">
+          <label class="filter-label">Date Range</label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <%= form.date_field :start_date, value: params[:start_date], class: "filter-input", placeholder: "Start Date" %>
+            <%= form.date_field :end_date, value: params[:end_date], class: "filter-input", placeholder: "End Date" %>
+          </div>
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label">Agent</label>
+          <%= form.select :agent_id,
+              options_from_collection_for_select(@agents, :id, :email, params[:agent_id]),
+              { prompt: "All Agents" },
+              { class: "filter-select" } %>
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label">Price Range</label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <%= form.number_field :min_price, value: params[:min_price], class: "filter-input", placeholder: "Min Price", step: 0.01 %>
+            <%= form.number_field :max_price, value: params[:max_price], class: "filter-input", placeholder: "Max Price", step: 0.01 %>
+          </div>
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label">Source Channel</label>
+          <%= form.select :source_channel,
+              options_for_select([
+                ['All Channels', ''],
+                ['Phone', 'phone'],
+                ['Web', 'web'],
+                ['Email', 'email'],
+                ['Walk-in', 'walk_in']
+              ], params[:source_channel]),
+              {},
+              { class: "filter-select" } %>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" onclick="clearFilters()" class="btn btn-secondary">Clear All</button>
+        <%= form.submit "Apply Filters", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+function setView(view) {
+  const url = new URL(window.location);
+  if (view === 'table') {
+    url.searchParams.set('view', 'table');
+  } else {
+    url.searchParams.delete('view');
+  }
+  window.location.href = url.toString();
+}
+
+function showAdvancedFilters() {
+  document.getElementById('advanced-filters').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function hideAdvancedFilters() {
+  document.getElementById('advanced-filters').classList.remove('active');
+  document.body.style.overflow = 'auto';
+}
+
+function clearFilters() {
+  window.location.href = '<%= orders_path %>';
+}
+
+// Auto-submit search after typing
+let searchTimeout;
+document.querySelector('.search-input')?.addEventListener('input', function() {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    this.form.submit();
+  }, 500);
+});
+
+// Close modal on outside click
+document.getElementById('advanced-filters')?.addEventListener('click', function(e) {
+  if (e.target === this) {
+    hideAdvancedFilters();
+  }
+});
+</script>

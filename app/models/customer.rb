@@ -1,4 +1,6 @@
 class Customer < ApplicationRecord
+  include ActionView::RecordIdentifier
+  
   has_many :agent_callbacks, foreign_key: :phone_number, primary_key: :phone_number
   has_many :activities, as: :trackable, dependent: :destroy
   
@@ -14,13 +16,13 @@ class Customer < ApplicationRecord
 
   include Trackable
   
-  after_create_commit { broadcast_customer_created }
-  after_update_commit { broadcast_customer_updated }
-  after_destroy_commit { broadcast_customer_destroyed }
+  # after_create_commit { broadcast_customer_created }
+  # after_update_commit { broadcast_customer_updated }
+  # after_destroy_commit { broadcast_customer_destroyed }
   
-  after_create_commit { broadcast_dashboard_metrics }
-  after_update_commit { broadcast_dashboard_metrics }
-  after_destroy_commit { broadcast_dashboard_metrics }
+  # after_create_commit { broadcast_dashboard_metrics }
+  # after_update_commit { broadcast_dashboard_metrics }
+  # after_destroy_commit { broadcast_dashboard_metrics }
   
   scope :with_callbacks, -> { joins(:agent_callbacks).distinct }
   scope :google_ads, -> { where.not(gclid: [nil, '']) }
