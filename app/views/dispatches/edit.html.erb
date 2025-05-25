@@ -189,7 +189,16 @@
                     </div>
                     <div class="info-item">
                       <div class="info-label">Profit Margin</div>
-                      <div class="info-value" data-dispatch-form-target="profitMargin"><%
+                      <div class="info-value <%
+                        profit = (@dispatch.total_cost || 0) - (@dispatch.supplier_cost || 0)
+                        if profit > 0
+                          'profit-positive'
+                        elsif profit < 0
+                          'profit-negative'
+                        else
+                          'profit-zero'
+                        end
+                      %>" data-dispatch-form-target="profitMargin"><%
                         if (@dispatch.total_cost || 0) > 0 && (@dispatch.supplier_cost || 0) > 0
                           margin = (((@dispatch.total_cost || 0) - (@dispatch.supplier_cost || 0)) / (@dispatch.total_cost || 0) * 100).round(2)
                           "#{margin}%"

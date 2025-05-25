@@ -155,6 +155,7 @@ export default class extends Controller {
     const profitMargin = customerTotal > 0 ? ((profit / customerTotal) * 100) : 0
     
     console.log('Calculating profit:', { customerTotal, supplierCost, profit, profitMargin })
+    console.log('Applying styling for profit:', profit > 0 ? 'positive' : profit < 0 ? 'negative' : 'zero')
     
     // Update profit displays
     this.updateProfitDisplay(profit, profitMargin)
@@ -187,20 +188,38 @@ export default class extends Controller {
   }
 
   updateProfitStyling(profit) {
-    if (!this.hasProfitDisplayTarget) return
+    // Style profit display
+    if (this.hasProfitDisplayTarget) {
+      const profitElement = this.profitDisplayTarget
+      
+      // Remove existing classes
+      profitElement.classList.remove('profit-positive', 'profit-negative', 'profit-zero')
+      
+      // Add appropriate class
+      if (profit > 0) {
+        profitElement.classList.add('profit-positive')
+      } else if (profit < 0) {
+        profitElement.classList.add('profit-negative')
+      } else {
+        profitElement.classList.add('profit-zero')
+      }
+    }
     
-    const profitElement = this.profitDisplayTarget
-    
-    // Remove existing classes
-    profitElement.classList.remove('profit-positive', 'profit-negative', 'profit-zero')
-    
-    // Add appropriate class
-    if (profit > 0) {
-      profitElement.classList.add('profit-positive')
-    } else if (profit < 0) {
-      profitElement.classList.add('profit-negative')
-    } else {
-      profitElement.classList.add('profit-zero')
+    // Style profit margin display with same logic
+    if (this.hasProfitMarginTarget) {
+      const marginElement = this.profitMarginTarget
+      
+      // Remove existing classes
+      marginElement.classList.remove('profit-positive', 'profit-negative', 'profit-zero')
+      
+      // Add appropriate class based on profit (not margin percentage)
+      if (profit > 0) {
+        marginElement.classList.add('profit-positive')
+      } else if (profit < 0) {
+        marginElement.classList.add('profit-negative')
+      } else {
+        marginElement.classList.add('profit-zero')
+      }
     }
   }
 
