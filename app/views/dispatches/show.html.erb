@@ -1,8 +1,14 @@
 <div class="dispatch-detail-container">
   <!-- Modern Dispatch Header -->
   <div class="dispatch-hero">
-    <!-- Compact Hero for Modal -->
-    <div class="modal-hero-section">
+    <!-- Detect if we're in modal context vs full page -->
+    <% if request.xhr? %>
+      <!-- Compact Hero for Modal -->
+      <div class="modal-hero-section">
+    <% else %>
+      <!-- Full Hero for Page -->
+      <div class="full-hero-section">
+    <% end %>
       <div class="dispatch-title-section">
         <div class="dispatch-icon">
           <i class="fas fa-rocket"></i>
@@ -65,6 +71,83 @@
           <% end %>
         </div>
       </div>
+    <% if request.xhr? %>
+      </div>
+    <% else %>
+      <!-- Full Page Hero Layout -->
+      <div class="hero-content">
+        <div class="hero-left">
+          <div class="dispatch-title">
+            <h1>
+              <i class="fas fa-rocket"></i>
+              Dispatch #DSP-<%= @dispatch.id.to_s.rjust(4, '0') %>
+            </h1>
+            <div class="order-connection">
+              <%= link_to order_path(@dispatch.order), class: "order-link" do %>
+                <i class="fas fa-shopping-cart"></i>
+                Order #<%= @dispatch.order_number %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+        
+        <div class="hero-center">
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <span class="stat-value">
+                <span class="status-badge status-<%= @dispatch.dispatch_status %>">
+                  <%= @dispatch.dispatch_status.humanize %>
+                </span>
+              </span>
+              <span class="stat-label">Current Status</span>
+            </div>
+            <div class="hero-stat">
+              <span class="stat-value">$<%= number_with_delimiter(@dispatch.total_cost) %></span>
+              <span class="stat-label">Total Value</span>
+            </div>
+            <% if @dispatch.supplier_cost.present? && @dispatch.profit_margin > 0 %>
+              <div class="hero-stat">
+                <span class="stat-value profit-positive">+$<%= number_with_delimiter(@dispatch.profit_margin) %></span>
+                <span class="stat-label">Profit</span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+        
+        <div class="hero-actions">
+          <%= link_to edit_dispatch_path(@dispatch), class: "btn-hero btn-hero-primary" do %>
+            <i class="fas fa-edit"></i>
+            Update Dispatch
+          <% end %>
+          
+          <% if @dispatch.has_tracking? %>
+            <%= link_to @dispatch.tracking_link.present? ? @dispatch.tracking_link : "#", 
+                class: "btn-hero", target: "_blank" do %>
+              <i class="fas fa-route"></i>
+              Track Package
+            <% end %>
+          <% end %>
+          
+          <%= link_to dispatches_path, class: "btn-hero" do %>
+            <i class="fas fa-arrow-left"></i>
+            Back to Command Center
+          <% end %>
+          
+          <% priority = @dispatch.order&.priority || 'standard' %>
+          <% if priority == 'urgent' %>
+            <div class="priority-badge urgent">
+              <i class="fas fa-exclamation-triangle"></i>
+              URGENT
+            </div>
+          <% elsif priority == 'rush' %>
+            <div class="priority-badge rush">
+              <i class="fas fa-clock"></i>
+              RUSH
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
     </div>
   </div>
 
