@@ -66,30 +66,25 @@ class AgentCallback < ApplicationRecord
     Rails.logger.info "=== AUTO-CREATING CUSTOMER FROM CALLBACK ==="
     Rails.logger.info "Phone: #{phone_number}, Name: #{customer_name}"
     
-    customer = Customer.find_or_create_by(phone_number: phone_number) do |c|
-      c.name = customer_name
-      c.source_campaign = 'callback'
-      Rails.logger.info "Created new customer: #{c.name}"
-    end
+    customer_created = false
+    customer = Customer.find_by(phone_number: phone_number)
     
-    # Update customer with Google Ads data if this callback has session data
-    if defined?(Current) && Current.respond_to?(:session) && Current.session
-      google_ads_data = Current.session[:google_ads_data]
-      if google_ads_data && customer.gclid.blank?
-        customer.update(
-          gclid: google_ads_data[:gclid],
-          utm_source: google_ads_data[:utm_source],
-          utm_campaign: google_ads_data[:utm_campaign],
-          source_campaign: 'google_ads'
-        )
-        Rails.logger.info "Updated customer with Google Ads data: #{google_ads_data}"
-      end
+    unless customer
+      customer = Customer.create!(
+        phone_number: phone_number,
+        name: customer_name,
+        source_campaign: 'callback'
+      )
+      customer_created = true
+      Rails.logger.info "Created new customer: #{customer.name}"
     end
     
     Rails.logger.info "Customer found/created: #{customer.id} - #{customer.name}"
+    Rails.logger.info "Customer creation triggered broadcasts: #{customer_created}"
     
-    # Customer is linked via phone_number - no need for additional foreign key
+    customer
   rescue => e
     Rails.logger.error "Customer auto-creation failed: #{e.message}"
+    Rails.logger.error e.backtrace.join("\n")
   end
 end

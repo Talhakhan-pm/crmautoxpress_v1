@@ -14,9 +14,9 @@ class Customer < ApplicationRecord
 
   include Trackable
   
-  after_create_commit { broadcast_prepend_to "customers", target: "customers" }
-  after_update_commit { broadcast_replace_to "customers" }
-  after_destroy_commit { broadcast_remove_to "customers" }
+  after_create_commit { broadcast_customer_created }
+  after_update_commit { broadcast_customer_updated }
+  after_destroy_commit { broadcast_customer_destroyed }
   
   after_create_commit { broadcast_dashboard_metrics }
   after_update_commit { broadcast_dashboard_metrics }
@@ -38,6 +38,37 @@ class Customer < ApplicationRecord
   end
   
   private
+  
+  def broadcast_customer_created
+    Rails.logger.info "=== CUSTOMER BROADCAST: CREATED ==="
+    Rails.logger.info "Broadcasting customer creation for: #{name} (#{phone_number})"
+    
+    broadcast_prepend_to "customers", 
+                        target: "customers", 
+                        partial: "customers/customer", 
+                        locals: { customer: self }
+                        
+    Rails.logger.info "=== CUSTOMER BROADCAST: CREATED SENT ==="
+  end
+  
+  def broadcast_customer_updated
+    Rails.logger.info "=== CUSTOMER BROADCAST: UPDATED ==="
+    
+    broadcast_replace_to "customers", 
+                        target: dom_id(self), 
+                        partial: "customers/customer", 
+                        locals: { customer: self }
+                        
+    Rails.logger.info "=== CUSTOMER BROADCAST: UPDATED SENT ==="
+  end
+  
+  def broadcast_customer_destroyed
+    Rails.logger.info "=== CUSTOMER BROADCAST: DESTROYED ==="
+    
+    broadcast_remove_to "customers", target: dom_id(self)
+    
+    Rails.logger.info "=== CUSTOMER BROADCAST: DESTROYED SENT ==="
+  end
   
   def broadcast_dashboard_metrics
     Rails.logger.info "=== CUSTOMER DASHBOARD METRICS BROADCAST ==="
