@@ -5,7 +5,7 @@
     <header class="main-header">
       <div class="header-title">
         <h1><i class="fas fa-boxes"></i> Products</h1>
-        <p class="header-subtitle">Auto parts catalog (extracted from callbacks)</p>
+        <p class="header-subtitle">Auto parts catalog</p>
       </div>
       
       <div class="header-actions">
@@ -42,6 +42,33 @@
         </div>
       </div>
     </header>
+
+    <!-- Source Filter Tabs -->
+    <div class="source-filter-tabs">
+      <%= link_to products_path, 
+          class: "filter-tab #{'active' if params[:source].blank?}", 
+          data: { turbo_frame: "main_content" } do %>
+        <i class="fas fa-list"></i>
+        All Products
+        <span class="count-badge"><%= Product.count %></span>
+      <% end %>
+      
+      <%= link_to products_path(source: 'callback'), 
+          class: "filter-tab #{'active' if params[:source] == 'callback'}", 
+          data: { turbo_frame: "main_content" } do %>
+        <i class="fas fa-phone"></i>
+        From Callbacks
+        <span class="count-badge"><%= Product.by_source('callback').count %></span>
+      <% end %>
+      
+      <%= link_to products_path(source: 'order'), 
+          class: "filter-tab #{'active' if params[:source] == 'order'}", 
+          data: { turbo_frame: "main_content" } do %>
+        <i class="fas fa-shopping-cart"></i>
+        From Orders
+        <span class="count-badge"><%= Product.by_source('order').count %></span>
+      <% end %>
+    </div>
 
     <div class="content-card">
       <div class="table-responsive">

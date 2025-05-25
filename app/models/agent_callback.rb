@@ -115,6 +115,7 @@ class AgentCallback < ApplicationRecord
         description: "Auto-extracted from callback ##{id}",
         vendor_cost: 0.01, # Placeholder values
         selling_price: 0.01,
+        source: 'callback',
         status: 'active'
       )
       

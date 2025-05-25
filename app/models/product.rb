@@ -22,6 +22,7 @@ class Product < ApplicationRecord
   
   
   scope :by_category, ->(category) { where(category: category) }
+  scope :by_source, ->(source) { where(source: source) }
   scope :in_stock, -> { where.not(status: ['discontinued', 'out_of_stock']) }
   scope :search, ->(term) { where("name LIKE ? OR part_number LIKE ? OR description LIKE ?", "%#{term}%", "%#{term}%", "%#{term}%") }
   

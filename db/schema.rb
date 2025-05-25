@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_05_25_021917) do
+ActiveRecord::Schema[7.1].define(version: 2025_05_25_024810) do
   create_table "activities", force: :cascade do |t|
     t.string "trackable_type", null: false
     t.integer "trackable_id", null: false
@@ -74,8 +74,10 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_25_021917) do
     t.integer "status", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "source", default: "callback"
     t.index ["category"], name: "index_products_on_category"
     t.index ["part_number"], name: "index_products_on_part_number"
+    t.index ["source"], name: "index_products_on_source"
     t.index ["status"], name: "index_products_on_status"
   end
 

@@ -1,87 +1,99 @@
 /* Products Specific Styles - AutoXpress CRM */
 
-/* Product Details Grid Layout */
-.product-details-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto auto;
-  gap: 2rem;
-  margin-top: 2rem;
+/* Source Filter Tabs */
+.source-filter-tabs {
+  display: flex;
+  gap: 4px;
+  margin: 1rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.filter-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  text-decoration: none;
+  color: #6b7280;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s ease;
   
-  @media (max-width: 1024px) {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto;
+  &:hover {
+    color: #374151;
+    background: #f9fafb;
+  }
+  
+  &.active {
+    color: #dc2626;
+    border-bottom-color: #dc2626;
+    font-weight: 500;
+  }
+  
+  .count-badge {
+    background: #f3f4f6;
+    color: #6b7280;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-left: 4px;
+  }
+  
+  &.active .count-badge {
+    background: #dc2626;
+    color: white;
   }
 }
 
-/* Product Information Section */
-.product-info-section {
-  .info-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--gray-200);
-    
-    &:last-child {
-      border-bottom: none;
-    }
-    
-    label {
-      font-weight: 600;
-      color: var(--gray-700);
-      margin: 0;
-      min-width: 120px;
-    }
-    
-    span {
-      color: var(--gray-800);
-      text-align: right;
-      flex: 1;
-    }
+/* Source Badges */
+.source-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  margin-top: 4px;
+  
+  &.source-callback {
+    background: #dbeafe;
+    color: #1e40af;
+  }
+  
+  &.source-order {
+    background: #d1fae5;
+    color: #065f46;
+  }
+  
+  i {
+    font-size: 10px;
   }
 }
 
-/* Pricing Section */
-.pricing-section {
-  .price-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--gray-200);
-    
-    &:last-child {
-      border-bottom: none;
-    }
-    
-    label {
-      font-weight: 600;
-      color: var(--gray-700);
-      margin: 0;
-    }
-    
-    span {
-      font-weight: 500;
-    }
-  }
+.product-badges {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
 }
 
-/* Product Badges and Labels */
+/* Product Details */
 .part-number {
-  font-family: 'Courier New', monospace;
-  background: var(--gray-100);
-  padding: 0.25rem 0.5rem;
+  font-family: 'SF Mono', Consolas, monospace;
+  background: #f3f4f6;
+  padding: 4px 8px;
   border-radius: 4px;
+  font-size: 12px;
   font-weight: 500;
 }
 
 .category-badge {
-  background: var(--info);
+  background: #6b7280;
   color: white;
-  padding: 0.25rem 0.5rem;
+  padding: 4px 8px;
   border-radius: 4px;
-  font-size: 0.8rem;
+  font-size: 12px;
   font-weight: 500;
   
   &.category-engine { background: #dc2626; }
@@ -95,22 +107,20 @@
   &.category-exhaust { background: #6366f1; }
 }
 
-/* Price Styling */
+/* Price and Margin */
 .price-cost {
-  color: var(--brand-red);
+  color: #dc2626;
   font-weight: 600;
 }
 
 .price-selling {
-  color: var(--success);
+  color: #059669;
   font-weight: 600;
-  font-size: 1.1rem;
 }
 
-/* Profit Margin Indicators */
 .profit-margin {
-  font-weight: bold;
-  padding: 0.25rem 0.5rem;
+  font-weight: 600;
+  padding: 4px 8px;
   border-radius: 4px;
   
   &.high {
@@ -129,130 +139,23 @@
   }
 }
 
-.markup {
-  color: var(--gray-600);
-  font-size: 0.9rem;
-}
-
-/* Vehicle Compatibility */
-.compatibility-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  
-  .compatibility-badge {
-    background: var(--gray-100);
-    border: 1px solid var(--gray-300);
-    padding: 0.5rem 0.75rem;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    color: var(--gray-700);
-  }
-}
-
-/* Product Form Styling */
-.product-form {
-  .form-section {
-    background: var(--gray-50);
-    padding: 1.5rem;
-    border-radius: 8px;
-    margin-bottom: 2rem;
-    
-    h3 {
-      color: var(--gray-800);
-      margin-bottom: 1.5rem;
-      font-size: 1.1rem;
-      
-      i {
-        color: var(--brand-red);
-        margin-right: 0.5rem;
-      }
-    }
-  }
-  
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
-    
-    @media (max-width: 768px) {
-      grid-template-columns: 1fr;
-      gap: 1rem;
-    }
-  }
-  
-  .input-group {
-    display: flex;
-    
-    .input-group-text {
-      background: var(--gray-200);
-      border: 1px solid var(--gray-300);
-      border-right: none;
-      padding: 0.5rem 0.75rem;
-      color: var(--gray-700);
-      font-weight: 500;
-      border-radius: 4px 0 0 4px;
-    }
-    
-    .form-control {
-      border-radius: 0 4px 4px 0;
-    }
-  }
-}
-
 /* Status Badges */
 .badge-active {
-  background: var(--success);
+  background: #059669;
   color: white;
 }
 
 .badge-discontinued {
-  background: var(--gray-500);
+  background: #6b7280;
   color: white;
 }
 
 .badge-backordered {
-  background: var(--warning);
+  background: #d97706;
   color: white;
 }
 
 .badge-out_of_stock {
-  background: var(--brand-red);
+  background: #dc2626;
   color: white;
-}
-
-/* Product Search Filters */
-.product-filters {
-  .search-form {
-    display: flex;
-    gap: 1rem;
-    align-items: end;
-    
-    @media (max-width: 768px) {
-      flex-direction: column;
-      align-items: stretch;
-    }
-  }
-}
-
-/* Empty State for Products */
-.products-empty-state {
-  text-align: center;
-  padding: 3rem 2rem;
-  
-  i {
-    color: var(--gray-400);
-    margin-bottom: 1rem;
-  }
-  
-  h3 {
-    color: var(--gray-600);
-    margin-bottom: 0.5rem;
-  }
-  
-  p {
-    color: var(--gray-500);
-    margin-bottom: 2rem;
-  }
 }

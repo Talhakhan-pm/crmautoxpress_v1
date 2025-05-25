@@ -21,6 +21,11 @@ class ProductsController < ApplicationController
       @products = @products.where(status: params[:status])
     end
     
+    # Filter by source
+    if params[:source].present?
+      @products = @products.by_source(params[:source])
+    end
+    
     # Track views for loaded products
     @products.limit(50).each(&:track_view)
   end
