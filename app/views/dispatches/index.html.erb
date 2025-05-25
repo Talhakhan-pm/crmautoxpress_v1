@@ -292,13 +292,62 @@
   </div>
 </div>
 
-<!-- Quick Dispatch Details Modal -->
-<div id="dispatch-modal" class="dispatch-modal">
+<!-- Modern Timeline Dispatch Modal -->
+<div id="dispatch-modal" class="dispatch-modal" data-controller="modal">
   <div class="modal-content">
     <div class="modal-header">
-      <h3 id="modal-title">Dispatch Details</h3>
-      <button onclick="closeDispatchModal()" class="close-btn">×</button>
+      <div class="modal-header-content">
+        <h2 class="modal-title" id="modal-title">
+          <div class="modal-icon">
+            <i class="fas fa-shipping-fast"></i>
+          </div>
+          Dispatch Details
+        </h2>
+        <p class="modal-subtitle">Manage dispatch status, tracking, and fulfillment</p>
+        
+        <div class="status-timeline" id="status-timeline">
+          <div class="timeline-line"></div>
+          <div class="timeline-progress" style="width: 0%;"></div>
+          
+          <div class="timeline-item pending">
+            <div class="timeline-marker">
+              <i class="fas fa-clock"></i>
+            </div>
+            <div class="timeline-label">Pending</div>
+            <div class="timeline-date">-</div>
+          </div>
+          
+          <div class="timeline-item pending">
+            <div class="timeline-marker">
+              <i class="fas fa-cog"></i>
+            </div>
+            <div class="timeline-label">Processing</div>
+            <div class="timeline-date">-</div>
+          </div>
+          
+          <div class="timeline-item pending">
+            <div class="timeline-marker">
+              <i class="fas fa-truck"></i>
+            </div>
+            <div class="timeline-label">Shipped</div>
+            <div class="timeline-date">-</div>
+          </div>
+          
+          <div class="timeline-item pending">
+            <div class="timeline-marker">
+              <i class="fas fa-home"></i>
+            </div>
+            <div class="timeline-label">Delivered</div>
+            <div class="timeline-date">-</div>
+          </div>
+        </div>
+      </div>
+      
+      <button onclick="closeDispatchModal()" class="close-btn" data-action="click->modal#close">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
+    
     <div id="modal-body" class="modal-body">
       <!-- Content loaded via AJAX -->
     </div>
@@ -349,10 +398,74 @@ function showDispatchDetails(dispatchId) {
   })
     .then(response => response.text())
     .then(html => {
+      // Load content into modal body
       document.getElementById('modal-body').innerHTML = html;
+      
+      // Update timeline based on dispatch data
+      updateTimelineForDispatch(dispatchId);
+      
+      // Show modal
       document.getElementById('dispatch-modal').classList.add('active');
       document.body.style.overflow = 'hidden';
     });
+}
+
+function updateTimelineForDispatch(dispatchId) {
+  // Find the dispatch card to get current status
+  const dispatchCard = document.querySelector(`[data-dispatch-id="${dispatchId}"]`);
+  if (!dispatchCard) return;
+  
+  const cardClasses = dispatchCard.className;
+  let currentStatus = 'pending';
+  
+  if (cardClasses.includes('completed')) currentStatus = 'completed';
+  else if (cardClasses.includes('shipped')) currentStatus = 'shipped';
+  else if (cardClasses.includes('processing')) currentStatus = 'processing';
+  
+  updateTimelineStatus(currentStatus);
+}
+
+function updateTimelineStatus(status) {
+  const timelineItems = document.querySelectorAll('#status-timeline .timeline-item');
+  const progressBar = document.querySelector('#status-timeline .timeline-progress');
+  
+  // Reset all items
+  timelineItems.forEach(item => {
+    item.className = 'timeline-item pending';
+  });
+  
+  let progressWidth = 0;
+  
+  // Update based on status
+  switch(status) {
+    case 'pending':
+      timelineItems[0].className = 'timeline-item active';
+      progressWidth = 0;
+      break;
+    case 'processing':
+      timelineItems[0].className = 'timeline-item completed';
+      timelineItems[1].className = 'timeline-item active';
+      // Add spinning animation to processing
+      timelineItems[1].querySelector('i').className = 'fas fa-cog fa-spin';
+      progressWidth = 33;
+      break;
+    case 'shipped':
+      timelineItems[0].className = 'timeline-item completed';
+      timelineItems[1].className = 'timeline-item completed';
+      timelineItems[2].className = 'timeline-item active';
+      progressWidth = 66;
+      break;
+    case 'completed':
+      timelineItems[0].className = 'timeline-item completed';
+      timelineItems[1].className = 'timeline-item completed';
+      timelineItems[2].className = 'timeline-item completed';
+      timelineItems[3].className = 'timeline-item active';
+      progressWidth = 100;
+      break;
+  }
+  
+  // Update progress bar
+  progressBar.style.width = progressWidth + '%';
 }
 
 function closeDispatchModal() {
