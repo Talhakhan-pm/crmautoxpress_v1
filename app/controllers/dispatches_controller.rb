@@ -15,9 +15,9 @@ class DispatchesController < ApplicationController
     
     # Search functionality
     if params[:search].present?
-      search_term = "%#{params[:search]}%"
+      search_term = "%#{params[:search].downcase}%"
       @dispatches = @dispatches.joins(:order).where(
-        "dispatches.order_number ILIKE ? OR dispatches.customer_name ILIKE ? OR dispatches.product_name ILIKE ? OR dispatches.supplier_name ILIKE ? OR dispatches.tracking_number ILIKE ?",
+        "LOWER(dispatches.order_number) LIKE ? OR LOWER(dispatches.customer_name) LIKE ? OR LOWER(dispatches.product_name) LIKE ? OR LOWER(dispatches.supplier_name) LIKE ? OR LOWER(dispatches.tracking_number) LIKE ?",
         search_term, search_term, search_term, search_term, search_term
       )
     end

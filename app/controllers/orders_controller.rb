@@ -13,9 +13,9 @@ class OrdersController < ApplicationController
     
     # Search functionality
     if params[:search].present?
-      search_term = "%#{params[:search]}%"
+      search_term = "%#{params[:search].downcase}%"
       @orders = @orders.where(
-        "order_number ILIKE ? OR customer_name ILIKE ? OR product_name ILIKE ? OR car_make_model ILIKE ?",
+        "LOWER(orders.order_number) LIKE ? OR LOWER(orders.customer_name) LIKE ? OR LOWER(orders.product_name) LIKE ? OR LOWER(orders.car_make_model) LIKE ?",
         search_term, search_term, search_term, search_term
       )
     end
