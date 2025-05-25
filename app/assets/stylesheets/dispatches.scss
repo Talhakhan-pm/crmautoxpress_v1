@@ -985,7 +985,7 @@
   bottom: 0;
   background: rgba(15, 23, 42, 0.7);
   backdrop-filter: blur(12px);
-  z-index: 1000;
+  z-index: 1100;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1209,195 +1209,255 @@
 .modal-body {
   padding: 32px;
   overflow-y: auto;
+  overflow-x: hidden;
   max-height: calc(95vh - 160px);
   background: #ffffff;
   color: #1e293b;
-}
-
-// ============================================
-// MODERN SECTION STYLING
-// ============================================
-
-.section {
-  margin-bottom: 32px;
   
-  &:last-child {
-    margin-bottom: 0;
+  // Ensure proper containment and prevent overflow
+  > * {
+    box-sizing: border-box;
   }
 }
 
-.section-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #f1f5f9;
-}
+// ============================================
+// MODERN SECTION STYLING (DISPATCH MODAL SPECIFIC)
+// ============================================
 
-.section-icon {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, #fef2f2, #fee2e2);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #dc2626;
-  font-size: 16px;
-}
+.dispatch-modal {
+  .section {
+    margin-bottom: 32px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
 
-.section-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0;
-}
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f1f5f9;
+  }
 
-.section-action {
-  margin-left: auto;
-  background: #f8fafc;
-  color: #64748b;
-  border: 1px solid #e2e8f0;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-decoration: none;
-  
-  &:hover {
-    background: #f1f5f9;
-    border-color: #dc2626;
+  .section-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #fef2f2, #fee2e2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: #dc2626;
+    font-size: 16px;
   }
-}
 
-// ============================================
-// MODERN FORM STYLING
-// ============================================
-
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 6px;
-  
-  &.required::after {
-    content: '*';
-    color: #dc2626;
-    margin-left: 4px;
-  }
-}
-
-.form-input, .form-select {
-  padding: 12px 16px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #1e293b;
-  background: white;
-  transition: all 0.3s ease;
-  
-  &:focus {
-    outline: none;
-    border-color: #dc2626;
-    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
-  }
-  
-  &::placeholder {
-    color: #94a3b8;
-  }
-}
-
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-}
-
-.info-item {
-  padding: 16px 0;
-}
-
-.info-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 6px;
-}
-
-.info-value {
-  font-size: 15px;
-  color: #1e293b;
-  font-weight: 500;
-  
-  &.highlight-value {
-    color: #dc2626;
-    font-weight: 600;
-  }
-  
-  &.cost-highlight {
+  .section-title {
     font-size: 18px;
-    font-weight: 700;
-    color: #dc2626;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0;
+  }
+
+  .section-action {
+    margin-left: auto;
+    background: #f8fafc;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    
+    &:hover {
+      background: #f1f5f9;
+      border-color: #dc2626;
+      color: #dc2626;
+    }
   }
 }
 
 // ============================================
-// BUTTON STYLES
+// MODERN FORM STYLING (DISPATCH MODAL SPECIFIC)
 // ============================================
 
-.btn-primary, .btn-secondary {
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.3s ease;
-  border: none;
-  text-decoration: none;
-}
+.dispatch-modal {
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+  }
 
-.btn-primary {
-  background: linear-gradient(135deg, #dc2626, #ef4444);
-  color: white;
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
-  
-  &:hover {
-    background: linear-gradient(135deg, #b91c1c, #dc2626);
-    transform: translateY(-1px);
-    box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 6px;
+    
+    &.required::after {
+      content: '*';
+      color: #dc2626;
+      margin-left: 4px;
+    }
+  }
+
+  .form-input, .form-select {
+    padding: 12px 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #1e293b;
+    background: white;
+    transition: all 0.3s ease;
+    
+    &:focus {
+      outline: none;
+      border-color: #dc2626;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+    }
+    
+    &::placeholder {
+      color: #94a3b8;
+    }
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+  }
+
+  .info-item {
+    padding: 16px 0;
+  }
+
+  .info-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+
+  .info-value {
+    font-size: 15px;
+    color: #1e293b;
+    font-weight: 500;
+    
+    &.highlight-value {
+      color: #dc2626;
+      font-weight: 600;
+    }
+    
+    &.cost-highlight {
+      font-size: 18px;
+      font-weight: 700;
+      color: #dc2626;
+    }
   }
 }
 
-.btn-secondary {
-  background: #f8fafc;
-  color: #374151;
-  border: 1px solid #e5e7eb;
-  
-  &:hover {
-    background: #f1f5f9;
-    border-color: #dc2626;
-    color: #dc2626;
-    transform: translateY(-1px);
+// ============================================
+// BUTTON STYLES (DISPATCH MODAL SPECIFIC)
+// ============================================
+
+.dispatch-modal {
+  .btn-primary, .btn-secondary {
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    border: none;
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+    color: white;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    
+    &:hover {
+      background: linear-gradient(135deg, #b91c1c, #dc2626);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
+    }
+  }
+
+  .btn-secondary {
+    background: #f8fafc;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+    
+    &:hover {
+      background: #f1f5f9;
+      border-color: #dc2626;
+      color: #dc2626;
+      transform: translateY(-1px);
+    }
+  }
+}
+
+// ============================================
+// RESPONSIVE FIXES FOR DISPATCH MODAL
+// ============================================
+
+@media (max-width: 768px) {
+  .dispatch-modal {
+    .modal-content {
+      width: 98%;
+      max-height: 98vh;
+      margin: 1vh auto;
+    }
+    
+    .modal-header-content {
+      padding: 20px 24px;
+    }
+    
+    .modal-body {
+      padding: 20px;
+      max-height: calc(98vh - 140px);
+    }
+    
+    .form-grid, .info-grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    
+    .status-timeline {
+      padding: 0 10px;
+      
+      .timeline-item {
+        .timeline-label {
+          font-size: 10px;
+        }
+        
+        .timeline-date {
+          font-size: 9px;
+        }
+      }
+      
+      .timeline-marker {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+      }
+    }
   }
 }
 
