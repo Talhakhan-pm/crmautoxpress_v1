@@ -164,43 +164,39 @@
                   <div class="info-grid">
                     <div class="info-item">
                       <div class="info-label">Customer Total</div>
-                      <div class="info-value cost-highlight" data-dispatch-form-target="customerTotal">
-                        <%= number_to_currency(@dispatch.total_cost) if @dispatch.total_cost %>
-                      </div>
+                      <div class="info-value cost-highlight" data-dispatch-form-target="customerTotal"><%= number_to_currency(@dispatch.total_cost || 0) %></div>
                     </div>
                     <div class="info-item">
                       <div class="info-label">Tax & Shipping</div>
-                      <div class="info-value">
-                        <%= number_to_currency((@dispatch.tax_amount || 0) + (@dispatch.shipping_cost || 0)) %>
-                      </div>
+                      <div class="info-value"><%= number_to_currency((@dispatch.tax_amount || 0) + (@dispatch.shipping_cost || 0)) %></div>
                     </div>
                     <div class="info-item">
                       <div class="info-label">Supplier Cost</div>
-                      <div class="info-value" data-dispatch-form-target="supplierCostDisplay">
-                        $<%= number_with_delimiter(@dispatch.supplier_cost || 0, delimiter: ',') %>
-                      </div>
+                      <div class="info-value" data-dispatch-form-target="supplierCostDisplay"><%= number_to_currency(@dispatch.supplier_cost || 0) %></div>
                     </div>
                     <div class="info-item">
                       <div class="info-label">Estimated Profit</div>
-                      <div class="info-value profit-positive" data-dispatch-form-target="profitDisplay">
-                        <% if @dispatch.total_cost && @dispatch.supplier_cost %>
-                          +$<%= number_with_delimiter(@dispatch.total_cost - @dispatch.supplier_cost, delimiter: ',') %>
-                        <% elsif @dispatch.total_cost %>
-                          +$<%= number_with_delimiter(@dispatch.total_cost, delimiter: ',') %>
-                        <% else %>
-                          $0.00
-                        <% end %>
-                      </div>
+                      <div class="info-value profit-positive" data-dispatch-form-target="profitDisplay"><%
+                        profit = (@dispatch.total_cost || 0) - (@dispatch.supplier_cost || 0)
+                        if profit > 0
+                          "+#{number_to_currency(profit)}"
+                        elsif profit < 0
+                          number_to_currency(profit)
+                        else
+                          "$0.00"
+                        end
+                      %></div>
                     </div>
                     <div class="info-item">
                       <div class="info-label">Profit Margin</div>
-                      <div class="info-value" data-dispatch-form-target="profitMargin">
-                        <% if @dispatch.total_cost && @dispatch.supplier_cost && @dispatch.total_cost > 0 %>
-                          <%= ((@dispatch.total_cost - @dispatch.supplier_cost) / @dispatch.total_cost * 100).round(2) %>%
-                        <% else %>
-                          0.00%
-                        <% end %>
-                      </div>
+                      <div class="info-value" data-dispatch-form-target="profitMargin"><%
+                        if (@dispatch.total_cost || 0) > 0 && (@dispatch.supplier_cost || 0) > 0
+                          margin = (((@dispatch.total_cost || 0) - (@dispatch.supplier_cost || 0)) / (@dispatch.total_cost || 0) * 100).round(2)
+                          "#{margin}%"
+                        else
+                          "0.00%"
+                        end
+                      %></div>
                     </div>
                   </div>
                 </div>

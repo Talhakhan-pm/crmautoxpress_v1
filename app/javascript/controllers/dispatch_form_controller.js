@@ -166,9 +166,13 @@ export default class extends Controller {
 
   updateProfitDisplay(profit, margin) {
     if (this.hasProfitDisplayTarget) {
-      const formattedProfit = this.formatCurrency(Math.abs(profit))
-      const sign = profit >= 0 ? '+' : '-'
-      this.profitDisplayTarget.textContent = `${sign}${formattedProfit}`
+      if (profit > 0) {
+        this.profitDisplayTarget.textContent = `+${this.formatCurrency(profit)}`
+      } else if (profit < 0) {
+        this.profitDisplayTarget.textContent = this.formatCurrency(profit)
+      } else {
+        this.profitDisplayTarget.textContent = '$0.00'
+      }
     }
     
     if (this.hasProfitMarginTarget) {
@@ -363,6 +367,8 @@ export default class extends Controller {
 
   formatCurrency(amount) {
     return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     }).format(amount)
