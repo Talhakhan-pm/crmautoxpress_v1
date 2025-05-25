@@ -20,6 +20,9 @@ class AgentCallback < ApplicationRecord
   validates :product, presence: true
   validates :status, presence: true
 
+  # Scopes
+  scope :recent, -> { order(created_at: :desc) }
+
   include Trackable
   
   after_create_commit :find_or_create_customer

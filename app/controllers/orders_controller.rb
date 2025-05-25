@@ -57,11 +57,40 @@ class OrdersController < ApplicationController
     @order.agent = current_user
     @order.last_modified_by = current_user.email
 
-    if @order.save
-      redirect_to @order, notice: 'Order was successfully created.'
+    # Handle different form actions
+    action_type = params[:action_value] || params[:commit]
+    
+    if action_type == 'save_draft'
+      @order.order_status = 'pending'
     else
-      load_form_data
-      render :new, status: :unprocessable_entity
+      @order.order_status = 'confirmed'
+    end
+
+    respond_to do |format|
+      if @order.save
+        # Update callback status if this was converted from a callback
+        if @order.agent_callback_id.present?
+          callback = AgentCallback.find(@order.agent_callback_id)
+          callback.update!(status: 'sale', updated_at: Time.current)
+        end
+
+        format.html { redirect_to orders_path, notice: "Order #{@order.order_number} was successfully created!" }
+        format.turbo_stream { 
+          flash.now[:notice] = "Order #{@order.order_number} created successfully!"
+          render turbo_stream: [
+            turbo_stream.prepend("orders-content", partial: "orders/order", locals: { order: @order }),
+            turbo_stream.replace("flash-messages", partial: "shared/flash_messages")
+          ]
+        }
+        format.json { render json: { success: true, order: @order, redirect_url: orders_path } }
+      else
+        format.html { 
+          load_form_data
+          render :new, status: :unprocessable_entity 
+        }
+        format.turbo_stream { render :new, status: :unprocessable_entity }
+        format.json { render json: { success: false, errors: @order.errors } }
+      end
     end
   end
 
@@ -86,6 +115,21 @@ class OrdersController < ApplicationController
   def destroy
     @order.destroy
     redirect_to orders_url, notice: 'Order was successfully deleted.'
+  end
+
+  # AJAX endpoint for callback details
+  def get_callback
+    callback = AgentCallback.find(params[:id])
+    render json: {
+      id: callback.id,
+      customer_name: callback.customer_name,
+      phone_number: callback.phone_number,
+      product: callback.product,
+      year: callback.year,
+      car_make_model: callback.car_make_model
+    }
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: 'Callback not found' }, status: 404
   end
 
   # Test broadcast action
@@ -128,11 +172,11 @@ class OrdersController < ApplicationController
     params.require(:order).permit(
       :customer_name, :customer_address, :customer_phone, :customer_email,
       :product_name, :car_year, :car_make_model, :order_status, :priority,
-      :product_price, :tax_amount, :shipping_cost, :tracking_number,
-      :product_link, :estimated_delivery, :comments, :internal_notes,
+      :product_price, :tax_amount, :shipping_cost, :total_amount, :tracking_number,
+      :product_link, :estimated_delivery, :comments, :internal_notes, :notes,
       :customer_id, :product_id, :processing_agent_id, :agent_callback_id,
       :source_channel, :warranty_period_days, :warranty_terms,
-      :return_window_days, :commission_amount
+      :return_window_days, :commission_amount, :mileage, :agent_id, :order_date
     )
   end
 
@@ -155,7 +199,7 @@ class OrdersController < ApplicationController
     
     # Try to match existing product
     if callback.product.present?
-      product = Product.where("name ILIKE ?", "%#{callback.product}%").first
+      product = Product.where("name LIKE ?", "%#{callback.product}%").first
       @order.product_id = product&.id
       @order.product_price = product&.selling_price
     end

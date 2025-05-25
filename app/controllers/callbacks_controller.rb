@@ -7,6 +7,21 @@ class CallbacksController < ApplicationController
 
   def show
     @callback.track_view
+    
+    respond_to do |format|
+      format.html
+      format.json { 
+        render json: {
+          id: @callback.id,
+          customer_name: @callback.customer_name,
+          phone_number: @callback.phone_number,
+          product: @callback.product,
+          year: @callback.year,
+          car_make_model: @callback.car_make_model,
+          status: @callback.status
+        }
+      }
+    end
   end
 
   def new

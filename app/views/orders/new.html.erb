@@ -1,2 +1,875 @@
-<h1>Orders#new</h1>
-<p>Find me in app/views/orders/new.html.erb</p>
+<!-- Smart Order Creation Modal -->
+<div id="order-modal" class="order-modal active">
+  <div class="modal-overlay" onclick="closeOrderModal()"></div>
+  <div class="order-modal-content">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <div class="header-content">
+        <div class="modal-title-section">
+          <h2 class="modal-title">
+            <i class="fas fa-plus-circle modal-icon"></i>
+            Create New Order
+          </h2>
+          <p class="modal-subtitle">Unified order creation with automatic callback tracking</p>
+        </div>
+        <button type="button" onclick="closeOrderModal()" class="close-btn">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <!-- Order Type Toggle -->
+      <div class="order-type-toggle">
+        <button type="button" class="toggle-btn active" data-type="direct" onclick="setOrderType('direct')">
+          <i class="fas fa-phone"></i>
+          Direct Sale
+        </button>
+        <button type="button" class="toggle-btn" data-type="conversion" onclick="setOrderType('conversion')">
+          <i class="fas fa-exchange-alt"></i>
+          Convert Callback
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="modal-body">
+      <%= form_with model: @order, local: false, class: "order-form", id: "order-form" do |form| %>
+        <!-- Callback Selection (hidden by default) -->
+        <div id="callback-selection" class="form-section callback-section" style="display: none;">
+          <div class="section-header">
+            <h4 class="section-title">
+              <i class="fas fa-search"></i>
+              Select Callback to Convert
+            </h4>
+          </div>
+          
+          <div class="callback-selector">
+            <input type="text" id="callback-search" placeholder="Search by customer name, phone, or product..." class="search-input" oninput="searchCallbacks(this.value)">
+            
+            <div id="callbacks-list" class="callbacks-grid">
+              <% AgentCallback.where(status: ['pending', 'follow_up']).recent.limit(10).each do |callback| %>
+                <div class="callback-card" data-callback-id="<%= callback.id %>" onclick="selectCallback(<%= callback.id %>)">
+                  <div class="callback-header">
+                    <span class="customer-name"><%= callback.customer_name %></span>
+                    <span class="status-badge status-<%= callback.status %>"><%= callback.status.humanize %></span>
+                  </div>
+                  <div class="callback-body">
+                    <div class="phone"><i class="fas fa-phone"></i> <%= callback.phone_number %></div>
+                    <div class="product"><i class="fas fa-cog"></i> <%= callback.product %></div>
+                    <div class="date"><i class="fas fa-clock"></i> <%= callback.created_at.strftime("%m/%d/%Y") %></div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+          
+          <%= form.hidden_field :agent_callback_id, id: "selected_callback_id" %>
+        </div>
+
+        <!-- Customer Information -->
+        <div class="form-section">
+          <div class="section-header">
+            <h4 class="section-title">
+              <i class="fas fa-user"></i>
+              Customer Information
+            </h4>
+            <div class="smart-lookup">
+              <button type="button" onclick="lookupCustomer()" class="lookup-btn">
+                <i class="fas fa-search"></i>
+                Lookup Existing
+              </button>
+            </div>
+          </div>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <%= form.label :customer_name, "Customer Name *", class: "form-label" %>
+              <%= form.text_field :customer_name, class: "form-input", placeholder: "Full customer name", required: true %>
+            </div>
+            
+            <div class="form-group">
+              <%= form.label :customer_phone, "Phone Number *", class: "form-label" %>
+              <%= form.telephone_field :customer_phone, class: "form-input", placeholder: "(555) 123-4567", required: true %>
+            </div>
+            
+            <div class="form-group full-width">
+              <%= form.label :customer_email, "Email Address", class: "form-label" %>
+              <%= form.email_field :customer_email, class: "form-input", placeholder: "customer@example.com" %>
+            </div>
+            
+            <div class="form-group full-width">
+              <%= form.label :customer_address, "Address", class: "form-label" %>
+              <%= form.text_area :customer_address, class: "form-input", rows: 2, placeholder: "Full address including city, state, zip" %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vehicle Information -->
+        <div class="form-section">
+          <div class="section-header">
+            <h4 class="section-title">
+              <i class="fas fa-car"></i>
+              Vehicle Information
+            </h4>
+          </div>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <%= form.label :car_year, "Year", class: "form-label" %>
+              <%= form.number_field :car_year, class: "form-input", placeholder: "2020", min: 1980, max: Date.current.year + 2 %>
+            </div>
+            
+            <div class="form-group">
+              <%= form.label :car_make_model, "Make & Model", class: "form-label" %>
+              <%= form.text_field :car_make_model, class: "form-input", placeholder: "Toyota Camry" %>
+            </div>
+            
+            <div class="form-group">
+              <%= form.label :mileage, "Mileage", class: "form-label" %>
+              <%= form.number_field :mileage, class: "form-input", placeholder: "65000" %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product & Pricing -->
+        <div class="form-section">
+          <div class="section-header">
+            <h4 class="section-title">
+              <i class="fas fa-cog"></i>
+              Product & Pricing
+            </h4>
+            <div class="smart-lookup">
+              <button type="button" onclick="lookupProduct()" class="lookup-btn">
+                <i class="fas fa-search"></i>
+                Browse Catalog
+              </button>
+            </div>
+          </div>
+          
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <%= form.label :product_name, "Product/Part Name *", class: "form-label" %>
+              <%= form.text_field :product_name, class: "form-input", placeholder: "Brake pads, engine oil, transmission fluid...", required: true %>
+            </div>
+            
+            <div class="form-group">
+              <%= form.label :product_price, "Product Price *", class: "form-label" %>
+              <%= form.number_field :product_price, class: "form-input", step: 0.01, placeholder: "299.99", required: true, oninput: "calculateTotal()" %>
+            </div>
+            
+            <div class="form-group">
+              <%= form.label :tax_amount, "Tax Amount", class: "form-label" %>
+              <%= form.number_field :tax_amount, class: "form-input", step: 0.01, placeholder: "24.00", oninput: "calculateTotal()" %>
+            </div>
+            
+            <div class="form-group">
+              <%= form.label :shipping_cost, "Shipping Cost", class: "form-label" %>
+              <%= form.number_field :shipping_cost, class: "form-input", step: 0.01, placeholder: "15.00", oninput: "calculateTotal()" %>
+            </div>
+            
+            <div class="form-group total-display">
+              <div class="total-label">Total Amount</div>
+              <div class="total-amount" id="total-display">$0.00</div>
+              <%= form.hidden_field :total_amount %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Details -->
+        <div class="form-section">
+          <div class="section-header">
+            <h4 class="section-title">
+              <i class="fas fa-clipboard-list"></i>
+              Order Details
+            </h4>
+          </div>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <%= form.label :priority, "Priority Level", class: "form-label" %>
+              <%= form.select :priority, 
+                  options_for_select([
+                    ['Standard', 'standard'],
+                    ['High', 'high'],
+                    ['Rush', 'rush'],
+                    ['Urgent', 'urgent']
+                  ], 'standard'),
+                  {}, 
+                  { class: "form-select" } %>
+            </div>
+            
+            <div class="form-group">
+              <%= form.label :source_channel, "Source Channel", class: "form-label" %>
+              <%= form.select :source_channel,
+                  options_for_select([
+                    ['Phone Call', 'phone'],
+                    ['Website', 'web'],
+                    ['Email', 'email'],
+                    ['Walk-in', 'walk_in']
+                  ], 'phone'),
+                  {},
+                  { class: "form-select" } %>
+            </div>
+            
+            <div class="form-group">
+              <%= form.label :warranty_period_days, "Warranty (Days)", class: "form-label" %>
+              <%= form.number_field :warranty_period_days, class: "form-input", placeholder: "365", min: 0 %>
+            </div>
+            
+            <div class="form-group full-width">
+              <%= form.label :notes, "Order Notes", class: "form-label" %>
+              <%= form.text_area :notes, class: "form-input", rows: 3, placeholder: "Special instructions, customer requests, technical notes..." %>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Hidden Fields -->
+        <%= form.hidden_field :agent_id, value: current_user.id %>
+        <%= form.hidden_field :order_status, value: 'pending' %>
+        <%= form.hidden_field :order_date, value: Time.current %>
+        
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button type="button" onclick="closeOrderModal()" class="btn btn-secondary">
+            <i class="fas fa-times"></i>
+            Cancel
+          </button>
+          
+          <div class="primary-actions">
+            <button type="submit" name="action" value="save_draft" class="btn btn-outline">
+              <i class="fas fa-save"></i>
+              Save Draft
+            </button>
+            
+            <button type="submit" name="action" value="create_order" class="btn btn-primary">
+              <i class="fas fa-check"></i>
+              Create Order
+            </button>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- Customer Lookup Modal -->
+<div id="customer-lookup" class="lookup-modal">
+  <div class="lookup-content">
+    <div class="lookup-header">
+      <h3>Select Existing Customer</h3>
+      <button onclick="closeLookupModal('customer')" class="close-btn">×</button>
+    </div>
+    <div class="lookup-body">
+      <input type="text" id="customer-search" placeholder="Search by name or phone..." class="search-input">
+      <div id="customers-list" class="lookup-results">
+        <!-- Populated via AJAX -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Product Lookup Modal -->
+<div id="product-lookup" class="lookup-modal">
+  <div class="lookup-content">
+    <div class="lookup-header">
+      <h3>Select Product</h3>
+      <button onclick="closeLookupModal('product')" class="close-btn">×</button>
+    </div>
+    <div class="lookup-body">
+      <input type="text" id="product-search" placeholder="Search products..." class="search-input">
+      <div id="products-list" class="lookup-results">
+        <!-- Populated via AJAX -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.order-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.order-modal.active {
+  display: flex;
+}
+
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.order-modal-content {
+  position: relative;
+  background: white;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  z-index: 1001;
+}
+
+.modal-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 24px;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.modal-title-section .modal-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.modal-icon {
+  color: #4ade80;
+}
+
+.modal-subtitle {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 14px;
+}
+
+.close-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all 0.2s;
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.order-type-toggle {
+  display: flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px;
+  border-radius: 12px;
+}
+
+.toggle-btn {
+  flex: 1;
+  padding: 12px 20px;
+  background: transparent;
+  border: none;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.toggle-btn.active {
+  background: white;
+  color: #667eea;
+}
+
+.modal-body {
+  padding: 0;
+  max-height: calc(90vh - 180px);
+  overflow-y: auto;
+}
+
+.form-section {
+  padding: 24px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.form-section:last-child {
+  border-bottom: none;
+}
+
+.callback-section {
+  background: #f8fafc;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #334155;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.smart-lookup .lookup-btn {
+  background: #e2e8f0;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.smart-lookup .lookup-btn:hover {
+  background: #cbd5e1;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.form-grid .full-width {
+  grid-column: 1 / -1;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-label {
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.form-input, .form-select {
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.2s;
+  background: white;
+}
+
+.form-input:focus, .form-select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.total-display {
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  text-align: center;
+}
+
+.total-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.total-amount {
+  font-size: 24px;
+  font-weight: 700;
+  color: #059669;
+}
+
+.callback-selector {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.callbacks-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.callback-card {
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.callback-card:hover {
+  border-color: #667eea;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+}
+
+.callback-card.selected {
+  border-color: #667eea;
+  background: #f0f4ff;
+}
+
+.callback-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.customer-name {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-follow_up {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.callback-body {
+  display: grid;
+  gap: 6px;
+}
+
+.callback-body > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+}
+
+.primary-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  text-decoration: none;
+  border: none;
+}
+
+.btn-secondary {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+.btn-secondary:hover {
+  background: #e2e8f0;
+}
+
+.btn-outline {
+  background: white;
+  color: #667eea;
+  border: 2px solid #667eea;
+}
+
+.btn-outline:hover {
+  background: #667eea;
+  color: white;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 14px rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.lookup-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1002;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.lookup-modal.active {
+  display: flex;
+}
+
+.lookup-content {
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow: hidden;
+}
+
+.lookup-header {
+  padding: 20px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.lookup-body {
+  padding: 20px;
+  max-height: calc(80vh - 80px);
+  overflow-y: auto;
+}
+
+.lookup-results {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .order-modal-content {
+    margin: 10px;
+    max-height: calc(100vh - 20px);
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+
+<script>
+let selectedCallbackId = null;
+
+function setOrderType(type) {
+  // Update toggle buttons
+  document.querySelectorAll('.toggle-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  document.querySelector(`[data-type="${type}"]`).classList.add('active');
+  
+  // Show/hide callback selection
+  const callbackSection = document.getElementById('callback-selection');
+  if (type === 'conversion') {
+    callbackSection.style.display = 'block';
+  } else {
+    callbackSection.style.display = 'none';
+    selectedCallbackId = null;
+    document.getElementById('selected_callback_id').value = '';
+    clearForm();
+  }
+}
+
+function selectCallback(callbackId) {
+  // Update UI
+  document.querySelectorAll('.callback-card').forEach(card => {
+    card.classList.remove('selected');
+  });
+  document.querySelector(`[data-callback-id="${callbackId}"]`).classList.add('selected');
+  
+  // Store selection
+  selectedCallbackId = callbackId;
+  document.getElementById('selected_callback_id').value = callbackId;
+  
+  // Populate form with callback data
+  fetch(`/callbacks/${callbackId}.json`)
+    .then(response => response.json())
+    .then(callback => {
+      document.getElementById('order_customer_name').value = callback.customer_name || '';
+      document.getElementById('order_customer_phone').value = callback.phone_number || '';
+      document.getElementById('order_product_name').value = callback.product || '';
+      
+      // Focus on pricing since customer/product data is populated
+      document.getElementById('order_product_price').focus();
+    })
+    .catch(error => console.error('Error fetching callback:', error));
+}
+
+function searchCallbacks(query) {
+  if (!query.trim()) return;
+  
+  // Simple client-side search for now
+  const cards = document.querySelectorAll('.callback-card');
+  cards.forEach(card => {
+    const text = card.textContent.toLowerCase();
+    const matches = text.includes(query.toLowerCase());
+    card.style.display = matches ? 'block' : 'none';
+  });
+}
+
+function calculateTotal() {
+  const price = parseFloat(document.getElementById('order_product_price').value) || 0;
+  const tax = parseFloat(document.getElementById('order_tax_amount').value) || 0;
+  const shipping = parseFloat(document.getElementById('order_shipping_cost').value) || 0;
+  
+  const total = price + tax + shipping;
+  
+  document.getElementById('total-display').textContent = `$${total.toFixed(2)}`;
+  document.getElementById('order_total_amount').value = total.toFixed(2);
+}
+
+function lookupCustomer() {
+  document.getElementById('customer-lookup').classList.add('active');
+  // Load customers via AJAX
+  fetch('/customers.json')
+    .then(response => response.json())
+    .then(customers => {
+      const list = document.getElementById('customers-list');
+      list.innerHTML = customers.map(customer => `
+        <div class="lookup-item" onclick="selectCustomer('${customer.name}', '${customer.phone_number}', '${customer.email || ''}', '${customer.address || ''}')">
+          <strong>${customer.name}</strong><br>
+          <small>${customer.phone_number}</small>
+        </div>
+      `).join('');
+    });
+}
+
+function lookupProduct() {
+  document.getElementById('product-lookup').classList.add('active');
+  // Load products via AJAX
+  fetch('/products.json')
+    .then(response => response.json())
+    .then(products => {
+      const list = document.getElementById('products-list');
+      list.innerHTML = products.map(product => `
+        <div class="lookup-item" onclick="selectProduct('${product.name}', '${product.selling_price || 0}')">
+          <strong>${product.name}</strong><br>
+          <small>$${product.selling_price || 'N/A'}</small>
+        </div>
+      `).join('');
+    });
+}
+
+function selectCustomer(name, phone, email, address) {
+  document.getElementById('order_customer_name').value = name;
+  document.getElementById('order_customer_phone').value = phone;
+  document.getElementById('order_customer_email').value = email;
+  document.getElementById('order_customer_address').value = address;
+  closeLookupModal('customer');
+}
+
+function selectProduct(name, price) {
+  document.getElementById('order_product_name').value = name;
+  document.getElementById('order_product_price').value = price;
+  calculateTotal();
+  closeLookupModal('product');
+}
+
+function closeLookupModal(type) {
+  document.getElementById(`${type}-lookup`).classList.remove('active');
+}
+
+function clearForm() {
+  document.getElementById('order-form').reset();
+  calculateTotal();
+}
+
+function closeOrderModal() {
+  window.location.href = '/orders';
+}
+
+// Auto-calculate total when page loads
+document.addEventListener('DOMContentLoaded', function() {
+  calculateTotal();
+  
+  // Check if we're converting from a callback
+  const urlParams = new URLSearchParams(window.location.search);
+  const callbackId = urlParams.get('callback_id');
+  
+  if (callbackId) {
+    // Auto-switch to conversion mode
+    setOrderType('conversion');
+    // Auto-select the callback
+    selectCallback(parseInt(callbackId));
+  }
+  
+  // Handle form submission
+  document.getElementById('order-form').addEventListener('submit', function(e) {
+    // Add loading state
+    const submitBtn = e.target.querySelector('[type="submit"]:focus');
+    if (submitBtn) {
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+      submitBtn.disabled = true;
+    }
+  });
+});
+</script>

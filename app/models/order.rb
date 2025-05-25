@@ -48,6 +48,7 @@ class Order < ApplicationRecord
   before_validation :set_defaults, on: :create
   before_save :calculate_total_amount
   after_create :create_dispatch_record
+  after_create :create_auto_callback
   
   include Trackable
 
@@ -177,5 +178,36 @@ class Order < ApplicationRecord
     }
     
     create_dispatch!(dispatch_attributes)
+  end
+
+  def create_auto_callback
+    # Skip if this order was already created from a callback
+    return if agent_callback_id.present?
+    
+    Rails.logger.info "=== AUTO-CREATING CALLBACK FROM ORDER ==="
+    Rails.logger.info "Order ##{order_number} - Customer: #{customer_name}"
+    
+    begin
+      auto_callback = AgentCallback.create!(
+        user: agent,
+        customer_name: customer_name,
+        phone_number: customer_phone,
+        product: product_name,
+        status: 'sale', # Mark as successful sale
+        notes: "Auto-generated from Order ##{order_number}. Direct sale via #{source_channel}.",
+        created_at: order_date,
+        updated_at: Time.current
+      )
+      
+      # Link the callback to this order
+      update_column(:agent_callback_id, auto_callback.id)
+      
+      Rails.logger.info "Created auto-callback ##{auto_callback.id} for order ##{order_number}"
+      
+      auto_callback
+    rescue => e
+      Rails.logger.error "Auto-callback creation failed for order ##{order_number}: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+    end
   end
 end

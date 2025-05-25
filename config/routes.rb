@@ -1,6 +1,10 @@
 Rails.application.routes.draw do
   # Orders routes
-  resources :orders
+  resources :orders do
+    member do
+      get :get_callback
+    end
+  end
   
   # Test broadcast route
   get "test_broadcast", to: "orders#test_broadcast"
@@ -20,8 +24,9 @@ Rails.application.routes.draw do
   # Dashboard route
   get "dashboard", to: "dashboard#index"
 
-  # Callbacks routes
+  # Callbacks routes  
   resources :callbacks
+  resources :agent_callbacks, only: [:show]
   
   # Customers routes (minimal - no new/create)
   resources :customers, only: [:index, :show, :edit, :update]
