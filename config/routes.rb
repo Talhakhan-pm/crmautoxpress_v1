@@ -14,6 +14,9 @@ Rails.application.routes.draw do
 
   # Callbacks routes
   resources :callbacks
+  
+  # Customers routes (minimal - no new/create)
+  resources :customers, only: [:index, :show, :edit, :update]
 
   # Defines the root path route ("/")
   root "dashboard#index"

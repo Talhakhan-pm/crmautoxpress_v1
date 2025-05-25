@@ -42,10 +42,10 @@
                       <i class="fas fa-phone"></i>
                       <span>Callbacks</span>
                   <% end %>
-                  <a href="#" class="nav-item">
+                  <%= link_to customers_path, class: "nav-item #{'active' if request.path.start_with?('/customers')}" do %>
                       <i class="fas fa-users"></i>
                       <span>Customers</span>
-                  </a>
+                  <% end %>
               </div>
               
               <div class="nav-section">

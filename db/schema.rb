@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_05_23_192648) do
+ActiveRecord::Schema[7.1].define(version: 2025_05_25_012324) do
   create_table "activities", force: :cascade do |t|
     t.string "trackable_type", null: false
     t.integer "trackable_id", null: false
@@ -42,6 +42,22 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_23_192648) do
     t.datetime "updated_at", null: false
     t.integer "user_id"
     t.index ["user_id"], name: "index_agent_callbacks_on_user_id"
+  end
+
+  create_table "customers", force: :cascade do |t|
+    t.string "name"
+    t.string "phone_number"
+    t.string "email"
+    t.text "full_address"
+    t.string "source_campaign"
+    t.string "gclid"
+    t.string "utm_source"
+    t.string "utm_campaign"
+    t.integer "status", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["gclid"], name: "index_customers_on_gclid"
+    t.index ["phone_number"], name: "index_customers_on_phone_number"
   end
 
   create_table "users", force: :cascade do |t|

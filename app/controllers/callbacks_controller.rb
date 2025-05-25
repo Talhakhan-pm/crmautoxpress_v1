@@ -16,6 +16,15 @@ class CallbacksController < ApplicationController
   def create
     @callback = current_user.agent_callbacks.build(callback_params)
     
+    # Store Google Ads data if provided
+    if params[:google_ads_gclid].present?
+      session[:google_ads_data] = {
+        gclid: params[:google_ads_gclid],
+        utm_source: params[:google_ads_utm_source],
+        utm_campaign: params[:google_ads_utm_campaign]
+      }
+    end
+    
     respond_to do |format|
       if @callback.save
         format.html { redirect_to callbacks_path, notice: 'Callback was successfully created.' }

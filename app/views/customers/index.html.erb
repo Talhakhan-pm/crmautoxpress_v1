@@ -1,0 +1,66 @@
+<main class="main-content">
+  <%= turbo_frame_tag "main_content" do %>
+    <%= turbo_stream_from "customers" %>
+    
+    <header class="main-header">
+      <div class="header-title">
+        <h1><i class="fas fa-users"></i> Customers</h1>
+        <p class="header-subtitle">Customer database and analytics</p>
+      </div>
+      
+      <div class="header-actions">
+        <div class="search-filters">
+          <%= form_with url: customers_path, method: :get, local: true, data: { turbo_frame: "main_content" }, class: "search-form" do |form| %>
+            <div class="search-group">
+              <%= form.text_field :search, placeholder: "Search customers...", value: params[:search], class: "form-control" %>
+              <%= form.select :status, options_for_select([
+                ['All Statuses', ''],
+                ['Active', 'active'],
+                ['Inactive', 'inactive'], 
+                ['Blacklisted', 'blacklisted']
+              ], params[:status]), {}, { class: "form-select" } %>
+              <%= form.select :source, options_for_select([
+                ['All Sources', ''],
+                ['Google Ads', 'google_ads'],
+                ['With Callbacks', 'with_callbacks']
+              ], params[:source]), {}, { class: "form-select" } %>
+              <%= form.submit "Filter", class: "btn btn-secondary" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </header>
+
+    <div class="content-card">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Customer</th>
+              <th>Phone Number</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th>Source</th>
+              <th>Callbacks</th>
+              <th>Last Contact</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="customers">
+            <% @customers.each do |customer| %>
+              <%= render "customer", customer: customer %>
+            <% end %>
+          </tbody>
+        </table>
+        
+        <% if @customers.empty? %>
+          <div class="empty-state">
+            <i class="fas fa-users fa-3x text-muted"></i>
+            <h3>No customers found</h3>
+            <p>Customers are automatically created from callbacks.</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</main>

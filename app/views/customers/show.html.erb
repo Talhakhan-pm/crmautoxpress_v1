@@ -1,0 +1,152 @@
+<main class="main-content">
+  <%= turbo_frame_tag "main_content" do %>
+    <%= turbo_stream_from "customers" %>
+    <%= turbo_stream_from "customer_#{@customer.id}_activities" %>
+    
+    <header class="main-header">
+      <div class="header-title">
+        <h1>
+          <i class="fas fa-user"></i> 
+          <%= @customer.name %>
+          <span class="badge badge-<%= @customer.status %>"><%= @customer.status.humanize %></span>
+        </h1>
+        <p class="header-subtitle">Customer Profile & Activity</p>
+      </div>
+      
+      <div class="header-actions">
+        <%= link_to customers_path, class: "btn btn-secondary", data: { turbo_frame: "main_content" } do %>
+          <i class="fas fa-arrow-left"></i> Back to Customers
+        <% end %>
+        <%= link_to edit_customer_path(@customer), class: "btn btn-primary", data: { turbo_frame: "main_content" } do %>
+          <i class="fas fa-edit"></i> Edit Customer
+        <% end %>
+      </div>
+    </header>
+
+    <div class="customer-details-grid">
+      <!-- Customer Information -->
+      <div class="content-card">
+        <h3><i class="fas fa-info-circle"></i> Customer Information</h3>
+        <div class="customer-info-section">
+          <div class="info-row">
+            <label>Phone Number:</label>
+            <a href="tel:<%= @customer.phone_number %>" class="phone-link">
+              <%= @customer.phone_number %>
+            </a>
+          </div>
+          
+          <% if @customer.email.present? %>
+            <div class="info-row">
+              <label>Email:</label>
+              <a href="mailto:<%= @customer.email %>"><%= @customer.email %></a>
+            </div>
+          <% end %>
+          
+          <% if @customer.full_address.present? %>
+            <div class="info-row">
+              <label>Address:</label>
+              <span><%= @customer.full_address %></span>
+            </div>
+          <% end %>
+          
+          <% if @customer.source_campaign.present? %>
+            <div class="info-row">
+              <label>Source:</label>
+              <span class="source-badge"><%= @customer.source_campaign.humanize %></span>
+            </div>
+          <% end %>
+          
+          <% if @customer.gclid.present? %>
+            <div class="info-row">
+              <label>Google Ads ID:</label>
+              <span class="badge badge-google-ads"><%= @customer.gclid %></span>
+            </div>
+          <% end %>
+          
+          <div class="info-row">
+            <label>Customer Since:</label>
+            <span><%= @customer.created_at.strftime("%B %d, %Y") %></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Callbacks History -->
+      <div class="content-card">
+        <h3>
+          <i class="fas fa-phone"></i> 
+          Callbacks History 
+          <span class="count-badge"><%= @callbacks.count %></span>
+        </h3>
+        
+        <% if @callbacks.any? %>
+          <div class="callbacks-list">
+            <% @callbacks.each do |callback| %>
+              <div class="callback-item">
+                <div class="callback-header">
+                  <div class="callback-info">
+                    <strong><%= callback.product %></strong>
+                    <span class="badge badge-<%= callback.status %>">
+                      <%= callback.status.humanize %>
+                    </span>
+                  </div>
+                  <div class="callback-meta">
+                    <small class="text-muted">
+                      <%= time_ago_in_words(callback.created_at) %> ago
+                      by <%= callback.user.email %>
+                    </small>
+                  </div>
+                </div>
+                
+                <% if callback.car_make_model.present? %>
+                  <div class="callback-details">
+                    <i class="fas fa-car"></i>
+                    <%= callback.year %> <%= callback.car_make_model %>
+                  </div>
+                <% end %>
+                
+                <% if callback.notes.present? %>
+                  <div class="callback-notes">
+                    <%= simple_format(callback.notes) %>
+                  </div>
+                <% end %>
+                
+                <div class="callback-actions">
+                  <%= link_to callback_path(callback), class: "btn btn-sm btn-outline-primary", data: { turbo_frame: "main_content" } do %>
+                    <i class="fas fa-eye"></i> View Details
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="empty-state">
+            <i class="fas fa-phone fa-2x text-muted"></i>
+            <p>No callbacks yet</p>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="content-card">
+        <h3>
+          <i class="fas fa-history"></i> 
+          Recent Activity
+          <span id="activity-count"><%= @recent_activities.count %></span>
+        </h3>
+        
+        <div id="activity-list" class="activity-feed">
+          <% if @recent_activities.any? %>
+            <% @recent_activities.each do |activity| %>
+              <%= render "activities/activity", activity: activity %>
+            <% end %>
+          <% else %>
+            <div class="empty-state">
+              <i class="fas fa-history fa-2x text-muted"></i>
+              <p>No activity yet</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</main>

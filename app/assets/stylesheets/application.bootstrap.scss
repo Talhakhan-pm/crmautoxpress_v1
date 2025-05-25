@@ -3,6 +3,7 @@
 
 // Import dashboard styles
 @use 'dashboard';
+@use 'customers';
 
 /* Error alerts for validation */
 .alert {
@@ -1599,37 +1600,37 @@ body {
     font-size: 12px;
     font-weight: 500;
     border: 1px solid #bbf7d0;
-    
+
     &.status-pending {
         background: linear-gradient(135deg, #fef3c7, #fcd34d);
         color: #92400e;
         border-color: #fcd34d;
     }
-    
+
     &.status-not_interested {
         background: linear-gradient(135deg, #fee2e2, #fecaca);
         color: #dc2626;
         border-color: #fecaca;
     }
-    
+
     &.status-already_purchased {
         background: linear-gradient(135deg, #f3e8ff, #ddd6fe);
         color: #7c3aed;
         border-color: #ddd6fe;
     }
-    
+
     &.status-sale {
         background: linear-gradient(135deg, #dcfce7, #bbf7d0);
         color: #166534;
         border-color: #bbf7d0;
     }
-    
+
     &.status-payment_link {
         background: linear-gradient(135deg, #dbeafe, #93c5fd);
         color: #1e40af;
         border-color: #93c5fd;
     }
-    
+
     &.status-follow_up {
         background: linear-gradient(135deg, #fce7f3, #f9a8d4);
         color: #be185d;
@@ -1643,31 +1644,31 @@ body {
         color: #92400e;
         border: 1px solid #fcd34d;
     }
-    
+
     &.status-not_interested {
         background: linear-gradient(135deg, #fee2e2, #fecaca);
         color: #dc2626;
         border: 1px solid #fecaca;
     }
-    
+
     &.status-already_purchased {
         background: linear-gradient(135deg, #f3e8ff, #ddd6fe);
         color: #7c3aed;
         border: 1px solid #ddd6fe;
     }
-    
+
     &.status-sale {
         background: linear-gradient(135deg, #dcfce7, #bbf7d0);
         color: #166534;
         border: 1px solid #bbf7d0;
     }
-    
+
     &.status-payment_link {
         background: linear-gradient(135deg, #dbeafe, #93c5fd);
         color: #1e40af;
         border: 1px solid #93c5fd;
     }
-    
+
     &.status-follow_up {
         background: linear-gradient(135deg, #fce7f3, #f9a8d4);
         color: #be185d;

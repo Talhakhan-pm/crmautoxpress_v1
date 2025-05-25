@@ -709,6 +709,134 @@ This pattern can be easily extended to:
 - ✅ Activity tracking (live activity logs)
 - ✅ User assignment logic (create vs edit behavior)
 
+## AutoXpress CRM Roadmap & Future Plans
+
+### Phase 1: Customer Model (In Progress)
+**Purpose**: Google Ads attribution and contact consolidation
+
+**Customer Model Structure**:
+```ruby
+# Migration completed:
+create_table :customers do |t|
+  t.string :name
+  t.string :phone_number
+  t.string :email
+  t.text :full_address # parse with geocoder gem
+  
+  # Google Ads tracking
+  t.string :source_campaign
+  t.string :gclid # Google Click ID (automatic via URL params)
+  t.string :utm_source
+  t.string :utm_campaign
+  t.integer :status, default: 0 # active, inactive, blacklisted
+  
+  t.timestamps
+end
+```
+
+**Smart Customer Creation Strategy**:
+Instead of traditional CRUD, customers are **auto-created** from business workflows:
+
+**Customer Creation Sources**:
+- **Auto-created from AgentCallback**: Extract phone number → find_or_create Customer
+- **Auto-created from Orders**: Link order to existing Customer by phone
+- **Bulk import**: Phone lists from marketing campaigns
+- **Manual creation**: Only when absolutely necessary
+
+**Minimal Controller Design**:
+```ruby
+class CustomersController < ApplicationController
+  def index    # Browse/search customers for analytics
+  def show     # Customer profile with all callbacks/orders
+  def edit     # Update contact info & Google Ads attribution
+  def update   # Save changes
+  # NO create/new - customers auto-created from business logic
+end
+```
+
+**Auto-Creation Hooks**:
+```ruby
+# In AgentCallback model
+after_create :find_or_create_customer
+
+def find_or_create_customer
+  Customer.find_or_create_by(phone_number: phone_number) do |customer|
+    customer.name = customer_name
+    customer.gclid = session_gclid if session_gclid.present?
+  end
+end
+```
+
+**Google Ads Integration**:
+- `gclid` automatically captured from URL parameters when customers click Google Ads
+- URLs: `yoursite.com?gclid=abc123xyz` (Google adds automatically)
+- Captured via JavaScript: `new URLSearchParams(window.location.search).get('gclid')`
+- Stored in session, applied to customer record on callback creation
+- **Completely automatic attribution tracking**
+
+### Phase 2: Order Flow
+**Purpose**: Track callback → order conversion (20% rate)
+
+**Order Model**:
+```ruby
+create_table :orders do |t|
+  t.references :customer, foreign_key: true
+  t.references :agent_callback, foreign_key: true # source callback
+  t.integer :status # quote, confirmed, shipped, delivered
+  t.decimal :total_amount, precision: 10, scale: 2
+  t.timestamps
+end
+```
+
+**OrderItem Model** (handles multiple products flexibly):
+```ruby
+create_table :order_items do |t|
+  t.references :order, foreign_key: true
+  t.text :product_description # freehand like current callbacks
+  t.integer :quantity, default: 1
+  t.decimal :unit_price, precision: 10, scale: 2
+  t.decimal :line_total, precision: 10, scale: 2
+  t.timestamps
+end
+```
+
+### Phase 3: Product Intelligence (Future)
+**Approach**: Start simple, evolve with data
+- Keep freehand product entry (like current callbacks)
+- Background job analyzes product descriptions
+- Extract common part numbers/categories
+- Build auto-complete suggestions over time
+- Eventually normalize popular products
+
+### Data Flow Architecture
+```
+Customer → AgentCallback → Order → OrderItems
+     ↓         ↓           ↓         ↓
+  (Google   (Current    (20%      (Multiple
+   Ads      workflow)  convert)   products)
+tracking)
+```
+
+### Analytics Benefits
+1. **Google Ads ROI**: Track which campaigns generate orders
+2. **Conversion Funnel**: Callback → Quote → Order → Revenue
+3. **Agent Performance**: Who converts best
+4. **Product Trends**: What parts are popular
+5. **Customer Lifecycle**: Repeat customer identification
+
+### Real-Time Features Extension
+All new models will include:
+- `include Trackable` (activity tracking)
+- Turbo Stream broadcasting for live updates
+- Dashboard metrics integration
+- Mobile-responsive design
+
+### Smart Field Design
+- **Single `name` field** (not first/last) 
+- **Full address parsing** with geocoder gem
+- **Phone number deduplication** across customers
+- **Minimal required fields** to reduce friction
+
 ## Getting Started
 * `bundle install`
 * `rails db:create db:migrate db:seed`
@@ -720,71 +848,3 @@ This pattern can be easily extended to:
 * Activity tracking provides complete audit trail
 * Real-time updates work across all browser sessions
 * Mobile-responsive design with professional styling
-
-
- Complete Documentation Added:
-
-  1. Advanced Implementation Strategy
-
-  - Explains our dual-mode Turbo system
-  - Details the challenges we solved
-  - Shows the seamless navigation + real-time updates approach
-
-  2. Dual-Template Solution
-
-  - Documents our .html.erb + .turbo_stream.erb pattern
-  - Explains when each template is used
-  - Shows backward compatibility approach
-
-  3. Complete Flow Visualization
-
-  - Navigation flow between Index ↔ New ↔ Edit ↔ Show
-  - Visual Mermaid diagram of the relationships
-  - Clear explanation of turbo_frame navigation
-
-  4. File Structure Documentation
-
-  - Complete list of all templates we created
-  - Purpose of each file explained
-  - Partial template usage documented
-
-  5. Advanced Features Covered
-
-  - User Assignment Logic: Create (auto-assign) vs Edit (changeable)
-  - Activity Tracking System: Real-time broadcasting code examples
-  - Multi-Level Broadcasting: Callback, Activity, and Metrics levels
-  - Form Enhancements: Phone formatting, loading states, icons
-
-  6. Technical Implementation Details
-
-  - Controller Patterns: Exact code examples
-  - View Patterns: Template structure examples
-  - Link Configuration: How to set up turbo_frame data attributes
-
-  7. Architectural Decisions
-
-  - Why we chose Frames vs Streams for different use cases
-  - Template strategy reasoning
-  - User experience design principles
-
-  8. Performance & Benefits
-
-  - Reduced server load and faster UX
-  - Real-time collaboration capabilities
-  - SEO and mobile optimization benefits
-
-  9. Future Extensibility
-
-  - How to extend the pattern to new models
-  - Scaling considerations
-  - API integration possibilities
-
-  10. Complete Testing Strategy
-
-  - Manual testing workflow steps
-  - Checklist of features to verify
-  - Multi-window testing approach
-
-  This documentation serves as both a reference guide for the current implementation and a blueprint for
-  extending this pattern to other parts of the application. Anyone can now understand exactly how our
-  sophisticated Turbo system works! 🎉

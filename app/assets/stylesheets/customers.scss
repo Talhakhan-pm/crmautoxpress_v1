@@ -1,0 +1,204 @@
+/* Customer Specific Styles - AutoXpress CRM */
+
+/* Customer Details Grid Layout */
+.customer-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 2rem;
+  margin-top: 2rem;
+  
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+}
+
+/* Customer Information Section */
+.customer-info-section {
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--gray-200);
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    label {
+      font-weight: 600;
+      color: var(--gray-700);
+      margin: 0;
+    }
+    
+    span, a {
+      color: var(--gray-800);
+      text-decoration: none;
+      
+      &:hover {
+        color: var(--brand-red);
+      }
+    }
+  }
+}
+
+/* Callbacks List in Customer Profile */
+.callbacks-list {
+  max-height: 400px;
+  overflow-y: auto;
+  
+  .callback-item {
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background: white;
+    
+    .callback-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.5rem;
+    }
+    
+    .callback-details {
+      color: var(--gray-600);
+      font-size: 0.9rem;
+      margin: 0.5rem 0;
+      
+      i {
+        color: var(--brand-red);
+        margin-right: 0.5rem;
+      }
+    }
+    
+    .callback-notes {
+      background: var(--gray-50);
+      padding: 0.75rem;
+      border-radius: 6px;
+      margin: 0.5rem 0;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+    
+    .callback-actions {
+      text-align: right;
+      margin-top: 0.75rem;
+    }
+  }
+}
+
+/* Customer Badges */
+.badge-google-ads {
+  background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+  color: white;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.source-badge {
+  background: var(--info);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* Customer Contact Elements */
+.phone-link {
+  color: var(--brand-red);
+  text-decoration: none;
+  font-weight: 500;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.callback-count {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+  small {
+    font-size: 0.7rem;
+  }
+}
+
+.last-contact {
+  font-size: 0.9rem;
+  color: var(--gray-600);
+}
+
+/* Customer Search and Filters */
+.search-filters {
+  .search-form {
+    display: flex;
+    gap: 1rem;
+    align-items: end;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+  
+  .search-group {
+    display: flex;
+    gap: 0.75rem;
+    align-items: end;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  }
+}
+
+/* Customer Form Styling */
+.customer-form {
+  .form-section {
+    background: var(--gray-50);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    
+    h3 {
+      color: var(--gray-800);
+      margin-bottom: 1.5rem;
+      font-size: 1.1rem;
+      
+      i {
+        color: var(--brand-red);
+        margin-right: 0.5rem;
+      }
+    }
+  }
+  
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+  }
+}
+
+/* Count Badge */
+.count-badge {
+  background: var(--brand-red);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  margin-left: 0.5rem;
+}
