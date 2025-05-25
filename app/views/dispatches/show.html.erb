@@ -1,14 +1,14 @@
 <div class="dispatch-detail-container">
-  <!-- Dispatch Header -->
+  <!-- Modern Dispatch Header -->
   <div class="dispatch-hero">
-    <div class="hero-background">
-      <div class="hero-pattern"></div>
-    </div>
-    
-    <div class="hero-content">
-      <div class="hero-main">
-        <div class="dispatch-title">
-          <h1>Dispatch <span class="dispatch-number">#DSP-<%= @dispatch.id.to_s.rjust(4, '0') %></span></h1>
+    <!-- Compact Hero for Modal -->
+    <div class="modal-hero-section">
+      <div class="dispatch-title-section">
+        <div class="dispatch-icon">
+          <i class="fas fa-rocket"></i>
+        </div>
+        <div class="dispatch-info">
+          <h3>Dispatch <span class="dispatch-number">#DSP-<%= @dispatch.id.to_s.rjust(4, '0') %></span></h3>
           <div class="order-connection">
             <%= link_to order_path(@dispatch.order), class: "order-link" do %>
               <i class="fas fa-shopping-cart"></i>
@@ -16,50 +16,54 @@
             <% end %>
           </div>
         </div>
-        
-        <div class="hero-status">
-          <div class="primary-status">
-            <span class="status-badge status-<%= @dispatch.dispatch_status %>">
-              <span class="status-pulse"></span>
-              <%= @dispatch.dispatch_status.humanize %>
-            </span>
-          </div>
-          
-          <div class="priority-indicator">
-            <% priority = @dispatch.order&.priority || 'standard' %>
-            <% if priority == 'urgent' %>
-              <span class="priority-urgent">
-                <i class="fas fa-exclamation-triangle"></i>
-                Urgent Priority
-              </span>
-            <% elsif priority == 'rush' %>
-              <span class="priority-rush">
-                <i class="fas fa-clock"></i>
-                Rush Order
-              </span>
-            <% end %>
-          </div>
-        </div>
       </div>
       
-      <div class="hero-actions">
-        <%= link_to edit_dispatch_path(@dispatch), class: "hero-btn primary" do %>
-          <i class="fas fa-edit"></i>
-          Update Dispatch
+      <div class="dispatch-metrics">
+        <div class="metric-item">
+          <div class="metric-badge status-<%= @dispatch.dispatch_status %>">
+            <%= @dispatch.dispatch_status.humanize %>
+          </div>
+          <div class="metric-label">Current Status</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-value">$<%= number_with_delimiter(@dispatch.total_cost) %></div>
+          <div class="metric-label">Total Value</div>
+        </div>
+        <% if @dispatch.supplier_cost.present? && @dispatch.profit_margin > 0 %>
+          <div class="metric-item">
+            <div class="metric-value profit-positive">+$<%= number_with_delimiter(@dispatch.profit_margin) %></div>
+            <div class="metric-label">Profit</div>
+          </div>
+        <% end %>
+      </div>
+      
+      <div class="hero-actions-section">
+        <% priority = @dispatch.order&.priority || 'standard' %>
+        <% if priority == 'urgent' %>
+          <div class="priority-badge urgent">
+            <i class="fas fa-exclamation-triangle"></i>
+            URGENT
+          </div>
+        <% elsif priority == 'rush' %>
+          <div class="priority-badge rush">
+            <i class="fas fa-clock"></i>
+            RUSH
+          </div>
         <% end %>
         
-        <% if @dispatch.has_tracking? %>
-          <%= link_to @dispatch.tracking_link.present? ? @dispatch.tracking_link : "#", 
-              class: "hero-btn secondary", target: "_blank" do %>
-            <i class="fas fa-route"></i>
-            Track Package
+        <div class="modal-actions">
+          <%= link_to edit_dispatch_path(@dispatch), class: "btn-primary" do %>
+            <i class="fas fa-edit"></i>
+            Update Dispatch
           <% end %>
-        <% end %>
-        
-        <%= link_to dispatches_path, class: "hero-btn tertiary" do %>
-          <i class="fas fa-arrow-left"></i>
-          Back to Command Center
-        <% end %>
+          <% if @dispatch.has_tracking? %>
+            <%= link_to @dispatch.tracking_link.present? ? @dispatch.tracking_link : "#", 
+                class: "btn-secondary", target: "_blank" do %>
+              <i class="fas fa-route"></i>
+              Track Package
+            <% end %>
+          <% end %>
+        </div>
       </div>
     </div>
   </div>
