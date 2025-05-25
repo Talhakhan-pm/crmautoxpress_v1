@@ -1,0 +1,115 @@
+<% if flash.any? %>
+  <div id="flash-messages" class="flash-messages">
+    <% flash.each do |type, message| %>
+      <div class="flash-message flash-<%= type %>" data-auto-dismiss="true">
+        <div class="flash-content">
+          <i class="fas <%= type == 'notice' ? 'fa-check-circle' : type == 'alert' ? 'fa-exclamation-triangle' : 'fa-info-circle' %>"></i>
+          <span class="flash-text"><%= message %></span>
+          <button type="button" class="flash-close" onclick="this.parentElement.parentElement.remove()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <style>
+    .flash-messages {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10000;
+      max-width: 400px;
+    }
+
+    .flash-message {
+      margin-bottom: 10px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      animation: slideIn 0.3s ease-out;
+      opacity: 1;
+      transform: translateX(0);
+      transition: all 0.3s ease;
+    }
+
+    .flash-message.flash-notice {
+      background: #10b981;
+      color: white;
+      border: 1px solid #059669;
+    }
+
+    .flash-message.flash-alert {
+      background: #ef4444;
+      color: white;
+      border: 1px solid #dc2626;
+    }
+
+    .flash-message.flash-error {
+      background: #ef4444;
+      color: white;
+      border: 1px solid #dc2626;
+    }
+
+    .flash-content {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      gap: 10px;
+    }
+
+    .flash-text {
+      flex: 1;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .flash-close {
+      background: none;
+      border: none;
+      color: inherit;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      opacity: 0.8;
+      transition: opacity 0.2s ease;
+    }
+
+    .flash-close:hover {
+      opacity: 1;
+      background: rgba(255,255,255,0.1);
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .flash-message.dismissing {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+  </style>
+
+  <script>
+    // Auto-dismiss flash messages after 5 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+      const messages = document.querySelectorAll('.flash-message[data-auto-dismiss="true"]');
+      messages.forEach(message => {
+        setTimeout(() => {
+          message.classList.add('dismissing');
+          setTimeout(() => {
+            if (message.parentNode) {
+              message.parentNode.removeChild(message);
+            }
+          }, 300);
+        }, 5000);
+      });
+    });
+  </script>
+<% end %>

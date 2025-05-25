@@ -197,8 +197,129 @@ export default class extends Controller {
     // Add loading state
     const submitBtn = event.target.querySelector('[type="submit"]:focus')
     if (submitBtn) {
+      const originalText = submitBtn.innerHTML
       submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...'
       submitBtn.disabled = true
+      
+      // Store original button state for error handling
+      this.originalSubmitState = {
+        button: submitBtn,
+        text: originalText
+      }
     }
+  }
+
+  // Handle form submission completion (success or error)
+  handleSubmitEnd(event) {
+    console.log('Form submission completed:', event.detail)
+    
+    // Check if the submission was successful
+    const response = event.detail.fetchResponse?.response
+    
+    if (response && response.ok) {
+      this.handleSuccess(event)
+    } else {
+      this.handleError(event)
+    }
+  }
+
+  // Handle successful form submission
+  handleSuccess(event) {
+    console.log('Order created successfully!')
+    
+    // Reset button state
+    this.resetSubmitButton()
+    
+    // Show success feedback
+    this.showNotification('Order created successfully!', 'success')
+    
+    // Close modal and redirect after a short delay
+    setTimeout(() => {
+      this.closeModal()
+      
+      // Redirect to orders page
+      window.location.href = '/orders'
+    }, 1500)
+  }
+
+  // Handle form submission errors
+  handleError(event) {
+    console.error('Order creation failed:', event.detail)
+    
+    // Reset button state
+    this.resetSubmitButton()
+    
+    // Show error feedback
+    this.showNotification('Failed to create order. Please try again.', 'error')
+  }
+
+  // Handle Turbo fetch errors
+  handleFetchError(event) {
+    console.error('Network error during form submission:', event.detail)
+    
+    // Reset button state
+    this.resetSubmitButton()
+    
+    // Show network error feedback
+    this.showNotification('Network error. Please check your connection and try again.', 'error')
+  }
+
+  // Reset submit button to original state
+  resetSubmitButton() {
+    if (this.originalSubmitState) {
+      this.originalSubmitState.button.innerHTML = this.originalSubmitState.text
+      this.originalSubmitState.button.disabled = false
+      this.originalSubmitState = null
+    }
+  }
+
+  // Show notification to user
+  showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div')
+    notification.className = `notification notification-${type}`
+    notification.innerHTML = `
+      <div class="notification-content">
+        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+        <span>${message}</span>
+      </div>
+    `
+    
+    // Style the notification
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: ${type === 'success' ? '#10b981' : '#ef4444'};
+      color: white;
+      padding: 12px 16px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+    `
+    
+    // Add to page
+    document.body.appendChild(notification)
+    
+    // Animate in
+    setTimeout(() => {
+      notification.style.transform = 'translateX(0)'
+    }, 100)
+    
+    // Remove after delay
+    setTimeout(() => {
+      notification.style.transform = 'translateX(100%)'
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification)
+        }
+      }, 300)
+    }, 3000)
   }
 }

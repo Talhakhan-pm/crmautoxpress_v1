@@ -13,6 +13,11 @@
   </head>
 
   <body>
+    <!-- Flash Messages -->
+    <div id="flash-messages">
+      <%= render 'shared/flash_messages' if flash.any? %>
+    </div>
+
     <% unless devise_controller? %>
       <!-- Sidebar -->
       <nav class="sidebar">

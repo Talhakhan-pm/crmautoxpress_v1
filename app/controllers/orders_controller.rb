@@ -76,10 +76,8 @@ class OrdersController < ApplicationController
 
         format.html { redirect_to orders_path, notice: "Order #{@order.order_number} was successfully created!" }
         format.turbo_stream { 
-          flash.now[:notice] = "Order #{@order.order_number} created successfully!"
           render turbo_stream: [
-            turbo_stream.prepend("orders-content", partial: "orders/order", locals: { order: @order }),
-            turbo_stream.replace("flash-messages", partial: "shared/flash_messages")
+            turbo_stream.prepend("orders-content", partial: "orders/order", locals: { order: @order })
           ]
         }
         format.json { render json: { success: true, order: @order, redirect_url: orders_path } }
@@ -173,10 +171,10 @@ class OrdersController < ApplicationController
       :customer_name, :customer_address, :customer_phone, :customer_email,
       :product_name, :car_year, :car_make_model, :order_status, :priority,
       :product_price, :tax_amount, :shipping_cost, :total_amount, :tracking_number,
-      :product_link, :estimated_delivery, :comments, :internal_notes, :notes,
+      :product_link, :estimated_delivery, :comments,
       :customer_id, :product_id, :processing_agent_id, :agent_callback_id,
       :source_channel, :warranty_period_days, :warranty_terms,
-      :return_window_days, :commission_amount, :mileage, :agent_id, :order_date
+      :return_window_days, :commission_amount, :agent_id, :order_date
     )
   end
 

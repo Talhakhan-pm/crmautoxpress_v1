@@ -52,7 +52,7 @@
                     class: "order-form", 
                     data: { 
                       order_form_target: "form",
-                      action: "submit->order-form#submitForm"
+                      action: "submit->order-form#submitForm turbo:submit-end->order-form#handleSubmitEnd turbo:fetch-request-error->order-form#handleFetchError"
                     } do |form| %>
         
         <!-- Callback Selection Section -->
