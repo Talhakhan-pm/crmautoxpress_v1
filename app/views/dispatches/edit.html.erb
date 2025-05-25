@@ -70,8 +70,8 @@
             </div>
 
             <!-- Modal Body -->
-            <div class="modal-body">
-              <%= form_with model: @dispatch, local: false, data: { turbo_frame: "main_content" } do |f| %>
+            <div class="modal-body" data-controller="dispatch-form">
+              <%= form_with model: @dispatch, local: false, data: { turbo_frame: "main_content", dispatch_form_target: "form" } do |f| %>
                 <!-- Order Information Section -->
                 <div class="section">
                   <div class="section-header">
@@ -117,15 +117,21 @@
                   <div class="form-grid">
                     <div class="form-group">
                       <%= f.label :supplier_name, class: "form-label required" %>
-                      <%= f.text_field :supplier_name, class: "form-input", placeholder: "Enter supplier name" %>
+                      <%= f.text_field :supplier_name, class: "form-input", placeholder: "Enter supplier name", 
+                          data: { dispatch_form_target: "supplierName" } %>
                     </div>
                     <div class="form-group">
                       <%= f.label :supplier_order_number, "Supplier Order #", class: "form-label" %>
-                      <%= f.text_field :supplier_order_number, class: "form-input", placeholder: "Supplier's order number" %>
+                      <%= f.text_field :supplier_order_number, class: "form-input", placeholder: "Supplier's order number",
+                          data: { dispatch_form_target: "supplierOrderNumber" } %>
                     </div>
                     <div class="form-group">
                       <%= f.label :supplier_cost, class: "form-label required" %>
-                      <%= f.number_field :supplier_cost, step: 0.01, class: "form-input" %>
+                      <%= f.number_field :supplier_cost, step: 0.01, class: "form-input", 
+                          data: { 
+                            dispatch_form_target: "supplierCost", 
+                            action: "input->dispatch-form#supplierCostChanged keyup->dispatch-form#supplierCostChanged" 
+                          } %>
                     </div>
                     <div class="form-group">
                       <%= f.label :condition, class: "form-label" %>
@@ -157,9 +163,9 @@
                   
                   <div class="info-grid">
                     <div class="info-item">
-                      <div class="info-label">Customer Price</div>
-                      <div class="info-value cost-highlight">
-                        <%= number_to_currency(@dispatch.product_cost) if @dispatch.product_cost %>
+                      <div class="info-label">Customer Total</div>
+                      <div class="info-value cost-highlight" data-dispatch-form-target="customerTotal">
+                        <%= number_to_currency(@dispatch.total_cost) if @dispatch.total_cost %>
                       </div>
                     </div>
                     <div class="info-item">
@@ -170,15 +176,29 @@
                     </div>
                     <div class="info-item">
                       <div class="info-label">Supplier Cost</div>
-                      <div class="info-value">
-                        <%= number_to_currency(@dispatch.supplier_cost) if @dispatch.supplier_cost %>
+                      <div class="info-value" data-dispatch-form-target="supplierCostDisplay">
+                        $<%= number_with_delimiter(@dispatch.supplier_cost || 0, delimiter: ',') %>
                       </div>
                     </div>
                     <div class="info-item">
                       <div class="info-label">Estimated Profit</div>
-                      <div class="info-value" style="color: #059669; font-weight: 700;">
+                      <div class="info-value profit-positive" data-dispatch-form-target="profitDisplay">
                         <% if @dispatch.total_cost && @dispatch.supplier_cost %>
-                          <%= number_to_currency(@dispatch.total_cost - @dispatch.supplier_cost) %>
+                          +$<%= number_with_delimiter(@dispatch.total_cost - @dispatch.supplier_cost, delimiter: ',') %>
+                        <% elsif @dispatch.total_cost %>
+                          +$<%= number_with_delimiter(@dispatch.total_cost, delimiter: ',') %>
+                        <% else %>
+                          $0.00
+                        <% end %>
+                      </div>
+                    </div>
+                    <div class="info-item">
+                      <div class="info-label">Profit Margin</div>
+                      <div class="info-value" data-dispatch-form-target="profitMargin">
+                        <% if @dispatch.total_cost && @dispatch.supplier_cost && @dispatch.total_cost > 0 %>
+                          <%= ((@dispatch.total_cost - @dispatch.supplier_cost) / @dispatch.total_cost * 100).round(2) %>%
+                        <% else %>
+                          0.00%
                         <% end %>
                       </div>
                     </div>

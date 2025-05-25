@@ -1365,6 +1365,21 @@
       font-weight: 700;
       color: #dc2626;
     }
+    
+    &.profit-positive {
+      color: #059669 !important;
+      font-weight: 700;
+    }
+    
+    &.profit-negative {
+      color: #dc2626 !important;
+      font-weight: 700;
+    }
+    
+    &.profit-zero {
+      color: #6b7280 !important;
+      font-weight: 500;
+    }
   }
 }
 

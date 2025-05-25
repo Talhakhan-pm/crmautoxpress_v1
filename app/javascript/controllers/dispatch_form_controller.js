@@ -15,6 +15,8 @@ export default class extends Controller {
   }
 
   connect() {
+    console.log('Dispatch form controller connected')
+    
     // Initialize profit calculation on connect
     this.calculateProfit()
     
@@ -144,13 +146,15 @@ export default class extends Controller {
     // Get customer total from the financial overview section
     let customerTotal = 0
     if (this.hasCustomerTotalTarget) {
-      const totalText = this.customerTotalTarget.textContent.replace(/[$,]/g, '')
+      const totalText = this.customerTotalTarget.textContent.replace(/[$,\s]/g, '')
       customerTotal = parseFloat(totalText) || 0
     }
     
     const supplierCost = parseFloat(this.getTargetValue('supplierCost')) || 0
     const profit = customerTotal - supplierCost
     const profitMargin = customerTotal > 0 ? ((profit / customerTotal) * 100) : 0
+    
+    console.log('Calculating profit:', { customerTotal, supplierCost, profit, profitMargin })
     
     // Update profit displays
     this.updateProfitDisplay(profit, profitMargin)
@@ -179,8 +183,9 @@ export default class extends Controller {
   }
 
   updateProfitStyling(profit) {
+    if (!this.hasProfitDisplayTarget) return
+    
     const profitElement = this.profitDisplayTarget
-    if (!profitElement) return
     
     // Remove existing classes
     profitElement.classList.remove('profit-positive', 'profit-negative', 'profit-zero')
