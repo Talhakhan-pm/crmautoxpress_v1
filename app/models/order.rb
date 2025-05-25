@@ -52,9 +52,9 @@ class Order < ApplicationRecord
   include Trackable
 
   # Turbo Stream broadcasts - with seeding guard
-  after_create_commit { broadcast_prepend_to "orders", target: "orders" unless Rails.env.test? || defined?(Rails::Console) }
-  after_update_commit { broadcast_replace_to "orders" unless Rails.env.test? || defined?(Rails::Console) }
-  after_destroy_commit { broadcast_remove_to "orders" unless Rails.env.test? || defined?(Rails::Console) }
+  after_create_commit { broadcast_orders_update unless Rails.env.test? || defined?(Rails::Console) }
+  after_update_commit { broadcast_orders_update unless Rails.env.test? || defined?(Rails::Console) }
+  after_destroy_commit { broadcast_orders_update unless Rails.env.test? || defined?(Rails::Console) }
 
   # Scopes
   scope :recent, -> { order(created_at: :desc) }
@@ -117,6 +117,24 @@ class Order < ApplicationRecord
 
 
   private
+
+  def broadcast_orders_update
+    Rails.logger.info "=== ORDERS BROADCAST TRIGGERED ==="
+    
+    # Fetch fresh orders data with the same logic as controller
+    fresh_orders = Order.includes(:customer, :product, :agent, :processing_agent, :dispatch)
+                        .recent
+                        .limit(25)
+    
+    Rails.logger.info "Broadcasting #{fresh_orders.count} orders"
+    
+    broadcast_replace_to "orders", 
+                        target: "orders-content", 
+                        partial: "orders/orders_content", 
+                        locals: { orders: fresh_orders, view_type: 'cards' }
+                        
+    Rails.logger.info "=== ORDERS BROADCAST SENT ==="
+  end
 
   def set_defaults
     self.order_number ||= generate_order_number
