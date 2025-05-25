@@ -32,8 +32,8 @@ function applyStatusFilter(status) {
     }
 }
 
-// Initialize callbacks functionality when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
+// Initialize callbacks functionality
+function initializeCallbacks() {
     // Close modal when clicking outside
     const modal = document.getElementById('addCallbackModal');
     if (modal) {
@@ -103,7 +103,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize with all items showing
     applyStatusFilter('all');
-});
+}
+
+// Initialize when DOM is loaded or when Turbo loads content
+document.addEventListener('DOMContentLoaded', initializeCallbacks);
+document.addEventListener('turbo:frame-load', initializeCallbacks);
+document.addEventListener('turbo:load', initializeCallbacks);
 
 // Handle new items added via turbo streams (live broadcasting)
 document.addEventListener('turbo:before-stream-render', function(event) {
