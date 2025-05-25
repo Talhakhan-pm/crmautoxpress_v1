@@ -16,10 +16,12 @@ class Customer < ApplicationRecord
 
   include Trackable
   
-  # after_create_commit { broadcast_customer_created }
-  # after_update_commit { broadcast_customer_updated }
-  # after_destroy_commit { broadcast_customer_destroyed }
+  # Turbo Stream broadcasts - with seeding guard
+  after_create_commit { broadcast_customer_created unless Rails.env.test? || defined?(Rails::Console) }
+  after_update_commit { broadcast_customer_updated unless Rails.env.test? || defined?(Rails::Console) }
+  after_destroy_commit { broadcast_customer_destroyed unless Rails.env.test? || defined?(Rails::Console) }
   
+  # Dashboard broadcasts - commented out for now
   # after_create_commit { broadcast_dashboard_metrics }
   # after_update_commit { broadcast_dashboard_metrics }
   # after_destroy_commit { broadcast_dashboard_metrics }

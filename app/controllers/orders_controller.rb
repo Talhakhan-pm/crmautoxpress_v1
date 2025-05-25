@@ -88,6 +88,36 @@ class OrdersController < ApplicationController
     redirect_to orders_url, notice: 'Order was successfully deleted.'
   end
 
+  # Test broadcast action
+  def test_broadcast
+    agent = User.first
+    
+    order = Order.create!(
+      order_number: "WEB-#{Time.current.to_i}",
+      customer_name: 'Web Test Customer',
+      customer_email: 'web@test.com',
+      customer_phone: '555-WEB-TEST',
+      product_name: 'Web Broadcast Test Product',
+      car_year: 2023,
+      car_make_model: 'Tesla Model S',
+      total_amount: 799.99,
+      product_price: 699.99,
+      tax_amount: 70.00,
+      shipping_cost: 30.00,
+      order_status: 'confirmed',
+      priority: 'rush',
+      source_channel: 'website',
+      order_date: Time.current,
+      agent_id: agent.id
+    )
+    
+    render json: { 
+      success: true, 
+      message: "Order #{order.order_number} created and broadcast sent!",
+      order_id: order.id
+    }
+  end
+
   private
 
   def set_order

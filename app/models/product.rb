@@ -18,9 +18,10 @@ class Product < ApplicationRecord
 
   include Trackable
   
-  # after_create_commit { broadcast_product_created }
-  # after_update_commit { broadcast_product_updated }
-  # after_destroy_commit { broadcast_product_destroyed }
+  # Turbo Stream broadcasts - with seeding guard
+  after_create_commit { broadcast_product_created unless Rails.env.test? || defined?(Rails::Console) }
+  after_update_commit { broadcast_product_updated unless Rails.env.test? || defined?(Rails::Console) }
+  after_destroy_commit { broadcast_product_destroyed unless Rails.env.test? || defined?(Rails::Console) }
   
   
   scope :by_category, ->(category) { where(category: category) }

@@ -24,14 +24,16 @@ class AgentCallback < ApplicationRecord
   
   after_create_commit :find_or_create_customer
   after_create_commit :extract_and_create_product
-  # after_create_commit { broadcast_prepend_to "callbacks", target: "callbacks" }
-  # after_update_commit { broadcast_replace_to "callbacks" }
-  # after_destroy_commit { broadcast_remove_to "callbacks" }
   
-  # Dashboard broadcasts - inline to ensure they execute
-  # after_create_commit { broadcast_dashboard_metrics }
-  # after_update_commit { broadcast_dashboard_metrics }
-  # after_destroy_commit { broadcast_dashboard_metrics }
+  # Turbo Stream broadcasts - with seeding guard
+  after_create_commit { broadcast_prepend_to "callbacks", target: "callbacks" unless Rails.env.test? || defined?(Rails::Console) }
+  after_update_commit { broadcast_replace_to "callbacks" unless Rails.env.test? || defined?(Rails::Console) }
+  after_destroy_commit { broadcast_remove_to "callbacks" unless Rails.env.test? || defined?(Rails::Console) }
+  
+  # Dashboard broadcasts - with seeding guard
+  after_create_commit { broadcast_dashboard_metrics unless Rails.env.test? || defined?(Rails::Console) }
+  after_update_commit { broadcast_dashboard_metrics unless Rails.env.test? || defined?(Rails::Console) }
+  after_destroy_commit { broadcast_dashboard_metrics unless Rails.env.test? || defined?(Rails::Console) }
   
   private
   

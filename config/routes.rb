@@ -2,6 +2,9 @@ Rails.application.routes.draw do
   # Orders routes
   resources :orders
   
+  # Test broadcast route
+  get "test_broadcast", to: "orders#test_broadcast"
+  
   # Dispatches routes  
   resources :dispatches
   devise_for :users

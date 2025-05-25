@@ -51,10 +51,10 @@ class Order < ApplicationRecord
   
   include Trackable
 
-  # Turbo Stream broadcasts
-  after_create_commit { broadcast_prepend_to "orders", target: "orders" }
-  after_update_commit { broadcast_replace_to "orders" }
-  after_destroy_commit { broadcast_remove_to "orders" }
+  # Turbo Stream broadcasts - with seeding guard
+  after_create_commit { broadcast_prepend_to "orders", target: "orders" unless Rails.env.test? || defined?(Rails::Console) }
+  after_update_commit { broadcast_replace_to "orders" unless Rails.env.test? || defined?(Rails::Console) }
+  after_destroy_commit { broadcast_remove_to "orders" unless Rails.env.test? || defined?(Rails::Console) }
 
   # Scopes
   scope :recent, -> { order(created_at: :desc) }
@@ -114,6 +114,7 @@ class Order < ApplicationRecord
     return 0 if product_price.blank? || dispatch&.supplier_cost.blank?
     product_price - dispatch.supplier_cost
   end
+
 
   private
 
