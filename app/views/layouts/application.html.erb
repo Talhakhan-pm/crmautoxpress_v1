@@ -30,14 +30,14 @@
                       <i class="fas fa-tachometer-alt"></i>
                       <span>Dashboard</span>
                   <% end %>
-                  <a href="#" class="nav-item">
+                  <%= link_to orders_path, class: "nav-item #{'active' if current_page?(orders_path)}" do %>
                       <i class="fas fa-shopping-cart"></i>
                       <span>Orders</span>
-                  </a>
-                  <a href="#" class="nav-item">
+                  <% end %>
+                  <%= link_to dispatches_path, class: "nav-item #{'active' if current_page?(dispatches_path)}" do %>
                       <i class="fas fa-truck"></i>
                       <span>Dispatching</span>
-                  </a>
+                  <% end %>
                   <%= link_to callbacks_path, class: "nav-item #{'active' if current_page?(callbacks_path)}" do %>
                       <i class="fas fa-phone"></i>
                       <span>Callbacks</span>

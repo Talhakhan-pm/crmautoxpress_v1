@@ -1,0 +1,186 @@
+class Dispatch < ApplicationRecord
+  belongs_to :order
+  belongs_to :processing_agent, class_name: 'User'
+  has_many :activities, as: :trackable, dependent: :destroy
+
+  enum payment_status: {
+    pending: 0,
+    paid: 1,
+    failed: 2,
+    refunded: 3,
+    partially_paid: 4
+  }
+
+  enum shipment_status: {
+    pending: 0,
+    picked_up: 1,
+    in_transit: 2,
+    delivered: 3,
+    exception: 4,
+    returned_to_sender: 5
+  }
+
+  enum dispatch_status: {
+    pending: 0,
+    assigned: 1,
+    processing: 2,
+    shipped: 3,
+    completed: 4,
+    cancelled: 5
+  }
+
+  # Validations
+  validates :order_id, presence: true, uniqueness: true
+  validates :order_number, presence: true
+  validates :customer_name, presence: true
+  validates :processing_agent_id, presence: true
+  validates :dispatch_status, presence: true
+  validates :payment_status, presence: true
+  validates :shipment_status, presence: true
+  validates :condition, presence: true, inclusion: { in: %w[new used refurbished] }
+  validates :total_cost, presence: true, numericality: { greater_than_or_equal_to: 0 }
+  validates :supplier_cost, numericality: { greater_than: 0 }, allow_blank: true
+  validates :product_cost, numericality: { greater_than: 0 }, allow_blank: true
+
+  # Callbacks
+  before_validation :set_defaults, on: :create
+  before_save :calculate_total_cost
+  after_update :sync_with_order
+  
+  include Trackable
+
+  # Turbo Stream broadcasts
+  after_create_commit { broadcast_prepend_to "dispatches", target: "dispatches" }
+  after_update_commit { broadcast_replace_to "dispatches" }
+  after_destroy_commit { broadcast_remove_to "dispatches" }
+
+  # Scopes
+  scope :recent, -> { order(created_at: :desc) }
+  scope :by_status, ->(status) { where(dispatch_status: status) }
+  scope :by_payment_status, ->(status) { where(payment_status: status) }
+  scope :by_shipment_status, ->(status) { where(shipment_status: status) }
+  scope :by_agent, ->(agent_id) { where(processing_agent_id: agent_id) }
+  scope :by_supplier, ->(supplier) { where(supplier_name: supplier) }
+  scope :today, -> { where(created_at: Date.current.beginning_of_day..Date.current.end_of_day) }
+  scope :pending_payment, -> { where(payment_status: :pending) }
+  scope :ready_to_ship, -> { where(dispatch_status: :processing, payment_status: :paid) }
+
+  def status_color
+    case dispatch_status
+    when 'pending' then 'secondary'
+    when 'assigned' then 'info'
+    when 'processing' then 'warning'
+    when 'shipped' then 'primary'
+    when 'completed' then 'success'
+    when 'cancelled' then 'danger'
+    else 'secondary'
+    end
+  end
+
+  def payment_status_color
+    case payment_status
+    when 'pending' then 'warning'
+    when 'paid' then 'success'
+    when 'failed' then 'danger'
+    when 'refunded' then 'info'
+    when 'partially_paid' then 'warning'
+    else 'secondary'
+    end
+  end
+
+  def shipment_status_color
+    case shipment_status
+    when 'pending' then 'secondary'
+    when 'picked_up' then 'info'
+    when 'in_transit' then 'primary'
+    when 'delivered' then 'success'
+    when 'exception' then 'danger'
+    when 'returned_to_sender' then 'warning'
+    else 'secondary'
+    end
+  end
+
+  def condition_color
+    case condition
+    when 'new' then 'success'
+    when 'used' then 'warning'
+    when 'refurbished' then 'info'
+    else 'secondary'
+    end
+  end
+
+  def profit_margin
+    return 0 if product_cost.blank? || supplier_cost.blank?
+    product_cost - supplier_cost
+  end
+
+  def profit_percentage
+    return 0 if product_cost.blank? || supplier_cost.blank? || supplier_cost.zero?
+    ((product_cost - supplier_cost) / supplier_cost * 100).round(2)
+  end
+
+  def can_be_shipped?
+    processing? && paid? && supplier_order_number.present?
+  end
+
+  def can_be_cancelled?
+    pending? || assigned?
+  end
+
+  def ready_for_completion?
+    shipped? && delivered?
+  end
+
+  def has_tracking?
+    tracking_number.present? || tracking_link.present?
+  end
+
+  def supplier_info
+    return "No supplier assigned" if supplier_name.blank?
+    return supplier_name if supplier_order_number.blank?
+    "#{supplier_name} (Order: #{supplier_order_number})"
+  end
+
+  private
+
+  def set_defaults
+    self.dispatch_status ||= 'pending'
+    self.payment_status ||= 'pending'
+    self.shipment_status ||= 'pending'
+    self.condition ||= 'new'
+  end
+
+  def calculate_total_cost
+    base_cost = product_cost || 0
+    tax = tax_amount || 0
+    shipping = shipping_cost || 0
+    self.total_cost = base_cost + tax + shipping
+  end
+
+  def sync_with_order
+    return unless order.present?
+
+    # Update order status based on dispatch status
+    case dispatch_status
+    when 'processing'
+      order.update!(order_status: 'processing') if order.confirmed?
+    when 'shipped'
+      order.update!(order_status: 'shipped', tracking_number: tracking_number)
+    when 'completed'
+      order.update!(order_status: 'delivered') if order.shipped?
+    when 'cancelled'
+      order.update!(order_status: 'cancelled')
+    end
+
+    # Update order tracking number if changed
+    if tracking_number.present? && order.tracking_number != tracking_number
+      order.update!(tracking_number: tracking_number)
+    end
+
+    # Update estimated delivery if we have tracking
+    if shipped? && order.estimated_delivery.blank?
+      estimated_date = Date.current + 3.days # Default 3-day shipping estimate
+      order.update!(estimated_delivery: estimated_date)
+    end
+  end
+end

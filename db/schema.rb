@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_05_25_024810) do
+ActiveRecord::Schema[7.1].define(version: 2025_05_25_042947) do
   create_table "activities", force: :cascade do |t|
     t.string "trackable_type", null: false
     t.integer "trackable_id", null: false
@@ -58,6 +58,87 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_25_024810) do
     t.datetime "updated_at", null: false
     t.index ["gclid"], name: "index_customers_on_gclid"
     t.index ["phone_number"], name: "index_customers_on_phone_number"
+  end
+
+  create_table "dispatches", force: :cascade do |t|
+    t.integer "order_id"
+    t.string "order_number"
+    t.string "customer_name"
+    t.text "customer_address"
+    t.string "product_name"
+    t.string "car_details"
+    t.string "condition", default: "new"
+    t.string "payment_processor"
+    t.integer "payment_status", default: 0
+    t.integer "processing_agent_id"
+    t.string "supplier_name"
+    t.string "supplier_order_number"
+    t.decimal "supplier_cost", precision: 10, scale: 2
+    t.string "supplier_shipment_proof"
+    t.decimal "product_cost", precision: 10, scale: 2
+    t.decimal "tax_amount", precision: 8, scale: 2
+    t.decimal "shipping_cost", precision: 8, scale: 2
+    t.decimal "total_cost", precision: 10, scale: 2
+    t.string "tracking_number"
+    t.string "tracking_link"
+    t.integer "shipment_status", default: 0
+    t.integer "dispatch_status", default: 0
+    t.text "comments"
+    t.text "internal_notes"
+    t.string "last_modified_by"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["dispatch_status"], name: "index_dispatches_on_dispatch_status"
+    t.index ["order_id"], name: "index_dispatches_on_order_id", unique: true
+    t.index ["order_number"], name: "index_dispatches_on_order_number"
+    t.index ["payment_status"], name: "index_dispatches_on_payment_status"
+    t.index ["processing_agent_id"], name: "index_dispatches_on_processing_agent_id"
+    t.index ["shipment_status"], name: "index_dispatches_on_shipment_status"
+    t.index ["supplier_name"], name: "index_dispatches_on_supplier_name"
+  end
+
+  create_table "orders", force: :cascade do |t|
+    t.string "order_number"
+    t.datetime "order_date"
+    t.string "customer_name"
+    t.text "customer_address"
+    t.string "customer_phone"
+    t.string "customer_email"
+    t.string "product_name"
+    t.integer "car_year"
+    t.string "car_make_model"
+    t.integer "order_status"
+    t.decimal "product_price", precision: 10, scale: 2
+    t.decimal "tax_amount", precision: 8, scale: 2
+    t.decimal "shipping_cost", precision: 8, scale: 2
+    t.decimal "total_amount", precision: 10, scale: 2
+    t.string "tracking_number"
+    t.string "product_link"
+    t.date "estimated_delivery"
+    t.text "comments"
+    t.text "internal_notes"
+    t.string "last_modified_by"
+    t.integer "agent_callback_id"
+    t.integer "customer_id"
+    t.integer "product_id"
+    t.integer "agent_id"
+    t.integer "processing_agent_id"
+    t.integer "priority", default: 1
+    t.string "source_channel"
+    t.integer "warranty_period_days", default: 30
+    t.text "warranty_terms"
+    t.integer "return_window_days", default: 14
+    t.decimal "commission_amount", precision: 8, scale: 2
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["agent_callback_id"], name: "index_orders_on_agent_callback_id"
+    t.index ["agent_id"], name: "index_orders_on_agent_id"
+    t.index ["customer_id"], name: "index_orders_on_customer_id"
+    t.index ["order_date"], name: "index_orders_on_order_date"
+    t.index ["order_number"], name: "index_orders_on_order_number", unique: true
+    t.index ["order_status"], name: "index_orders_on_order_status"
+    t.index ["priority"], name: "index_orders_on_priority"
+    t.index ["product_id"], name: "index_orders_on_product_id"
   end
 
   create_table "products", force: :cascade do |t|
