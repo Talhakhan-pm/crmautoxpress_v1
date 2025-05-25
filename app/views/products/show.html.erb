@@ -1,0 +1,187 @@
+<main class="main-content">
+  <%= turbo_frame_tag "main_content" do %>
+    <%= turbo_stream_from "products" %>
+    <%= turbo_stream_from "product_#{@product.id}_activities" %>
+    
+    <header class="main-header">
+      <div class="header-title">
+        <h1>
+          <i class="fas fa-box"></i> 
+          <%= @product.name %>
+          <span class="badge badge-<%= @product.status %>"><%= @product.status.humanize %></span>
+        </h1>
+        <p class="header-subtitle"><%= @product.part_number %> • <%= @product.display_category %></p>
+      </div>
+      
+      <div class="header-actions">
+        <%= link_to products_path, class: "btn btn-secondary", data: { turbo_frame: "main_content" } do %>
+          <i class="fas fa-arrow-left"></i> Back to Products
+        <% end %>
+        <%= link_to edit_product_path(@product), class: "btn btn-primary", data: { turbo_frame: "main_content" } do %>
+          <i class="fas fa-edit"></i> Edit Product
+        <% end %>
+      </div>
+    </header>
+
+    <div class="product-details-grid">
+      <!-- Product Information -->
+      <div class="content-card">
+        <h3><i class="fas fa-info-circle"></i> Product Details</h3>
+        <div class="product-info-section">
+          <div class="info-row">
+            <label>Part Number:</label>
+            <span class="part-number"><%= @product.part_number %></span>
+          </div>
+          
+          <% if @product.oem_part_number.present? %>
+            <div class="info-row">
+              <label>OEM Part Number:</label>
+              <span><%= @product.oem_part_number %></span>
+            </div>
+          <% end %>
+          
+          <div class="info-row">
+            <label>Category:</label>
+            <span class="category-badge"><%= @product.display_category %></span>
+          </div>
+          
+          <% if @product.description.present? %>
+            <div class="info-row">
+              <label>Description:</label>
+              <span><%= simple_format(@product.description) %></span>
+            </div>
+          <% end %>
+          
+          <div class="info-row">
+            <label>Created:</label>
+            <span><%= @product.created_at.strftime("%B %d, %Y") %></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pricing & Vendor -->
+      <div class="content-card">
+        <h3><i class="fas fa-dollar-sign"></i> Pricing & Vendor</h3>
+        <div class="pricing-section">
+          <div class="price-row">
+            <label>Vendor Cost:</label>
+            <span class="price-cost">$<%= number_with_precision(@product.vendor_cost, precision: 2) %></span>
+          </div>
+          
+          <div class="price-row">
+            <label>Selling Price:</label>
+            <span class="price-selling">$<%= number_with_precision(@product.selling_price, precision: 2) %></span>
+          </div>
+          
+          <div class="price-row">
+            <label>Profit Margin:</label>
+            <span class="profit-margin <% if @product.profit_margin > 40 %>high<% elsif @product.profit_margin > 20 %>medium<% else %>low<% end %>">
+              <%= @product.profit_margin %>%
+            </span>
+          </div>
+          
+          <div class="price-row">
+            <label>Markup:</label>
+            <span class="markup"><%= @product.markup_percentage %>%</span>
+          </div>
+          
+          <% if @product.vendor_name.present? %>
+            <div class="price-row">
+              <label>Vendor:</label>
+              <span><%= @product.vendor_name %></span>
+            </div>
+          <% end %>
+          
+          <% if @product.lead_time_days.present? %>
+            <div class="price-row">
+              <label>Lead Time:</label>
+              <span><%= @product.lead_time_days %> days</span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Vehicle Compatibility -->
+      <% if @product.vehicle_compatibility_list.any? %>
+        <div class="content-card">
+          <h3><i class="fas fa-car"></i> Vehicle Compatibility</h3>
+          <div class="compatibility-list">
+            <% @product.vehicle_compatibility_list.each do |vehicle| %>
+              <span class="compatibility-badge"><%= vehicle %></span>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Related Callbacks -->
+      <div class="content-card">
+        <h3>
+          <i class="fas fa-phone"></i> 
+          Related Callbacks
+          <span class="count-badge"><%= @related_callbacks.count %></span>
+        </h3>
+        
+        <% if @related_callbacks.any? %>
+          <div class="callbacks-list">
+            <% @related_callbacks.each do |callback| %>
+              <div class="callback-item">
+                <div class="callback-header">
+                  <div class="callback-info">
+                    <strong><%= callback.customer_name %></strong>
+                    <span class="badge badge-<%= callback.status %>">
+                      <%= callback.status.humanize %>
+                    </span>
+                  </div>
+                  <div class="callback-meta">
+                    <small class="text-muted">
+                      <%= time_ago_in_words(callback.created_at) %> ago
+                    </small>
+                  </div>
+                </div>
+                
+                <div class="callback-details">
+                  <i class="fas fa-phone"></i>
+                  <%= callback.phone_number %>
+                </div>
+                
+                <% if callback.car_make_model.present? %>
+                  <div class="callback-details">
+                    <i class="fas fa-car"></i>
+                    <%= callback.year %> <%= callback.car_make_model %>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="empty-state">
+            <i class="fas fa-phone fa-2x text-muted"></i>
+            <p>No related callbacks found</p>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="content-card">
+        <h3>
+          <i class="fas fa-history"></i> 
+          Recent Activity
+          <span id="activity-count"><%= @recent_activities.count %></span>
+        </h3>
+        
+        <div id="activity-list" class="activity-feed">
+          <% if @recent_activities.any? %>
+            <% @recent_activities.each do |activity| %>
+              <%= render "activities/activity", activity: activity %>
+            <% end %>
+          <% else %>
+            <div class="empty-state">
+              <i class="fas fa-history fa-2x text-muted"></i>
+              <p>No activity yet</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</main>

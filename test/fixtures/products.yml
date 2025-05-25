@@ -1,0 +1,27 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  part_number: MyString
+  oem_part_number: MyString
+  description: MyText
+  category: MyString
+  vendor_name: MyString
+  vendor_cost: 9.99
+  selling_price: 9.99
+  lead_time_days: 1
+  vehicle_compatibility: MyText
+  status: 1
+
+two:
+  name: MyString
+  part_number: MyString
+  oem_part_number: MyString
+  description: MyText
+  category: MyString
+  vendor_name: MyString
+  vendor_cost: 9.99
+  selling_price: 9.99
+  lead_time_days: 1
+  vehicle_compatibility: MyText
+  status: 1

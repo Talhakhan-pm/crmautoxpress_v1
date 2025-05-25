@@ -1,0 +1,139 @@
+<main class="main-content">
+  <%= turbo_frame_tag "main_content" do %>
+    <header class="main-header">
+      <div class="header-title">
+        <h1><i class="fas fa-edit"></i> Edit Product</h1>
+        <p class="header-subtitle">Update product information</p>
+      </div>
+      
+      <div class="header-actions">
+        <%= link_to @product, class: "btn btn-secondary", data: { turbo_frame: "main_content" } do %>
+          <i class="fas fa-arrow-left"></i> Back to Product
+        <% end %>
+      </div>
+    </header>
+
+    <div class="content-card">
+      <% if @product.errors.any? %>
+        <div class="alert alert-danger">
+          <h4><%= pluralize(@product.errors.count, "error") %> prohibited this product from being saved:</h4>
+          <ul>
+            <% @product.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <%= form_with model: @product, local: true, class: "product-form" do |form| %>
+        <div class="form-section">
+          <h3><i class="fas fa-info-circle"></i> Product Information</h3>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <%= form.label :name, class: "form-label" %>
+              <%= form.text_field :name, class: "form-control", required: true %>
+            </div>
+            
+            <div class="form-group">
+              <%= form.label :part_number, class: "form-label" %>
+              <%= form.text_field :part_number, class: "form-control", required: true %>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <%= form.label :oem_part_number, "OEM Part Number", class: "form-label" %>
+              <%= form.text_field :oem_part_number, class: "form-control" %>
+            </div>
+            
+            <div class="form-group">
+              <%= form.label :category, class: "form-label" %>
+              <%= form.select :category, 
+                  options_for_select([
+                    ['Engine', 'engine'],
+                    ['Brakes', 'brakes'],
+                    ['Suspension', 'suspension'],
+                    ['Electrical', 'electrical'],
+                    ['Body', 'body'],
+                    ['Interior', 'interior'],
+                    ['Transmission', 'transmission'],
+                    ['Cooling', 'cooling'],
+                    ['Exhaust', 'exhaust']
+                  ], @product.category), 
+                  {},
+                  { class: "form-select", required: true } %>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <%= form.label :description, class: "form-label" %>
+            <%= form.text_area :description, class: "form-control", rows: 3 %>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3><i class="fas fa-industry"></i> Vendor & Pricing</h3>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <%= form.label :vendor_name, class: "form-label" %>
+              <%= form.text_field :vendor_name, class: "form-control" %>
+            </div>
+            
+            <div class="form-group">
+              <%= form.label :lead_time_days, "Lead Time (Days)", class: "form-label" %>
+              <%= form.number_field :lead_time_days, class: "form-control", min: 0 %>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <%= form.label :vendor_cost, class: "form-label" %>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <%= form.number_field :vendor_cost, class: "form-control", step: 0.01, min: 0, required: true %>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <%= form.label :selling_price, class: "form-label" %>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <%= form.number_field :selling_price, class: "form-control", step: 0.01, min: 0, required: true %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3><i class="fas fa-car"></i> Vehicle Compatibility & Status</h3>
+          
+          <div class="form-group">
+            <%= form.label :vehicle_compatibility, "Compatible Vehicles", class: "form-label" %>
+            <%= form.text_area :vehicle_compatibility, class: "form-control", rows: 3 %>
+            <small class="form-text text-muted">Enter as JSON array format</small>
+          </div>
+          
+          <div class="form-group">
+            <%= form.label :status, class: "form-label" %>
+            <%= form.select :status, 
+                options_for_select([
+                  ['Active', 'active'],
+                  ['Discontinued', 'discontinued'],
+                  ['Backordered', 'backordered'],
+                  ['Out of Stock', 'out_of_stock']
+                ], @product.status), 
+                {},
+                { class: "form-select" } %>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <%= link_to "Cancel", @product, class: "btn btn-secondary", data: { turbo_frame: "main_content" } %>
+          <%= form.submit "Update Product", class: "btn btn-primary" %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</main>

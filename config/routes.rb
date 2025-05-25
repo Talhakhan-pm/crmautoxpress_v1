@@ -17,6 +17,9 @@ Rails.application.routes.draw do
   
   # Customers routes (minimal - no new/create)
   resources :customers, only: [:index, :show, :edit, :update]
+  
+  # Products routes (view-only catalog, auto-created from callbacks)
+  resources :products, only: [:index, :show, :edit, :update]
 
   # Defines the root path route ("/")
   root "dashboard#index"

@@ -9,7 +9,7 @@ class CustomersController < ApplicationController
     # Filter by search
     if params[:search].present?
       @customers = @customers.where(
-        "name ILIKE ? OR phone_number ILIKE ? OR email ILIKE ?", 
+        "name LIKE ? OR phone_number LIKE ? OR email LIKE ?", 
         "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%"
       )
     end

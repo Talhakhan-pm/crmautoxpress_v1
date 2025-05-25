@@ -1,0 +1,54 @@
+<tr id="<%= dom_id(product) %>">
+  <td>
+    <div class="product-info">
+      <strong><%= product.name %></strong>
+      <% if product.oem_part_number.present? %>
+        <br><small class="text-muted">OEM: <%= product.oem_part_number %></small>
+      <% end %>
+    </div>
+  </td>
+  <td>
+    <span class="part-number"><%= product.part_number %></span>
+  </td>
+  <td>
+    <span class="category-badge category-<%= product.category&.downcase %>">
+      <%= product.display_category %>
+    </span>
+  </td>
+  <td>
+    <% if product.vendor_name.present? %>
+      <%= product.vendor_name %>
+      <% if product.lead_time_days.present? %>
+        <br><small class="text-muted"><%= product.lead_time_days %> days</small>
+      <% end %>
+    <% else %>
+      <span class="text-muted">-</span>
+    <% end %>
+  </td>
+  <td>
+    <span class="price-cost">$<%= number_with_precision(product.vendor_cost, precision: 2) %></span>
+  </td>
+  <td>
+    <span class="price-selling">$<%= number_with_precision(product.selling_price, precision: 2) %></span>
+  </td>
+  <td>
+    <span class="profit-margin <% if product.profit_margin > 40 %>high<% elsif product.profit_margin > 20 %>medium<% else %>low<% end %>">
+      <%= product.profit_margin %>%
+    </span>
+  </td>
+  <td>
+    <span class="badge badge-<%= product.status %>">
+      <%= product.status.humanize %>
+    </span>
+  </td>
+  <td>
+    <div class="action-buttons">
+      <%= link_to product_path(product), class: "btn btn-sm btn-outline-primary", data: { turbo_frame: "main_content" } do %>
+        <i class="fas fa-eye"></i> View
+      <% end %>
+      <%= link_to edit_product_path(product), class: "btn btn-sm btn-outline-secondary", data: { turbo_frame: "main_content" } do %>
+        <i class="fas fa-edit"></i> Edit
+      <% end %>
+    </div>
+  </td>
+</tr>

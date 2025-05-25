@@ -1,0 +1,258 @@
+/* Products Specific Styles - AutoXpress CRM */
+
+/* Product Details Grid Layout */
+.product-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 2rem;
+  margin-top: 2rem;
+  
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+}
+
+/* Product Information Section */
+.product-info-section {
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--gray-200);
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    label {
+      font-weight: 600;
+      color: var(--gray-700);
+      margin: 0;
+      min-width: 120px;
+    }
+    
+    span {
+      color: var(--gray-800);
+      text-align: right;
+      flex: 1;
+    }
+  }
+}
+
+/* Pricing Section */
+.pricing-section {
+  .price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--gray-200);
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    label {
+      font-weight: 600;
+      color: var(--gray-700);
+      margin: 0;
+    }
+    
+    span {
+      font-weight: 500;
+    }
+  }
+}
+
+/* Product Badges and Labels */
+.part-number {
+  font-family: 'Courier New', monospace;
+  background: var(--gray-100);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.category-badge {
+  background: var(--info);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  
+  &.category-engine { background: #dc2626; }
+  &.category-brakes { background: #ea580c; }
+  &.category-suspension { background: #d97706; }
+  &.category-electrical { background: #ca8a04; }
+  &.category-body { background: #65a30d; }
+  &.category-interior { background: #059669; }
+  &.category-transmission { background: #0891b2; }
+  &.category-cooling { background: #0284c7; }
+  &.category-exhaust { background: #6366f1; }
+}
+
+/* Price Styling */
+.price-cost {
+  color: var(--brand-red);
+  font-weight: 600;
+}
+
+.price-selling {
+  color: var(--success);
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+/* Profit Margin Indicators */
+.profit-margin {
+  font-weight: bold;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  
+  &.high {
+    background: #dcfce7;
+    color: #166534;
+  }
+  
+  &.medium {
+    background: #fef3c7;
+    color: #92400e;
+  }
+  
+  &.low {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+}
+
+.markup {
+  color: var(--gray-600);
+  font-size: 0.9rem;
+}
+
+/* Vehicle Compatibility */
+.compatibility-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  
+  .compatibility-badge {
+    background: var(--gray-100);
+    border: 1px solid var(--gray-300);
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: var(--gray-700);
+  }
+}
+
+/* Product Form Styling */
+.product-form {
+  .form-section {
+    background: var(--gray-50);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    
+    h3 {
+      color: var(--gray-800);
+      margin-bottom: 1.5rem;
+      font-size: 1.1rem;
+      
+      i {
+        color: var(--brand-red);
+        margin-right: 0.5rem;
+      }
+    }
+  }
+  
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+  }
+  
+  .input-group {
+    display: flex;
+    
+    .input-group-text {
+      background: var(--gray-200);
+      border: 1px solid var(--gray-300);
+      border-right: none;
+      padding: 0.5rem 0.75rem;
+      color: var(--gray-700);
+      font-weight: 500;
+      border-radius: 4px 0 0 4px;
+    }
+    
+    .form-control {
+      border-radius: 0 4px 4px 0;
+    }
+  }
+}
+
+/* Status Badges */
+.badge-active {
+  background: var(--success);
+  color: white;
+}
+
+.badge-discontinued {
+  background: var(--gray-500);
+  color: white;
+}
+
+.badge-backordered {
+  background: var(--warning);
+  color: white;
+}
+
+.badge-out_of_stock {
+  background: var(--brand-red);
+  color: white;
+}
+
+/* Product Search Filters */
+.product-filters {
+  .search-form {
+    display: flex;
+    gap: 1rem;
+    align-items: end;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+}
+
+/* Empty State for Products */
+.products-empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  
+  i {
+    color: var(--gray-400);
+    margin-bottom: 1rem;
+  }
+  
+  h3 {
+    color: var(--gray-600);
+    margin-bottom: 0.5rem;
+  }
+  
+  p {
+    color: var(--gray-500);
+    margin-bottom: 2rem;
+  }
+}

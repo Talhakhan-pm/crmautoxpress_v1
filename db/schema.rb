@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_05_25_012324) do
+ActiveRecord::Schema[7.1].define(version: 2025_05_25_021917) do
   create_table "activities", force: :cascade do |t|
     t.string "trackable_type", null: false
     t.integer "trackable_id", null: false
@@ -58,6 +58,25 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_25_012324) do
     t.datetime "updated_at", null: false
     t.index ["gclid"], name: "index_customers_on_gclid"
     t.index ["phone_number"], name: "index_customers_on_phone_number"
+  end
+
+  create_table "products", force: :cascade do |t|
+    t.string "name"
+    t.string "part_number"
+    t.string "oem_part_number"
+    t.text "description"
+    t.string "category"
+    t.string "vendor_name"
+    t.decimal "vendor_cost", precision: 10, scale: 2
+    t.decimal "selling_price", precision: 10, scale: 2
+    t.integer "lead_time_days"
+    t.text "vehicle_compatibility"
+    t.integer "status", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category"], name: "index_products_on_category"
+    t.index ["part_number"], name: "index_products_on_part_number"
+    t.index ["status"], name: "index_products_on_status"
   end
 
   create_table "users", force: :cascade do |t|
