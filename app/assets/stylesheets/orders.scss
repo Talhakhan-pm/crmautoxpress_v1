@@ -386,11 +386,12 @@
 .status-cancelled { background: #fee2e2; color: #dc2626; }
 
 .status-icon {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: currentColor;
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
+  background: currentColor !important;
   animation: statusPulse 2s infinite;
+  display: inline-block !important;
 }
 
 @keyframes statusPulse {
