@@ -1,2 +1,479 @@
-<h1>Dispatches#show</h1>
-<p>Find me in app/views/dispatches/show.html.erb</p>
+<div class="dispatch-detail-container">
+  <!-- Dispatch Header -->
+  <div class="dispatch-hero">
+    <div class="hero-background">
+      <div class="hero-pattern"></div>
+    </div>
+    
+    <div class="hero-content">
+      <div class="hero-main">
+        <div class="dispatch-title">
+          <h1>Dispatch <span class="dispatch-number">#DSP-<%= @dispatch.id.to_s.rjust(4, '0') %></span></h1>
+          <div class="order-connection">
+            <%= link_to order_path(@dispatch.order), class: "order-link" do %>
+              <i class="fas fa-shopping-cart"></i>
+              Order #<%= @dispatch.order_number %>
+            <% end %>
+          </div>
+        </div>
+        
+        <div class="hero-status">
+          <div class="primary-status">
+            <span class="status-badge status-<%= @dispatch.dispatch_status %>">
+              <span class="status-pulse"></span>
+              <%= @dispatch.dispatch_status.humanize %>
+            </span>
+          </div>
+          
+          <div class="priority-indicator">
+            <% priority = @dispatch.order&.priority || 'standard' %>
+            <% if priority == 'urgent' %>
+              <span class="priority-urgent">
+                <i class="fas fa-exclamation-triangle"></i>
+                Urgent Priority
+              </span>
+            <% elsif priority == 'rush' %>
+              <span class="priority-rush">
+                <i class="fas fa-clock"></i>
+                Rush Order
+              </span>
+            <% end %>
+          </div>
+        </div>
+      </div>
+      
+      <div class="hero-actions">
+        <%= link_to edit_dispatch_path(@dispatch), class: "hero-btn primary" do %>
+          <i class="fas fa-edit"></i>
+          Update Dispatch
+        <% end %>
+        
+        <% if @dispatch.has_tracking? %>
+          <%= link_to @dispatch.tracking_link.present? ? @dispatch.tracking_link : "#", 
+              class: "hero-btn secondary", target: "_blank" do %>
+            <i class="fas fa-route"></i>
+            Track Package
+          <% end %>
+        <% end %>
+        
+        <%= link_to dispatches_path, class: "hero-btn tertiary" do %>
+          <i class="fas fa-arrow-left"></i>
+          Back to Command Center
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="dispatch-content">
+    <!-- Visual Workflow Timeline -->
+    <div class="workflow-section">
+      <h2 class="section-title">
+        <i class="fas fa-route"></i>
+        Dispatch Workflow
+      </h2>
+      
+      <div class="workflow-timeline">
+        <div class="timeline-track">
+          <!-- Pending Stage -->
+          <div class="workflow-stage <%= 'active' if ['pending', 'assigned', 'processing', 'shipped', 'completed'].include?(@dispatch.dispatch_status) %> <%= 'current' if ['pending', 'assigned'].include?(@dispatch.dispatch_status) %>">
+            <div class="stage-marker">
+              <div class="stage-icon">
+                <i class="fas fa-clock"></i>
+              </div>
+            </div>
+            <div class="stage-content">
+              <h4>Order Received</h4>
+              <p>Dispatch created and awaiting processing</p>
+              <span class="stage-time"><%= @dispatch.created_at.strftime("%b %d, %Y at %I:%M %p") %></span>
+            </div>
+          </div>
+          
+          <!-- Processing Stage -->
+          <div class="workflow-stage <%= 'active' if ['processing', 'shipped', 'completed'].include?(@dispatch.dispatch_status) %> <%= 'current' if @dispatch.dispatch_status == 'processing' %>">
+            <div class="stage-marker">
+              <div class="stage-icon">
+                <i class="fas fa-cogs"></i>
+              </div>
+            </div>
+            <div class="stage-content">
+              <h4>Processing</h4>
+              <p>Finding supplier and arranging fulfillment</p>
+              <% if @dispatch.dispatch_status == 'processing' %>
+                <span class="stage-time">Currently in progress</span>
+              <% elsif ['shipped', 'completed'].include?(@dispatch.dispatch_status) %>
+                <span class="stage-time">Completed processing</span>
+              <% else %>
+                <span class="stage-time">Pending</span>
+              <% end %>
+            </div>
+          </div>
+          
+          <!-- Shipped Stage -->
+          <div class="workflow-stage <%= 'active' if ['shipped', 'completed'].include?(@dispatch.dispatch_status) %> <%= 'current' if @dispatch.dispatch_status == 'shipped' %>">
+            <div class="stage-marker">
+              <div class="stage-icon">
+                <i class="fas fa-shipping-fast"></i>
+              </div>
+            </div>
+            <div class="stage-content">
+              <h4>In Transit</h4>
+              <p>Package shipped and on the way</p>
+              <% if @dispatch.tracking_number.present? %>
+                <span class="stage-time">Tracking: <%= @dispatch.tracking_number %></span>
+              <% elsif @dispatch.dispatch_status == 'shipped' %>
+                <span class="stage-time">Shipped</span>
+              <% else %>
+                <span class="stage-time">Pending shipment</span>
+              <% end %>
+            </div>
+          </div>
+          
+          <!-- Completed Stage -->
+          <div class="workflow-stage <%= 'active' if @dispatch.dispatch_status == 'completed' %> <%= 'current' if @dispatch.dispatch_status == 'completed' %>">
+            <div class="stage-marker">
+              <div class="stage-icon">
+                <i class="fas fa-check-circle"></i>
+              </div>
+            </div>
+            <div class="stage-content">
+              <h4>Delivered</h4>
+              <p>Successfully delivered to customer</p>
+              <% if @dispatch.dispatch_status == 'completed' %>
+                <span class="stage-time">Delivered on <%= @dispatch.updated_at.strftime("%b %d, %Y") %></span>
+              <% else %>
+                <span class="stage-time">Pending delivery</span>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Information Grid -->
+    <div class="info-grid">
+      <!-- Customer Information -->
+      <div class="info-card customer-card">
+        <div class="card-header">
+          <h3>
+            <i class="fas fa-user"></i>
+            Customer Details
+          </h3>
+        </div>
+        <div class="card-content">
+          <div class="info-row">
+            <span class="info-label">Name</span>
+            <span class="info-value"><%= @dispatch.customer_name %></span>
+          </div>
+          <% if @dispatch.customer_address.present? %>
+            <div class="info-row">
+              <span class="info-label">Address</span>
+              <span class="info-value"><%= @dispatch.customer_address %></span>
+            </div>
+          <% end %>
+          <% if @dispatch.order.customer_phone.present? %>
+            <div class="info-row">
+              <span class="info-label">Phone</span>
+              <span class="info-value">
+                <%= link_to "tel:#{@dispatch.order.customer_phone}", class: "phone-link" do %>
+                  <i class="fas fa-phone"></i>
+                  <%= @dispatch.order.customer_phone %>
+                <% end %>
+              </span>
+            </div>
+          <% end %>
+          <% if @dispatch.order.customer_email.present? %>
+            <div class="info-row">
+              <span class="info-label">Email</span>
+              <span class="info-value">
+                <%= link_to "mailto:#{@dispatch.order.customer_email}", class: "email-link" do %>
+                  <i class="fas fa-envelope"></i>
+                  <%= @dispatch.order.customer_email %>
+                <% end %>
+              </span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Product Information -->
+      <div class="info-card product-card">
+        <div class="card-header">
+          <h3>
+            <i class="fas fa-car-side"></i>
+            Product Details
+          </h3>
+        </div>
+        <div class="card-content">
+          <div class="info-row">
+            <span class="info-label">Product</span>
+            <span class="info-value"><%= @dispatch.product_name %></span>
+          </div>
+          <% if @dispatch.car_details.present? %>
+            <div class="info-row">
+              <span class="info-label">Vehicle</span>
+              <span class="info-value"><%= @dispatch.car_details %></span>
+            </div>
+          <% end %>
+          <div class="info-row">
+            <span class="info-label">Condition</span>
+            <span class="info-value">
+              <span class="condition-badge condition-<%= @dispatch.condition %>">
+                <%= @dispatch.condition.capitalize %>
+              </span>
+            </span>
+          </div>
+          <% if @dispatch.order.comments.present? %>
+            <div class="info-row">
+              <span class="info-label">Comments</span>
+              <span class="info-value"><%= @dispatch.order.comments %></span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Status Dashboard -->
+      <div class="info-card status-card">
+        <div class="card-header">
+          <h3>
+            <i class="fas fa-tachometer-alt"></i>
+            Status Dashboard
+          </h3>
+        </div>
+        <div class="card-content">
+          <div class="status-grid">
+            <div class="status-item">
+              <div class="status-icon dispatch-status">
+                <i class="fas fa-truck"></i>
+              </div>
+              <div class="status-details">
+                <span class="status-label">Dispatch Status</span>
+                <span class="status-value status-<%= @dispatch.dispatch_status %>">
+                  <%= @dispatch.dispatch_status.humanize %>
+                </span>
+              </div>
+            </div>
+            
+            <div class="status-item">
+              <div class="status-icon payment-status">
+                <i class="fas fa-credit-card"></i>
+              </div>
+              <div class="status-details">
+                <span class="status-label">Payment Status</span>
+                <span class="status-value payment-<%= @dispatch.payment_status %>">
+                  <%= @dispatch.payment_status.humanize.gsub('_', ' ') %>
+                </span>
+              </div>
+            </div>
+            
+            <div class="status-item">
+              <div class="status-icon shipment-status">
+                <i class="fas fa-box"></i>
+              </div>
+              <div class="status-details">
+                <span class="status-label">Shipment Status</span>
+                <span class="status-value shipment-<%= @dispatch.shipment_status %>">
+                  <%= @dispatch.shipment_status.humanize.gsub('_', ' ') %>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Supplier Information -->
+      <% if @dispatch.supplier_name.present? %>
+        <div class="info-card supplier-card">
+          <div class="card-header">
+            <h3>
+              <i class="fas fa-industry"></i>
+              Supplier Details
+            </h3>
+          </div>
+          <div class="card-content">
+            <div class="info-row">
+              <span class="info-label">Supplier</span>
+              <span class="info-value"><%= @dispatch.supplier_name %></span>
+            </div>
+            <% if @dispatch.supplier_order_number.present? %>
+              <div class="info-row">
+                <span class="info-label">Order Number</span>
+                <span class="info-value">
+                  <span class="order-number"><%= @dispatch.supplier_order_number %></span>
+                </span>
+              </div>
+            <% end %>
+            <% if @dispatch.supplier_cost.present? %>
+              <div class="info-row">
+                <span class="info-label">Supplier Cost</span>
+                <span class="info-value cost-value">
+                  $<%= number_with_delimiter(@dispatch.supplier_cost) %>
+                </span>
+              </div>
+            <% end %>
+            <% if @dispatch.supplier_shipment_proof.present? %>
+              <div class="info-row">
+                <span class="info-label">Shipment Proof</span>
+                <span class="info-value">
+                  <%= link_to "View Proof", @dispatch.supplier_shipment_proof, 
+                      target: "_blank", class: "proof-link" %>
+                </span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Financial Information -->
+      <div class="info-card financial-card">
+        <div class="card-header">
+          <h3>
+            <i class="fas fa-dollar-sign"></i>
+            Financial Summary
+          </h3>
+        </div>
+        <div class="card-content">
+          <div class="financial-grid">
+            <div class="financial-item">
+              <span class="financial-label">Product Cost</span>
+              <span class="financial-value">$<%= number_with_delimiter(@dispatch.product_cost || 0) %></span>
+            </div>
+            <% if @dispatch.tax_amount.present? && @dispatch.tax_amount > 0 %>
+              <div class="financial-item">
+                <span class="financial-label">Tax</span>
+                <span class="financial-value">$<%= number_with_delimiter(@dispatch.tax_amount) %></span>
+              </div>
+            <% end %>
+            <% if @dispatch.shipping_cost.present? && @dispatch.shipping_cost > 0 %>
+              <div class="financial-item">
+                <span class="financial-label">Shipping</span>
+                <span class="financial-value">$<%= number_with_delimiter(@dispatch.shipping_cost) %></span>
+              </div>
+            <% end %>
+            <div class="financial-item total">
+              <span class="financial-label">Total</span>
+              <span class="financial-value">$<%= number_with_delimiter(@dispatch.total_cost) %></span>
+            </div>
+            <% if @dispatch.supplier_cost.present? && @dispatch.profit_margin > 0 %>
+              <div class="financial-item profit">
+                <span class="financial-label">Profit</span>
+                <span class="financial-value profit-positive">
+                  +$<%= number_with_delimiter(@dispatch.profit_margin) %>
+                  (<%= @dispatch.profit_percentage %>%)
+                </span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tracking Information -->
+      <% if @dispatch.has_tracking? %>
+        <div class="info-card tracking-card">
+          <div class="card-header">
+            <h3>
+              <i class="fas fa-route"></i>
+              Tracking Information
+            </h3>
+          </div>
+          <div class="card-content">
+            <% if @dispatch.tracking_number.present? %>
+              <div class="info-row">
+                <span class="info-label">Tracking Number</span>
+                <span class="info-value tracking-number">
+                  <%= @dispatch.tracking_number %>
+                </span>
+              </div>
+            <% end %>
+            <% if @dispatch.tracking_link.present? %>
+              <div class="info-row">
+                <span class="info-label">Track Package</span>
+                <span class="info-value">
+                  <%= link_to "Open Tracking Page", @dispatch.tracking_link, 
+                      target: "_blank", class: "tracking-link" do %>
+                    <i class="fas fa-external-link-alt"></i>
+                    Track Package
+                  <% end %>
+                </span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Activity Timeline -->
+    <div class="activity-section">
+      <h2 class="section-title">
+        <i class="fas fa-history"></i>
+        Activity Timeline
+      </h2>
+      
+      <div class="activity-timeline">
+        <% if @activities.any? %>
+          <% @activities.each do |activity| %>
+            <%= render 'activities/activity', activity: activity %>
+          <% end %>
+        <% else %>
+          <div class="no-activities">
+            <i class="fas fa-clock"></i>
+            <p>No activities recorded yet for this dispatch.</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions-section">
+      <h2 class="section-title">
+        <i class="fas fa-bolt"></i>
+        Quick Actions
+      </h2>
+      
+      <div class="actions-grid">
+        <% if @dispatch.can_be_shipped? %>
+          <%= link_to edit_dispatch_path(@dispatch), class: "quick-action ship-action" do %>
+            <div class="action-icon">
+              <i class="fas fa-shipping-fast"></i>
+            </div>
+            <div class="action-content">
+              <h4>Ready to Ship</h4>
+              <p>Mark as shipped and add tracking</p>
+            </div>
+          <% end %>
+        <% end %>
+        
+        <% if @dispatch.ready_for_completion? %>
+          <%= link_to edit_dispatch_path(@dispatch), class: "quick-action complete-action" do %>
+            <div class="action-icon">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="action-content">
+              <h4>Mark Delivered</h4>
+              <p>Complete the dispatch process</p>
+            </div>
+          <% end %>
+        <% end %>
+        
+        <%= link_to order_path(@dispatch.order), class: "quick-action view-action" do %>
+          <div class="action-icon">
+            <i class="fas fa-shopping-cart"></i>
+          </div>
+          <div class="action-content">
+            <h4>View Order</h4>
+            <p>See complete order details</p>
+          </div>
+        <% end %>
+        
+        <%= link_to edit_dispatch_path(@dispatch), class: "quick-action edit-action" do %>
+          <div class="action-icon">
+            <i class="fas fa-edit"></i>
+          </div>
+          <div class="action-content">
+            <h4>Update Details</h4>
+            <p>Modify dispatch information</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

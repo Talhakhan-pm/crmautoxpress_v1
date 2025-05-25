@@ -1,2 +1,364 @@
-<h1>Dispatches#index</h1>
-<p>Find me in app/views/dispatches/index.html.erb</p>
+<div class="dispatch-command-center">
+  <!-- Command Center Header -->
+  <div class="command-header">
+    <div class="header-left">
+      <h1 class="command-title">
+        <i class="fas fa-rocket"></i>
+        Dispatch Command Center
+      </h1>
+      <div class="live-indicator">
+        <span class="pulse-dot"></span>
+        Live Dashboard
+      </div>
+    </div>
+    
+    <div class="header-stats">
+      <div class="stat-bubble urgent">
+        <span class="stat-number"><%= @dispatches.where(dispatch_status: ['pending', 'assigned']).count %></span>
+        <span class="stat-label">Pending</span>
+      </div>
+      <div class="stat-bubble processing">
+        <span class="stat-number"><%= @dispatches.where(dispatch_status: 'processing').count %></span>
+        <span class="stat-label">Processing</span>
+      </div>
+      <div class="stat-bubble shipped">
+        <span class="stat-number"><%= @dispatches.where(dispatch_status: 'shipped').count %></span>
+        <span class="stat-label">In Transit</span>
+      </div>
+      <div class="stat-bubble revenue">
+        <span class="stat-number">$<%= @dispatches.sum(:total_cost).to_i.to_s.gsub(/\B(?=(\d{3})+(?!\d))/, ',') %></span>
+        <span class="stat-label">Total Value</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Smart Filters & Search -->
+  <div class="command-filters">
+    <%= form_with url: dispatches_path, method: :get, local: true, class: "filters-form" do |form| %>
+      <div class="filter-section">
+        <div class="search-zone">
+          <%= form.text_field :search, 
+              placeholder: "Search by order, customer, product, supplier, tracking...", 
+              value: params[:search],
+              class: "command-search",
+              onkeyup: "searchDispatches(this.value)" %>
+          <i class="fas fa-search search-icon"></i>
+        </div>
+        
+        <div class="quick-filters">
+          <button type="button" class="filter-pill <%= 'active' unless params[:status].present? %>" 
+                  onclick="setFilter('status', '')">All</button>
+          <% @statuses.each do |status| %>
+            <button type="button" class="filter-pill status-<%= status %> <%= 'active' if params[:status] == status %>" 
+                    onclick="setFilter('status', '<%= status %>')">
+              <%= status.humanize %>
+            </button>
+          <% end %>
+        </div>
+        
+        <div class="view-controls">
+          <button type="button" class="view-toggle <%= 'active' unless params[:view] == 'list' %>" 
+                  onclick="setView('flow')">
+            <i class="fas fa-project-diagram"></i> Flow View
+          </button>
+          <button type="button" class="view-toggle <%= 'active' if params[:view] == 'list' %>" 
+                  onclick="setView('list')">
+            <i class="fas fa-list"></i> List View
+          </button>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="command-content">
+    <% if params[:view] == 'list' %>
+      <!-- Traditional List View -->
+      <div class="dispatch-list-view">
+        <div class="list-container" id="dispatches">
+          <% if @dispatches.any? %>
+            <% @dispatches.each do |dispatch| %>
+              <%= render 'dispatch', dispatch: dispatch %>
+            <% end %>
+          <% else %>
+            <div class="empty-state">
+              <i class="fas fa-truck empty-icon"></i>
+              <h3>No Dispatches Found</h3>
+              <p>Dispatches are automatically created when orders are placed.</p>
+              <%= link_to "View Orders", orders_path, class: "btn btn-primary" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% else %>
+      <!-- Innovation: Visual Flow Pipeline -->
+      <div class="dispatch-flow-view">
+        <!-- Flow Legend -->
+        <div class="flow-legend">
+          <div class="legend-item">
+            <span class="flow-line pending"></span>
+            <span>Pending Processing</span>
+          </div>
+          <div class="legend-item">
+            <span class="flow-line processing"></span>
+            <span>Active Processing</span>
+          </div>
+          <div class="legend-item">
+            <span class="flow-line shipped"></span>
+            <span>In Transit</span>
+          </div>
+          <div class="legend-item">
+            <span class="flow-line completed"></span>
+            <span>Delivered</span>
+          </div>
+        </div>
+
+        <!-- Visual Flow Streams -->
+        <div class="flow-streams">
+          <!-- Pending Stream -->
+          <div class="flow-stream" data-status="pending">
+            <div class="stream-header">
+              <div class="stream-title">
+                <i class="fas fa-clock"></i>
+                Pending Processing
+              </div>
+              <div class="stream-count"><%= @dispatches.where(dispatch_status: ['pending', 'assigned']).count %></div>
+            </div>
+            <div class="stream-flow">
+              <% @dispatches.where(dispatch_status: ['pending', 'assigned']).each do |dispatch| %>
+                <div class="flow-card pending" onclick="showDispatchDetails(<%= dispatch.id %>)" data-dispatch-id="<%= dispatch.id %>">
+                  <div class="flow-card-header">
+                    <span class="order-ref">#<%= dispatch.order_number %></span>
+                    <span class="priority-dot priority-<%= dispatch.order&.priority || 'standard' %>"></span>
+                  </div>
+                  <div class="flow-card-body">
+                    <div class="customer"><%= dispatch.customer_name %></div>
+                    <div class="product"><%= dispatch.product_name %></div>
+                    <div class="amount">$<%= number_with_delimiter(dispatch.total_cost) %></div>
+                  </div>
+                  <div class="flow-card-actions">
+                    <%= link_to "Start Processing", edit_dispatch_path(dispatch), 
+                        class: "flow-action-btn start", 
+                        onclick: "event.stopPropagation();" %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Processing Stream -->
+          <div class="flow-stream" data-status="processing">
+            <div class="stream-header">
+              <div class="stream-title">
+                <i class="fas fa-cogs"></i>
+                Active Processing
+              </div>
+              <div class="stream-count"><%= @dispatches.where(dispatch_status: 'processing').count %></div>
+            </div>
+            <div class="stream-flow">
+              <% @dispatches.where(dispatch_status: 'processing').each do |dispatch| %>
+                <div class="flow-card processing" onclick="showDispatchDetails(<%= dispatch.id %>)" data-dispatch-id="<%= dispatch.id %>">
+                  <div class="flow-card-header">
+                    <span class="order-ref">#<%= dispatch.order_number %></span>
+                    <div class="status-indicators">
+                      <span class="indicator payment-<%= dispatch.payment_status %>">💳</span>
+                      <span class="indicator supplier-<%= dispatch.supplier_name.present? ? 'assigned' : 'pending' %>">🏭</span>
+                    </div>
+                  </div>
+                  <div class="flow-card-body">
+                    <div class="customer"><%= dispatch.customer_name %></div>
+                    <div class="product"><%= dispatch.product_name %></div>
+                    <% if dispatch.supplier_name.present? %>
+                      <div class="supplier">📦 <%= dispatch.supplier_name %></div>
+                    <% end %>
+                    <div class="amount">$<%= number_with_delimiter(dispatch.total_cost) %></div>
+                  </div>
+                  <div class="flow-card-actions">
+                    <% if dispatch.can_be_shipped? %>
+                      <%= link_to "Ready to Ship", edit_dispatch_path(dispatch), 
+                          class: "flow-action-btn ship", 
+                          onclick: "event.stopPropagation();" %>
+                    <% else %>
+                      <%= link_to "Update", edit_dispatch_path(dispatch), 
+                          class: "flow-action-btn update", 
+                          onclick: "event.stopPropagation();" %>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Shipped Stream -->
+          <div class="flow-stream" data-status="shipped">
+            <div class="stream-header">
+              <div class="stream-title">
+                <i class="fas fa-shipping-fast"></i>
+                In Transit
+              </div>
+              <div class="stream-count"><%= @dispatches.where(dispatch_status: 'shipped').count %></div>
+            </div>
+            <div class="stream-flow">
+              <% @dispatches.where(dispatch_status: 'shipped').each do |dispatch| %>
+                <div class="flow-card shipped" onclick="showDispatchDetails(<%= dispatch.id %>)" data-dispatch-id="<%= dispatch.id %>">
+                  <div class="flow-card-header">
+                    <span class="order-ref">#<%= dispatch.order_number %></span>
+                    <% if dispatch.has_tracking? %>
+                      <span class="tracking-badge">📍</span>
+                    <% end %>
+                  </div>
+                  <div class="flow-card-body">
+                    <div class="customer"><%= dispatch.customer_name %></div>
+                    <div class="product"><%= dispatch.product_name %></div>
+                    <% if dispatch.tracking_number.present? %>
+                      <div class="tracking">🚚 <%= dispatch.tracking_number %></div>
+                    <% end %>
+                    <div class="amount">$<%= number_with_delimiter(dispatch.total_cost) %></div>
+                  </div>
+                  <div class="flow-card-actions">
+                    <% if dispatch.has_tracking? %>
+                      <%= link_to "Track", dispatch.tracking_link.present? ? dispatch.tracking_link : "#", 
+                          class: "flow-action-btn track", 
+                          target: "_blank",
+                          onclick: "event.stopPropagation();" %>
+                    <% end %>
+                    <%= link_to "Mark Delivered", edit_dispatch_path(dispatch), 
+                        class: "flow-action-btn deliver", 
+                        onclick: "event.stopPropagation();" %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Completed Stream -->
+          <div class="flow-stream" data-status="completed">
+            <div class="stream-header">
+              <div class="stream-title">
+                <i class="fas fa-check-circle"></i>
+                Completed
+              </div>
+              <div class="stream-count"><%= @dispatches.where(dispatch_status: 'completed').count %></div>
+            </div>
+            <div class="stream-flow">
+              <% @dispatches.where(dispatch_status: 'completed').limit(10).each do |dispatch| %>
+                <div class="flow-card completed" onclick="showDispatchDetails(<%= dispatch.id %>)" data-dispatch-id="<%= dispatch.id %>">
+                  <div class="flow-card-header">
+                    <span class="order-ref">#<%= dispatch.order_number %></span>
+                    <span class="completed-badge">✅</span>
+                  </div>
+                  <div class="flow-card-body">
+                    <div class="customer"><%= dispatch.customer_name %></div>
+                    <div class="product"><%= dispatch.product_name %></div>
+                    <div class="delivery-date">📅 <%= dispatch.updated_at.strftime("%m/%d") %></div>
+                    <div class="amount">$<%= number_with_delimiter(dispatch.total_cost) %></div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Flow Metrics -->
+        <div class="flow-metrics">
+          <div class="metric-flow">
+            <div class="metric-title">Today's Flow</div>
+            <div class="flow-bars">
+              <div class="flow-bar">
+                <span class="bar-label">Started</span>
+                <div class="bar-fill" style="width: 70%"></div>
+                <span class="bar-value"><%= @dispatches.where(created_at: Date.current.beginning_of_day..Date.current.end_of_day).count %></span>
+              </div>
+              <div class="flow-bar">
+                <span class="bar-label">Shipped</span>
+                <div class="bar-fill shipped" style="width: 45%"></div>
+                <span class="bar-value"><%= @dispatches.where(dispatch_status: 'shipped', updated_at: Date.current.beginning_of_day..Date.current.end_of_day).count %></span>
+              </div>
+              <div class="flow-bar">
+                <span class="bar-label">Delivered</span>
+                <div class="bar-fill completed" style="width: 30%"></div>
+                <span class="bar-value"><%= @dispatches.where(dispatch_status: 'completed', updated_at: Date.current.beginning_of_day..Date.current.end_of_day).count %></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Quick Dispatch Details Modal -->
+<div id="dispatch-modal" class="dispatch-modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="modal-title">Dispatch Details</h3>
+      <button onclick="closeDispatchModal()" class="close-btn">×</button>
+    </div>
+    <div id="modal-body" class="modal-body">
+      <!-- Content loaded via AJAX -->
+    </div>
+  </div>
+</div>
+
+<script>
+function setView(view) {
+  const url = new URL(window.location);
+  if (view === 'list') {
+    url.searchParams.set('view', 'list');
+  } else {
+    url.searchParams.delete('view');
+  }
+  window.location.href = url.toString();
+}
+
+function setFilter(type, value) {
+  const url = new URL(window.location);
+  if (value) {
+    url.searchParams.set(type, value);
+  } else {
+    url.searchParams.delete(type);
+  }
+  window.location.href = url.toString();
+}
+
+function searchDispatches(query) {
+  // Implement real-time search
+  clearTimeout(window.searchTimeout);
+  window.searchTimeout = setTimeout(() => {
+    const url = new URL(window.location);
+    if (query.trim()) {
+      url.searchParams.set('search', query);
+    } else {
+      url.searchParams.delete('search');
+    }
+    window.location.href = url.toString();
+  }, 500);
+}
+
+function showDispatchDetails(dispatchId) {
+  fetch(`/dispatches/${dispatchId}`, {
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest',
+      'Accept': 'text/html'
+    }
+  })
+    .then(response => response.text())
+    .then(html => {
+      document.getElementById('modal-body').innerHTML = html;
+      document.getElementById('dispatch-modal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    });
+}
+
+function closeDispatchModal() {
+  document.getElementById('dispatch-modal').classList.remove('active');
+  document.body.style.overflow = 'auto';
+}
+
+// Auto-refresh every 30 seconds
+setInterval(() => {
+  if (!document.getElementById('dispatch-modal').classList.contains('active')) {
+    location.reload();
+  }
+}, 30000);
+</script>

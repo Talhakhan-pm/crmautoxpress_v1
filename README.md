@@ -837,6 +837,94 @@ All new models will include:
 - **Phone number deduplication** across customers
 - **Minimal required fields** to reduce friction
 
+## Modal Layout Issue & Solution
+
+### Problem: Sidebar Appearing Inside Modal Content
+
+**Issue Description:**
+When implementing modal popups for dispatch detail views, the sidebar was appearing **inside the modal content**, overlapping and blocking the actual dispatch information.
+
+**Root Cause:**
+- Modal popups were fetching content via JavaScript `fetch()` 
+- The fetch request was loading the full HTML page (including sidebar)
+- JavaScript was injecting the entire page content into the modal body
+- Result: Sidebar rendered inside modal, covering the dispatch content
+
+**Failed Solutions Attempted:**
+1. ❌ CSS fixes to hide sidebar in modal context
+2. ❌ Z-index adjustments  
+3. ❌ Layout positioning changes
+
+**Working Solution:**
+
+**Step 1: Controller - Render Without Layout for AJAX**
+```ruby
+# app/controllers/dispatches_controller.rb
+def show
+  @activities = @dispatch.activities.includes(:user).recent.limit(20)
+  
+  # Don't render layout for AJAX requests (modal content)
+  render layout: false if request.xhr?
+end
+```
+
+**Step 2: JavaScript - Send Proper AJAX Headers**
+```javascript
+// app/views/dispatches/index.html.erb
+function showDispatchDetails(dispatchId) {
+  fetch(`/dispatches/${dispatchId}`, {
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest',  // Key header for request.xhr?
+      'Accept': 'text/html'
+    }
+  })
+    .then(response => response.text())
+    .then(html => {
+      document.getElementById('modal-body').innerHTML = html;
+      document.getElementById('dispatch-modal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    });
+}
+```
+
+**Step 3: CSS - Modal Content Layout Reset**
+```scss
+// app/assets/stylesheets/dispatches.scss
+.modal-body .dispatch-detail-container {
+  min-height: auto;
+  margin: 0;
+}
+```
+
+**Key Technical Points:**
+- `request.xhr?` in Rails detects AJAX requests via `X-Requested-With` header
+- `render layout: false` prevents sidebar from being included in response
+- Modal gets clean content without sidebar or navigation
+- Direct page access still renders with full layout
+
+**Result:**
+✅ Modal popup displays clean dispatch content without sidebar  
+✅ Direct URL access still shows full page with sidebar  
+✅ No layout interference or content blocking  
+
+**Testing:**
+1. Click dispatch card in command center → Modal opens with clean content
+2. Navigate directly to `/dispatches/123` → Full page with sidebar
+3. Both scenarios work correctly
+
+### Changes Made & Reverted
+
+**Applied (Working):**
+- Controller: Added `render layout: false if request.xhr?`
+- JavaScript: Added proper AJAX headers to fetch request
+- CSS: Added modal content layout reset
+
+**Reverted (Unnecessary):**
+- CSS rules to hide sidebar in modal context
+- Complex z-index and positioning adjustments
+
+This solution provides a clean separation between modal content and full-page views while maintaining proper functionality for both access methods.
+
 ## Getting Started
 * `bundle install`
 * `rails db:create db:migrate db:seed`

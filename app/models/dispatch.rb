@@ -50,9 +50,9 @@ class Dispatch < ApplicationRecord
   include Trackable
 
   # Turbo Stream broadcasts
-  # after_create_commit { broadcast_prepend_to "dispatches", target: "dispatches" }
-  # after_update_commit { broadcast_replace_to "dispatches" }
-  # after_destroy_commit { broadcast_remove_to "dispatches" }
+  after_create_commit { broadcast_prepend_to "dispatches", target: "dispatches" }
+  after_update_commit { broadcast_replace_to "dispatches" }
+  after_destroy_commit { broadcast_remove_to "dispatches" }
 
   # Scopes
   scope :recent, -> { order(created_at: :desc) }

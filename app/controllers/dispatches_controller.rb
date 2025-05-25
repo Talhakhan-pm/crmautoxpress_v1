@@ -39,6 +39,9 @@ class DispatchesController < ApplicationController
 
   def show
     @activities = @dispatch.activities.includes(:user).recent.limit(20)
+    
+    # Don't render layout for AJAX requests (modal content)
+    render layout: false if request.xhr?
   end
 
   def new

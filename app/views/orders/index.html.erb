@@ -199,7 +199,7 @@
         </div>
       <% else %>
         <!-- Card View (Default) -->
-        <div class="orders-grid">
+        <div class="orders-grid" id="orders">
           <% if @orders.any? %>
             <% @orders.each do |order| %>
               <div class="order-card" onclick="window.location.href='<%= order_path(order) %>'" style="cursor: pointer;">

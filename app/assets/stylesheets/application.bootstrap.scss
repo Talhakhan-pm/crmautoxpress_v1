@@ -6,6 +6,7 @@
 @use 'customers';
 @use 'products';
 @use 'orders';
+@use 'dispatches';
 
 /* Error alerts for validation */
 .alert {

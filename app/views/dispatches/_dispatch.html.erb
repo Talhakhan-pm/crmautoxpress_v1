@@ -1,0 +1,118 @@
+<div class="dispatch-card" onclick="window.location.href='<%= dispatch_path(dispatch) %>'" style="cursor: pointer;" id="<%= dom_id(dispatch) %>">
+  <div class="dispatch-header">
+    <div class="dispatch-info">
+      <span class="order-link">#<%= dispatch.order_number %></span>
+      <span class="dispatch-id">DSP-<%= dispatch.id.to_s.rjust(4, '0') %></span>
+    </div>
+    <div class="dispatch-priority">
+      <% priority_class = dispatch.order&.priority == 'urgent' ? 'urgent' : dispatch.order&.priority == 'rush' ? 'rush' : 'normal' %>
+      <span class="priority-indicator priority-<%= priority_class %>">
+        <% if dispatch.order&.priority == 'urgent' %>
+          <i class="fas fa-exclamation-triangle"></i>
+        <% elsif dispatch.order&.priority == 'rush' %>
+          <i class="fas fa-clock"></i>
+        <% else %>
+          <i class="fas fa-circle"></i>
+        <% end %>
+      </span>
+    </div>
+  </div>
+
+  <div class="dispatch-body">
+    <div class="customer-section">
+      <div class="customer-name"><%= dispatch.customer_name %></div>
+      <div class="product-info">
+        <i class="fas fa-car-side"></i>
+        <%= dispatch.product_name %>
+      </div>
+      <% if dispatch.car_details.present? %>
+        <div class="vehicle-details">
+          <i class="fas fa-info-circle"></i>
+          <%= dispatch.car_details %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="status-section">
+      <div class="status-grid">
+        <div class="status-item">
+          <span class="status-label">Dispatch</span>
+          <span class="status-badge dispatch-<%= dispatch.dispatch_status %>">
+            <%= dispatch.dispatch_status.humanize %>
+          </span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Payment</span>
+          <span class="status-badge payment-<%= dispatch.payment_status %>">
+            <%= dispatch.payment_status.humanize.gsub('_', ' ') %>
+          </span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Shipment</span>
+          <span class="status-badge shipment-<%= dispatch.shipment_status %>">
+            <%= dispatch.shipment_status.humanize.gsub('_', ' ') %>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <% if dispatch.supplier_name.present? %>
+      <div class="supplier-section">
+        <div class="supplier-info">
+          <i class="fas fa-industry"></i>
+          <span class="supplier-name"><%= dispatch.supplier_name %></span>
+          <% if dispatch.supplier_order_number.present? %>
+            <span class="supplier-order">Order: <%= dispatch.supplier_order_number %></span>
+          <% end %>
+        </div>
+        <% if dispatch.has_tracking? %>
+          <div class="tracking-info">
+            <i class="fas fa-route"></i>
+            <% if dispatch.tracking_link.present? %>
+              <%= link_to "Track Package", dispatch.tracking_link, target: "_blank", class: "tracking-link" %>
+            <% else %>
+              <span class="tracking-number"><%= dispatch.tracking_number %></span>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="dispatch-footer">
+    <div class="cost-section">
+      <div class="cost-breakdown">
+        <span class="product-cost">Product: $<%= number_with_delimiter(dispatch.product_cost || 0) %></span>
+        <% if dispatch.supplier_cost.present? && dispatch.supplier_cost > 0 %>
+          <span class="supplier-cost">Cost: $<%= number_with_delimiter(dispatch.supplier_cost) %></span>
+        <% end %>
+      </div>
+      <div class="total-cost">$<%= number_with_delimiter(dispatch.total_cost) %></div>
+      <% if dispatch.profit_margin > 0 %>
+        <div class="profit-info">
+          <span class="profit-amount">+$<%= number_with_delimiter(dispatch.profit_margin) %></span>
+          <span class="profit-percentage">(<%= dispatch.profit_percentage %>%)</span>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="actions-section" onclick="event.stopPropagation();">
+      <%= link_to dispatch_path(dispatch), class: "action-btn primary" do %>
+        <i class="fas fa-eye"></i>
+        View
+      <% end %>
+      <%= link_to edit_dispatch_path(dispatch), class: "action-btn secondary" do %>
+        <i class="fas fa-edit"></i>
+        Edit
+      <% end %>
+      <%= link_to order_path(dispatch.order), class: "action-btn tertiary" do %>
+        <i class="fas fa-shopping-cart"></i>
+        Order
+      <% end %>
+    </div>
+  </div>
+
+  <div class="condition-indicator condition-<%= dispatch.condition %>">
+    <%= dispatch.condition.capitalize %>
+  </div>
+</div>

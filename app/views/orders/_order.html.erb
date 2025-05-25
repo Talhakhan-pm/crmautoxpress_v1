@@ -1,0 +1,109 @@
+<div class="order-card" onclick="window.location.href='<%= order_path(order) %>'" style="cursor: pointer;" id="<%= dom_id(order) %>">
+  <div class="card-header">
+    <div class="order-number">
+      <span class="order-id">#<%= order.order_number %></span>
+      <% if order.agent_callback.present? %>
+        <i class="fas fa-phone" title="Created from callback" style="color: #dc2626;"></i>
+      <% end %>
+    </div>
+    <div class="order-meta">
+      <div class="order-date">
+        <i class="fas fa-calendar"></i>
+        <%= order.order_date.strftime("%b %d, %Y") %>
+      </div>
+      <span class="priority-badge priority-<%= order.priority %>">
+        <%= order.priority.humanize %>
+      </span>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <div class="customer-info">
+      <div class="customer-name"><%= order.customer_name %></div>
+      <div class="customer-contact">
+        <i class="fas fa-phone"></i>
+        <%= order.customer_phone %>
+        <% if order.customer_email.present? %>
+          <i class="fas fa-envelope"></i>
+          <%= order.customer_email %>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="product-section">
+      <div class="product-name"><%= order.product_name %></div>
+      <% if order.vehicle_info.present? %>
+        <div class="vehicle-info">
+          <i class="fas fa-car"></i>
+          <%= order.vehicle_info %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card-footer">
+    <div class="status-section">
+      <span class="status-badge status-<%= order.order_status %>">
+        <span class="status-icon"></span>
+        <%= order.order_status.humanize %>
+      </span>
+      
+      <div class="order-timeline">
+        <div class="timeline-progress timeline-<%= order.order_status %>">
+          <div class="timeline-bar"></div>
+          <div class="timeline-steps">
+            <div class="step <%= 'active' if %w[pending confirmed processing shipped delivered].include?(order.order_status) %>">
+              <i class="fas fa-check"></i>
+            </div>
+            <div class="step <%= 'active' if %w[confirmed processing shipped delivered].include?(order.order_status) %>">
+              <i class="fas fa-check"></i>
+            </div>
+            <div class="step <%= 'active' if %w[processing shipped delivered].include?(order.order_status) %>">
+              <i class="fas fa-truck"></i>
+            </div>
+            <div class="step <%= 'active' if %w[shipped delivered].include?(order.order_status) %>">
+              <i class="fas fa-box"></i>
+            </div>
+            <div class="step <%= 'active' if order.order_status == 'delivered' %>">
+              <i class="fas fa-home"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="amount-section">
+      <div class="total-amount">$<%= number_with_delimiter(order.total_amount) %></div>
+      <div class="amount-breakdown">
+        <% if order.tax_amount.present? && order.tax_amount > 0 %>
+          <span class="tax">Tax: $<%= number_with_delimiter(order.tax_amount) %></span>
+        <% end %>
+        <% if order.shipping_cost.present? && order.shipping_cost > 0 %>
+          <span class="shipping">Ship: $<%= number_with_delimiter(order.shipping_cost) %></span>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="actions-section" onclick="event.stopPropagation();">
+      <%= link_to order_path(order), class: "action-btn" do %>
+        <i class="fas fa-eye"></i>
+        View
+      <% end %>
+      <%= link_to edit_order_path(order), class: "action-btn" do %>
+        <i class="fas fa-edit"></i>
+        Edit
+      <% end %>
+      <% if order.dispatch.present? %>
+        <%= link_to dispatch_path(order.dispatch), class: "action-btn" do %>
+          <i class="fas fa-truck"></i>
+          View Dispatch
+        <% end %>
+      <% else %>
+        <%= link_to new_dispatch_path(order_id: order.id), class: "action-btn" do %>
+          <i class="fas fa-plus"></i>
+          Create Dispatch
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>
