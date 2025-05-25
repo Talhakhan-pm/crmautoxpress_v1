@@ -1,3 +1,4 @@
+<%= turbo_frame_tag "main_content" do %>
 <div class="dispatch-command-center">
   <!-- Command Center Header -->
   <div class="command-header">
@@ -139,6 +140,7 @@
                   <div class="flow-card-actions">
                     <%= link_to "Start Processing", edit_dispatch_path(dispatch), 
                         class: "flow-action-btn start", 
+                        data: { turbo_frame: "main_content" },
                         onclick: "event.stopPropagation();" %>
                   </div>
                 </div>
@@ -177,10 +179,12 @@
                     <% if dispatch.can_be_shipped? %>
                       <%= link_to "Ready to Ship", edit_dispatch_path(dispatch), 
                           class: "flow-action-btn ship", 
+                          data: { turbo_frame: "main_content" },
                           onclick: "event.stopPropagation();" %>
                     <% else %>
                       <%= link_to "Update", edit_dispatch_path(dispatch), 
                           class: "flow-action-btn update", 
+                          data: { turbo_frame: "main_content" },
                           onclick: "event.stopPropagation();" %>
                     <% end %>
                   </div>
@@ -224,6 +228,7 @@
                     <% end %>
                     <%= link_to "Mark Delivered", edit_dispatch_path(dispatch), 
                         class: "flow-action-btn deliver", 
+                        data: { turbo_frame: "main_content" },
                         onclick: "event.stopPropagation();" %>
                   </div>
                 </div>
@@ -356,3 +361,4 @@ function closeDispatchModal() {
 }
 
 </script>
+<% end %>

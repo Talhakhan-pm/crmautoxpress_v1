@@ -1,2 +1,414 @@
-<h1>Dispatches#edit</h1>
-<p>Find me in app/views/dispatches/edit.html.erb</p>
+<!-- Main Content with Turbo Frame -->
+<main class="main-content">
+    <%= turbo_frame_tag "main_content" do %>
+        <!-- Smart Dispatch Management Modal -->
+        <div id="dispatch-modal" 
+             class="dispatch-modal active" 
+             data-controller="dispatch-form">
+          
+          <%= link_to "", dispatches_path, class: "modal-overlay", 
+                           data: { turbo_frame: "main_content" },
+                           title: "Click outside to close" %>
+          
+          <div class="dispatch-modal-content" data-dispatch-form-target="modal">
+            <!-- Modal Header -->
+            <div class="modal-header">
+              <div class="header-content">
+                <div class="modal-title-section">
+                  <h2 class="modal-title">
+                    <i class="fas fa-edit modal-icon"></i>
+                    Manage Dispatch #DSP-<%= @dispatch.id.to_s.rjust(4, '0') %>
+                  </h2>
+                  <p class="modal-subtitle">Update supplier costs, tracking, and fulfillment status</p>
+                </div>
+                <%= link_to dispatches_path, class: "close-btn", data: { turbo_frame: "main_content" } do %>
+                  <i class="fas fa-times"></i>
+                <% end %>
+              </div>
+              
+              <!-- Status Progress Bar -->
+              <div class="status-progress">
+                <div class="progress-track">
+                  <div class="progress-step <%= 'completed' if ['pending', 'assigned', 'processing', 'shipped', 'completed'].include?(@dispatch.dispatch_status) %> <%= 'current' if ['pending', 'assigned'].include?(@dispatch.dispatch_status) %>">
+                    <i class="fas fa-clock"></i>
+                    <span>Pending</span>
+                  </div>
+                  <div class="progress-step <%= 'completed' if ['processing', 'shipped', 'completed'].include?(@dispatch.dispatch_status) %> <%= 'current' if @dispatch.dispatch_status == 'processing' %>">
+                    <i class="fas fa-cogs"></i>
+                    <span>Processing</span>
+                  </div>
+                  <div class="progress-step <%= 'completed' if ['shipped', 'completed'].include?(@dispatch.dispatch_status) %> <%= 'current' if @dispatch.dispatch_status == 'shipped' %>">
+                    <i class="fas fa-shipping-fast"></i>
+                    <span>Shipped</span>
+                  </div>
+                  <div class="progress-step <%= 'completed' if @dispatch.dispatch_status == 'completed' %> <%= 'current' if @dispatch.dispatch_status == 'completed' %>">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Delivered</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+              <% if @dispatch.errors.any? %>
+                <div class="alert alert-danger">
+                  <h4><%= pluralize(@dispatch.errors.count, "error") %> prohibited this dispatch from being updated:</h4>
+                  <ul>
+                    <% @dispatch.errors.full_messages.each do |message| %>
+                      <li><%= message %></li>
+                    <% end %>
+                  </ul>
+                </div>
+              <% end %>
+
+              <%= form_with model: @dispatch, 
+                            class: "dispatch-form", 
+                            data: { 
+                              turbo_frame: "main_content",
+                              dispatch_form_target: "form"
+                            } do |form| %>
+                
+                <!-- Order & Customer Information (Read-only) -->
+                <div class="form-section info-section">
+                  <div class="section-header">
+                    <h4 class="section-title">
+                      <i class="fas fa-info-circle"></i>
+                      Order Information
+                    </h4>
+                    <%= link_to order_path(@dispatch.order), class: "view-order-btn", data: { turbo_frame: "_top" } do %>
+                      <i class="fas fa-external-link-alt"></i>
+                      View Full Order
+                    <% end %>
+                  </div>
+                  
+                  <div class="info-grid">
+                    <div class="info-card">
+                      <div class="info-label">Order Number</div>
+                      <div class="info-value">#<%= @dispatch.order_number %></div>
+                    </div>
+                    <div class="info-card">
+                      <div class="info-label">Customer</div>
+                      <div class="info-value"><%= @dispatch.customer_name %></div>
+                    </div>
+                    <div class="info-card">
+                      <div class="info-label">Product</div>
+                      <div class="info-value"><%= @dispatch.product_name %></div>
+                    </div>
+                    <div class="info-card">
+                      <div class="info-label">Vehicle</div>
+                      <div class="info-value"><%= @dispatch.car_details || "Not specified" %></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Supplier Management Section -->
+                <div class="form-section supplier-section">
+                  <div class="section-header">
+                    <h4 class="section-title">
+                      <i class="fas fa-industry"></i>
+                      Supplier Management
+                    </h4>
+                    <div class="smart-lookup">
+                      <button type="button" 
+                              data-action="click->dispatch-form#lookupSupplier" 
+                              class="lookup-btn">
+                        <i class="fas fa-search"></i>
+                        Find Supplier
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div class="form-grid">
+                    <div class="form-group">
+                      <%= form.label :supplier_name, "Supplier Name *", class: "form-label" %>
+                      <%= form.text_field :supplier_name, 
+                                          class: "form-input", 
+                                          placeholder: "Enter supplier name",
+                                          data: { dispatch_form_target: "supplierName" } %>
+                    </div>
+                    
+                    <div class="form-group">
+                      <%= form.label :supplier_order_number, "Supplier Order #", class: "form-label" %>
+                      <%= form.text_field :supplier_order_number, 
+                                          class: "form-input", 
+                                          placeholder: "Supplier's order number",
+                                          data: { dispatch_form_target: "supplierOrderNumber" } %>
+                    </div>
+                    
+                    <div class="form-group">
+                      <%= form.label :supplier_cost, "Supplier Cost *", class: "form-label" %>
+                      <%= form.number_field :supplier_cost, 
+                                            class: "form-input cost-input", 
+                                            step: 0.01,
+                                            placeholder: "0.00",
+                                            data: { 
+                                              dispatch_form_target: "supplierCost",
+                                              action: "input->dispatch-form#supplierCostChanged keyup->dispatch-form#supplierCostChanged"
+                                            } %>
+                    </div>
+                    
+                    <div class="form-group">
+                      <%= form.label :condition, "Condition", class: "form-label" %>
+                      <%= form.select :condition, 
+                                      options_for_select([
+                                        ['New', 'new'],
+                                        ['Used', 'used'],
+                                        ['Refurbished', 'refurbished']
+                                      ], @dispatch.condition), 
+                                      {}, 
+                                      { class: "form-select" } %>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                      <%= form.label :supplier_shipment_proof, "Shipment Proof URL", class: "form-label" %>
+                      <%= form.url_field :supplier_shipment_proof, 
+                                         class: "form-input", 
+                                         placeholder: "Link to tracking or shipment confirmation" %>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Financial Overview Section -->
+                <div class="form-section financial-section">
+                  <div class="section-header">
+                    <h4 class="section-title">
+                      <i class="fas fa-calculator"></i>
+                      Financial Overview
+                    </h4>
+                  </div>
+                  
+                  <div class="financial-dashboard">
+                    <div class="financial-row">
+                      <div class="financial-item readonly">
+                        <div class="financial-label">Customer Price</div>
+                        <div class="financial-value customer-price" 
+                             data-dispatch-form-target="productCostDisplay">$<%= number_with_delimiter(@dispatch.product_cost || 0) %></div>
+                      </div>
+                      
+                      <div class="financial-item readonly">
+                        <div class="financial-label">Tax</div>
+                        <div class="financial-value">$<%= number_with_delimiter(@dispatch.tax_amount || 0) %></div>
+                      </div>
+                      
+                      <div class="financial-item readonly">
+                        <div class="financial-label">Shipping</div>
+                        <div class="financial-value">$<%= number_with_delimiter(@dispatch.shipping_cost || 0) %></div>
+                      </div>
+                      
+                      <div class="financial-item readonly total">
+                        <div class="financial-label">Customer Total</div>
+                        <div class="financial-value total-value" data-dispatch-form-target="customerTotal">$<%= number_with_delimiter(@dispatch.total_cost || 0) %></div>
+                      </div>
+                    </div>
+                    
+                    <div class="profit-analysis">
+                      <div class="profit-item">
+                        <div class="profit-label">Supplier Cost</div>
+                        <div class="profit-value supplier-cost" 
+                             data-dispatch-form-target="supplierCostDisplay">
+                          $<%= number_with_delimiter(@dispatch.supplier_cost || 0) %>
+                        </div>
+                      </div>
+                      
+                      <div class="profit-separator">-</div>
+                      
+                      <div class="profit-item profit-result">
+                        <div class="profit-label">Gross Profit</div>
+                        <div class="profit-value gross-profit" 
+                             data-dispatch-form-target="profitDisplay">
+                          $<%= number_with_delimiter(@dispatch.profit_margin || 0) %>
+                        </div>
+                        <div class="profit-margin" 
+                             data-dispatch-form-target="profitMargin">
+                          <%= @dispatch.profit_percentage || 0 %>%
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Status Management Section -->
+                <div class="form-section status-section"
+                     style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);">
+                  <div class="section-header">
+                    <h4 class="section-title">
+                      <i class="fas fa-tasks" style="color: #d97706;"></i>
+                      Status Management
+                    </h4>
+                  </div>
+                  
+                  <div class="form-grid">
+                    <div class="form-group">
+                      <%= form.label :dispatch_status, "Dispatch Status", class: "form-label" %>
+                      <%= form.select :dispatch_status, 
+                                      options_for_select([
+                                        ['Pending', 'pending'],
+                                        ['Assigned', 'assigned'],
+                                        ['Processing', 'processing'],
+                                        ['Shipped', 'shipped'],
+                                        ['Completed', 'completed'],
+                                        ['Cancelled', 'cancelled']
+                                      ], @dispatch.dispatch_status), 
+                                      {}, 
+                                      { class: "form-select status-select",
+                                        data: { action: "change->dispatch-form#updateStatusFields" } } %>
+                    </div>
+                    
+                    <div class="form-group">
+                      <%= form.label :payment_status, "Payment Status", class: "form-label" %>
+                      <%= form.select :payment_status, 
+                                      options_for_select([
+                                        ['Payment Pending', 'payment_pending'],
+                                        ['Paid', 'paid'],
+                                        ['Failed', 'failed'],
+                                        ['Refunded', 'refunded'],
+                                        ['Partially Paid', 'partially_paid']
+                                      ], @dispatch.payment_status), 
+                                      {}, 
+                                      { class: "form-select" } %>
+                    </div>
+                    
+                    <div class="form-group">
+                      <%= form.label :shipment_status, "Shipment Status", class: "form-label" %>
+                      <%= form.select :shipment_status, 
+                                      options_for_select([
+                                        ['Shipment Pending', 'shipment_pending'],
+                                        ['Picked Up', 'picked_up'],
+                                        ['In Transit', 'in_transit'],
+                                        ['Delivered', 'delivered'],
+                                        ['Exception', 'exception'],
+                                        ['Returned to Sender', 'returned_to_sender']
+                                      ], @dispatch.shipment_status), 
+                                      {}, 
+                                      { class: "form-select" } %>
+                    </div>
+                    
+                    <div class="form-group">
+                      <%= form.label :processing_agent_id, "Processing Agent", class: "form-label" %>
+                      <%= form.collection_select :processing_agent_id, @agents, :id, :email,
+                                                 { selected: @dispatch.processing_agent_id },
+                                                 { class: "form-select" } %>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Tracking Information Section -->
+                <div class="form-section tracking-section" 
+                     data-dispatch-form-target="trackingSection"
+                     style="background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); <%= 'display: none;' unless ['shipped', 'completed'].include?(@dispatch.dispatch_status) %>">
+                  <div class="section-header">
+                    <h4 class="section-title">
+                      <i class="fas fa-route" style="color: #0284c7;"></i>
+                      Tracking Information
+                    </h4>
+                  </div>
+                  
+                  <div class="form-grid">
+                    <div class="form-group">
+                      <%= form.label :tracking_number, "Tracking Number", class: "form-label" %>
+                      <%= form.text_field :tracking_number, 
+                                          class: "form-input", 
+                                          placeholder: "Enter tracking number" %>
+                    </div>
+                    
+                    <div class="form-group">
+                      <%= form.label :tracking_link, "Tracking URL", class: "form-label" %>
+                      <%= form.url_field :tracking_link, 
+                                         class: "form-input", 
+                                         placeholder: "Direct link to tracking page" %>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Payment Processor Section -->
+                <div class="form-section payment-section"
+                     style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);">
+                  <div class="section-header">
+                    <h4 class="section-title">
+                      <i class="fas fa-credit-card" style="color: #059669;"></i>
+                      Payment Processing
+                    </h4>
+                  </div>
+                  
+                  <div class="form-grid">
+                    <div class="form-group">
+                      <%= form.label :payment_processor, "Payment Processor", class: "form-label" %>
+                      <%= form.text_field :payment_processor, 
+                                          class: "form-input", 
+                                          placeholder: "Stripe, PayPal, Square, etc." %>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Notes & Comments Section -->
+                <div class="form-section notes-section"
+                     style="background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);">
+                  <div class="section-header">
+                    <h4 class="section-title">
+                      <i class="fas fa-sticky-note" style="color: #7c3aed;"></i>
+                      Notes & Comments
+                    </h4>
+                  </div>
+                  
+                  <div class="form-grid">
+                    <div class="form-group full-width">
+                      <%= form.label :comments, "Public Comments", class: "form-label" %>
+                      <%= form.text_area :comments, 
+                                         class: "form-input", 
+                                         rows: 3, 
+                                         placeholder: "Comments visible to other team members..." %>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                      <%= form.label :internal_notes, "Internal Notes", class: "form-label" %>
+                      <%= form.text_area :internal_notes, 
+                                         class: "form-input", 
+                                         rows: 3, 
+                                         placeholder: "Private notes for internal use only..." %>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Form Actions -->
+                <div class="form-actions">
+                  <%= link_to "Cancel", dispatches_path, class: "btn btn-secondary", data: { turbo_frame: "main_content" } %>
+                  
+                  <div class="primary-actions">
+                    <% if @dispatch.can_be_shipped? %>
+                      <button type="submit" name="action" value="mark_shipped" class="btn btn-outline">
+                        <i class="fas fa-shipping-fast"></i>
+                        Mark as Shipped
+                      </button>
+                    <% end %>
+                    
+                    <%= form.submit "Update Dispatch", class: "btn btn-primary" %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+    <% end %>
+</main>
+
+<!-- Supplier Lookup Modal -->
+<div id="supplier-lookup" class="lookup-modal">
+  <div class="lookup-content">
+    <div class="lookup-header">
+      <h3>Select Supplier</h3>
+      <button data-action="click->dispatch-form#closeLookupModal" 
+              data-type="supplier" 
+              class="close-btn">×</button>
+    </div>
+    <div class="lookup-body">
+      <input type="text" 
+             id="supplier-search" 
+             placeholder="Search suppliers..." 
+             class="search-input">
+      <div id="suppliers-list" class="lookup-results">
+        <!-- Populated via AJAX -->
+      </div>
+    </div>
+  </div>
+</div>

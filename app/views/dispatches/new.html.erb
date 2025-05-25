@@ -1,2 +1,15 @@
-<h1>Dispatches#new</h1>
-<p>Find me in app/views/dispatches/new.html.erb</p>
+<!-- Dispatch New - Redirect to Command Center -->
+<main class="main-content">
+    <%= turbo_frame_tag "main_content" do %>
+        <div class="redirect-message">
+            <div class="message-content">
+                <i class="fas fa-info-circle"></i>
+                <h2>Dispatches are Auto-Created</h2>
+                <p>Dispatches are automatically created when orders are placed. Use the dispatch management tools to update supplier costs and tracking.</p>
+                <%= link_to "Go to Dispatch Command Center", dispatches_path, 
+                    class: "btn btn-primary", 
+                    data: { turbo_frame: "main_content" } %>
+            </div>
+        </div>
+    <% end %>
+</main>

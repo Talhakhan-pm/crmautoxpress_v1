@@ -80,12 +80,15 @@ class DispatchesController < ApplicationController
     
     if @dispatch.update(dispatch_params)
       respond_to do |format|
-        format.html { redirect_to @dispatch, notice: 'Dispatch was successfully updated.' }
-        format.turbo_stream
+        format.html { redirect_to dispatches_path, notice: 'Dispatch was successfully updated.' }
+        format.turbo_stream { redirect_to dispatches_path, notice: 'Dispatch was successfully updated.' }
       end
     else
       load_form_data
-      render :edit, status: :unprocessable_entity
+      respond_to do |format|
+        format.html { render :edit, status: :unprocessable_entity }
+        format.turbo_stream { render :edit, status: :unprocessable_entity }
+      end
     end
   end
 
