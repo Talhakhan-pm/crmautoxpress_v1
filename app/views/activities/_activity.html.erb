@@ -51,15 +51,39 @@
                         <% end %>
                     </div>
                     
-                    <% if activity.old_value.present? && activity.new_value.present? %>
+                    <% if activity.field_changed.present? && (activity.old_value.present? || activity.new_value.present?) %>
                         <div class="timeline-changes">
                             <div class="change-item">
                                 <span class="change-label">From:</span>
-                                <span class="change-from"><%= activity.old_value %></span>
+                                <% case activity.field_changed %>
+                                <% when 'status' %>
+                                    <span class="change-from status-<%= activity.old_value %>"><%= activity.old_value&.humanize || 'none' %></span>
+                                <% when 'budget' %>
+                                    <span class="change-from">₹<%= activity.old_value || '0' %></span>
+                                <% when 'follow_up_date' %>
+                                    <span class="change-from"><%= activity.old_value&.to_date&.strftime('%b %d, %Y') || 'none' %></span>
+                                <% when 'user_id' %>
+                                    <% old_user = User.find_by(id: activity.old_value) %>
+                                    <span class="change-from"><%= old_user&.email&.split('@')&.first&.humanize || 'unassigned' %></span>
+                                <% else %>
+                                    <span class="change-from"><%= activity.old_value || 'none' %></span>
+                                <% end %>
                             </div>
                             <div class="change-item">
                                 <span class="change-label">To:</span>
-                                <span class="change-to"><%= activity.new_value %></span>
+                                <% case activity.field_changed %>
+                                <% when 'status' %>
+                                    <span class="change-to status-<%= activity.new_value %>"><%= activity.new_value&.humanize %></span>
+                                <% when 'budget' %>
+                                    <span class="change-to">₹<%= activity.new_value %></span>
+                                <% when 'follow_up_date' %>
+                                    <span class="change-to"><%= activity.new_value&.to_date&.strftime('%b %d, %Y') %></span>
+                                <% when 'user_id' %>
+                                    <% new_user = User.find_by(id: activity.new_value) %>
+                                    <span class="change-to"><%= new_user&.email&.split('@')&.first&.humanize || 'unassigned' %></span>
+                                <% else %>
+                                    <span class="change-to"><%= activity.new_value %></span>
+                                <% end %>
                             </div>
                         </div>
                     <% end %>

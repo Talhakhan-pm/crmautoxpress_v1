@@ -648,6 +648,72 @@
         font-weight: 700 !important;
       }
       
+      .field-change {
+        display: block !important;
+        margin-top: 0.5rem !important;
+        font-size: 0.8rem !important;
+        
+        .change-from {
+          background: linear-gradient(135deg, #fee2e2, #fecaca) !important;
+          color: #dc2626 !important;
+          padding: 0.25rem 0.5rem !important;
+          border-radius: 6px !important;
+          font-size: 0.75rem !important;
+          font-weight: 600 !important;
+          border: 1px solid #fecaca !important;
+          margin-right: 0.5rem !important;
+          display: inline-block !important;
+        }
+        
+        .change-to {
+          background: linear-gradient(135deg, #dcfce7, #bbf7d0) !important;
+          color: #166534 !important;
+          padding: 0.25rem 0.5rem !important;
+          border-radius: 6px !important;
+          font-size: 0.75rem !important;
+          font-weight: 600 !important;
+          border: 1px solid #bbf7d0 !important;
+          margin-left: 0.5rem !important;
+          display: inline-block !important;
+          
+          &.status-pending {
+            background: linear-gradient(135deg, #fef3c7, #fcd34d) !important;
+            color: #92400e !important;
+            border-color: #fcd34d !important;
+          }
+          
+          &.status-not_interested {
+            background: linear-gradient(135deg, #fee2e2, #fecaca) !important;
+            color: #dc2626 !important;
+            border-color: #fecaca !important;
+          }
+          
+          &.status-already_purchased {
+            background: linear-gradient(135deg, #f3e8ff, #ddd6fe) !important;
+            color: #7c3aed !important;
+            border-color: #ddd6fe !important;
+          }
+          
+          &.status-sale {
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0) !important;
+            color: #166534 !important;
+            border-color: #bbf7d0 !important;
+          }
+          
+          &.status-payment_link {
+            background: linear-gradient(135deg, #dbeafe, #93c5fd) !important;
+            color: #1e40af !important;
+            border-color: #93c5fd !important;
+          }
+          
+          &.status-follow_up {
+            background: linear-gradient(135deg, #fce7f3, #f9a8d4) !important;
+            color: #be185d !important;
+            border-color: #f9a8d4 !important;
+          }
+        }
+      }
+      
       .status-change {
         margin-left: 0.5rem !important;
         

@@ -14,14 +14,65 @@
       <div class="activity-content">
         <p class="activity-text">
           <strong><%= activity.user.email.split('@').first.humanize %></strong>
-          <%= activity.action.humanize.downcase %>
-          <% if activity.trackable.is_a?(AgentCallback) %>
-            callback for <strong><%= activity.trackable.customer_name %></strong>
-          <% end %>
-          <% if activity.action == 'updated' && activity.field_changed == 'status' %>
-            <span class="status-change">
-              to <span class="status-badge status-<%= activity.new_value %>"><%= activity.new_value.humanize %></span>
-            </span>
+          
+          <% if activity.action == 'created' %>
+            created callback for <strong><%= activity.trackable.customer_name %></strong>
+          <% elsif activity.action == 'viewed' %>
+            viewed callback for <strong><%= activity.trackable.customer_name %></strong>
+          <% elsif activity.action == 'updated' && activity.field_changed.present? %>
+            updated <strong><%= activity.field_changed.humanize.downcase %></strong> for <strong><%= activity.trackable.customer_name %></strong>
+            
+            <% case activity.field_changed %>
+            <% when 'status' %>
+              <span class="field-change">
+                from <span class="change-from"><%= activity.old_value&.humanize || 'none' %></span>
+                to <span class="change-to status-<%= activity.new_value %>"><%= activity.new_value&.humanize %></span>
+              </span>
+            <% when 'phone_number' %>
+              <span class="field-change">
+                from <span class="change-from"><%= activity.old_value || 'none' %></span>
+                to <span class="change-to"><%= activity.new_value %></span>
+              </span>
+            <% when 'customer_name' %>
+              <span class="field-change">
+                from <span class="change-from"><%= activity.old_value || 'none' %></span>
+                to <span class="change-to"><%= activity.new_value %></span>
+              </span>
+            <% when 'car_make_model' %>
+              <span class="field-change">
+                from <span class="change-from"><%= activity.old_value || 'none' %></span>
+                to <span class="change-to"><%= activity.new_value %></span>
+              </span>
+            <% when 'year' %>
+              <span class="field-change">
+                from <span class="change-from"><%= activity.old_value || 'none' %></span>
+                to <span class="change-to"><%= activity.new_value %></span>
+              </span>
+            <% when 'budget' %>
+              <span class="field-change">
+                from <span class="change-from">₹<%= activity.old_value || '0' %></span>
+                to <span class="change-to">₹<%= activity.new_value %></span>
+              </span>
+            <% when 'follow_up_date' %>
+              <span class="field-change">
+                from <span class="change-from"><%= activity.old_value&.to_date&.strftime('%b %d, %Y') || 'none' %></span>
+                to <span class="change-to"><%= activity.new_value&.to_date&.strftime('%b %d, %Y') %></span>
+              </span>
+            <% when 'user_id' %>
+              <% old_user = User.find_by(id: activity.old_value) %>
+              <% new_user = User.find_by(id: activity.new_value) %>
+              <span class="field-change">
+                from <span class="change-from"><%= old_user&.email&.split('@')&.first&.humanize || 'unassigned' %></span>
+                to <span class="change-to"><%= new_user&.email&.split('@')&.first&.humanize || 'unassigned' %></span>
+              </span>
+            <% else %>
+              <span class="field-change">
+                from <span class="change-from"><%= activity.old_value || 'none' %></span>
+                to <span class="change-to"><%= activity.new_value %></span>
+              </span>
+            <% end %>
+          <% else %>
+            <%= activity.action.humanize.downcase %> callback for <strong><%= activity.trackable.customer_name %></strong>
           <% end %>
         </p>
         <span class="activity-time"><%= time_ago_in_words(activity.created_at) %> ago</span>
