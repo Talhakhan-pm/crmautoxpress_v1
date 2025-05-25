@@ -92,7 +92,7 @@
                                     <% end %>
                                     
                                     <% unless callback.status == 'sale' %>
-                                        <%= link_to new_order_path(callback_id: callback.id), class: "action-btn order-btn", title: "Convert to Order" do %>
+                                        <%= link_to new_order_path(callback_id: callback.id), class: "action-btn order-btn", title: "Convert to Order", data: { turbo_frame: "_top" } do %>
                                             <i class="fas fa-shopping-cart"></i>
                                         <% end %>
                                     <% else %>

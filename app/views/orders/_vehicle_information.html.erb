@@ -1,0 +1,35 @@
+<div class="form-section">
+  <div class="section-header">
+    <h4 class="section-title">
+      <i class="fas fa-car"></i>
+      Vehicle Information
+    </h4>
+  </div>
+  
+  <div class="form-grid">
+    <div class="form-group">
+      <%= form.label :car_year, "Year", class: "form-label" %>
+      <%= form.number_field :car_year, 
+                            class: "form-input", 
+                            placeholder: "2020", 
+                            min: 1980, 
+                            max: Date.current.year + 2,
+                            data: { order_form_target: "carYear" } %>
+    </div>
+    
+    <div class="form-group">
+      <%= form.label :car_make_model, "Make & Model", class: "form-label" %>
+      <%= form.text_field :car_make_model, 
+                          class: "form-input", 
+                          placeholder: "Toyota Camry",
+                          data: { order_form_target: "carMakeModel" } %>
+    </div>
+    
+    <div class="form-group">
+      <%= form.label :mileage, "Mileage", class: "form-label" %>
+      <%= form.number_field :mileage, 
+                            class: "form-input", 
+                            placeholder: "65000" %>
+    </div>
+  </div>
+</div>

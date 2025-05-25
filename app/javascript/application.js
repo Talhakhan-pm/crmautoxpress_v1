@@ -1,10 +1,21 @@
 // Configure your import map in config/importmap.rb. Read more: https://github.com/rails/importmap-rails
 import "@hotwired/turbo-rails"
+import "controllers"
 import "./callbacks"
 import "./google_ads"
 
 // Simple test to verify Turbo is loaded
 console.log("Turbo loaded:", window.Turbo ? "yes" : "no")
+console.log("Stimulus loaded:", window.Stimulus ? "yes" : "no")
+
+// Debug Stimulus controllers
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    if (window.Stimulus && window.Stimulus.application) {
+      console.log("Stimulus app loaded successfully")
+    }
+  }, 1000)
+})
 
 // Navigation active state handling
 document.addEventListener('DOMContentLoaded', function() {

@@ -1,0 +1,53 @@
+<div class="form-section">
+  <div class="section-header">
+    <h4 class="section-title">
+      <i class="fas fa-user"></i>
+      Customer Information
+    </h4>
+    <div class="smart-lookup">
+      <button type="button" 
+              data-action="click->order-form#lookupCustomer" 
+              class="lookup-btn">
+        <i class="fas fa-search"></i>
+        Lookup Existing
+      </button>
+    </div>
+  </div>
+  
+  <div class="form-grid">
+    <div class="form-group">
+      <%= form.label :customer_name, "Customer Name *", class: "form-label" %>
+      <%= form.text_field :customer_name, 
+                          class: "form-input", 
+                          placeholder: "Full customer name", 
+                          required: true,
+                          data: { order_form_target: "customerName" } %>
+    </div>
+    
+    <div class="form-group">
+      <%= form.label :customer_phone, "Phone Number *", class: "form-label" %>
+      <%= form.telephone_field :customer_phone, 
+                               class: "form-input", 
+                               placeholder: "(555) 123-4567", 
+                               required: true,
+                               data: { order_form_target: "customerPhone" } %>
+    </div>
+    
+    <div class="form-group full-width">
+      <%= form.label :customer_email, "Email Address", class: "form-label" %>
+      <%= form.email_field :customer_email, 
+                           class: "form-input", 
+                           placeholder: "customer@example.com",
+                           data: { order_form_target: "customerEmail" } %>
+    </div>
+    
+    <div class="form-group full-width">
+      <%= form.label :customer_address, "Address", class: "form-label" %>
+      <%= form.text_area :customer_address, 
+                         class: "form-input", 
+                         rows: 2, 
+                         placeholder: "Full address including city, state, zip",
+                         data: { order_form_target: "customerAddress" } %>
+    </div>
+  </div>
+</div>

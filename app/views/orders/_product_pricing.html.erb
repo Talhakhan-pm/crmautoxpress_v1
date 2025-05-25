@@ -1,0 +1,72 @@
+<div class="form-section">
+  <div class="section-header">
+    <h4 class="section-title">
+      <i class="fas fa-cog"></i>
+      Product & Pricing
+    </h4>
+    <div class="smart-lookup">
+      <button type="button" 
+              data-action="click->order-form#lookupProduct" 
+              class="lookup-btn">
+        <i class="fas fa-search"></i>
+        Browse Catalog
+      </button>
+    </div>
+  </div>
+  
+  <div class="form-grid">
+    <div class="form-group full-width">
+      <%= form.label :product_name, "Product/Part Name *", class: "form-label" %>
+      <%= form.text_field :product_name, 
+                          class: "form-input", 
+                          placeholder: "Brake pads, engine oil, transmission fluid...", 
+                          required: true,
+                          data: { order_form_target: "productName" } %>
+    </div>
+    
+    <div class="form-group">
+      <%= form.label :product_price, "Product Price *", class: "form-label" %>
+      <%= form.number_field :product_price, 
+                            class: "form-input", 
+                            step: 0.01, 
+                            placeholder: "299.99", 
+                            required: true,
+                            data: { 
+                              order_form_target: "productPrice",
+                              action: "input->order-form#calculateTotal"
+                            } %>
+    </div>
+    
+    <div class="form-group">
+      <%= form.label :tax_amount, "Tax Amount", class: "form-label" %>
+      <%= form.number_field :tax_amount, 
+                            class: "form-input", 
+                            step: 0.01, 
+                            placeholder: "24.00",
+                            data: { 
+                              order_form_target: "taxAmount",
+                              action: "input->order-form#calculateTotal"
+                            } %>
+    </div>
+    
+    <div class="form-group">
+      <%= form.label :shipping_cost, "Shipping Cost", class: "form-label" %>
+      <%= form.number_field :shipping_cost, 
+                            class: "form-input", 
+                            step: 0.01, 
+                            placeholder: "15.00",
+                            data: { 
+                              order_form_target: "shippingCost",
+                              action: "input->order-form#calculateTotal"
+                            } %>
+    </div>
+    
+    <div class="form-group total-display">
+      <div class="total-label">Total Amount</div>
+      <div class="total-amount" 
+           data-order-form-target="totalDisplay">$0.00</div>
+      <%= form.hidden_field :total_amount, 
+                            data: { order_form_target: "totalAmount" } %>
+    </div>
+  </div>
+</div>

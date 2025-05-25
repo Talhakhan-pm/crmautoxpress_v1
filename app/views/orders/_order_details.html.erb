@@ -1,0 +1,52 @@
+<div class="form-section">
+  <div class="section-header">
+    <h4 class="section-title">
+      <i class="fas fa-clipboard-list"></i>
+      Order Details
+    </h4>
+  </div>
+  
+  <div class="form-grid">
+    <div class="form-group">
+      <%= form.label :priority, "Priority Level", class: "form-label" %>
+      <%= form.select :priority, 
+          options_for_select([
+            ['Standard', 'standard'],
+            ['High', 'high'],
+            ['Rush', 'rush'],
+            ['Urgent', 'urgent']
+          ], 'standard'),
+          {}, 
+          { class: "form-select" } %>
+    </div>
+    
+    <div class="form-group">
+      <%= form.label :source_channel, "Source Channel", class: "form-label" %>
+      <%= form.select :source_channel,
+          options_for_select([
+            ['Phone Call', 'phone'],
+            ['Website', 'web'],
+            ['Email', 'email'],
+            ['Walk-in', 'walk_in']
+          ], 'phone'),
+          {},
+          { class: "form-select" } %>
+    </div>
+    
+    <div class="form-group">
+      <%= form.label :warranty_period_days, "Warranty (Days)", class: "form-label" %>
+      <%= form.number_field :warranty_period_days, 
+                            class: "form-input", 
+                            placeholder: "365", 
+                            min: 0 %>
+    </div>
+    
+    <div class="form-group full-width">
+      <%= form.label :notes, "Order Notes", class: "form-label" %>
+      <%= form.text_area :notes, 
+                         class: "form-input", 
+                         rows: 3, 
+                         placeholder: "Special instructions, customer requests, technical notes..." %>
+    </div>
+  </div>
+</div>
