@@ -154,9 +154,22 @@
       </h2>
       
       <div class="workflow-timeline">
-        <div class="timeline-track">
+        <div class="timeline-track" style="--workflow-progress: <%= 
+          case @dispatch.dispatch_status
+          when 'pending', 'assigned'
+            '25%'
+          when 'processing'
+            '50%'
+          when 'shipped'
+            '75%'
+          when 'completed'
+            '100%'
+          else
+            '0%'
+          end
+        %>;">
           <!-- Pending Stage -->
-          <div class="workflow-stage <%= 'active' if ['pending', 'assigned', 'processing', 'shipped', 'completed'].include?(@dispatch.dispatch_status) %> <%= 'current' if ['pending', 'assigned'].include?(@dispatch.dispatch_status) %>">
+          <div class="workflow-stage <%= 'active' if ['pending', 'assigned', 'processing', 'shipped', 'completed'].include?(@dispatch.dispatch_status) %> <%= 'current' if ['pending', 'assigned'].include?(@dispatch.dispatch_status) %> <%= 'pending' unless ['pending', 'assigned', 'processing', 'shipped', 'completed'].include?(@dispatch.dispatch_status) %>">
             <div class="stage-marker">
               <div class="stage-icon">
                 <i class="fas fa-clock"></i>
@@ -170,10 +183,10 @@
           </div>
           
           <!-- Processing Stage -->
-          <div class="workflow-stage <%= 'active' if ['processing', 'shipped', 'completed'].include?(@dispatch.dispatch_status) %> <%= 'current' if @dispatch.dispatch_status == 'processing' %>">
+          <div class="workflow-stage <%= 'active' if ['processing', 'shipped', 'completed'].include?(@dispatch.dispatch_status) %> <%= 'current' if @dispatch.dispatch_status == 'processing' %> <%= 'pending' unless ['processing', 'shipped', 'completed'].include?(@dispatch.dispatch_status) %>">
             <div class="stage-marker">
               <div class="stage-icon">
-                <i class="fas fa-cogs"></i>
+                <i class="fas <%= @dispatch.dispatch_status == 'processing' ? 'fa-cogs fa-spin' : 'fa-cogs' %>"></i>
               </div>
             </div>
             <div class="stage-content">
@@ -190,7 +203,7 @@
           </div>
           
           <!-- Shipped Stage -->
-          <div class="workflow-stage <%= 'active' if ['shipped', 'completed'].include?(@dispatch.dispatch_status) %> <%= 'current' if @dispatch.dispatch_status == 'shipped' %>">
+          <div class="workflow-stage <%= 'active' if ['shipped', 'completed'].include?(@dispatch.dispatch_status) %> <%= 'current' if @dispatch.dispatch_status == 'shipped' %> <%= 'pending' unless ['shipped', 'completed'].include?(@dispatch.dispatch_status) %>">
             <div class="stage-marker">
               <div class="stage-icon">
                 <i class="fas fa-shipping-fast"></i>
@@ -210,7 +223,7 @@
           </div>
           
           <!-- Completed Stage -->
-          <div class="workflow-stage <%= 'active' if @dispatch.dispatch_status == 'completed' %> <%= 'current' if @dispatch.dispatch_status == 'completed' %>">
+          <div class="workflow-stage <%= 'active' if @dispatch.dispatch_status == 'completed' %> <%= 'current' if @dispatch.dispatch_status == 'completed' %> <%= 'pending' unless @dispatch.dispatch_status == 'completed' %>">
             <div class="stage-marker">
               <div class="stage-icon">
                 <i class="fas fa-check-circle"></i>
