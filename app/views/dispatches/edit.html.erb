@@ -3,78 +3,78 @@
     <%= turbo_frame_tag "main_content" do %>
         <!-- Modern Timeline Dispatch Management Modal -->
         <div id="dispatch-modal" 
-             class="dispatch-modal active" 
-             data-controller="modal">
+             class="unified-modal theme-red active" 
+             data-controller="modal" data-modal-theme-value="red">
           
-          <div class="modal-content">
+          <div class="unified-modal-content">
             <!-- Modern Timeline Header -->
-            <div class="modal-header">
-              <div class="modal-header-content">
-                <h2 class="modal-title">
+            <div class="unified-modal-header theme-red">
+              <div class="unified-modal-header-content">
+                <h2 class="unified-modal-title">
                   <div class="modal-icon">
                     <i class="fas fa-shipping-fast"></i>
                   </div>
                   Manage Order #<%= @dispatch.order_number %>
                 </h2>
-                <p class="modal-subtitle">Update supplier costs, tracking, and fulfillment status</p>
+                <p class="unified-modal-subtitle">Update supplier costs, tracking, and fulfillment status</p>
                 
-                <div class="status-timeline">
-                  <div class="timeline-line"></div>
-                  <div class="timeline-progress" style="width: <%= calculate_progress_percentage(@dispatch) %>%;"></div>
+                <div class="unified-timeline">
+                  <div class="unified-timeline-line"></div>
+                  <div class="unified-timeline-progress" style="width: <%= calculate_progress_percentage(@dispatch) %>%;"></div>
                   
-                  <div class="timeline-item <%= timeline_status_class(@dispatch, 'pending') %>">
-                    <div class="timeline-marker">
+                  <div class="unified-timeline-item <%= timeline_status_class(@dispatch, 'pending') %>">
+                    <div class="unified-timeline-marker">
                       <i class="fas fa-clock"></i>
                     </div>
-                    <div class="timeline-label">Pending</div>
-                    <div class="timeline-date">
+                    <div class="unified-timeline-label">Pending</div>
+                    <div class="unified-timeline-date">
                       <%= @dispatch.created_at.strftime('%b %d') if @dispatch.created_at %>
                     </div>
                   </div>
                   
-                  <div class="timeline-item <%= timeline_status_class(@dispatch, 'processing') %>">
-                    <div class="timeline-marker">
+                  <div class="unified-timeline-item <%= timeline_status_class(@dispatch, 'processing') %>">
+                    <div class="unified-timeline-marker">
                       <i class="fas <%= @dispatch.dispatch_status == 'processing' ? 'fa-cog fa-spin' : 'fa-cog' %>"></i>
                     </div>
-                    <div class="timeline-label">Processing</div>
-                    <div class="timeline-date">
+                    <div class="unified-timeline-label">Processing</div>
+                    <div class="unified-timeline-date">
                       <%= processing_date(@dispatch) %>
                     </div>
                   </div>
                   
-                  <div class="timeline-item <%= timeline_status_class(@dispatch, 'shipped') %>">
-                    <div class="timeline-marker">
+                  <div class="unified-timeline-item <%= timeline_status_class(@dispatch, 'shipped') %>">
+                    <div class="unified-timeline-marker">
                       <i class="fas fa-truck"></i>
                     </div>
-                    <div class="timeline-label">Shipped</div>
-                    <div class="timeline-date">
+                    <div class="unified-timeline-label">Shipped</div>
+                    <div class="unified-timeline-date">
                       <%= shipped_date(@dispatch) %>
                     </div>
                   </div>
                   
-                  <div class="timeline-item <%= timeline_status_class(@dispatch, 'completed') %>">
-                    <div class="timeline-marker">
+                  <div class="unified-timeline-item <%= timeline_status_class(@dispatch, 'completed') %>">
+                    <div class="unified-timeline-marker">
                       <i class="fas fa-home"></i>
                     </div>
-                    <div class="timeline-label">Delivered</div>
-                    <div class="timeline-date">
+                    <div class="unified-timeline-label">Delivered</div>
+                    <div class="unified-timeline-date">
                       <%= completed_date(@dispatch) %>
                     </div>
                   </div>
                 </div>
               </div>
               
-              <%= link_to dispatches_path, class: "close-btn", data: { turbo_frame: "main_content" } do %>
+              <%= link_to dispatches_path, class: "unified-modal-close", data: { turbo_frame: "main_content" } do %>
                 <i class="fas fa-times"></i>
               <% end %>
             </div>
 
             <!-- Modal Body -->
-            <div class="modal-body" data-controller="dispatch-form">
+            <div class="unified-modal-body" data-controller="dispatch-form">
               <%= form_with model: @dispatch, local: false, data: { turbo_frame: "main_content", dispatch_form_target: "form" } do |f| %>
                 <!-- Order Information Section -->
-                <div class="section">
-                  <div class="section-header">
+                <div class="unified-form-section">
+                  <div class="unified-section-header">
                     <div class="section-icon">
                       <i class="fas fa-info-circle"></i>
                     </div>
@@ -105,8 +105,8 @@
                 </div>
 
                 <!-- Supplier Management Section -->
-                <div class="section">
-                  <div class="section-header">
+                <div class="unified-form-section">
+                  <div class="unified-section-header">
                     <div class="section-icon">
                       <i class="fas fa-truck"></i>
                     </div>
@@ -114,18 +114,18 @@
                     <button type="button" class="section-action">Find Supplier</button>
                   </div>
                   
-                  <div class="form-grid">
-                    <div class="form-group">
+                  <div class="unified-form-grid">
+                    <div class="unified-form-group">
                       <%= f.label :supplier_name, class: "form-label required" %>
                       <%= f.text_field :supplier_name, class: "form-input", placeholder: "Enter supplier name", 
                           data: { dispatch_form_target: "supplierName" } %>
                     </div>
-                    <div class="form-group">
+                    <div class="unified-form-group">
                       <%= f.label :supplier_order_number, "Supplier Order #", class: "form-label" %>
                       <%= f.text_field :supplier_order_number, class: "form-input", placeholder: "Supplier's order number",
                           data: { dispatch_form_target: "supplierOrderNumber" } %>
                     </div>
-                    <div class="form-group">
+                    <div class="unified-form-group">
                       <%= f.label :supplier_cost, class: "form-label required" %>
                       <%= f.number_field :supplier_cost, step: 0.01, class: "form-input", 
                           data: { 
@@ -133,7 +133,7 @@
                             action: "input->dispatch-form#supplierCostChanged keyup->dispatch-form#supplierCostChanged" 
                           } %>
                     </div>
-                    <div class="form-group">
+                    <div class="unified-form-group">
                       <%= f.label :condition, class: "form-label" %>
                       <%= f.select :condition, options_for_select([
                         ['New', 'new'],
@@ -141,11 +141,11 @@
                         ['Refurbished', 'refurbished']
                       ], @dispatch.condition), { prompt: 'Select condition' }, { class: "form-select" } %>
                     </div>
-                    <div class="form-group">
+                    <div class="unified-form-group">
                       <%= f.label :tracking_number, class: "form-label" %>
                       <%= f.text_field :tracking_number, class: "form-input #{'highlight-value' if @dispatch.tracking_number.present?}" %>
                     </div>
-                    <div class="form-group">
+                    <div class="unified-form-group">
                       <%= f.label :supplier_shipment_proof, "Shipment Proof URL", class: "form-label" %>
                       <%= f.url_field :supplier_shipment_proof, class: "form-input", placeholder: "Link to tracking or shipment confirmation" %>
                     </div>
@@ -153,8 +153,8 @@
                 </div>
 
                 <!-- Financial Overview Section -->
-                <div class="section">
-                  <div class="section-header">
+                <div class="unified-form-section">
+                  <div class="unified-section-header">
                     <div class="section-icon">
                       <i class="fas fa-dollar-sign"></i>
                     </div>
@@ -212,13 +212,13 @@
 
                 
                 <!-- Form Actions -->
-                <div class="section">
-                  <div style="display: flex; gap: 12px; justify-content: flex-end; padding-top: 20px; border-top: 1px solid #f1f5f9;">
-                    <%= link_to dispatches_path, class: "btn-secondary", data: { turbo_frame: "main_content" } do %>
+                <div class="unified-form-actions">
+                  <div class="primary-actions">
+                    <%= link_to dispatches_path, class: "btn btn-secondary", data: { turbo_frame: "main_content" } do %>
                       <i class="fas fa-times"></i>
                       Cancel
                     <% end %>
-                    <button type="submit" class="btn-primary">
+                    <button type="submit" class="btn btn-primary">
                       <i class="fas fa-save"></i>
                       Update Dispatch
                     </button>

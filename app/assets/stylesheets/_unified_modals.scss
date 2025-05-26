@@ -1,0 +1,699 @@
+// ============================================
+// UNIFIED MODAL SYSTEM
+// Consolidates all modal functionality with proper namespacing
+// ============================================
+
+// Z-index hierarchy
+$z-modal-backdrop: 1050;
+$z-modal-content: 1051;
+$z-modal-nested: 1055;
+
+// Base Modal Structure
+.unified-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  backdrop-filter: blur(12px);
+  z-index: $z-modal-backdrop;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 20px;
+  
+  &.active {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  // Theme-specific backdrops
+  &.theme-red {
+    background: rgba(15, 23, 42, 0.7);
+  }
+  
+  &.theme-blue {
+    background: rgba(0, 0, 0, 0.2);
+  }
+  
+  &.theme-green {
+    background: rgba(0, 0, 0, 0.5);
+  }
+}
+
+.unified-modal-content {
+  background: #ffffff;
+  border-radius: 20px;
+  width: 95%;
+  max-width: 900px;
+  max-height: 95vh;
+  overflow: hidden;
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+  transform: scale(0.95) translateY(20px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: $z-modal-content;
+  
+  .unified-modal.active & {
+    transform: scale(1) translateY(0);
+  }
+}
+
+// ============================================
+// MODAL HEADER THEMES
+// ============================================
+
+.unified-modal-header {
+  position: relative;
+  padding: 0;
+  border: none;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+    opacity: 0.1;
+  }
+  
+  // Red Theme (Dispatches)
+  &.theme-red {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  }
+  
+  // Blue Theme (Orders)
+  &.theme-blue {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  }
+  
+  // Green Theme (Callbacks)
+  &.theme-green {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  }
+}
+
+.unified-modal-header-content {
+  position: relative;
+  z-index: 2;
+  padding: 28px 32px 28px 132px;
+  color: white;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.unified-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 8px 0;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: white !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  
+  .modal-icon {
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: white;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.unified-modal-subtitle {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  font-weight: 400;
+  margin-bottom: 20px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.unified-modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  text-decoration: none;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+    text-decoration: none;
+    color: white;
+  }
+}
+
+// ============================================
+// MODAL BODY
+// ============================================
+
+.unified-modal-body {
+  padding: 32px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: calc(95vh - 160px);
+  background: #ffffff;
+  color: #1e293b;
+  
+  > * {
+    box-sizing: border-box;
+  }
+}
+
+// ============================================
+// TIMELINE COMPONENT (for dispatch modals)
+// ============================================
+
+.unified-timeline {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 20px;
+  gap: 40px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.unified-timeline-line {
+  position: absolute;
+  top: 50%;
+  left: 20px;
+  right: 20px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+.unified-timeline-progress {
+  position: absolute;
+  top: 50%;
+  left: 20px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.6);
+  transform: translateY(-50%);
+  transition: width 0.8s ease;
+  z-index: 2;
+}
+
+.unified-timeline-item {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: transparent;
+  min-width: 80px;
+}
+
+.unified-timeline-marker {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.unified-timeline-item.completed .unified-timeline-marker {
+  background: rgba(255, 255, 255, 0.9);
+  color: #dc2626;
+  border-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.unified-timeline-item.active .unified-timeline-marker {
+  background: rgba(255, 255, 255, 0.95);
+  color: #dc2626;
+  border-color: rgba(255, 255, 255, 0.95);
+  animation: unified-pulse-timeline 2s infinite;
+  box-shadow: 0 0 25px rgba(255, 255, 255, 0.4);
+}
+
+.unified-timeline-item.pending .unified-timeline-marker {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.6);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.unified-timeline-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.unified-timeline-item.pending .unified-timeline-label {
+  color: rgba(255, 255, 255, 0.7);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.unified-timeline-date {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 400;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.unified-timeline-item.pending .unified-timeline-date {
+  color: rgba(255, 255, 255, 0.6);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes unified-pulse-timeline {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.4);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 35px rgba(255, 255, 255, 0.6);
+  }
+}
+
+// ============================================
+// FORM COMPONENTS
+// ============================================
+
+.unified-form-section {
+  padding: 24px;
+  border-bottom: 1px solid #f1f5f9;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &.callback-section {
+    background: #f8fafc;
+  }
+}
+
+.unified-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+
+  .section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #334155;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .smart-lookup .lookup-btn {
+    background: #e2e8f0;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #cbd5e1;
+    }
+  }
+}
+
+.unified-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+
+  .full-width {
+    grid-column: 1 / -1;
+  }
+}
+
+.unified-form-group {
+  display: flex;
+  flex-direction: column;
+
+  .form-label {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 6px;
+    font-size: 14px;
+  }
+
+  .form-input, .form-select {
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.2s;
+    background: white;
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+  }
+
+  // Theme-specific focus states
+  .theme-red & .form-input:focus,
+  .theme-red & .form-select:focus {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+  }
+
+  .theme-blue & .form-input:focus,
+  .theme-blue & .form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+
+  .theme-green & .form-input:focus,
+  .theme-green & .form-select:focus {
+    border-color: #059669;
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+  }
+
+  &.total-display {
+    background: #f8fafc;
+    padding: 16px;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    text-align: center;
+
+    .total-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .total-amount {
+      font-size: 24px;
+      font-weight: 700;
+      color: #059669;
+    }
+  }
+}
+
+// ============================================
+// BUTTON SYSTEM
+// ============================================
+
+.unified-form-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+
+  .primary-actions {
+    display: flex;
+    gap: 12px;
+  }
+
+  .btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+    text-decoration: none;
+    border: none;
+
+    &.btn-secondary {
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid #cbd5e1;
+
+      &:hover {
+        background: #e2e8f0;
+        text-decoration: none;
+      }
+    }
+
+    &.btn-outline {
+      background: white;
+      color: #667eea;
+      border: 2px solid #667eea;
+
+      &:hover {
+        background: #667eea;
+        color: white;
+        text-decoration: none;
+      }
+    }
+
+    &.btn-primary {
+      color: white;
+      border: none;
+
+      &:hover {
+        transform: translateY(-2px);
+        text-decoration: none;
+      }
+    }
+
+    // Theme-specific primary buttons
+    .theme-red & &.btn-primary {
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      box-shadow: 0 4px 14px rgba(220, 38, 38, 0.3);
+
+      &:hover {
+        box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+      }
+    }
+
+    .theme-blue & &.btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      box-shadow: 0 4px 14px rgba(102, 126, 234, 0.3);
+
+      &:hover {
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+      }
+    }
+
+    .theme-green & &.btn-primary {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      box-shadow: 0 4px 14px rgba(5, 150, 105, 0.3);
+
+      &:hover {
+        box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4);
+      }
+    }
+  }
+}
+
+// ============================================
+// CALLBACK SELECTOR COMPONENT
+// ============================================
+
+.unified-callback-selector {
+  max-height: 300px;
+  overflow-y: auto;
+
+  .search-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 14px;
+  }
+
+  .callbacks-grid {
+    display: grid;
+    gap: 12px;
+  }
+
+  .callback-card {
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      border-color: #667eea;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+    }
+
+    &.selected {
+      border-color: #667eea;
+      background: #f0f4ff;
+    }
+
+    .callback-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+
+      .customer-name {
+        font-weight: 600;
+        color: #1f2937;
+      }
+
+      .status-badge {
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+        text-transform: capitalize;
+
+        &.status-pending {
+          background: #fef3c7;
+          color: #92400e;
+        }
+
+        &.status-follow_up {
+          background: #dbeafe;
+          color: #1e40af;
+        }
+      }
+    }
+
+    .callback-body {
+      display: grid;
+      gap: 6px;
+
+      > div {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: #6b7280;
+      }
+    }
+  }
+}
+
+// ============================================
+// NESTED MODALS (e.g., lookup)
+// ============================================
+
+.unified-modal.nested {
+  z-index: $z-modal-nested;
+  
+  .unified-modal-content {
+    max-width: 600px;
+    z-index: $z-modal-nested + 1;
+  }
+}
+
+// ============================================
+// RESPONSIVE DESIGN
+// ============================================
+
+@media (max-width: 768px) {
+  .unified-modal-content {
+    width: 98%;
+    max-height: 98vh;
+    margin: 1vh auto;
+  }
+  
+  .unified-modal-header-content {
+    padding: 20px 16px;
+    text-align: center;
+  }
+  
+  .unified-modal-body {
+    padding: 20px;
+    max-height: calc(98vh - 140px);
+  }
+  
+  .unified-form-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .unified-timeline {
+    padding: 0 10px;
+    gap: 20px;
+    
+    .unified-timeline-item {
+      min-width: 60px;
+      
+      .unified-timeline-label {
+        font-size: 10px;
+      }
+      
+      .unified-timeline-date {
+        font-size: 9px;
+      }
+    }
+    
+    .unified-timeline-marker {
+      width: 36px;
+      height: 36px;
+      font-size: 14px;
+    }
+  }
+}
+
+// ============================================
+// ANIMATIONS
+// ============================================
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}

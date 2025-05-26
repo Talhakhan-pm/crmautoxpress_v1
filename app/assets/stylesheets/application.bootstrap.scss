@@ -1,6 +1,9 @@
 @use 'bootstrap/scss/bootstrap' as bootstrap;
 @use 'bootstrap-icons/font/bootstrap-icons' as bootstrap-icons;
 
+// Import unified modal system first to prevent conflicts
+@use 'unified_modals';
+
 // Import dashboard styles
 @use 'dashboard';
 @use 'customers';

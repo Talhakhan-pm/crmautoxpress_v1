@@ -2,6 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["modal"]
+  static values = { theme: String }
 
   connect() {
     // Close modal on escape key
@@ -11,6 +12,11 @@ export default class extends Controller {
     // Close modal when clicking outside
     this.boundClickOutsideHandler = this.handleClickOutside.bind(this)
     this.element.addEventListener("click", this.boundClickOutsideHandler)
+
+    // Apply theme if specified
+    if (this.hasThemeValue) {
+      this.element.classList.add(`theme-${this.themeValue}`)
+    }
   }
 
   disconnect() {
@@ -35,7 +41,12 @@ export default class extends Controller {
   }
 
   handleClickOutside(event) {
-    if (event.target === this.element) {
+    // Handle both unified modal and old modal systems
+    const unifiedModalContent = this.element.querySelector('.unified-modal-content')
+    const oldModalContent = this.element.querySelector('.modal-content')
+    const modalContent = unifiedModalContent || oldModalContent
+    
+    if (event.target === this.element || (modalContent && !modalContent.contains(event.target))) {
       this.close()
     }
   }
