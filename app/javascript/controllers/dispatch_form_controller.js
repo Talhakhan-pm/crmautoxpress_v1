@@ -227,6 +227,16 @@ export default class extends Controller {
   updateStatusFields(event) {
     const status = event.target.value
     
+    // Handle cancellation with modal
+    if (status === 'cancelled') {
+      event.preventDefault()
+      this.showCancelModal()
+      // Reset dropdown to original value
+      const originalValue = event.target.dataset.originalValue || 'pending'
+      event.target.value = originalValue
+      return
+    }
+    
     if (['shipped', 'completed'].includes(status)) {
       this.showTrackingSection()
     } else {
@@ -241,6 +251,103 @@ export default class extends Controller {
     
     // Update status badge
     this.updateStatusBadge(status)
+  }
+
+  // Show cancel modal and handle cancellation flow
+  showCancelModal() {
+    const modal = document.getElementById('cancel-dispatch-modal')
+    if (modal) {
+      // Set dispatch ID
+      const dispatchId = this.dispatchStatusTarget.dataset.dispatchId
+      document.getElementById('dispatch-id').value = dispatchId
+      
+      // Show modal
+      modal.style.display = 'block'
+      modal.classList.add('show')
+      document.body.style.overflow = 'hidden'
+      
+      // Add backdrop
+      const backdrop = document.createElement('div')
+      backdrop.className = 'modal-backdrop fade show'
+      backdrop.id = 'modal-backdrop'
+      document.body.appendChild(backdrop)
+      
+      // Handle modal close buttons
+      this.setupModalCloseHandlers(modal)
+    }
+  }
+
+  setupModalCloseHandlers(modal) {
+    // Close button
+    const closeBtn = modal.querySelector('.btn-close')
+    if (closeBtn) {
+      closeBtn.onclick = () => this.closeCancelModal()
+    }
+    
+    // Cancel button
+    const cancelBtn = modal.querySelector('.btn-secondary')
+    if (cancelBtn) {
+      cancelBtn.onclick = () => this.closeCancelModal()
+    }
+    
+    // Submit button
+    const submitBtn = modal.querySelector('.btn-warning')
+    if (submitBtn) {
+      submitBtn.onclick = () => this.submitCancellation()
+    }
+  }
+
+  closeCancelModal() {
+    const modal = document.getElementById('cancel-dispatch-modal')
+    if (modal) {
+      modal.style.display = 'none'
+      modal.classList.remove('show')
+      document.body.style.overflow = ''
+      
+      // Remove backdrop
+      const backdrop = document.getElementById('modal-backdrop')
+      if (backdrop) backdrop.remove()
+    }
+  }
+
+  submitCancellation() {
+    const form = document.getElementById('cancel-dispatch-form')
+    const formData = new FormData(form)
+    const dispatchId = formData.get('dispatch_id')
+    const reason = formData.get('cancellation_reason')
+    
+    if (!reason) {
+      alert('Please select a cancellation reason')
+      return
+    }
+    
+    fetch(`/dispatches/${dispatchId}/cancel_with_refund`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ cancellation_reason: reason })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        this.closeCancelModal()
+        this.showSuccess(data.message)
+        
+        // Reload page to show updates
+        setTimeout(() => {
+          window.location.reload()
+        }, 1500)
+      } else {
+        alert('Error: ' + (data.errors ? data.errors.join(', ') : 'Unknown error'))
+      }
+    })
+    .catch(error => {
+      console.error('Error cancelling dispatch:', error)
+      alert('Network error occurred')
+    })
   }
 
   showTrackingSection() {

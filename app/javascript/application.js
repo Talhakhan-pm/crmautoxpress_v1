@@ -43,8 +43,18 @@ document.addEventListener('DOMContentLoaded', function() {
 if (typeof window.openCancelModal === 'undefined') {
   window.openCancelModal = function(dispatchId) {
     document.getElementById('dispatch-id').value = dispatchId;
-    const modal = new bootstrap.Modal(document.getElementById('cancel-dispatch-modal'));
-    modal.show();
+    const modal = document.getElementById('cancel-dispatch-modal');
+    if (modal) {
+      modal.style.display = 'block';
+      modal.classList.add('show');
+      document.body.style.overflow = 'hidden';
+      
+      // Add backdrop
+      const backdrop = document.createElement('div');
+      backdrop.className = 'modal-backdrop fade show';
+      backdrop.id = 'modal-backdrop';
+      document.body.appendChild(backdrop);
+    }
   };
 
   window.submitCancellation = function() {
@@ -107,6 +117,7 @@ if (typeof window.openCancelModal === 'undefined') {
       }
     }, 5000);
   };
+
 }
 
 // === DISPATCH FUNCTIONALITY ===

@@ -180,7 +180,9 @@
                             class: "form-select status-select status-#{@dispatch.dispatch_status}",
                             data: { 
                               dispatch_form_target: "dispatchStatus",
-                              action: "change->dispatch-form#updateStatusFields"
+                              action: "change->dispatch-form#updateStatusFields",
+                              original_value: @dispatch.dispatch_status,
+                              dispatch_id: @dispatch.id
                             }
                           } %>
                     </div>
@@ -326,6 +328,60 @@
         </div>
     <% end %>
 </main>
+
+<!-- Cancel Dispatch Modal (same as in index) -->
+<div id="cancel-dispatch-modal" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title">
+          <i class="fa fa-exclamation-triangle"></i> Cancel Dispatch
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-3">Why are you cancelling this dispatch?</p>
+        <form id="cancel-dispatch-form">
+          <div class="mb-3">
+            <label class="form-label">Cancellation Reason:</label>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="cancellation_reason" value="product_not_available" id="reason1">
+              <label class="form-check-label" for="reason1">
+                ☐ Product not available
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="cancellation_reason" value="customer_requested_cancel" id="reason2">
+              <label class="form-check-label" for="reason2">
+                ☐ Customer requested cancel
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="cancellation_reason" value="shipping_address_invalid" id="reason3">
+              <label class="form-check-label" for="reason3">
+                ☐ Shipping address invalid
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="cancellation_reason" value="payment_failed" id="reason4">
+              <label class="form-check-label" for="reason4">
+                ☐ Payment failed
+              </label>
+            </div>
+          </div>
+          <input type="hidden" id="dispatch-id" name="dispatch_id">
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-warning" onclick="submitCancellation()">
+          <i class="fa fa-ban"></i> Cancel Dispatch & Create Refund
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <!-- Supplier Lookup Modal -->
 <div id="supplier-lookup" class="lookup-modal">
