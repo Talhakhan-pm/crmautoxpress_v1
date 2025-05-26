@@ -127,23 +127,7 @@
             </div>
             <div class="stream-flow" id="pending-dispatches">
               <% @dispatches.where(dispatch_status: ['pending', 'assigned']).each do |dispatch| %>
-                <div class="flow-card pending" onclick="showDispatchDetails(<%= dispatch.id %>)" data-dispatch-id="<%= dispatch.id %>">
-                  <div class="flow-card-header">
-                    <span class="order-ref">#<%= dispatch.order_number %></span>
-                    <span class="priority-dot priority-<%= dispatch.order&.priority || 'standard' %>"></span>
-                  </div>
-                  <div class="flow-card-body">
-                    <div class="customer"><%= dispatch.customer_name %></div>
-                    <div class="product"><%= dispatch.product_name %></div>
-                    <div class="amount">$<%= number_with_delimiter(dispatch.total_cost) %></div>
-                  </div>
-                  <div class="flow-card-actions">
-                    <%= link_to "Start Processing", edit_dispatch_path(dispatch), 
-                        class: "flow-action-btn start", 
-                        data: { turbo_frame: "main_content" },
-                        onclick: "event.stopPropagation();" %>
-                  </div>
-                </div>
+                <%= render 'dispatches/flow_card_simple', dispatch: dispatch %>
               <% end %>
             </div>
           </div>
@@ -159,36 +143,7 @@
             </div>
             <div class="stream-flow" id="processing-dispatches">
               <% @dispatches.where(dispatch_status: 'processing').each do |dispatch| %>
-                <div class="flow-card processing" onclick="showDispatchDetails(<%= dispatch.id %>)" data-dispatch-id="<%= dispatch.id %>">
-                  <div class="flow-card-header">
-                    <span class="order-ref">#<%= dispatch.order_number %></span>
-                    <div class="status-indicators">
-                      <span class="indicator payment-<%= dispatch.payment_status %>">💳</span>
-                      <span class="indicator supplier-<%= dispatch.supplier_name.present? ? 'assigned' : 'pending' %>">🏭</span>
-                    </div>
-                  </div>
-                  <div class="flow-card-body">
-                    <div class="customer"><%= dispatch.customer_name %></div>
-                    <div class="product"><%= dispatch.product_name %></div>
-                    <% if dispatch.supplier_name.present? %>
-                      <div class="supplier">📦 <%= dispatch.supplier_name %></div>
-                    <% end %>
-                    <div class="amount">$<%= number_with_delimiter(dispatch.total_cost) %></div>
-                  </div>
-                  <div class="flow-card-actions">
-                    <% if dispatch.can_be_shipped? %>
-                      <%= link_to "Ready to Ship", edit_dispatch_path(dispatch), 
-                          class: "flow-action-btn ship", 
-                          data: { turbo_frame: "main_content" },
-                          onclick: "event.stopPropagation();" %>
-                    <% else %>
-                      <%= link_to "Update", edit_dispatch_path(dispatch), 
-                          class: "flow-action-btn update", 
-                          data: { turbo_frame: "main_content" },
-                          onclick: "event.stopPropagation();" %>
-                    <% end %>
-                  </div>
-                </div>
+                <%= render 'dispatches/flow_card_simple', dispatch: dispatch %>
               <% end %>
             </div>
           </div>
@@ -204,34 +159,7 @@
             </div>
             <div class="stream-flow" id="shipped-dispatches">
               <% @dispatches.where(dispatch_status: 'shipped').each do |dispatch| %>
-                <div class="flow-card shipped" onclick="showDispatchDetails(<%= dispatch.id %>)" data-dispatch-id="<%= dispatch.id %>">
-                  <div class="flow-card-header">
-                    <span class="order-ref">#<%= dispatch.order_number %></span>
-                    <% if dispatch.has_tracking? %>
-                      <span class="tracking-badge">📍</span>
-                    <% end %>
-                  </div>
-                  <div class="flow-card-body">
-                    <div class="customer"><%= dispatch.customer_name %></div>
-                    <div class="product"><%= dispatch.product_name %></div>
-                    <% if dispatch.tracking_number.present? %>
-                      <div class="tracking">🚚 <%= dispatch.tracking_number %></div>
-                    <% end %>
-                    <div class="amount">$<%= number_with_delimiter(dispatch.total_cost) %></div>
-                  </div>
-                  <div class="flow-card-actions">
-                    <% if dispatch.has_tracking? %>
-                      <%= link_to "Track", dispatch.tracking_link.present? ? dispatch.tracking_link : "#", 
-                          class: "flow-action-btn track", 
-                          target: "_blank",
-                          onclick: "event.stopPropagation();" %>
-                    <% end %>
-                    <%= link_to "Mark Delivered", edit_dispatch_path(dispatch), 
-                        class: "flow-action-btn deliver", 
-                        data: { turbo_frame: "main_content" },
-                        onclick: "event.stopPropagation();" %>
-                  </div>
-                </div>
+                <%= render 'dispatches/flow_card_simple', dispatch: dispatch %>
               <% end %>
             </div>
           </div>
@@ -247,18 +175,7 @@
             </div>
             <div class="stream-flow" id="completed-dispatches">
               <% @dispatches.where(dispatch_status: 'completed').limit(10).each do |dispatch| %>
-                <div class="flow-card completed" onclick="showDispatchDetails(<%= dispatch.id %>)" data-dispatch-id="<%= dispatch.id %>">
-                  <div class="flow-card-header">
-                    <span class="order-ref">#<%= dispatch.order_number %></span>
-                    <span class="completed-badge">✅</span>
-                  </div>
-                  <div class="flow-card-body">
-                    <div class="customer"><%= dispatch.customer_name %></div>
-                    <div class="product"><%= dispatch.product_name %></div>
-                    <div class="delivery-date">📅 <%= dispatch.updated_at.strftime("%m/%d") %></div>
-                    <div class="amount">$<%= number_with_delimiter(dispatch.total_cost) %></div>
-                  </div>
-                </div>
+                <%= render 'dispatches/flow_card_simple', dispatch: dispatch %>
               <% end %>
             </div>
           </div>

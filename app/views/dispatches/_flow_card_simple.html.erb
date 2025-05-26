@@ -1,0 +1,37 @@
+<div class="flow-card <%= dispatch.dispatch_status == 'assigned' ? 'pending' : dispatch.dispatch_status %>" onclick="showDispatchDetails(<%= dispatch.id %>)" data-dispatch-id="<%= dispatch.id %>">
+  <div class="flow-card-header">
+    <span class="order-ref">#<%= dispatch.order_number %></span>
+    <% case dispatch.dispatch_status %>
+    <% when 'pending', 'assigned' %>
+      <span class="priority-dot priority-<%= dispatch.order&.priority || 'standard' %>"></span>
+    <% when 'processing' %>
+      <div class="status-indicators">
+        <span class="indicator payment-<%= dispatch.payment_status %>">💳</span>
+        <span class="indicator supplier-<%= dispatch.supplier_name.present? ? 'assigned' : 'pending' %>">🏭</span>
+      </div>
+    <% when 'shipped' %>
+      <% if dispatch.has_tracking? %>
+        <span class="tracking-badge">📍</span>
+      <% end %>
+    <% when 'completed' %>
+      <span class="completed-badge">✅</span>
+    <% end %>
+  </div>
+  <div class="flow-card-body">
+    <div class="customer"><%= dispatch.customer_name %></div>
+    <div class="product"><%= dispatch.product_name %></div>
+    <% case dispatch.dispatch_status %>
+    <% when 'processing' %>
+      <% if dispatch.supplier_name.present? %>
+        <div class="supplier">📦 <%= dispatch.supplier_name %></div>
+      <% end %>
+    <% when 'shipped' %>
+      <% if dispatch.tracking_number.present? %>
+        <div class="tracking">🚚 <%= dispatch.tracking_number %></div>
+      <% end %>
+    <% when 'completed' %>
+      <div class="delivery-date">📅 <%= dispatch.updated_at.strftime("%m/%d") %></div>
+    <% end %>
+    <div class="amount">$<%= number_with_delimiter(dispatch.total_cost) %></div>
+  </div>
+</div>
