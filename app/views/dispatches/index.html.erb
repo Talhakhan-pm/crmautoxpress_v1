@@ -35,7 +35,7 @@
 
   <!-- Smart Filters & Search -->
   <div class="command-filters">
-    <%= form_with url: dispatches_path, method: :get, local: true, class: "filters-form" do |form| %>
+    <%= form_with url: dispatches_path, method: :get, local: false, class: "filters-form" do |form| %>
       <div class="filter-section">
         <div class="search-zone">
           <%= form.text_field :search, 
@@ -125,7 +125,7 @@
               </div>
               <div class="stream-count"><%= @dispatches.where(dispatch_status: ['pending', 'assigned']).count %></div>
             </div>
-            <div class="stream-flow">
+            <div class="stream-flow" id="pending-dispatches">
               <% @dispatches.where(dispatch_status: ['pending', 'assigned']).each do |dispatch| %>
                 <div class="flow-card pending" onclick="showDispatchDetails(<%= dispatch.id %>)" data-dispatch-id="<%= dispatch.id %>">
                   <div class="flow-card-header">
@@ -157,7 +157,7 @@
               </div>
               <div class="stream-count"><%= @dispatches.where(dispatch_status: 'processing').count %></div>
             </div>
-            <div class="stream-flow">
+            <div class="stream-flow" id="processing-dispatches">
               <% @dispatches.where(dispatch_status: 'processing').each do |dispatch| %>
                 <div class="flow-card processing" onclick="showDispatchDetails(<%= dispatch.id %>)" data-dispatch-id="<%= dispatch.id %>">
                   <div class="flow-card-header">
@@ -202,7 +202,7 @@
               </div>
               <div class="stream-count"><%= @dispatches.where(dispatch_status: 'shipped').count %></div>
             </div>
-            <div class="stream-flow">
+            <div class="stream-flow" id="shipped-dispatches">
               <% @dispatches.where(dispatch_status: 'shipped').each do |dispatch| %>
                 <div class="flow-card shipped" onclick="showDispatchDetails(<%= dispatch.id %>)" data-dispatch-id="<%= dispatch.id %>">
                   <div class="flow-card-header">
@@ -245,7 +245,7 @@
               </div>
               <div class="stream-count"><%= @dispatches.where(dispatch_status: 'completed').count %></div>
             </div>
-            <div class="stream-flow">
+            <div class="stream-flow" id="completed-dispatches">
               <% @dispatches.where(dispatch_status: 'completed').limit(10).each do |dispatch| %>
                 <div class="flow-card completed" onclick="showDispatchDetails(<%= dispatch.id %>)" data-dispatch-id="<%= dispatch.id %>">
                   <div class="flow-card-header">
@@ -355,7 +355,7 @@
 </div>
 
 <script>
-// Clean utility functions that work with unified modal system
+// Turbo-powered utility functions
 function setView(view) {
   const url = new URL(window.location);
   if (view === 'list') {
@@ -363,7 +363,24 @@ function setView(view) {
   } else {
     url.searchParams.delete('view');
   }
-  window.location.href = url.toString();
+  
+  fetch(url.toString(), {
+    headers: {
+      'Accept': 'text/vnd.turbo-stream.html',
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  })
+  .then(response => response.text())
+  .then(html => {
+    Turbo.renderStreamMessage(html);
+    // Update URL without reload
+    window.history.pushState({}, '', url.toString());
+  })
+  .catch(error => {
+    console.error('Error updating view:', error);
+    // Fallback to page reload
+    window.location.href = url.toString();
+  });
 }
 
 function setFilter(type, value) {
@@ -373,7 +390,24 @@ function setFilter(type, value) {
   } else {
     url.searchParams.delete(type);
   }
-  window.location.href = url.toString();
+  
+  fetch(url.toString(), {
+    headers: {
+      'Accept': 'text/vnd.turbo-stream.html',
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  })
+  .then(response => response.text())
+  .then(html => {
+    Turbo.renderStreamMessage(html);
+    // Update URL without reload
+    window.history.pushState({}, '', url.toString());
+  })
+  .catch(error => {
+    console.error('Error applying filter:', error);
+    // Fallback to page reload
+    window.location.href = url.toString();
+  });
 }
 
 function searchDispatches(query) {
@@ -385,7 +419,24 @@ function searchDispatches(query) {
     } else {
       url.searchParams.delete('search');
     }
-    window.location.href = url.toString();
+    
+    fetch(url.toString(), {
+      headers: {
+        'Accept': 'text/vnd.turbo-stream.html',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(response => response.text())
+    .then(html => {
+      Turbo.renderStreamMessage(html);
+      // Update URL without reload
+      window.history.pushState({}, '', url.toString());
+    })
+    .catch(error => {
+      console.error('Error searching dispatches:', error);
+      // Fallback to page reload
+      window.location.href = url.toString();
+    });
   }, 500);
 }
 
@@ -490,4 +541,7 @@ function updateTimelineStatus(status) {
   progressBar.style.width = progressWidth + '%';
 }
 </script>
+
+<!-- Subscribe to Turbo Stream for real-time updates -->
+<%= turbo_stream_from "dispatches" %>
 <% end %>

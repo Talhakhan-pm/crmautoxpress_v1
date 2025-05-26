@@ -50,9 +50,9 @@ class Dispatch < ApplicationRecord
   include Trackable
 
   # Turbo Stream broadcasts
-  after_create_commit { broadcast_prepend_to "dispatches", target: "dispatches" }
-  after_update_commit { broadcast_replace_to "dispatches" }
-  after_destroy_commit { broadcast_remove_to "dispatches" }
+  after_create_commit { broadcast_dispatch_updates }
+  after_update_commit { broadcast_dispatch_updates }
+  after_destroy_commit { broadcast_dispatch_updates }
 
   # Scopes
   scope :recent, -> { order(created_at: :desc) }
@@ -182,5 +182,57 @@ class Dispatch < ApplicationRecord
       estimated_date = Date.current + 3.days # Default 3-day shipping estimate
       order.update!(estimated_delivery: estimated_date)
     end
+  end
+
+  def broadcast_dispatch_updates
+    return if Rails.env.test? || defined?(Rails::Console)
+    
+    Rails.logger.info "=== DISPATCH BROADCAST TRIGGERED ==="
+    Rails.logger.info "Dispatch ##{id} status: #{dispatch_status}"
+    
+    # Broadcast to both flow streams and list view
+    broadcast_to_flow_streams
+    broadcast_to_list_view
+    
+    Rails.logger.info "=== DISPATCH BROADCAST SENT ==="
+  end
+  
+  def broadcast_to_flow_streams
+    # Get fresh data for each stream
+    pending_dispatches = Dispatch.includes(:order).where(dispatch_status: ['pending', 'assigned']).recent
+    processing_dispatches = Dispatch.includes(:order).where(dispatch_status: 'processing').recent
+    shipped_dispatches = Dispatch.includes(:order).where(dispatch_status: 'shipped').recent
+    completed_dispatches = Dispatch.includes(:order).where(dispatch_status: 'completed').recent.limit(10)
+    
+    # Broadcast to each flow stream
+    broadcast_replace_to "dispatches", 
+                        target: "pending-dispatches", 
+                        partial: "dispatches/flow_stream_content", 
+                        locals: { dispatches: pending_dispatches, status: 'pending' }
+                        
+    broadcast_replace_to "dispatches", 
+                        target: "processing-dispatches", 
+                        partial: "dispatches/flow_stream_content", 
+                        locals: { dispatches: processing_dispatches, status: 'processing' }
+                        
+    broadcast_replace_to "dispatches", 
+                        target: "shipped-dispatches", 
+                        partial: "dispatches/flow_stream_content", 
+                        locals: { dispatches: shipped_dispatches, status: 'shipped' }
+                        
+    broadcast_replace_to "dispatches", 
+                        target: "completed-dispatches", 
+                        partial: "dispatches/flow_stream_content", 
+                        locals: { dispatches: completed_dispatches, status: 'completed' }
+  end
+  
+  def broadcast_to_list_view
+    # Broadcast to list view (existing functionality)
+    fresh_dispatches = Dispatch.includes(:order).recent.limit(25)
+    
+    broadcast_replace_to "dispatches", 
+                        target: "dispatches", 
+                        partial: "dispatches/list_content", 
+                        locals: { dispatches: fresh_dispatches }
   end
 end

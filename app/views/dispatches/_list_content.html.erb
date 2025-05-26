@@ -1,0 +1,12 @@
+<% if dispatches.any? %>
+  <% dispatches.each do |dispatch| %>
+    <%= render 'dispatches/dispatch', dispatch: dispatch %>
+  <% end %>
+<% else %>
+  <div class="empty-state">
+    <i class="fas fa-truck empty-icon"></i>
+    <h3>No Dispatches Found</h3>
+    <p>Dispatches are automatically created when orders are placed.</p>
+    <%= link_to "View Orders", orders_path, class: "btn btn-primary" %>
+  </div>
+<% end %>
