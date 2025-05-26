@@ -25,9 +25,6 @@
                 </span>
             <% end %>
             
-            <%= link_to edit_callback_path(agent_callback), class: "action-btn edit-btn", data: { turbo_frame: "main_content", turbo_prefetch: false }, title: "Edit Callback" do %>
-                <i class="fas fa-edit"></i>
-            <% end %>
             
             <%= link_to callback_path(agent_callback), method: :delete, class: "action-btn delete-btn", 
                 confirm: "Are you sure you want to delete this callback?", 
