@@ -1,52 +1,49 @@
-<!-- Smart Order Creation Modal -->
+<!-- Unified Order Creation Modal -->
 <div id="order-modal" 
-     class="order-modal active" 
+     class="unified-modal theme-blue active" 
      data-controller="order-form"
      data-order-form-callback-id-value="<%= params[:callback_id] %>">
   
-  <div class="modal-overlay" 
-       data-action="click->order-form#closeModal" 
-       title="Click to close"></div>
-  
-  <div class="order-modal-content" data-order-form-target="modal">
-    <!-- Modal Header -->
-    <div class="modal-header">
-      <div class="header-content">
-        <div class="modal-title-section">
-          <h2 class="modal-title">
-            <i class="fas fa-plus-circle modal-icon"></i>
-            Create New Order
-          </h2>
-          <p class="modal-subtitle">Unified order creation with automatic callback tracking</p>
+  <div class="unified-modal-content" data-order-form-target="modal">
+    <!-- Unified Modal Header -->
+    <div class="unified-modal-header theme-blue">
+      <div class="unified-modal-header-content">
+        <h2 class="unified-modal-title">
+          <div class="modal-icon">
+            <i class="fas fa-plus-circle"></i>
+          </div>
+          Create New Order
+        </h2>
+        <p class="unified-modal-subtitle">Unified order creation with automatic callback tracking</p>
+        
+        <!-- Order Type Toggle -->
+        <div class="order-type-toggle" style="margin-top: 20px;">
+          <button type="button" 
+                  class="toggle-btn active" 
+                  data-type="direct" 
+                  data-action="click->order-form#setOrderType">
+            <i class="fas fa-phone"></i>
+            Direct Sale
+          </button>
+          <button type="button" 
+                  class="toggle-btn" 
+                  data-type="conversion" 
+                  data-action="click->order-form#setOrderType">
+            <i class="fas fa-exchange-alt"></i>
+            Convert Callback
+          </button>
         </div>
-        <button type="button" 
-                data-action="click->order-form#closeModal" 
-                class="close-btn">
-          <i class="fas fa-times"></i>
-        </button>
       </div>
       
-      <!-- Order Type Toggle -->
-      <div class="order-type-toggle">
-        <button type="button" 
-                class="toggle-btn active" 
-                data-type="direct" 
-                data-action="click->order-form#setOrderType">
-          <i class="fas fa-phone"></i>
-          Direct Sale
-        </button>
-        <button type="button" 
-                class="toggle-btn" 
-                data-type="conversion" 
-                data-action="click->order-form#setOrderType">
-          <i class="fas fa-exchange-alt"></i>
-          Convert Callback
-        </button>
-      </div>
+      <button type="button" 
+              data-action="click->order-form#closeModal" 
+              class="unified-modal-close">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
 
-    <!-- Modal Body -->
-    <div class="modal-body">
+    <!-- Unified Modal Body -->
+    <div class="unified-modal-body">
       <%= form_with model: @order, 
                     local: false, 
                     class: "order-form", 
@@ -76,8 +73,8 @@
         <%= form.hidden_field :order_date, value: Time.current %>
         <%= form.hidden_field :agent_callback_id, data: { order_form_target: "selectedCallbackId" } %>
         
-        <!-- Form Actions -->
-        <div class="form-actions">
+        <!-- Unified Form Actions -->
+        <div class="unified-form-actions">
           <button type="button" 
                   data-action="click->order-form#closeModal" 
                   class="btn btn-secondary">
@@ -103,19 +100,29 @@
 </div>
 
 <!-- Customer Lookup Modal -->
-<div id="customer-lookup" class="lookup-modal">
-  <div class="lookup-content">
-    <div class="lookup-header">
-      <h3>Select Existing Customer</h3>
+<div id="customer-lookup" class="unified-modal nested theme-blue">
+  <div class="unified-modal-content">
+    <div class="unified-modal-header theme-blue">
+      <div class="unified-modal-header-content">
+        <h2 class="unified-modal-title">
+          <div class="modal-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          Select Existing Customer
+        </h2>
+      </div>
       <button data-action="click->order-form#closeLookupModal" 
               data-type="customer" 
-              class="close-btn">×</button>
+              class="unified-modal-close">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
-    <div class="lookup-body">
+    <div class="unified-modal-body">
       <input type="text" 
              id="customer-search" 
              placeholder="Search by name or phone..." 
-             class="search-input">
+             class="form-input"
+             style="margin-bottom: 16px;">
       <div id="customers-list" class="lookup-results">
         <!-- Populated via AJAX -->
       </div>
@@ -124,19 +131,29 @@
 </div>
 
 <!-- Product Lookup Modal -->
-<div id="product-lookup" class="lookup-modal">
-  <div class="lookup-content">
-    <div class="lookup-header">
-      <h3>Select Product</h3>
+<div id="product-lookup" class="unified-modal nested theme-blue">
+  <div class="unified-modal-content">
+    <div class="unified-modal-header theme-blue">
+      <div class="unified-modal-header-content">
+        <h2 class="unified-modal-title">
+          <div class="modal-icon">
+            <i class="fas fa-box"></i>
+          </div>
+          Select Product
+        </h2>
+      </div>
       <button data-action="click->order-form#closeLookupModal" 
               data-type="product" 
-              class="close-btn">×</button>
+              class="unified-modal-close">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
-    <div class="lookup-body">
+    <div class="unified-modal-body">
       <input type="text" 
              id="product-search" 
              placeholder="Search products..." 
-             class="search-input">
+             class="form-input"
+             style="margin-bottom: 16px;">
       <div id="products-list" class="lookup-results">
         <!-- Populated via AJAX -->
       </div>

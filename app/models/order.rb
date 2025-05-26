@@ -51,6 +51,7 @@ class Order < ApplicationRecord
   after_create :find_or_create_product
   after_create :create_dispatch_record
   after_create :create_auto_callback
+  after_update :sync_with_dispatch
   
   include Trackable
 
@@ -307,6 +308,20 @@ class Order < ApplicationRecord
       'exhaust'
     else
       'engine' # Default category
+    end
+  end
+
+  def sync_with_dispatch
+    return unless dispatch.present?
+
+    # Update dispatch status based on order status
+    case order_status
+    when 'cancelled'
+      dispatch.update!(dispatch_status: 'cancelled') unless dispatch.cancelled?
+    when 'confirmed'
+      dispatch.update!(dispatch_status: 'assigned') if dispatch.pending?
+    when 'processing'
+      dispatch.update!(dispatch_status: 'processing') if dispatch.assigned?
     end
   end
 end

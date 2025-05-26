@@ -1,2 +1,204 @@
-<h1>Orders#edit</h1>
-<p>Find me in app/views/orders/edit.html.erb</p>
+<!-- Unified Order Edit Modal -->
+<div id="order-edit-modal" class="unified-modal theme-blue active" data-controller="order-form modal" data-modal-theme-value="blue">
+  <div class="unified-modal-content" data-order-form-target="modal">
+    <!-- Unified Modal Header -->
+    <div class="unified-modal-header theme-blue">
+      <div class="unified-modal-header-content">
+        <h2 class="unified-modal-title">
+          <div class="modal-icon">
+            <i class="fas fa-edit"></i>
+          </div>
+          Edit Order #<%= @order.order_number %>
+        </h2>
+        <p class="unified-modal-subtitle">Update order details and tracking information</p>
+      </div>
+      
+      <%= link_to orders_path, class: "unified-modal-close" do %>
+        <i class="fas fa-times"></i>
+      <% end %>
+    </div>
+
+    <!-- Unified Modal Body -->
+    <div class="unified-modal-body">
+      <%= form_with model: @order, local: true, class: "order-edit-form" do |form| %>
+        
+        <!-- Customer Information Section -->
+        <div class="unified-form-section">
+          <div class="unified-section-header">
+            <h3 class="section-title">
+              <i class="fas fa-user"></i>
+              Customer Information
+            </h3>
+          </div>
+          
+          <div class="unified-form-grid">
+            <div class="unified-form-group">
+              <%= form.label :customer_name, "Customer Name", class: "form-label" %>
+              <%= form.text_field :customer_name, class: "form-input" %>
+            </div>
+            
+            <div class="unified-form-group">
+              <%= form.label :customer_phone, "Phone Number", class: "form-label" %>
+              <%= form.telephone_field :customer_phone, class: "form-input" %>
+            </div>
+            
+            <div class="unified-form-group">
+              <%= form.label :customer_email, "Email", class: "form-label" %>
+              <%= form.email_field :customer_email, class: "form-input" %>
+            </div>
+            
+            <div class="unified-form-group full-width">
+              <%= form.label :customer_address, "Address", class: "form-label" %>
+              <%= form.text_area :customer_address, class: "form-input", rows: 2 %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product Information Section -->
+        <div class="unified-form-section">
+          <div class="unified-section-header">
+            <h3 class="section-title">
+              <i class="fas fa-box"></i>
+              Product Details
+            </h3>
+          </div>
+          
+          <div class="unified-form-grid">
+            <div class="unified-form-group full-width">
+              <%= form.label :product_name, "Product Name", class: "form-label" %>
+              <%= form.text_field :product_name, class: "form-input" %>
+            </div>
+            
+            <div class="unified-form-group">
+              <%= form.label :car_make_model, "Vehicle Make/Model", class: "form-label" %>
+              <%= form.text_field :car_make_model, class: "form-input" %>
+            </div>
+            
+            <div class="unified-form-group">
+              <%= form.label :car_year, "Vehicle Year", class: "form-label" %>
+              <%= form.number_field :car_year, class: "form-input" %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pricing Section -->
+        <div class="unified-form-section">
+          <div class="unified-section-header">
+            <h3 class="section-title">
+              <i class="fas fa-dollar-sign"></i>
+              Pricing Information
+            </h3>
+          </div>
+          
+          <div class="unified-form-grid">
+            <div class="unified-form-group">
+              <%= form.label :product_price, "Product Price", class: "form-label" %>
+              <%= form.number_field :product_price, step: 0.01, class: "form-input" %>
+            </div>
+            
+            <div class="unified-form-group">
+              <%= form.label :tax_amount, "Tax Amount", class: "form-label" %>
+              <%= form.number_field :tax_amount, step: 0.01, class: "form-input" %>
+            </div>
+            
+            <div class="unified-form-group">
+              <%= form.label :shipping_cost, "Shipping Cost", class: "form-label" %>
+              <%= form.number_field :shipping_cost, step: 0.01, class: "form-input" %>
+            </div>
+            
+            <div class="unified-form-group total-display">
+              <div class="total-label">Total Amount</div>
+              <div class="total-amount">$<%= number_with_delimiter(@order.total_amount) %></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Status Section -->
+        <div class="unified-form-section">
+          <div class="unified-section-header">
+            <h3 class="section-title">
+              <i class="fas fa-clipboard-check"></i>
+              Order Status
+            </h3>
+          </div>
+          
+          <div class="unified-form-grid">
+            <div class="unified-form-group">
+              <%= form.label :order_status, "Order Status", class: "form-label" %>
+              <%= form.select :order_status, 
+                  options_for_select([
+                    ['Pending', 'pending'],
+                    ['Confirmed', 'confirmed'],
+                    ['Processing', 'processing'],
+                    ['Shipped', 'shipped'],
+                    ['Delivered', 'delivered'],
+                    ['Cancelled', 'cancelled']
+                  ], @order.order_status), 
+                  {}, { class: "form-select" } %>
+            </div>
+            
+            <div class="unified-form-group">
+              <%= form.label :priority, "Priority", class: "form-label" %>
+              <%= form.select :priority, 
+                  options_for_select([
+                    ['Low', 'low'],
+                    ['Standard', 'standard'],
+                    ['High', 'high'],
+                    ['Rush', 'rush'],
+                    ['Urgent', 'urgent']
+                  ], @order.priority), 
+                  {}, { class: "form-select" } %>
+            </div>
+            
+            <div class="unified-form-group">
+              <%= form.label :tracking_number, "Tracking Number", class: "form-label" %>
+              <%= form.text_field :tracking_number, class: "form-input" %>
+            </div>
+            
+            <div class="unified-form-group">
+              <%= form.label :estimated_delivery, "Estimated Delivery", class: "form-label" %>
+              <%= form.date_field :estimated_delivery, class: "form-input" %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes Section -->
+        <div class="unified-form-section">
+          <div class="unified-section-header">
+            <h3 class="section-title">
+              <i class="fas fa-sticky-note"></i>
+              Additional Information
+            </h3>
+          </div>
+          
+          <div class="unified-form-grid">
+            <div class="unified-form-group full-width">
+              <%= form.label :comments, "Customer Comments", class: "form-label" %>
+              <%= form.text_area :comments, class: "form-input", rows: 3 %>
+            </div>
+            
+            <div class="unified-form-group full-width">
+              <%= form.label :internal_notes, "Internal Notes", class: "form-label" %>
+              <%= form.text_area :internal_notes, class: "form-input", rows: 3 %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Unified Form Actions -->
+        <div class="unified-form-actions">
+          <%= link_to orders_path, class: "btn btn-secondary" do %>
+            <i class="fas fa-times"></i>
+            Cancel
+          <% end %>
+          
+          <div class="primary-actions">
+            <%= form.submit "Update Order", class: "btn btn-primary" do %>
+              <i class="fas fa-check"></i>
+              Update Order
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
