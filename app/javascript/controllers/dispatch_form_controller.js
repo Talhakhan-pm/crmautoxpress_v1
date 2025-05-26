@@ -261,16 +261,9 @@ export default class extends Controller {
       const dispatchId = this.dispatchStatusTarget.dataset.dispatchId
       document.getElementById('dispatch-id').value = dispatchId
       
-      // Show modal
-      modal.style.display = 'block'
+      // Show modal with modern classes
       modal.classList.add('show')
       document.body.style.overflow = 'hidden'
-      
-      // Add backdrop
-      const backdrop = document.createElement('div')
-      backdrop.className = 'modal-backdrop fade show'
-      backdrop.id = 'modal-backdrop'
-      document.body.appendChild(backdrop)
       
       // Handle modal close buttons
       this.setupModalCloseHandlers(modal)
@@ -278,35 +271,31 @@ export default class extends Controller {
   }
 
   setupModalCloseHandlers(modal) {
-    // Close button
-    const closeBtn = modal.querySelector('.btn-close')
-    if (closeBtn) {
-      closeBtn.onclick = () => this.closeCancelModal()
-    }
-    
-    // Cancel button
-    const cancelBtn = modal.querySelector('.btn-secondary')
+    // Cancel button (secondary)
+    const cancelBtn = modal.querySelector('.dispatch-cancel-btn-secondary')
     if (cancelBtn) {
       cancelBtn.onclick = () => this.closeCancelModal()
     }
     
-    // Submit button
-    const submitBtn = modal.querySelector('.btn-warning')
+    // Submit button (primary)
+    const submitBtn = modal.querySelector('.dispatch-cancel-btn-primary')
     if (submitBtn) {
       submitBtn.onclick = () => this.submitCancellation()
+    }
+    
+    // Close on overlay click
+    modal.onclick = (e) => {
+      if (e.target === modal) {
+        this.closeCancelModal()
+      }
     }
   }
 
   closeCancelModal() {
     const modal = document.getElementById('cancel-dispatch-modal')
     if (modal) {
-      modal.style.display = 'none'
       modal.classList.remove('show')
       document.body.style.overflow = ''
-      
-      // Remove backdrop
-      const backdrop = document.getElementById('modal-backdrop')
-      if (backdrop) backdrop.remove()
     }
   }
 

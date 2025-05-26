@@ -329,58 +329,270 @@
     <% end %>
 </main>
 
-<!-- Cancel Dispatch Modal (same as in index) -->
-<div id="cancel-dispatch-modal" class="modal fade" tabindex="-1" role="dialog">
-  <div class="modal-dialog modal-sm" role="document">
-    <div class="modal-content">
-      <div class="modal-header bg-warning text-dark">
-        <h5 class="modal-title">
-          <i class="fa fa-exclamation-triangle"></i> Cancel Dispatch
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<!-- Modern Cancel Dispatch Modal -->
+<div id="cancel-dispatch-modal" class="dispatch-cancel-overlay">
+  <div class="dispatch-cancel-container">
+    <div class="dispatch-cancel-header">
+      <div class="dispatch-cancel-icon-wrapper">
+        <i class="fas fa-exclamation-circle dispatch-cancel-icon"></i>
       </div>
-      <div class="modal-body">
-        <p class="mb-3">Why are you cancelling this dispatch?</p>
-        <form id="cancel-dispatch-form">
-          <div class="mb-3">
-            <label class="form-label">Cancellation Reason:</label>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="cancellation_reason" value="product_not_available" id="reason1">
-              <label class="form-check-label" for="reason1">
-                ☐ Product not available
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="cancellation_reason" value="customer_requested_cancel" id="reason2">
-              <label class="form-check-label" for="reason2">
-                ☐ Customer requested cancel
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="cancellation_reason" value="shipping_address_invalid" id="reason3">
-              <label class="form-check-label" for="reason3">
-                ☐ Shipping address invalid
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="cancellation_reason" value="payment_failed" id="reason4">
-              <label class="form-check-label" for="reason4">
-                ☐ Payment failed
-              </label>
+      <h3 class="dispatch-cancel-title">Cancel Dispatch</h3>
+      <p class="dispatch-cancel-subtitle">Select a reason for cancellation</p>
+    </div>
+    
+    <form id="cancel-dispatch-form" class="dispatch-cancel-form">
+      <div class="dispatch-cancel-options">
+        <label class="dispatch-cancel-option">
+          <input type="radio" name="cancellation_reason" value="product_not_available" class="dispatch-cancel-radio">
+          <div class="dispatch-cancel-option-content">
+            <div class="dispatch-cancel-option-icon">📦</div>
+            <div class="dispatch-cancel-option-text">
+              <div class="dispatch-cancel-option-title">Product not available</div>
+              <div class="dispatch-cancel-option-desc">Item is out of stock</div>
             </div>
           </div>
-          <input type="hidden" id="dispatch-id" name="dispatch_id">
-        </form>
+        </label>
+        
+        <label class="dispatch-cancel-option">
+          <input type="radio" name="cancellation_reason" value="customer_requested_cancel" class="dispatch-cancel-radio">
+          <div class="dispatch-cancel-option-content">
+            <div class="dispatch-cancel-option-icon">👤</div>
+            <div class="dispatch-cancel-option-text">
+              <div class="dispatch-cancel-option-title">Customer requested cancel</div>
+              <div class="dispatch-cancel-option-desc">Customer changed mind</div>
+            </div>
+          </div>
+        </label>
+        
+        <label class="dispatch-cancel-option">
+          <input type="radio" name="cancellation_reason" value="shipping_address_invalid" class="dispatch-cancel-radio">
+          <div class="dispatch-cancel-option-content">
+            <div class="dispatch-cancel-option-icon">📍</div>
+            <div class="dispatch-cancel-option-text">
+              <div class="dispatch-cancel-option-title">Invalid shipping address</div>
+              <div class="dispatch-cancel-option-desc">Cannot deliver to address</div>
+            </div>
+          </div>
+        </label>
+        
+        <label class="dispatch-cancel-option">
+          <input type="radio" name="cancellation_reason" value="payment_failed" class="dispatch-cancel-radio">
+          <div class="dispatch-cancel-option-content">
+            <div class="dispatch-cancel-option-icon">💳</div>
+            <div class="dispatch-cancel-option-text">
+              <div class="dispatch-cancel-option-title">Payment failed</div>
+              <div class="dispatch-cancel-option-desc">Unable to process payment</div>
+            </div>
+          </div>
+        </label>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-warning" onclick="submitCancellation()">
-          <i class="fa fa-ban"></i> Cancel Dispatch & Create Refund
-        </button>
-      </div>
+      
+      <input type="hidden" id="dispatch-id" name="dispatch_id">
+    </form>
+    
+    <div class="dispatch-cancel-actions">
+      <button type="button" class="dispatch-cancel-btn-secondary">
+        <i class="fas fa-times"></i>
+        Cancel
+      </button>
+      <button type="button" class="dispatch-cancel-btn-primary">
+        <i class="fas fa-ban"></i>
+        Cancel & Create Refund
+      </button>
     </div>
   </div>
 </div>
+
+<style>
+/* Modern Cancel Modal Styles */
+.dispatch-cancel-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: none;
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+}
+
+.dispatch-cancel-overlay.show {
+  display: flex;
+}
+
+.dispatch-cancel-container {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  max-width: 420px;
+  width: 90%;
+  overflow: hidden;
+  animation: dispatch-cancel-slide-in 0.3s ease-out;
+}
+
+@keyframes dispatch-cancel-slide-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.dispatch-cancel-header {
+  padding: 24px 24px 16px 24px;
+  text-align: center;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.dispatch-cancel-icon-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: #fef3cd;
+  border-radius: 50%;
+  margin-bottom: 12px;
+}
+
+.dispatch-cancel-icon {
+  color: #f59e0b;
+  font-size: 20px;
+}
+
+.dispatch-cancel-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 4px 0;
+}
+
+.dispatch-cancel-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.dispatch-cancel-form {
+  padding: 0;
+}
+
+.dispatch-cancel-options {
+  padding: 16px 24px;
+}
+
+.dispatch-cancel-option {
+  display: block;
+  cursor: pointer;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.dispatch-cancel-option:last-child {
+  margin-bottom: 0;
+}
+
+.dispatch-cancel-radio {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.dispatch-cancel-option-content {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.dispatch-cancel-option:hover .dispatch-cancel-option-content {
+  border-color: #d1d5db;
+  background: #f9fafb;
+}
+
+.dispatch-cancel-radio:checked + .dispatch-cancel-option-content {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.dispatch-cancel-option-icon {
+  font-size: 20px;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.dispatch-cancel-option-text {
+  flex: 1;
+}
+
+.dispatch-cancel-option-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2937;
+  margin-bottom: 2px;
+}
+
+.dispatch-cancel-option-desc {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.dispatch-cancel-actions {
+  display: flex;
+  gap: 12px;
+  padding: 16px 24px 24px 24px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.dispatch-cancel-btn-secondary,
+.dispatch-cancel-btn-primary {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.dispatch-cancel-btn-secondary {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.dispatch-cancel-btn-secondary:hover {
+  background: #e5e7eb;
+  color: #4b5563;
+}
+
+.dispatch-cancel-btn-primary {
+  background: #ef4444;
+  color: white;
+}
+
+.dispatch-cancel-btn-primary:hover {
+  background: #dc2626;
+}
+
+.dispatch-cancel-btn-primary:disabled {
+  background: #d1d5db;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+</style>
 
 
 <!-- Supplier Lookup Modal -->
