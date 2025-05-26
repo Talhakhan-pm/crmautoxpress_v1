@@ -37,3 +37,71 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 });
+
+// === DISPATCH FUNCTIONALITY ===
+// Only load if we're on dispatches page
+if (window.location.pathname.includes('/dispatches')) {
+  console.log('Loading dispatch functions');
+  
+  // Namespace protection to prevent redefinition
+  if (typeof window.setView === 'undefined') {
+    window.setView = function(view) {
+      const url = new URL(window.location);
+      if (view === 'list') {
+        url.searchParams.set('view', 'list');
+      } else {
+        url.searchParams.delete('view');
+      }
+      
+      Turbo.visit(url.toString(), { frame: "main_content" });
+    };
+
+    window.setFilter = function(type, value) {
+      const url = new URL(window.location);
+      if (value) {
+        url.searchParams.set(type, value);
+      } else {
+        url.searchParams.delete(type);
+      }
+      
+      Turbo.visit(url.toString(), { frame: "main_content" });
+    };
+
+    window.searchDispatches = function(query) {
+      clearTimeout(window.searchTimeout);
+      window.searchTimeout = setTimeout(() => {
+        const url = new URL(window.location);
+        if (query.trim()) {
+          url.searchParams.set('search', query);
+        } else {
+          url.searchParams.delete('search');
+        }
+        
+        Turbo.visit(url.toString(), { frame: "main_content" });
+      }, 500);
+    };
+
+    window.showDispatchDetails = function(dispatchId) {
+      const modal = document.getElementById('dispatch-modal');
+      if (!modal) return;
+      
+      fetch(`/dispatches/${dispatchId}`, {
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'Accept': 'text/html'
+        }
+      })
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById('modal-body').innerHTML = html;
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      })
+      .catch(error => {
+        console.error('Error loading dispatch details:', error);
+      });
+    };
+    
+    console.log('Dispatch functions loaded');
+  }
+}
