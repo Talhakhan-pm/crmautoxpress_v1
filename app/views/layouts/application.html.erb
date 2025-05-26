@@ -31,23 +31,23 @@
           <div class="nav-menu">
               <div class="nav-section">
                   <div class="nav-section-title">CRM</div>
-                  <%= link_to dashboard_path, class: "nav-item #{'active' if current_page?(dashboard_path) || current_page?(root_path)}" do %>
+                  <%= link_to dashboard_path, class: "nav-item #{'active' if current_page?(dashboard_path) || current_page?(root_path)}", "data-turbo-prefetch" => "false" do %>
                       <i class="fas fa-tachometer-alt"></i>
                       <span>Dashboard</span>
                   <% end %>
-                  <%= link_to orders_path, class: "nav-item #{'active' if current_page?(orders_path)}" do %>
+                  <%= link_to orders_path, class: "nav-item #{'active' if current_page?(orders_path)}", "data-turbo-prefetch" => "false" do %>
                       <i class="fas fa-shopping-cart"></i>
                       <span>Orders</span>
                   <% end %>
-                  <%= link_to dispatches_path, class: "nav-item #{'active' if current_page?(dispatches_path)}" do %>
+                  <%= link_to dispatches_path, class: "nav-item #{'active' if current_page?(dispatches_path)}", "data-turbo-prefetch" => "false" do %>
                       <i class="fas fa-truck"></i>
                       <span>Dispatching</span>
                   <% end %>
-                  <%= link_to callbacks_path, class: "nav-item #{'active' if current_page?(callbacks_path)}" do %>
+                  <%= link_to callbacks_path, class: "nav-item #{'active' if current_page?(callbacks_path)}", "data-turbo-prefetch" => "false" do %>
                       <i class="fas fa-phone"></i>
                       <span>Callbacks</span>
                   <% end %>
-                  <%= link_to customers_path, class: "nav-item #{'active' if request.path.start_with?('/customers')}" do %>
+                  <%= link_to customers_path, class: "nav-item #{'active' if request.path.start_with?('/customers')}", "data-turbo-prefetch" => "false" do %>
                       <i class="fas fa-users"></i>
                       <span>Customers</span>
                   <% end %>
@@ -59,7 +59,7 @@
                       <i class="fas fa-user-tie"></i>
                       <span>Agents</span>
                   </a>
-                  <%= link_to products_path, class: "nav-item #{'active' if request.path.start_with?('/products')}" do %>
+                  <%= link_to products_path, class: "nav-item #{'active' if request.path.start_with?('/products')}", "data-turbo-prefetch" => "false" do %>
                       <i class="fas fa-boxes"></i>
                       <span>Products</span>
                   <% end %>
@@ -103,7 +103,7 @@
               </div>
               <div class="user-actions">
                 <%= link_to destroy_user_session_path, method: :delete, class: "logout-btn", 
-                    title: "Sign out", data: { confirm: "Are you sure you want to sign out?" } do %>
+                    title: "Sign out", data: { confirm: "Are you sure you want to sign out?" }, "data-turbo-prefetch" => "false" do %>
                   <i class="fas fa-sign-out-alt"></i>
                 <% end %>
               </div>
