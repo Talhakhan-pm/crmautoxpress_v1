@@ -1,3 +1,5 @@
-<% dispatches.each do |dispatch| %>
-  <%= render 'dispatches/flow_card_simple', dispatch: dispatch %>
-<% end %>
+<div class="stream-flow" id="<%= status %>-dispatches">
+  <% dispatches.each do |dispatch| %>
+    <%= render 'dispatches/flow_card_simple', dispatch: dispatch %>
+  <% end %>
+</div>
