@@ -146,12 +146,13 @@
   </div>
 
   <div class="dispatch-content">
-    <!-- Visual Workflow Timeline -->
-    <div class="workflow-section">
-      <h2 class="section-title">
-        <i class="fas fa-route"></i>
-        Dispatch Workflow
-      </h2>
+    <% unless request.xhr? %>
+      <!-- Visual Workflow Timeline (Full Page Only) -->
+      <div class="workflow-section">
+        <h2 class="section-title">
+          <i class="fas fa-route"></i>
+          Dispatch Workflow
+        </h2>
       
       <div class="workflow-timeline">
         <div class="timeline-track" style="--workflow-progress: <%= 
@@ -242,6 +243,7 @@
         </div>
       </div>
     </div>
+    <% end %>
 
     <!-- Information Grid -->
     <div class="info-grid">
