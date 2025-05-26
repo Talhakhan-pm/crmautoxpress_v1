@@ -93,22 +93,22 @@
           <div class="unified-form-grid">
             <div class="unified-form-group">
               <%= form.label :product_price, "Product Price", class: "form-label" %>
-              <%= form.number_field :product_price, step: 0.01, class: "form-input" %>
+              <%= form.number_field :product_price, step: 0.01, class: "form-input", data: { order_form_target: "productPrice", action: "input->order-form#calculateTotal" } %>
             </div>
             
             <div class="unified-form-group">
               <%= form.label :tax_amount, "Tax Amount", class: "form-label" %>
-              <%= form.number_field :tax_amount, step: 0.01, class: "form-input" %>
+              <%= form.number_field :tax_amount, step: 0.01, class: "form-input", data: { order_form_target: "taxAmount", action: "input->order-form#calculateTotal" } %>
             </div>
             
             <div class="unified-form-group">
               <%= form.label :shipping_cost, "Shipping Cost", class: "form-label" %>
-              <%= form.number_field :shipping_cost, step: 0.01, class: "form-input" %>
+              <%= form.number_field :shipping_cost, step: 0.01, class: "form-input", data: { order_form_target: "shippingCost", action: "input->order-form#calculateTotal" } %>
             </div>
             
             <div class="unified-form-group total-display">
               <div class="total-label">Total Amount</div>
-              <div class="total-amount">$<%= number_with_delimiter(@order.total_amount) %></div>
+              <div class="total-amount" data-order-form-target="totalDisplay">$<%= number_with_delimiter(@order.total_amount) %></div>
             </div>
           </div>
         </div>
