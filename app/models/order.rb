@@ -47,6 +47,8 @@ class Order < ApplicationRecord
   # Callbacks
   before_validation :set_defaults, on: :create
   before_save :calculate_total_amount
+  after_create :find_or_create_customer
+  after_create :find_or_create_product
   after_create :create_dispatch_record
   after_create :create_auto_callback
   
@@ -180,6 +182,69 @@ class Order < ApplicationRecord
     create_dispatch!(dispatch_attributes)
   end
 
+  def find_or_create_customer
+    return if customer_phone.blank? || customer_name.blank?
+    
+    Rails.logger.info "=== AUTO-CREATING CUSTOMER FROM ORDER ==="
+    Rails.logger.info "Phone: #{customer_phone}, Name: #{customer_name}"
+    
+    existing_customer = Customer.find_by(phone_number: customer_phone)
+    
+    unless existing_customer
+      Customer.create!(
+        phone_number: customer_phone,
+        name: customer_name,
+        email: customer_email,
+        address: customer_address,
+        source_campaign: 'order'
+      )
+      Rails.logger.info "Created new customer: #{customer_name} from order"
+    else
+      Rails.logger.info "Customer already exists: #{existing_customer.name}"
+    end
+    
+  rescue => e
+    Rails.logger.error "Customer auto-creation failed: #{e.message}"
+    Rails.logger.error e.backtrace.join("\n")
+  end
+
+  def find_or_create_product
+    return if product_name.blank?
+    
+    Rails.logger.info "=== AUTO-CREATING PRODUCT FROM ORDER ==="
+    Rails.logger.info "Product: #{product_name}"
+    
+    # Check if product already exists (by name similarity)
+    existing_product = Product.where("name LIKE ?", "%#{product_name.strip}%").first
+    
+    unless existing_product
+      # Generate a simple part number from the product name
+      part_number = generate_product_part_number(product_name)
+      
+      # Try to guess category from product name
+      category = guess_product_category(product_name)
+      
+      Product.create!(
+        name: product_name.strip,
+        part_number: part_number,
+        category: category,
+        description: "Auto-created from Order ##{order_number}",
+        vendor_cost: product_price * 0.7, # Estimate 70% cost ratio
+        selling_price: product_price,
+        source: 'order',
+        status: 'active'
+      )
+      
+      Rails.logger.info "Created new product: #{product_name} from order"
+    else
+      Rails.logger.info "Product already exists: #{existing_product.name}"
+    end
+    
+  rescue => e
+    Rails.logger.error "Product auto-creation failed: #{e.message}"
+    Rails.logger.error e.backtrace.join("\n")
+  end
+
   def create_auto_callback
     # Skip if this order was already created from a callback
     return if agent_callback_id.present?
@@ -208,6 +273,40 @@ class Order < ApplicationRecord
     rescue => e
       Rails.logger.error "Auto-callback creation failed for order ##{order_number}: #{e.message}"
       Rails.logger.error e.backtrace.join("\n")
+    end
+  end
+
+  def generate_product_part_number(name)
+    # Simple part number generation
+    prefix = name.split.first&.upcase&.first(3) || "ORD"
+    timestamp = Time.current.strftime("%m%d%H%M")
+    "#{prefix}-#{timestamp}"
+  end
+  
+  def guess_product_category(name)
+    name_lower = name.downcase
+    
+    case name_lower
+    when /brake|pad|rotor|caliper/
+      'brakes'
+    when /engine|motor|piston|valve/
+      'engine'
+    when /shock|strut|spring|suspension/
+      'suspension'
+    when /wire|electric|battery|alternator/
+      'electrical'
+    when /bumper|door|fender|body/
+      'body'
+    when /seat|interior|carpet|console/
+      'interior'
+    when /transmission|gear|clutch/
+      'transmission'
+    when /radiator|cooling|fan|thermostat/
+      'cooling'
+    when /exhaust|muffler|pipe|catalytic/
+      'exhaust'
+    else
+      'engine' # Default category
     end
   end
 end

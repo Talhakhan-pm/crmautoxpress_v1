@@ -26,7 +26,7 @@ class AgentCallback < ApplicationRecord
   include Trackable
   
   after_create_commit :find_or_create_customer
-  after_create_commit :extract_and_create_product
+  after_create_commit :extract_and_create_product, unless: :auto_generated_from_order?
   
   # Turbo Stream broadcasts - with seeding guard
   after_create_commit { broadcast_prepend_to "callbacks", target: "callbacks" unless Rails.env.test? || defined?(Rails::Console) }
@@ -37,6 +37,10 @@ class AgentCallback < ApplicationRecord
   after_create_commit { broadcast_dashboard_metrics unless Rails.env.test? || defined?(Rails::Console) }
   after_update_commit { broadcast_dashboard_metrics unless Rails.env.test? || defined?(Rails::Console) }
   after_destroy_commit { broadcast_dashboard_metrics unless Rails.env.test? || defined?(Rails::Console) }
+  
+  def auto_generated_from_order?
+    notes&.include?("Auto-generated from Order")
+  end
   
   private
   
