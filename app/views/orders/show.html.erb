@@ -1,6 +1,6 @@
 <!-- Order Show Page with Unified Modal Theme -->
-<div class="unified-modal theme-red active">
-  <div class="unified-modal-content">
+<div class="unified-modal theme-red active" data-controller="modal" data-modal-theme-value="red">
+  <div class="unified-modal-content" data-modal-target="content">
     <!-- Unified Modal Header with Red Theme -->
     <div class="unified-modal-header theme-red">
       <%= link_to orders_path, class: "unified-modal-close" do %>
@@ -167,136 +167,130 @@
           </div>
         </div>
 
-        <!-- Product Information Card -->
-        <div class="detail-card">
-          <div class="card-header">
-            <h3 class="card-title">
+        <!-- Product Information Section -->
+        <div class="unified-form-section">
+          <div class="unified-section-header">
+            <h3 class="section-title">
               <i class="fas fa-box"></i>
               Product Details
             </h3>
             <% if @order.product.present? %>
-              <%= link_to product_path(@order.product), class: "view-profile-btn" do %>
+              <%= link_to product_path(@order.product), class: "btn btn-sm btn-outline-primary" do %>
                 <i class="fas fa-external-link-alt"></i>
                 View Product
               <% end %>
             <% end %>
           </div>
-          <div class="card-body">
-            <div class="product-showcase">
-              <div class="product-main">
-                <div class="product-name"><%= @order.product_name %></div>
-                <% if @order.vehicle_info.present? %>
-                  <div class="vehicle-compatibility">
-                    <i class="fas fa-car"></i>
-                    Compatible with: <strong><%= @order.vehicle_info %></strong>
-                  </div>
-                <% end %>
-                <% if @order.product_link.present? %>
-                  <div class="product-link">
-                    <a href="<%= @order.product_link %>" target="_blank" class="external-link">
-                      <i class="fas fa-external-link-alt"></i>
-                      View Product Details
-                    </a>
-                  </div>
-                <% end %>
+          <div class="product-info" style="text-align: center; padding: 20px;">
+            <h4 style="font-size: 18px; font-weight: 600; color: #1e293b; margin-bottom: 12px;"><%= @order.product_name %></h4>
+            <% if @order.vehicle_info.present? %>
+              <div style="color: #64748b; font-size: 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <i class="fas fa-car"></i>
+                Compatible with: <strong><%= @order.vehicle_info %></strong>
               </div>
-            </div>
+            <% end %>
+            <% if @order.product_link.present? %>
+              <div style="margin-top: 12px;">
+                <a href="<%= @order.product_link %>" target="_blank" class="btn btn-outline-primary btn-sm">
+                  <i class="fas fa-external-link-alt"></i>
+                  View Product Details
+                </a>
+              </div>
+            <% end %>
           </div>
         </div>
 
-        <!-- Financial Summary Card -->
-        <div class="detail-card">
-          <div class="card-header">
-            <h3 class="card-title">
+        <!-- Financial Summary Section -->
+        <div class="unified-form-section">
+          <div class="unified-section-header">
+            <h3 class="section-title">
               <i class="fas fa-dollar-sign"></i>
               Financial Summary
             </h3>
           </div>
-          <div class="card-body">
-            <div class="financial-breakdown">
-              <div class="price-line">
-                <span class="price-label">Product Price</span>
-                <span class="price-value">$<%= number_with_delimiter(@order.product_price) %></span>
-              </div>
-              <% if @order.tax_amount.present? && @order.tax_amount > 0 %>
-                <div class="price-line">
-                  <span class="price-label">Tax</span>
-                  <span class="price-value">$<%= number_with_delimiter(@order.tax_amount) %></span>
-                </div>
-              <% end %>
-              <% if @order.shipping_cost.present? && @order.shipping_cost > 0 %>
-                <div class="price-line">
-                  <span class="price-label">Shipping</span>
-                  <span class="price-value">$<%= number_with_delimiter(@order.shipping_cost) %></span>
-                </div>
-              <% end %>
-              <div class="price-line total-line">
-                <span class="price-label">Total Amount</span>
-                <span class="price-value total-amount">$<%= number_with_delimiter(@order.total_amount) %></span>
-              </div>
-              
-              <% if @order.commission_amount.present? && @order.commission_amount > 0 %>
-                <div class="price-line commission-line">
-                  <span class="price-label">Agent Commission</span>
-                  <span class="price-value commission-amount">$<%= number_with_delimiter(@order.commission_amount) %></span>
-                </div>
-              <% end %>
+          <div class="financial-breakdown">
+            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+              <span class="text-muted">Product Price</span>
+              <span class="fw-semibold">$<%= number_with_delimiter(@order.product_price) %></span>
             </div>
+            <% if @order.tax_amount.present? && @order.tax_amount > 0 %>
+              <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <span class="text-muted">Tax</span>
+                <span class="fw-semibold">$<%= number_with_delimiter(@order.tax_amount) %></span>
+              </div>
+            <% end %>
+            <% if @order.shipping_cost.present? && @order.shipping_cost > 0 %>
+              <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <span class="text-muted">Shipping</span>
+                <span class="fw-semibold">$<%= number_with_delimiter(@order.shipping_cost) %></span>
+              </div>
+            <% end %>
+            <div class="d-flex justify-content-between align-items-center py-3 border-top border-2 mt-2">
+              <span class="fw-bold text-dark">Total Amount</span>
+              <span class="fw-bold fs-4 text-danger">$<%= number_with_delimiter(@order.total_amount) %></span>
+            </div>
+            
+            <% if @order.commission_amount.present? && @order.commission_amount > 0 %>
+              <div class="d-flex justify-content-between align-items-center py-2 mt-2 px-3 bg-warning bg-opacity-10 rounded">
+                <span class="text-warning-emphasis fw-semibold">Agent Commission</span>
+                <span class="text-warning-emphasis fw-bold">$<%= number_with_delimiter(@order.commission_amount) %></span>
+              </div>
+            <% end %>
           </div>
         </div>
 
-        <!-- Additional Information -->
+        <!-- Additional Information Section -->
         <% if @order.comments.present? || @order.internal_notes.present? || @order.warranty_terms.present? %>
-          <div class="detail-card">
-            <div class="card-header">
-              <h3 class="card-title">
+          <div class="unified-form-section">
+            <div class="unified-section-header">
+              <h3 class="section-title">
                 <i class="fas fa-sticky-note"></i>
                 Additional Information
               </h3>
             </div>
-            <div class="card-body">
+            <div class="notes-container">
               <% if @order.comments.present? %>
-                <div class="note-section">
-                  <label class="note-label">Customer Comments</label>
-                  <div class="note-content"><%= @order.comments %></div>
+                <div class="form-group mb-3">
+                  <label class="form-label fw-semibold text-uppercase small text-muted">Customer Comments</label>
+                  <div class="p-3 bg-light border-start border-3 border-secondary rounded"><%= @order.comments %></div>
                 </div>
               <% end %>
               
               <% if @order.internal_notes.present? %>
-                <div class="note-section">
-                  <label class="note-label">Internal Notes</label>
-                  <div class="note-content internal-note"><%= @order.internal_notes %></div>
+                <div class="form-group mb-3">
+                  <label class="form-label fw-semibold text-uppercase small text-muted">Internal Notes</label>
+                  <div class="p-3 bg-warning bg-opacity-10 border-start border-3 border-warning rounded"><%= @order.internal_notes %></div>
                 </div>
               <% end %>
               
               <% if @order.warranty_terms.present? %>
-                <div class="note-section">
-                  <label class="note-label">Warranty Terms</label>
-                  <div class="note-content warranty-terms"><%= @order.warranty_terms %></div>
+                <div class="form-group mb-3">
+                  <label class="form-label fw-semibold text-uppercase small text-muted">Warranty Terms</label>
+                  <div class="p-3 bg-primary bg-opacity-10 border-start border-3 border-primary rounded"><%= @order.warranty_terms %></div>
                 </div>
               <% end %>
               
-              <div class="metadata-grid">
+              <div class="metadata-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
                 <% if @order.warranty_period_days.present? %>
-                  <div class="metadata-item">
-                    <span class="metadata-label">Warranty Period</span>
-                    <span class="metadata-value"><%= @order.warranty_period_days %> days</span>
+                  <div class="text-center">
+                    <div class="small text-muted text-uppercase fw-semibold mb-1">Warranty Period</div>
+                    <div class="fw-semibold text-dark"><%= @order.warranty_period_days %> days</div>
                   </div>
                 <% end %>
                 
                 <% if @order.return_window_days.present? %>
-                  <div class="metadata-item">
-                    <span class="metadata-label">Return Window</span>
-                    <span class="metadata-value"><%= @order.return_window_days %> days</span>
+                  <div class="text-center">
+                    <div class="small text-muted text-uppercase fw-semibold mb-1">Return Window</div>
+                    <div class="fw-semibold text-dark"><%= @order.return_window_days %> days</div>
                   </div>
                 <% end %>
                 
-                <div class="metadata-item">
-                  <span class="metadata-label">Source Channel</span>
-                  <span class="metadata-value">
-                    <i class="fas fa-<%= @order.source_channel == 'phone' ? 'phone' : @order.source_channel == 'web' ? 'globe' : 'envelope' %>"></i>
+                <div class="text-center">
+                  <div class="small text-muted text-uppercase fw-semibold mb-1">Source Channel</div>
+                  <div class="fw-semibold text-dark">
+                    <i class="fas fa-<%= @order.source_channel == 'phone' ? 'phone' : @order.source_channel == 'web' ? 'globe' : 'envelope' %> me-1"></i>
                     <%= @order.source_channel.humanize %>
-                  </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -305,200 +299,48 @@
       </div>
 
       <!-- Right Column - Activity Timeline -->
-      <div class="activity-column">
-        <div class="activity-panel">
-          <div class="activity-header">
-            <h3 class="activity-title">
-              <i class="fas fa-history"></i>
-              Order Timeline
-              <span class="activity-count"><%= @activities.count %></span>
-            </h3>
-            
-            <div class="timeline-stats">
-              <div class="stat-item">
-                <span class="stat-value"><%= @activities.count %></span>
-                <span class="stat-label">Activities</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-value"><%= @activities.where(action: 'updated').count %></span>
-                <span class="stat-label">Updates</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-value"><%= @activities.select(:user_id).distinct.count %></span>
-                <span class="stat-label">Agents</span>
-              </div>
-            </div>
+      <div class="unified-form-section">
+        <div class="unified-section-header">
+          <h3 class="section-title">
+            <i class="fas fa-history"></i>
+            Order Timeline
+            <span class="badge bg-primary ms-2"><%= @activities.count %></span>
+          </h3>
+        </div>
+        
+        <div class="timeline-stats mb-4" style="display: flex; justify-content: space-around; padding: 16px; background: #f8fafc; border-radius: 8px;">
+          <div class="text-center">
+            <div class="fw-bold fs-4 text-danger"><%= @activities.count %></div>
+            <div class="small text-muted text-uppercase">Activities</div>
           </div>
-
-          <div class="timeline-container" id="timeline-list">
-            <% if @activities.any? %>
-              <% @activities.each do |activity| %>
-                <div class="timeline-item">
-                  <div class="timeline-marker">
-                    <div class="timeline-avatar">
-                      <%= activity.user.email.first.upcase %>
-                    </div>
-                  </div>
-                  
-                  <div class="timeline-content">
-                    <div class="timeline-card">
-                      <div class="timeline-header">
-                        <div class="timeline-user">
-                          <div class="user-avatar">
-                            <%= activity.user.email.first.upcase %>
-                          </div>
-                          <div class="user-details">
-                            <div class="user-name"><%= activity.user.email.split('@').first.humanize %></div>
-                            <div class="user-email"><%= activity.user.email %></div>
-                          </div>
-                        </div>
-                        
-                        <div class="timeline-meta">
-                          <div class="timeline-time">
-                            <%= time_ago_in_words(activity.created_at) %> ago
-                          </div>
-                          <span class="action-badge action-<%= activity.action %>">
-                            <%= activity.action.humanize %>
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <div class="timeline-body">
-                        <div class="activity-description">
-                          <% case activity.action %>
-                          <% when 'created' %>
-                            <strong><%= activity.user.email.split('@').first.humanize %></strong> created this order
-                            <% if activity.trackable.agent_callback.present? %>
-                              from callback <strong>#<%= activity.trackable.agent_callback.id %></strong>
-                            <% end %>
-                          <% when 'updated' %>
-                            <strong><%= activity.user.email.split('@').first.humanize %></strong> updated the order
-                            <% if activity.field_changed.present? %>
-                              - changed <strong><%= activity.field_changed.humanize %></strong>
-                            <% end %>
-                          <% when 'viewed' %>
-                            <strong><%= activity.user.email.split('@').first.humanize %></strong> viewed order details
-                          <% else %>
-                            <strong><%= activity.user.email.split('@').first.humanize %></strong> <%= activity.action.humanize.downcase %>d the order
-                          <% end %>
-                        </div>
-                        
-                        <% if activity.field_changed.present? && activity.old_value.present? && activity.new_value.present? %>
-                          <div class="timeline-changes">
-                            <div class="change-item">
-                              <span class="change-label"><%= activity.field_changed.humanize %></span>
-                              <span class="change-from status-<%= activity.old_value %>"><%= activity.old_value.humanize %></span>
-                              <i class="fas fa-arrow-right"></i>
-                              <span class="change-to status-<%= activity.new_value %>"><%= activity.new_value.humanize %></span>
-                            </div>
-                          </div>
-                        <% end %>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              <% end %>
-            <% else %>
-              <div class="empty-timeline">
-                <i class="fas fa-history"></i>
-                <h4>No Activity Yet</h4>
-                <p>Order activities will appear here as they happen.</p>
-              </div>
-            <% end %>
+          <div class="text-center">
+            <div class="fw-bold fs-4 text-danger"><%= @activities.where(action: 'updated').count %></div>
+            <div class="small text-muted text-uppercase">Updates</div>
+          </div>
+          <div class="text-center">
+            <div class="fw-bold fs-4 text-danger"><%= @activities.select(:user_id).distinct.count %></div>
+            <div class="small text-muted text-uppercase">Agents</div>
           </div>
         </div>
+
+        <div class="timeline-container" id="timeline-list">
+          <% if @activities.any? %>
+            <% @activities.each do |activity| %>
+              <%= render 'activities/activity', activity: activity %>
+            <% end %>
+          <% else %>
+            <div class="text-center py-5 text-muted">
+              <i class="fas fa-history fs-1 mb-3 d-block"></i>
+              <h5 class="text-dark">No Activity Yet</h5>
+              <p class="mb-0">Order activities will appear here as they happen.</p>
+            </div>
+          <% end %>
+        </div>
       </div>
+      
     </div>
 
-    <!-- Quick Actions Floating Menu -->
-    <div class="quick-actions-menu">
-      <button class="quick-toggle" onclick="toggleQuickActions()">
-        <i class="fas fa-ellipsis-v"></i>
-      </button>
-      
-      <div class="quick-actions-list">
-        <%= link_to edit_order_path(@order), class: "quick-action" do %>
-          <i class="fas fa-edit"></i>
-          <span>Edit</span>
-        <% end %>
-        
-        <% if @order.can_be_cancelled? %>
-          <a href="#" class="quick-action" onclick="updateOrderStatus('cancelled')">
-            <i class="fas fa-times"></i>
-            <span>Cancel</span>
-          </a>
-        <% end %>
-        
-        <% if @order.can_be_shipped? %>
-          <a href="#" class="quick-action" onclick="updateOrderStatus('shipped')">
-            <i class="fas fa-truck"></i>
-            <span>Ship</span>
-          </a>
-        <% end %>
-        
-        <a href="#" class="quick-action" onclick="printOrder()">
-          <i class="fas fa-print"></i>
-          <span>Print</span>
-        </a>
-        
-        <a href="#" class="quick-action" onclick="shareOrder()">
-          <i class="fas fa-share"></i>
-          <span>Share</span>
-        </a>
-      </div>
     </div>
   </div>
 </div>
 
-
-<script>
-function toggleQuickActions() {
-  const menu = document.querySelector('.quick-actions-menu');
-  menu.classList.toggle('active');
-}
-
-function updateOrderStatus(status) {
-  if (confirm(`Are you sure you want to change the order status to ${status}?`)) {
-    // Here you would make an AJAX call to update the status
-    fetch(`<%= order_path(@order) %>`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
-      },
-      body: JSON.stringify({
-        order: { order_status: status }
-      })
-    }).then(response => {
-      if (response.ok) {
-        location.reload();
-      }
-    });
-  }
-}
-
-function printOrder() {
-  window.print();
-}
-
-function shareOrder() {
-  if (navigator.share) {
-    navigator.share({
-      title: 'Order #<%= @order.order_number %>',
-      text: 'Order details for <%= @order.customer_name %>',
-      url: window.location.href
-    });
-  } else {
-    navigator.clipboard.writeText(window.location.href);
-    alert('Order link copied to clipboard!');
-  }
-}
-
-// Close quick actions on outside click
-document.addEventListener('click', function(e) {
-  const menu = document.querySelector('.quick-actions-menu');
-  if (!menu.contains(e.target)) {
-    menu.classList.remove('active');
-  }
-});
-</script>
