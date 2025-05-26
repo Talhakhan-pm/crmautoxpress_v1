@@ -255,11 +255,22 @@ export default class extends Controller {
 
   // Show cancel modal and handle cancellation flow
   showCancelModal() {
-    const modal = document.getElementById('cancel-dispatch-modal')
+    // Find modal either in current frame or document
+    let modal = document.getElementById('cancel-dispatch-modal')
+    
+    // If modal not found in current document/frame, create it dynamically
+    if (!modal) {
+      this.createCancelModal()
+      modal = document.getElementById('cancel-dispatch-modal')
+    }
+    
     if (modal) {
       // Set dispatch ID
       const dispatchId = this.dispatchStatusTarget.dataset.dispatchId
-      document.getElementById('dispatch-id').value = dispatchId
+      const dispatchIdInput = modal.querySelector('#dispatch-id')
+      if (dispatchIdInput) {
+        dispatchIdInput.value = dispatchId
+      }
       
       // Show modal with modern classes
       modal.classList.add('show')
@@ -268,6 +279,87 @@ export default class extends Controller {
       // Handle modal close buttons
       this.setupModalCloseHandlers(modal)
     }
+  }
+
+  // Create modal dynamically if it doesn't exist
+  createCancelModal() {
+    const modalHTML = `
+      <div id="cancel-dispatch-modal" class="dispatch-cancel-overlay">
+        <div class="dispatch-cancel-container">
+          <div class="dispatch-cancel-header">
+            <div class="dispatch-cancel-icon-wrapper">
+              <i class="fas fa-exclamation-circle dispatch-cancel-icon"></i>
+            </div>
+            <h3 class="dispatch-cancel-title">Cancel Dispatch</h3>
+            <p class="dispatch-cancel-subtitle">Select a reason for cancellation</p>
+          </div>
+          
+          <form id="cancel-dispatch-form" class="dispatch-cancel-form">
+            <div class="dispatch-cancel-options">
+              <label class="dispatch-cancel-option">
+                <input type="radio" name="cancellation_reason" value="product_not_available" class="dispatch-cancel-radio">
+                <div class="dispatch-cancel-option-content">
+                  <div class="dispatch-cancel-option-icon">📦</div>
+                  <div class="dispatch-cancel-option-text">
+                    <div class="dispatch-cancel-option-title">Product not available</div>
+                    <div class="dispatch-cancel-option-desc">Item is out of stock</div>
+                  </div>
+                </div>
+              </label>
+              
+              <label class="dispatch-cancel-option">
+                <input type="radio" name="cancellation_reason" value="customer_requested_cancel" class="dispatch-cancel-radio">
+                <div class="dispatch-cancel-option-content">
+                  <div class="dispatch-cancel-option-icon">👤</div>
+                  <div class="dispatch-cancel-option-text">
+                    <div class="dispatch-cancel-option-title">Customer requested cancel</div>
+                    <div class="dispatch-cancel-option-desc">Customer changed mind</div>
+                  </div>
+                </div>
+              </label>
+              
+              <label class="dispatch-cancel-option">
+                <input type="radio" name="cancellation_reason" value="shipping_address_invalid" class="dispatch-cancel-radio">
+                <div class="dispatch-cancel-option-content">
+                  <div class="dispatch-cancel-option-icon">📍</div>
+                  <div class="dispatch-cancel-option-text">
+                    <div class="dispatch-cancel-option-title">Invalid shipping address</div>
+                    <div class="dispatch-cancel-option-desc">Cannot deliver to address</div>
+                  </div>
+                </div>
+              </label>
+              
+              <label class="dispatch-cancel-option">
+                <input type="radio" name="cancellation_reason" value="payment_failed" class="dispatch-cancel-radio">
+                <div class="dispatch-cancel-option-content">
+                  <div class="dispatch-cancel-option-icon">💳</div>
+                  <div class="dispatch-cancel-option-text">
+                    <div class="dispatch-cancel-option-title">Payment failed</div>
+                    <div class="dispatch-cancel-option-desc">Unable to process payment</div>
+                  </div>
+                </div>
+              </label>
+            </div>
+            
+            <input type="hidden" id="dispatch-id" name="dispatch_id">
+          </form>
+          
+          <div class="dispatch-cancel-actions">
+            <button type="button" class="dispatch-cancel-btn-secondary">
+              <i class="fas fa-times"></i>
+              Cancel
+            </button>
+            <button type="button" class="dispatch-cancel-btn-primary">
+              <i class="fas fa-ban"></i>
+              Cancel & Create Refund
+            </button>
+          </div>
+        </div>
+      </div>
+    `
+    
+    // Append to document body to ensure it's outside any frames
+    document.body.insertAdjacentHTML('beforeend', modalHTML)
   }
 
   setupModalCloseHandlers(modal) {
