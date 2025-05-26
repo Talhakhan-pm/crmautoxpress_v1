@@ -798,62 +798,7 @@
   letter-spacing: 0.5px;
 }
 
-.status-badge {
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  
-  &.dispatch-pending {
-    background: rgba(255, 152, 0, 0.2);
-    color: #ffb74d;
-    border: 1px solid rgba(255, 152, 0, 0.3);
-  }
-  
-  &.dispatch-processing {
-    background: rgba(33, 150, 243, 0.2);
-    color: #64b5f6;
-    border: 1px solid rgba(33, 150, 243, 0.3);
-  }
-  
-  &.dispatch-shipped {
-    background: rgba(76, 175, 80, 0.2);
-    color: #81c784;
-    border: 1px solid rgba(76, 175, 80, 0.3);
-  }
-  
-  &.dispatch-completed {
-    background: rgba(156, 39, 176, 0.2);
-    color: #ba68c8;
-    border: 1px solid rgba(156, 39, 176, 0.3);
-  }
-  
-  &.payment-pending {
-    background: rgba(255, 152, 0, 0.2);
-    color: #ffb74d;
-  }
-  
-  &.payment-paid {
-    background: rgba(76, 175, 80, 0.2);
-    color: #81c784;
-  }
-  
-  &.shipment-pending {
-    background: rgba(158, 158, 158, 0.2);
-    color: #bdbdbd;
-  }
-  
-  &.shipment-in-transit {
-    background: rgba(33, 150, 243, 0.2);
-    color: #64b5f6;
-  }
-  
-  &.shipment-delivered {
-    background: rgba(76, 175, 80, 0.2);
-    color: #81c784;
-  }
-}
+// Legacy status badge styles moved to unified badge system above
 
 .dispatch-footer {
   display: flex;
@@ -1114,22 +1059,21 @@
 // BUTTON STYLES (DISPATCH MODAL SPECIFIC)
 // ============================================
 
-.dispatch-modal {
-  .btn-primary, .btn-secondary {
-    padding: 12px 20px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s ease;
-    border: none;
-    text-decoration: none;
-  }
-
-  .btn-primary {
+// Unified Button System - used across all dispatch views
+.btn {
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  border: none;
+  text-decoration: none;
+  
+  &.btn-primary {
     background: linear-gradient(135deg, #dc2626, #ef4444);
     color: white;
     box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
@@ -1140,8 +1084,8 @@
       box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
     }
   }
-
-  .btn-secondary {
+  
+  &.btn-secondary {
     background: #f8fafc;
     color: #374151;
     border: 1px solid #e5e7eb;
@@ -1153,6 +1097,18 @@
       transform: translateY(-1px);
     }
   }
+  
+  // Hero variant for full-page layout
+  &.btn-hero {
+    border-radius: 12px;
+    
+    &:hover {
+      transform: translateY(-2px);
+    }
+  }
+}
+
+.dispatch-modal {
 }
 
 // ============================================
@@ -1347,6 +1303,13 @@
   border-bottom: 1px solid #e5e7eb;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   padding: 24px;
+  
+  // For modal context, keep normal padding
+  .modal-hero-section {
+    padding: 0;
+  }
+  
+  // Nested sections handle their own padding
 }
 
 // Modal-specific hero layout
@@ -1358,9 +1321,9 @@
   align-items: center;
 }
 
-// Full page hero layout
+// Full page hero layout  
 .full-hero-section {
-  padding: 8px 0;
+  padding: 32px 0;
 }
 
 .dispatch-title-section {
@@ -1412,15 +1375,72 @@
   text-align: center;
 }
 
-.metric-badge {
+// Unified Badge System - base styles
+.badge {
   padding: 6px 12px;
   border-radius: 16px;
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 6px;
-  border: 1px solid;
+  display: inline-block;
+  
+  // Metric variant (used in hero metrics)
+  &.badge-metric {
+    margin-bottom: 6px;
+    border: 1px solid;
+  }
+  
+  // Status variants
+  &.badge-status {
+    position: relative;
+    
+    &.status-pending {
+      background: #fef3c7;
+      color: #92400e;
+      border-color: #f59e0b;
+    }
+    
+    &.status-processing {
+      background: #dbeafe;
+      color: #1e40af;
+      border-color: #3b82f6;
+    }
+    
+    &.status-shipped {
+      background: #d1fae5;
+      color: #065f46;
+      border-color: #10b981;
+    }
+    
+    &.status-completed {
+      background: #dcfce7;
+      color: #166534;
+      border-color: #22c55e;
+    }
+  }
+  
+  // Condition variants
+  &.badge-condition {
+    border-radius: 12px;
+    font-size: 12px;
+    padding: 4px 12px;
+    
+    &.condition-new {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    
+    &.condition-used {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    
+    &.condition-refurbished {
+      background: #e0e7ff;
+      color: #3730a3;
+    }
+  }
 }
 
 .metric-value {
@@ -1457,60 +1477,41 @@
   align-items: center;
 }
 
-.btn-primary, .btn-secondary {
-  padding: 10px 16px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.3s ease;
-  border: none;
-  text-decoration: none;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #dc2626, #ef4444);
-  color: white;
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
-  
-  &:hover {
-    background: linear-gradient(135deg, #b91c1c, #dc2626);
-    transform: translateY(-1px);
-    box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
-  }
-}
-
-.btn-secondary {
-  background: #f8fafc;
-  color: #374151;
-  border: 1px solid #e5e7eb;
-  
-  &:hover {
-    background: #f1f5f9;
-    border-color: #dc2626;
-    color: #dc2626;
-    transform: translateY(-1px);
-  }
-}
+// Duplicate button styles removed - using unified .btn system above
 
 .hero-content {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
+  padding: 0 32px;
   gap: 32px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 20px;
+    text-align: center;
+    padding: 0 20px;
+  }
 }
 
 .hero-left {
   justify-self: start;
+  
+  @media (max-width: 768px) {
+    justify-self: center;
+    grid-row: 1;
+  }
 }
 
 .hero-center {
   justify-self: center;
+  
+  @media (max-width: 768px) {
+    grid-row: 2;
+  }
 }
 
 .hero-actions {
@@ -1519,6 +1520,12 @@
   gap: 12px;
   align-items: center;
   flex-wrap: wrap;
+  
+  @media (max-width: 768px) {
+    justify-self: center;
+    grid-row: 3;
+    justify-content: center;
+  }
 }
 
 .dispatch-title h1 {
@@ -1593,40 +1600,7 @@
   align-items: flex-end;
 }
 
-.status-badge {
-  padding: 6px 12px;
-  border-radius: 16px;
-  font-weight: 600;
-  text-transform: uppercase;
-  font-size: 11px;
-  letter-spacing: 0.5px;
-  position: relative;
-  display: inline-block;
-  
-  &.status-pending {
-    background: #fef3c7;
-    color: #92400e;
-    border: 1px solid #fbbf24;
-  }
-  
-  &.status-processing {
-    background: #dbeafe;
-    color: #1e40af;
-    border: 1px solid #60a5fa;
-  }
-  
-  &.status-shipped {
-    background: #d1fae5;
-    color: #065f46;
-    border: 1px solid #34d399;
-  }
-  
-  &.status-completed {
-    background: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #f87171;
-  }
-}
+// Duplicate status badge styles removed - using unified badge system above
 
 .status-pulse {
   position: absolute;
@@ -1666,44 +1640,7 @@
   flex-wrap: wrap;
 }
 
-.btn-hero {
-  padding: 12px 20px;
-  border-radius: 12px;
-  font-weight: 600;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.3s ease;
-  border: none;
-  cursor: pointer;
-  font-size: 14px;
-  
-  &.btn-hero-primary {
-    background: linear-gradient(135deg, #dc2626, #ef4444);
-    color: white;
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
-    
-    &:hover {
-      background: linear-gradient(135deg, #b91c1c, #dc2626);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
-    }
-  }
-  
-  &:not(.btn-hero-primary) {
-    background: #f8fafc;
-    color: #374151;
-    border: 1px solid #e5e7eb;
-    
-    &:hover {
-      background: #f1f5f9;
-      border-color: #dc2626;
-      color: #dc2626;
-      transform: translateY(-1px);
-    }
-  }
-}
+// Hero button styles moved to unified .btn system above
 
 .priority-badge {
   padding: 8px 14px;
@@ -1941,28 +1878,7 @@
   text-align: right;
 }
 
-.condition-badge {
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  
-  &.condition-new {
-    background: #d1fae5;
-    color: #065f46;
-  }
-  
-  &.condition-used {
-    background: #fef3c7;
-    color: #92400e;
-  }
-  
-  &.condition-refurbished {
-    background: #dbeafe;
-    color: #1e40af;
-  }
-}
+// Condition badge styles moved to unified badge system above
 
 .phone-link, .email-link {
   color: #3b82f6;

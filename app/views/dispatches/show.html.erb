@@ -1,3 +1,6 @@
+<% unless request.xhr? %>
+  <div class="main-content">
+<% end %>
 <div class="dispatch-detail-container">
   <!-- Modern Dispatch Header -->
   <div class="dispatch-hero">
@@ -26,7 +29,7 @@
       
       <div class="dispatch-metrics">
         <div class="metric-item">
-          <div class="metric-badge status-<%= @dispatch.dispatch_status %>">
+          <div class="badge badge-metric badge-status status-<%= @dispatch.dispatch_status %>">
             <%= @dispatch.dispatch_status.humanize %>
           </div>
           <div class="metric-label">Current Status</div>
@@ -58,13 +61,13 @@
         <% end %>
         
         <div class="modal-actions">
-          <%= link_to edit_dispatch_path(@dispatch), class: "btn-primary" do %>
+          <%= link_to edit_dispatch_path(@dispatch), class: "btn btn-primary" do %>
             <i class="fas fa-edit"></i>
             Update Dispatch
           <% end %>
           <% if @dispatch.has_tracking? %>
             <%= link_to @dispatch.tracking_link.present? ? @dispatch.tracking_link : "#", 
-                class: "btn-secondary", target: "_blank" do %>
+                class: "btn btn-secondary", target: "_blank" do %>
               <i class="fas fa-route"></i>
               Track Package
             <% end %>
@@ -95,7 +98,7 @@
           <div class="hero-stats">
             <div class="hero-stat">
               <span class="stat-value">
-                <span class="status-badge status-<%= @dispatch.dispatch_status %>">
+                <span class="badge badge-status status-<%= @dispatch.dispatch_status %>">
                   <%= @dispatch.dispatch_status.humanize %>
                 </span>
               </span>
@@ -115,20 +118,20 @@
         </div>
         
         <div class="hero-actions">
-          <%= link_to edit_dispatch_path(@dispatch), class: "btn-hero btn-hero-primary" do %>
+          <%= link_to edit_dispatch_path(@dispatch), class: "btn btn-primary btn-hero" do %>
             <i class="fas fa-edit"></i>
             Update Dispatch
           <% end %>
           
           <% if @dispatch.has_tracking? %>
             <%= link_to @dispatch.tracking_link.present? ? @dispatch.tracking_link : "#", 
-                class: "btn-hero", target: "_blank" do %>
+                class: "btn btn-secondary btn-hero", target: "_blank" do %>
               <i class="fas fa-route"></i>
               Track Package
             <% end %>
           <% end %>
           
-          <%= link_to dispatches_path, class: "btn-hero" do %>
+          <%= link_to dispatches_path, class: "btn btn-secondary btn-hero" do %>
             <i class="fas fa-arrow-left"></i>
             Back to Command Center
           <% end %>
@@ -304,7 +307,7 @@
           <div class="info-row">
             <span class="info-label">Condition</span>
             <span class="info-value">
-              <span class="condition-badge condition-<%= @dispatch.condition %>">
+              <span class="badge badge-condition condition-<%= @dispatch.condition %>">
                 <%= @dispatch.condition.capitalize %>
               </span>
             </span>
@@ -564,3 +567,6 @@
     </div>
   </div>
 </div>
+<% unless request.xhr? %>
+  </div>
+<% end %>
