@@ -345,6 +345,24 @@ $z-modal-nested: 1055;
     gap: 8px;
   }
 
+  .section-action {
+    color: #3b82f6;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+
+    &:hover {
+      background: #f0f4ff;
+      text-decoration: none;
+    }
+  }
+
   .smart-lookup .lookup-btn {
     background: #e2e8f0;
     border: 1px solid #cbd5e1;
@@ -684,6 +702,263 @@ $z-modal-nested: 1055;
 }
 
 // ============================================
+// STATUS MANAGEMENT STYLING
+// ============================================
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.current-status-badge {
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  
+  &.status-pending {
+    background: rgba(255, 193, 7, 0.2);
+    color: #856404;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+  }
+  
+  &.status-assigned {
+    background: rgba(33, 150, 243, 0.2);
+    color: #1565c0;
+    border: 1px solid rgba(33, 150, 243, 0.3);
+  }
+  
+  &.status-processing {
+    background: rgba(156, 39, 176, 0.2);
+    color: #7b1fa2;
+    border: 1px solid rgba(156, 39, 176, 0.3);
+    animation: pulse 2s infinite;
+  }
+  
+  &.status-shipped {
+    background: rgba(76, 175, 80, 0.2);
+    color: #2e7d32;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+  }
+  
+  &.status-completed {
+    background: rgba(76, 175, 80, 0.2);
+    color: #1b5e20;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+  }
+  
+  &.status-cancelled {
+    background: rgba(244, 67, 54, 0.2);
+    color: #c62828;
+    border: 1px solid rgba(244, 67, 54, 0.3);
+  }
+}
+
+// Status-specific form styling
+.status-select, .payment-select, .shipment-select {
+  transition: all 0.3s ease;
+  
+  &.status-pending {
+    border-color: #ffc107;
+    background: rgba(255, 193, 7, 0.05);
+  }
+  
+  &.status-processing {
+    border-color: #9c27b0;
+    background: rgba(156, 39, 176, 0.05);
+  }
+  
+  &.status-shipped {
+    border-color: #4caf50;
+    background: rgba(76, 175, 80, 0.05);
+  }
+  
+  &.status-completed {
+    border-color: #4caf50;
+    background: rgba(76, 175, 80, 0.05);
+  }
+  
+  &.payment-paid {
+    border-color: #4caf50;
+    background: rgba(76, 175, 80, 0.05);
+  }
+  
+  &.payment-payment_pending {
+    border-color: #ff9800;
+    background: rgba(255, 152, 0, 0.05);
+  }
+}
+
+// Section divider styling
+.section-divider {
+  display: flex;
+  align-items: center;
+  margin: 24px 0;
+  
+  .divider-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+  }
+  
+  .divider-text {
+    padding: 0 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    
+    i {
+      color: #dc2626;
+    }
+  }
+}
+
+// Tracking section styling
+.tracking-section {
+  transition: all 0.3s ease;
+  overflow: hidden;
+  
+  .tracking-input {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    
+    &:focus {
+      background: #f0f9ff;
+    }
+  }
+}
+
+// Quick action buttons
+.status-actions {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.quick-status-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.quick-action-btn {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  text-decoration: none;
+  
+  &.start-processing {
+    background: linear-gradient(135deg, #9c27b0, #e1bee7);
+    color: white;
+    
+    &:hover {
+      background: linear-gradient(135deg, #7b1fa2, #9c27b0);
+      transform: translateY(-1px);
+    }
+  }
+  
+  &.mark-shipped {
+    background: linear-gradient(135deg, #4caf50, #81c784);
+    color: white;
+    
+    &:hover {
+      background: linear-gradient(135deg, #388e3c, #4caf50);
+      transform: translateY(-1px);
+    }
+  }
+  
+  &.mark-delivered {
+    background: linear-gradient(135deg, #2196f3, #64b5f6);
+    color: white;
+    
+    &:hover {
+      background: linear-gradient(135deg, #1976d2, #2196f3);
+      transform: translateY(-1px);
+    }
+  }
+  
+  &.success-state {
+    background: linear-gradient(135deg, #4caf50, #81c784) !important;
+    animation: success-pulse 0.5s ease;
+  }
+}
+
+// Form help text styling
+.form-help {
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+// Timeline cancelled state
+.unified-timeline-item.cancelled {
+  .unified-timeline-marker {
+    background: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+    border-color: rgba(244, 67, 54, 0.3);
+  }
+  
+  .unified-timeline-label {
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: line-through;
+  }
+}
+
+// Enhanced profit styling
+.profit-positive {
+  color: #059669 !important;
+  font-weight: 700;
+}
+
+.profit-negative {
+  color: #dc2626 !important;
+  font-weight: 700;
+}
+
+.profit-zero {
+  color: #6b7280 !important;
+  font-weight: 500;
+}
+
+.margin-low {
+  color: #dc2626 !important;
+}
+
+.margin-good {
+  color: #059669 !important;
+}
+
+.margin-excellent {
+  color: #047857 !important;
+  font-weight: 700;
+}
+
+.margin-negative {
+  color: #dc2626 !important;
+  font-weight: 700;
+}
+
+// ============================================
 // ANIMATIONS
 // ============================================
 
@@ -695,5 +970,17 @@ $z-modal-nested: 1055;
   50% {
     opacity: 0.7;
     transform: scale(1.1);
+  }
+}
+
+@keyframes success-pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
   }
 }

@@ -7,7 +7,7 @@ export default class extends Controller {
     "productName", "carDetails", "productCost", "productCostDisplay", "taxAmount", "shippingCost", 
     "totalCost", "totalDisplay", "customerTotal", "supplierName", "supplierOrderNumber", 
     "supplierCost", "supplierCostDisplay", "profitDisplay", "profitMargin",
-    "trackingSection"
+    "trackingSection", "dispatchStatus", "trackingNumber", "trackingLink"
   ]
   
   static values = { 
@@ -223,10 +223,9 @@ export default class extends Controller {
     }
   }
 
-  // Status management - show/hide tracking section
+  // Status management - show/hide tracking section and update timeline
   updateStatusFields(event) {
     const status = event.target.value
-    const trackingSection = this.trackingSectionTarget
     
     if (['shipped', 'completed'].includes(status)) {
       this.showTrackingSection()
@@ -236,6 +235,12 @@ export default class extends Controller {
     
     // Add status-specific styling
     this.updateStatusStyling(status)
+    
+    // Update timeline in real-time
+    this.updateTimelineProgress(status)
+    
+    // Update status badge
+    this.updateStatusBadge(status)
   }
 
   showTrackingSection() {
@@ -427,6 +432,133 @@ export default class extends Controller {
         toast.parentNode.removeChild(toast)
       }
     }, 3000)
+  }
+
+
+  // Update timeline progress based on status
+  updateTimelineProgress(status) {
+    const timelineItems = document.querySelectorAll('.unified-timeline-item')
+    const progressBar = document.querySelector('.unified-timeline-progress')
+    
+    if (!timelineItems.length || !progressBar) return
+    
+    // Reset all items
+    timelineItems.forEach(item => {
+      item.className = 'unified-timeline-item pending'
+    })
+    
+    let progressWidth = 0
+    
+    // Update based on status
+    switch(status) {
+      case 'pending':
+      case 'assigned':
+        timelineItems[0].className = 'unified-timeline-item active'
+        progressWidth = 0
+        break
+      case 'processing':
+        timelineItems[0].className = 'unified-timeline-item completed'
+        timelineItems[1].className = 'unified-timeline-item active'
+        // Add spinning animation to processing
+        const processingIcon = timelineItems[1].querySelector('i')
+        if (processingIcon) {
+          processingIcon.className = 'fas fa-cog fa-spin'
+        }
+        progressWidth = 33
+        break
+      case 'shipped':
+        timelineItems[0].className = 'unified-timeline-item completed'
+        timelineItems[1].className = 'unified-timeline-item completed'
+        timelineItems[2].className = 'unified-timeline-item active'
+        progressWidth = 66
+        break
+      case 'completed':
+        timelineItems[0].className = 'unified-timeline-item completed'
+        timelineItems[1].className = 'unified-timeline-item completed'
+        timelineItems[2].className = 'unified-timeline-item completed'
+        timelineItems[3].className = 'unified-timeline-item active'
+        progressWidth = 100
+        break
+      case 'cancelled':
+        timelineItems.forEach(item => {
+          item.className = 'unified-timeline-item cancelled'
+        })
+        progressWidth = 0
+        break
+    }
+    
+    // Update progress bar with smooth animation
+    progressBar.style.width = progressWidth + '%'
+  }
+
+  // Update status badge in header
+  updateStatusBadge(status) {
+    const statusBadge = document.querySelector('.current-status-badge')
+    if (statusBadge) {
+      statusBadge.className = `current-status-badge status-${status}`
+      statusBadge.textContent = status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')
+    }
+  }
+
+  // Enhanced status styling with animations
+  updateStatusStyling(status) {
+    const statusSelect = this.element.querySelector('.status-select')
+    
+    if (statusSelect) {
+      // Remove existing status classes
+      statusSelect.classList.remove(
+        'status-pending', 'status-assigned', 'status-processing', 
+        'status-shipped', 'status-completed', 'status-cancelled'
+      )
+      
+      // Add current status class with animation
+      statusSelect.classList.add(`status-${status}`)
+      
+      // Add a subtle animation
+      statusSelect.style.transform = 'scale(1.02)'
+      setTimeout(() => {
+        statusSelect.style.transform = 'scale(1)'
+      }, 200)
+    }
+  }
+
+  // Validation for status transitions
+  validateStatusTransition(currentStatus, newStatus) {
+    const validTransitions = {
+      'pending': ['assigned', 'processing', 'cancelled'],
+      'assigned': ['processing', 'cancelled'],
+      'processing': ['shipped', 'cancelled'],
+      'shipped': ['completed', 'cancelled'],
+      'completed': [], // No transitions from completed
+      'cancelled': [] // No transitions from cancelled
+    }
+    
+    return validTransitions[currentStatus]?.includes(newStatus) || false
+  }
+
+  // Auto-save functionality for status changes
+  autoSaveStatus() {
+    if (this.hasFormTarget) {
+      const formData = new FormData(this.formTarget)
+      
+      fetch(this.formTarget.action, {
+        method: 'PATCH',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          this.showSuccess('Changes saved automatically')
+        }
+      })
+      .catch(error => {
+        console.error('Auto-save failed:', error)
+      })
+    }
   }
 }
 

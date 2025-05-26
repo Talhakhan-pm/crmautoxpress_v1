@@ -75,10 +75,10 @@
                 <!-- Order Information Section -->
                 <div class="unified-form-section">
                   <div class="unified-section-header">
-                    <div class="section-icon">
+                    <h3 class="section-title">
                       <i class="fas fa-info-circle"></i>
-                    </div>
-                    <h3 class="section-title">Order Information</h3>
+                      Order Information
+                    </h3>
                     <% if @dispatch.order %>
                       <%= link_to "View Full Order", order_path(@dispatch.order), class: "section-action", target: "_blank" %>
                     <% end %>
@@ -107,10 +107,10 @@
                 <!-- Supplier Management Section -->
                 <div class="unified-form-section">
                   <div class="unified-section-header">
-                    <div class="section-icon">
+                    <h3 class="section-title">
                       <i class="fas fa-truck"></i>
-                    </div>
-                    <h3 class="section-title">Supplier Management</h3>
+                      Supplier Management
+                    </h3>
                     <button type="button" class="section-action">Find Supplier</button>
                   </div>
                   
@@ -142,12 +142,108 @@
                       ], @dispatch.condition), { prompt: 'Select condition' }, { class: "form-select" } %>
                     </div>
                     <div class="unified-form-group">
-                      <%= f.label :tracking_number, class: "form-label" %>
-                      <%= f.text_field :tracking_number, class: "form-input #{'highlight-value' if @dispatch.tracking_number.present?}" %>
-                    </div>
-                    <div class="unified-form-group">
                       <%= f.label :supplier_shipment_proof, "Shipment Proof URL", class: "form-label" %>
                       <%= f.url_field :supplier_shipment_proof, class: "form-input", placeholder: "Link to tracking or shipment confirmation" %>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Status Management Section -->
+                <div class="unified-form-section">
+                  <div class="unified-section-header">
+                    <h3 class="section-title">
+                      <i class="fas fa-clipboard-check"></i>
+                      Status Management
+                    </h3>
+                    <div class="status-indicator">
+                      <span class="current-status-badge status-<%= @dispatch.dispatch_status %>">
+                        <%= @dispatch.dispatch_status.humanize %>
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div class="unified-form-grid">
+                    <!-- Dispatch Status -->
+                    <div class="unified-form-group">
+                      <%= f.label :dispatch_status, "Dispatch Status", class: "form-label required" %>
+                      <%= f.select :dispatch_status, 
+                          options_for_select([
+                            ['⏳ Pending Processing', 'pending'],
+                            ['📋 Assigned to Agent', 'assigned'],
+                            ['⚙️ Processing Order', 'processing'],
+                            ['🚚 Shipped to Customer', 'shipped'],
+                            ['✅ Completed & Delivered', 'completed'],
+                            ['❌ Cancelled', 'cancelled']
+                          ], @dispatch.dispatch_status), 
+                          { prompt: 'Select dispatch status' }, 
+                          { 
+                            class: "form-select status-select status-#{@dispatch.dispatch_status}",
+                            data: { 
+                              dispatch_form_target: "dispatchStatus",
+                              action: "change->dispatch-form#updateStatusFields"
+                            }
+                          } %>
+                    </div>
+                  </div>
+
+                  <!-- Tracking Information (Conditional) -->
+                  <div class="tracking-section" 
+                       data-dispatch-form-target="trackingSection"
+                       style="<%= @dispatch.dispatch_status.in?(['shipped', 'completed']) ? 'display: block;' : 'display: none;' %>">
+                    <div class="section-divider">
+                      <div class="divider-line"></div>
+                      <span class="divider-text">
+                        <i class="fas fa-map-marker-alt"></i>
+                        Tracking Information
+                      </span>
+                      <div class="divider-line"></div>
+                    </div>
+                    
+                    <div class="unified-form-grid">
+                      <div class="unified-form-group">
+                        <%= f.label :tracking_number, "Tracking Number", class: "form-label" %>
+                        <%= f.text_field :tracking_number, 
+                            class: "form-input tracking-input", 
+                            placeholder: "Enter tracking number",
+                            data: { dispatch_form_target: "trackingNumber" } %>
+                      </div>
+                      <div class="unified-form-group">
+                        <%= f.label :tracking_link, "Tracking URL", class: "form-label" %>
+                        <%= f.url_field :tracking_link, 
+                            class: "form-input", 
+                            placeholder: "https://tracking.example.com/...",
+                            data: { dispatch_form_target: "trackingLink" } %>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- Communication Section -->
+                <div class="unified-form-section">
+                  <div class="unified-section-header">
+                    <h3 class="section-title">
+                      <i class="fas fa-comments"></i>
+                      Communication & Notes
+                    </h3>
+                  </div>
+                  
+                  <div class="unified-form-grid">
+                    <div class="unified-form-group full-width">
+                      <%= f.label :comments, "Customer-Facing Comments", class: "form-label" %>
+                      <%= f.text_area :comments, 
+                          rows: 3, 
+                          class: "form-input", 
+                          placeholder: "Status updates and messages that customers can see..." %>
+                      <small class="form-help">These comments may be shared with the customer in status updates.</small>
+                    </div>
+                    <div class="unified-form-group full-width">
+                      <%= f.label :internal_notes, "Internal Team Notes", class: "form-label" %>
+                      <%= f.text_area :internal_notes, 
+                          rows: 3, 
+                          class: "form-input", 
+                          placeholder: "Internal notes, supplier communications, special instructions..." %>
+                      <small class="form-help">Private notes visible only to your team.</small>
                     </div>
                   </div>
                 </div>
@@ -155,10 +251,10 @@
                 <!-- Financial Overview Section -->
                 <div class="unified-form-section">
                   <div class="unified-section-header">
-                    <div class="section-icon">
+                    <h3 class="section-title">
                       <i class="fas fa-dollar-sign"></i>
-                    </div>
-                    <h3 class="section-title">Financial Overview</h3>
+                      Financial Overview
+                    </h3>
                   </div>
                   
                   <div class="info-grid">
