@@ -514,10 +514,12 @@ $z-modal-nested: 1055;
     }
 
     &.btn-primary {
+      background: #dc2626; /* Default red background for all primary buttons */
       color: white;
       border: none;
 
       &:hover {
+        background: #b91c1c;
         transform: translateY(-2px);
         text-decoration: none;
       }

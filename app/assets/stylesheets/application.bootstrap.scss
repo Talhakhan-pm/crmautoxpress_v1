@@ -382,13 +382,21 @@ body {
     gap: 8px;
 }
 
+/* Override Bootstrap's default blue btn-primary */
 .btn-primary {
-    background: #dc2626;
-    color: white;
+    background: #dc2626 !important;
+    background-color: #dc2626 !important;
+    border-color: #dc2626 !important;
+    color: white !important;
 }
 
-.btn-primary:hover {
-    background: #b91c1c;
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    background: #b91c1c !important;
+    background-color: #b91c1c !important;
+    border-color: #b91c1c !important;
+    color: white !important;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
 }
@@ -768,12 +776,21 @@ body {
     display: inline-block;
 }
 
-.form-actions {
+/* Form actions for app forms (not Devise) */
+.content-card .form-actions,
+.modal-footer,
+.unified-modal .form-actions {
     display: flex;
     gap: 12px;
     justify-content: flex-end;
     padding-top: 24px;
     border-top: 1px solid #e5e7eb;
+}
+
+/* Devise form actions - keep existing auth styles */
+.auth-form .form-actions {
+    display: block;
+    margin-top: 24px;
 }
 
 /* Responsive */
