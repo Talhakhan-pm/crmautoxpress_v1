@@ -1,11 +1,11 @@
 <!-- Order Show Page with Unified Modal Theme -->
-<div class="unified-modal theme-red active" data-controller="modal" data-modal-theme-value="red">
-  <div class="unified-modal-content" data-modal-target="content">
+<div class="unified-modal theme-red active" data-controller="modal" data-modal-theme-value="red" data-modal-close-url-value="<%= orders_path %>" data-action="click->modal#closeModal" data-turbo-permanent>
+  <div class="unified-modal-content" data-modal-target="content" data-action="click->modal#stopPropagation">
     <!-- Unified Modal Header with Red Theme -->
     <div class="unified-modal-header theme-red">
-      <%= link_to orders_path, class: "unified-modal-close" do %>
+      <a href="#" class="unified-modal-close" data-action="click->modal#closeModal">
         <i class="fas fa-times"></i>
-      <% end %>
+      </a>
       
       <div class="unified-modal-header-content">
         <h2 class="unified-modal-title">

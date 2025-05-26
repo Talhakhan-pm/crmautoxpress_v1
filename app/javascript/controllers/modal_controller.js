@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["modal"]
-  static values = { theme: String }
+  static values = { theme: String, closeUrl: String }
 
   connect() {
     // Close modal on escape key
@@ -34,9 +34,43 @@ export default class extends Controller {
     document.body.style.overflow = ""
   }
 
+  closeModal(event) {
+    event.preventDefault()
+    this.close()
+    
+    // Determine where to go based on closeUrl value or current URL
+    let targetUrl = '/orders' // default fallback
+    
+    if (this.hasCloseUrlValue) {
+      targetUrl = this.closeUrlValue
+    } else {
+      // Auto-detect based on current URL
+      const currentPath = window.location.pathname
+      if (currentPath.includes('/dispatches')) {
+        targetUrl = '/dispatches'
+      } else if (currentPath.includes('/orders')) {
+        targetUrl = '/orders'
+      } else if (currentPath.includes('/customers')) {
+        targetUrl = '/customers'
+      }
+    }
+    
+    // Use Turbo to navigate
+    try {
+      window.Turbo.visit(targetUrl)
+    } catch (error) {
+      // Fallback if Turbo is not available
+      window.location.href = targetUrl
+    }
+  }
+
+  stopPropagation(event) {
+    event.stopPropagation()
+  }
+
   handleEscape(event) {
     if (event.key === "Escape" && this.element.classList.contains("active")) {
-      this.close()
+      this.closeModal(event)
     }
   }
 
@@ -47,7 +81,7 @@ export default class extends Controller {
     const modalContent = unifiedModalContent || oldModalContent
     
     if (event.target === this.element || (modalContent && !modalContent.contains(event.target))) {
-      this.close()
+      this.closeModal(event)
     }
   }
 
