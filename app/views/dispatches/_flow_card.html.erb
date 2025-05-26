@@ -42,6 +42,10 @@
             class: "flow-action-btn start", 
             data: { turbo_frame: "main_content" },
             onclick: "event.stopPropagation();" %>
+        <button class="flow-action-btn cancel" 
+                onclick="openCancelModal(<%= dispatch.id %>); event.stopPropagation();">
+          Cancel
+        </button>
       <% when 'processing' %>
         <% if dispatch.can_be_shipped? %>
           <%= link_to "Ready to Ship", edit_dispatch_path(dispatch), 

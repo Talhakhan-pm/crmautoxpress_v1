@@ -1,2 +1,143 @@
-<h1>Refunds#show</h1>
-<p>Find me in app/views/refunds/show.html.erb</p>
+<% content_for :title, "Refund Details" %>
+
+<div class="container-fluid py-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h1 class="h3 mb-1">Refund Details</h1>
+          <div class="text-muted">
+            Created <%= @refund.created_at.strftime("%B %d, %Y at %I:%M %p") %>
+          </div>
+        </div>
+        <div>
+          <%= link_to "← Back to Refunds", refunds_path, class: "btn btn-outline-secondary" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Refund Information -->
+    <div class="col-lg-8">
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Refund Information</h5>
+          <span class="badge bg-<%= @refund.stage_color %> fs-6"><%= @refund.stage_display %></span>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <h6 class="text-muted mb-3">Customer Details</h6>
+              <p><strong>Name:</strong> <%= @refund.customer_name %></p>
+              <p><strong>Email:</strong> <%= @refund.customer_email %></p>
+              
+              <h6 class="text-muted mb-3 mt-4">Financial Details</h6>
+              <p><strong>Original Charge:</strong> $<%= number_with_delimiter(@refund.charge) %></p>
+              <p><strong>Refund Amount:</strong> <span class="text-danger">-$<%= number_with_delimiter(@refund.refund_amount) %></span></p>
+              <p><strong>Refund Percentage:</strong> <%= @refund.refund_percentage %>%</p>
+              <% if @refund.full_refund? %>
+                <span class="badge bg-info">Full Refund</span>
+              <% else %>
+                <span class="badge bg-warning">Partial Refund</span>
+              <% end %>
+            </div>
+            <div class="col-md-6">
+              <h6 class="text-muted mb-3">Refund Details</h6>
+              <p><strong>Reason:</strong> <span class="badge bg-secondary"><%= @refund.reason_display %></span></p>
+              <p><strong>Stage:</strong> <span class="badge bg-<%= @refund.stage_color %>"><%= @refund.stage_display %></span></p>
+              <p><strong>Processing Agent:</strong> <%= @refund.processing_agent.email %></p>
+              
+              <h6 class="text-muted mb-3 mt-4">Replacement Eligibility</h6>
+              <% if @refund.replacement_eligible? %>
+                <div class="alert alert-success">
+                  <i class="fa fa-check-circle"></i> <strong>Replacement Eligible</strong><br>
+                  This refund qualifies for product replacement due to: <%= @refund.reason_display %>
+                </div>
+              <% else %>
+                <div class="alert alert-secondary">
+                  <i class="fa fa-info-circle"></i> <strong>No Replacement</strong><br>
+                  This refund does not qualify for product replacement.
+                </div>
+              <% end %>
+            </div>
+          </div>
+          
+          <% if @refund.order_summary.present? %>
+            <hr>
+            <h6 class="text-muted mb-2">Order Summary</h6>
+            <p class="text-muted"><%= @refund.order_summary %></p>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Edit Refund Form -->
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Update Refund</h5>
+        </div>
+        <div class="card-body">
+          <%= form_with model: @refund, local: true do |form| %>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <%= form.label :refund_stage, class: "form-label" %>
+                <%= form.select :refund_stage, 
+                    options_for_select(Refund.refund_stages.map { |k, v| [k.humanize, k] }, @refund.refund_stage),
+                    {}, { class: "form-select" } %>
+              </div>
+              <div class="col-md-4">
+                <%= form.label :refund_reason, class: "form-label" %>
+                <%= form.select :refund_reason, 
+                    options_for_select(Refund.refund_reasons.map { |k, v| [Refund.new(refund_reason: k).reason_display, k] }, @refund.refund_reason),
+                    {}, { class: "form-select" } %>
+              </div>
+              <div class="col-md-4">
+                <%= form.label :refund_amount, "Refund Amount ($)", class: "form-label" %>
+                <%= form.number_field :refund_amount, step: 0.01, min: 0, max: @refund.charge, class: "form-control" %>
+              </div>
+              <div class="col-12">
+                <%= form.submit "Update Refund", class: "btn btn-primary" %>
+                <%= link_to "Cancel", @refund, class: "btn btn-outline-secondary" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Related Information -->
+    <div class="col-lg-4">
+      <!-- Order Information -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h6 class="mb-0">Related Order</h6>
+        </div>
+        <div class="card-body">
+          <p><strong>Order #:</strong> <%= link_to @refund.order.order_number, order_path(@refund.order), class: "text-decoration-none" %></p>
+          <p><strong>Status:</strong> <span class="badge bg-<%= @refund.order.status_color %>"><%= @refund.order.order_status.humanize %></span></p>
+          <p><strong>Date:</strong> <%= @refund.order.order_date.strftime("%m/%d/%Y") %></p>
+          <p><strong>Total:</strong> $<%= number_with_delimiter(@refund.order.total_amount) %></p>
+          <%= link_to "View Order", order_path(@refund.order), class: "btn btn-sm btn-outline-primary" %>
+        </div>
+      </div>
+
+      <!-- Dispatch Information -->
+      <div class="card">
+        <div class="card-header">
+          <h6 class="mb-0">Related Dispatch</h6>
+        </div>
+        <div class="card-body">
+          <p><strong>Status:</strong> <span class="badge bg-<%= @refund.dispatch.status_color %>"><%= @refund.dispatch.dispatch_status.humanize %></span></p>
+          <p><strong>Agent:</strong> <%= @refund.dispatch.processing_agent.email %></p>
+          <% if @refund.dispatch.supplier_name.present? %>
+            <p><strong>Supplier:</strong> <%= @refund.dispatch.supplier_info %></p>
+          <% end %>
+          <% if @refund.dispatch.tracking_number.present? %>
+            <p><strong>Tracking:</strong> <%= @refund.dispatch.tracking_number %></p>
+          <% end %>
+          <%= link_to "View Dispatch", dispatch_path(@refund.dispatch), class: "btn btn-sm btn-outline-primary" %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

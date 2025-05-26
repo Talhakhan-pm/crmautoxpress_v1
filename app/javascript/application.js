@@ -38,6 +38,77 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
+// === GLOBAL DISPATCH MODAL FUNCTIONS ===
+// These need to be available everywhere
+if (typeof window.openCancelModal === 'undefined') {
+  window.openCancelModal = function(dispatchId) {
+    document.getElementById('dispatch-id').value = dispatchId;
+    const modal = new bootstrap.Modal(document.getElementById('cancel-dispatch-modal'));
+    modal.show();
+  };
+
+  window.submitCancellation = function() {
+    const form = document.getElementById('cancel-dispatch-form');
+    const formData = new FormData(form);
+    const dispatchId = formData.get('dispatch_id');
+    const reason = formData.get('cancellation_reason');
+    
+    if (!reason) {
+      alert('Please select a cancellation reason');
+      return;
+    }
+    
+    fetch(`/dispatches/${dispatchId}/cancel_with_refund`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ cancellation_reason: reason })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        const modal = bootstrap.Modal.getInstance(document.getElementById('cancel-dispatch-modal'));
+        modal.hide();
+        
+        // Show success toast
+        showToast('success', data.message);
+        
+        // Reload page to show updates
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      } else {
+        alert('Error: ' + (data.errors ? data.errors.join(', ') : 'Unknown error'));
+      }
+    })
+    .catch(error => {
+      console.error('Error cancelling dispatch:', error);
+      alert('Network error occurred');
+    });
+  };
+
+  window.showToast = function(type, message) {
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    toast.innerHTML = `
+      ${message}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+      if (toast.parentNode) {
+        toast.parentNode.removeChild(toast);
+      }
+    }, 5000);
+  };
+}
+
 // === DISPATCH FUNCTIONALITY ===
 // Only load if we're on dispatches page
 if (window.location.pathname.includes('/dispatches')) {
@@ -101,6 +172,7 @@ if (window.location.pathname.includes('/dispatches')) {
         console.error('Error loading dispatch details:', error);
       });
     };
+
     
     console.log('Dispatch functions loaded');
   }

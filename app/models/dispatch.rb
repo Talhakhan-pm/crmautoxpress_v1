@@ -241,19 +241,38 @@ class Dispatch < ApplicationRecord
   def create_refund_if_cancelled
     return unless dispatch_status_changed? && cancelled? && refund.nil?
     
-    Refund.create!(
-      order: self.order,
-      dispatch: self,
-      agent_name: self.processing_agent.email,
-      customer_name: self.customer_name,
-      customer_email: self.order&.customer_email || "#{self.customer_name.downcase.gsub(' ', '.')}@example.com",
-      charge: self.total_cost,
-      refund_amount: self.total_cost,
-      refund_stage: 'pending_review',
-      order_status: self.order&.order_status || 'cancelled',
-      processing_agent: self.processing_agent,
-      refund_reason: 'dispatch_cancelled',
-      order_summary: "Original dispatch ##{self.id} for #{self.product_name}"
-    )
+    # Map cancellation reason to refund reason
+    mapped_reason = map_cancellation_to_refund_reason
+    
+    begin
+      Refund.create!(
+        order: self.order,
+        dispatch: self,
+        agent_name: self.processing_agent.email,
+        customer_name: self.customer_name,
+        customer_email: self.order&.customer_email || "#{self.customer_name.downcase.gsub(' ', '.')}@example.com",
+        charge: self.total_cost,
+        refund_amount: self.total_cost,
+        refund_stage: 'pending_review',
+        order_status: self.order&.order_status || 'cancelled',
+        processing_agent: self.processing_agent,
+        refund_reason: mapped_reason,
+        order_summary: "Original dispatch ##{self.id} for #{self.product_name}. Reason: #{cancellation_reason&.humanize || 'Manual cancellation'}"
+      )
+      Rails.logger.info "✅ Refund created for cancelled dispatch ##{self.id}"
+    rescue => e
+      Rails.logger.error "❌ Failed to create refund for dispatch ##{self.id}: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+    end
+  end
+
+  def map_cancellation_to_refund_reason
+    case cancellation_reason
+    when 'product_not_available' then 'product_not_found'
+    when 'customer_requested_cancel' then 'customer_cancelled'
+    when 'shipping_address_invalid' then 'address_invalid'
+    when 'payment_failed' then 'payment_failed'
+    else 'dispatch_cancelled'
+    end
   end
 end

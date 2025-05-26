@@ -1,2 +1,136 @@
-<h1>Refunds#index</h1>
-<p>Find me in app/views/refunds/index.html.erb</p>
+<% content_for :title, "Refunds Management" %>
+
+<div class="container-fluid py-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <h1 class="h3 mb-0">Refunds Management</h1>
+        <div class="d-flex gap-3">
+          <div class="text-muted">
+            <i class="fa fa-clock"></i> <%= @pending_count %> Pending
+          </div>
+          <div class="text-muted">
+            <i class="fa fa-dollar-sign"></i> $<%= number_with_delimiter(@total_refund_amount) %> Total
+          </div>
+          <div class="text-muted">
+            <i class="fa fa-refresh"></i> <%= @replacement_eligible_count %> Replacements
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters & Search -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body py-3">
+          <%= form_with url: refunds_path, method: :get, local: true, class: "row g-3 align-items-end" do |form| %>
+            <div class="col-md-3">
+              <%= form.text_field :search, 
+                  placeholder: "Search customer, order number...", 
+                  value: params[:search],
+                  class: "form-control" %>
+            </div>
+            <div class="col-md-2">
+              <%= form.select :stage, 
+                  options_for_select([['All Stages', '']] + @stages.map { |s| [s.humanize, s] }, params[:stage]),
+                  {}, { class: "form-select" } %>
+            </div>
+            <div class="col-md-2">
+              <%= form.select :reason, 
+                  options_for_select([['All Reasons', '']] + @reasons.map { |r| [Refund.new(refund_reason: r).reason_display, r] }, params[:reason]),
+                  {}, { class: "form-select" } %>
+            </div>
+            <div class="col-md-2">
+              <%= form.submit "Search", class: "btn btn-primary" %>
+              <%= link_to "Clear", refunds_path, class: "btn btn-outline-secondary" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Refunds Table -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Order #</th>
+                  <th>Customer</th>
+                  <th>Amount</th>
+                  <th>Reason</th>
+                  <th>Stage</th>
+                  <th>Replacement</th>
+                  <th>Agent</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @refunds.each do |refund| %>
+                  <tr>
+                    <td>
+                      <strong><%= link_to refund.order.order_number, order_path(refund.order), class: "text-decoration-none" %></strong>
+                    </td>
+                    <td>
+                      <div>
+                        <strong><%= refund.customer_name %></strong><br>
+                        <small class="text-muted"><%= refund.customer_email %></small>
+                      </div>
+                    </td>
+                    <td>
+                      <div>
+                        <strong class="text-danger">-$<%= number_with_delimiter(refund.refund_amount) %></strong><br>
+                        <small class="text-muted">of $<%= number_with_delimiter(refund.charge) %> (<%= refund.refund_percentage %>%)</small>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="badge bg-secondary"><%= refund.reason_display %></span>
+                    </td>
+                    <td>
+                      <span class="badge bg-<%= refund.stage_color %>"><%= refund.stage_display %></span>
+                    </td>
+                    <td>
+                      <% if refund.replacement_eligible? %>
+                        <span class="badge bg-success">
+                          <i class="fa fa-check"></i> Eligible
+                        </span>
+                      <% else %>
+                        <span class="badge bg-secondary">
+                          <i class="fa fa-times"></i> No
+                        </span>
+                      <% end %>
+                    </td>
+                    <td>
+                      <small class="text-muted"><%= refund.processing_agent.email %></small>
+                    </td>
+                    <td>
+                      <small class="text-muted"><%= refund.created_at.strftime("%m/%d/%Y") %></small>
+                    </td>
+                    <td>
+                      <%= link_to "View", refund_path(refund), class: "btn btn-sm btn-outline-primary" %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+          
+          <% if @refunds.empty? %>
+            <div class="text-center py-5">
+              <i class="fa fa-inbox fa-3x text-muted mb-3"></i>
+              <h5 class="text-muted">No refunds found</h5>
+              <p class="text-muted">Try adjusting your search criteria</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

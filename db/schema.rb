@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_05_26_204935) do
+ActiveRecord::Schema[7.1].define(version: 2025_05_26_220259) do
   create_table "activities", force: :cascade do |t|
     t.string "trackable_type", null: false
     t.integer "trackable_id", null: false
@@ -88,6 +88,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_26_204935) do
     t.string "last_modified_by"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "cancellation_reason"
     t.index ["dispatch_status"], name: "index_dispatches_on_dispatch_status"
     t.index ["order_id"], name: "index_dispatches_on_order_id", unique: true
     t.index ["order_number"], name: "index_dispatches_on_order_number"
@@ -177,8 +178,15 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_26_204935) do
     t.text "order_summary"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "refund_type", default: 0, null: false
+    t.integer "replacement_order_id"
+    t.text "notes"
+    t.string "cancellation_reason"
     t.index ["dispatch_id"], name: "index_refunds_on_dispatch_id"
     t.index ["order_id"], name: "index_refunds_on_order_id"
+    t.index ["refund_reason"], name: "index_refunds_on_refund_reason"
+    t.index ["refund_type"], name: "index_refunds_on_refund_type"
+    t.index ["replacement_order_id"], name: "index_refunds_on_replacement_order_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -197,4 +205,5 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_26_204935) do
   add_foreign_key "agent_callbacks", "users"
   add_foreign_key "refunds", "dispatches"
   add_foreign_key "refunds", "orders"
+  add_foreign_key "refunds", "orders", column: "replacement_order_id"
 end

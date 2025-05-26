@@ -92,6 +92,34 @@ class DispatchesController < ApplicationController
     end
   end
 
+  def cancel_with_refund
+    @dispatch = Dispatch.find(params[:id])
+    
+    respond_to do |format|
+      if @dispatch.update(
+        dispatch_status: 'cancelled',
+        cancellation_reason: params[:cancellation_reason],
+        last_modified_by: current_user.email
+      )
+        # The refund will be auto-created via callback
+        format.json { 
+          render json: { 
+            success: true, 
+            message: 'Dispatch cancelled and refund created',
+            refund_id: @dispatch.refund&.id
+          }
+        }
+      else
+        format.json { 
+          render json: { 
+            success: false, 
+            errors: @dispatch.errors.full_messages
+          }, status: :unprocessable_entity
+        }
+      end
+    end
+  end
+
   def destroy
     @dispatch.destroy
     redirect_to dispatches_url, notice: 'Dispatch was successfully deleted.'
@@ -111,7 +139,7 @@ class DispatchesController < ApplicationController
       :supplier_order_number, :supplier_cost, :supplier_shipment_proof,
       :product_cost, :tax_amount, :shipping_cost, :total_cost,
       :tracking_number, :tracking_link, :shipment_status,
-      :dispatch_status, :comments, :internal_notes
+      :dispatch_status, :comments, :internal_notes, :cancellation_reason
     )
   end
 

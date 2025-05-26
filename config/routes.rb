@@ -11,7 +11,11 @@ Rails.application.routes.draw do
   get "test_broadcast", to: "orders#test_broadcast"
   
   # Dispatches routes  
-  resources :dispatches
+  resources :dispatches do
+    member do
+      patch :cancel_with_refund
+    end
+  end
   devise_for :users
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
