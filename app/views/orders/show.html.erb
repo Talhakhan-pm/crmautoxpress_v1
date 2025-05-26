@@ -130,41 +130,48 @@
               <% end %>
             <% end %>
           </div>
-          <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-            <div class="form-group">
-              <label class="form-label">Name</label>
-              <div class="form-value"><%= @order.customer_name %></div>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Phone</label>
-              <div class="form-value">
-                <a href="tel:<%= @order.customer_phone %>" class="text-primary">
-                  <i class="fas fa-phone"></i>
-                  <%= @order.customer_phone %>
-                </a>
-              </div>
-            </div>
-            <% if @order.customer_email.present? %>
-              <div class="form-group">
-                <label class="form-label">Email</label>
-                <div class="form-value">
-                  <a href="mailto:<%= @order.customer_email %>" class="text-primary">
-                    <i class="fas fa-envelope"></i>
-                    <%= @order.customer_email %>
+          
+          <div class="form-group mb-4">
+            <label class="form-label">Customer Name</label>
+            <div class="form-control-plaintext"><%= @order.customer_name %></div>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label class="form-label">Phone Number</label>
+                <div class="form-control-plaintext">
+                  <a href="tel:<%= @order.customer_phone %>" class="text-decoration-none d-flex align-items-center">
+                    <i class="fas fa-phone text-success me-2"></i>
+                    <%= @order.customer_phone %>
                   </a>
                 </div>
               </div>
-            <% end %>
-            <% if @order.customer_address.present? %>
-              <div class="form-group" style="grid-column: 1 / -1;">
-                <label class="form-label">Address</label>
-                <div class="form-value">
-                  <i class="fas fa-map-marker-alt"></i>
-                  <%= @order.customer_address %>
+            </div>
+            <% if @order.customer_email.present? %>
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <label class="form-label">Email Address</label>
+                  <div class="form-control-plaintext">
+                    <a href="mailto:<%= @order.customer_email %>" class="text-decoration-none d-flex align-items-center">
+                      <i class="fas fa-envelope text-primary me-2"></i>
+                      <%= @order.customer_email %>
+                    </a>
+                  </div>
                 </div>
               </div>
             <% end %>
           </div>
+          
+          <% if @order.customer_address.present? %>
+            <div class="form-group mb-3">
+              <label class="form-label">Delivery Address</label>
+              <div class="form-control-plaintext">
+                <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                <%= @order.customer_address %>
+              </div>
+            </div>
+          <% end %>
         </div>
 
         <!-- Product Information Section -->
