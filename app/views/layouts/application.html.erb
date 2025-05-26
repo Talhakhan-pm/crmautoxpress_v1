@@ -63,10 +63,10 @@
                       <i class="fas fa-boxes"></i>
                       <span>Products</span>
                   <% end %>
-                  <a href="#" class="nav-item">
+                  <%= link_to refunds_path, class: "nav-item #{'active' if request.path.start_with?('/refunds')}", "data-turbo-prefetch" => "false" do %>
                       <i class="fas fa-undo"></i>
                       <span>Refunds & Returns</span>
-                  </a>
+                  <% end %>
                   <a href="#" class="nav-item">
                       <i class="fas fa-industry"></i>
                       <span>Suppliers</span>

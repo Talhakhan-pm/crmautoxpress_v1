@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_05_25_042947) do
+ActiveRecord::Schema[7.1].define(version: 2025_05_26_204935) do
   create_table "activities", force: :cascade do |t|
     t.string "trackable_type", null: false
     t.integer "trackable_id", null: false
@@ -162,6 +162,25 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_25_042947) do
     t.index ["status"], name: "index_products_on_status"
   end
 
+  create_table "refunds", force: :cascade do |t|
+    t.integer "order_id", null: false
+    t.integer "dispatch_id", null: false
+    t.string "agent_name"
+    t.string "customer_name"
+    t.string "customer_email"
+    t.decimal "charge"
+    t.decimal "refund_amount"
+    t.string "refund_stage"
+    t.string "order_status"
+    t.integer "processing_agent_id"
+    t.string "refund_reason"
+    t.text "order_summary"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["dispatch_id"], name: "index_refunds_on_dispatch_id"
+    t.index ["order_id"], name: "index_refunds_on_order_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -176,4 +195,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_25_042947) do
 
   add_foreign_key "activities", "users"
   add_foreign_key "agent_callbacks", "users"
+  add_foreign_key "refunds", "dispatches"
+  add_foreign_key "refunds", "orders"
 end

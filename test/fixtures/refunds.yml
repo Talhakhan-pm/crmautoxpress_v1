@@ -1,0 +1,29 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  order: one
+  dispatch: one
+  agent_name: MyString
+  customer_name: MyString
+  customer_email: MyString
+  charge: 9.99
+  refund_amount: 9.99
+  refund_stage: MyString
+  order_status: MyString
+  processing_agent_id: 1
+  refund_reason: MyString
+  order_summary: MyText
+
+two:
+  order: two
+  dispatch: two
+  agent_name: MyString
+  customer_name: MyString
+  customer_email: MyString
+  charge: 9.99
+  refund_amount: 9.99
+  refund_stage: MyString
+  order_status: MyString
+  processing_agent_id: 1
+  refund_reason: MyString
+  order_summary: MyText

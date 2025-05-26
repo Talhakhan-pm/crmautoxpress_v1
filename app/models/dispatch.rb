@@ -2,6 +2,7 @@ class Dispatch < ApplicationRecord
   belongs_to :order
   belongs_to :processing_agent, class_name: 'User'
   has_many :activities, as: :trackable, dependent: :destroy
+  has_one :refund, dependent: :destroy
 
   enum payment_status: {
     payment_pending: 0,
@@ -46,6 +47,7 @@ class Dispatch < ApplicationRecord
   before_validation :set_defaults, on: :create
   before_save :calculate_total_cost
   after_update :sync_with_order
+  after_update :create_refund_if_cancelled
   
   include Trackable
 
@@ -234,5 +236,24 @@ class Dispatch < ApplicationRecord
                         target: "dispatches", 
                         partial: "dispatches/list_content", 
                         locals: { dispatches: fresh_dispatches }
+  end
+
+  def create_refund_if_cancelled
+    return unless dispatch_status_changed? && cancelled? && refund.nil?
+    
+    Refund.create!(
+      order: self.order,
+      dispatch: self,
+      agent_name: self.processing_agent.email,
+      customer_name: self.customer_name,
+      customer_email: self.order&.customer_email || "#{self.customer_name.downcase.gsub(' ', '.')}@example.com",
+      charge: self.total_cost,
+      refund_amount: self.total_cost,
+      refund_stage: 'pending_review',
+      order_status: self.order&.order_status || 'cancelled',
+      processing_agent: self.processing_agent,
+      refund_reason: 'dispatch_cancelled',
+      order_summary: "Original dispatch ##{self.id} for #{self.product_name}"
+    )
   end
 end

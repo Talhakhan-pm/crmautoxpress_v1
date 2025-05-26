@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :refunds, only: [:index, :show, :update]
   # Orders routes
   resources :orders do
     member do
