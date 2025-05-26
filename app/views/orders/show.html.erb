@@ -272,20 +272,20 @@
               
               <div class="metadata-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
                 <% if @order.warranty_period_days.present? %>
-                  <div class="text-center">
+                  <div class="text-start">
                     <div class="small text-muted text-uppercase fw-semibold mb-1">Warranty Period</div>
                     <div class="fw-semibold text-dark"><%= @order.warranty_period_days %> days</div>
                   </div>
                 <% end %>
                 
                 <% if @order.return_window_days.present? %>
-                  <div class="text-center">
+                  <div class="text-start">
                     <div class="small text-muted text-uppercase fw-semibold mb-1">Return Window</div>
                     <div class="fw-semibold text-dark"><%= @order.return_window_days %> days</div>
                   </div>
                 <% end %>
                 
-                <div class="text-center">
+                <div class="text-start">
                   <div class="small text-muted text-uppercase fw-semibold mb-1">Source Channel</div>
                   <div class="fw-semibold text-dark">
                     <i class="fas fa-<%= @order.source_channel == 'phone' ? 'phone' : @order.source_channel == 'web' ? 'globe' : 'envelope' %> me-1"></i>
