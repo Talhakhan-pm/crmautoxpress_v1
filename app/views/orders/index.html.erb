@@ -48,7 +48,7 @@
 
     <!-- Smart Filters -->
     <div class="smart-filters">
-      <%= form_with url: orders_path, method: :get, local: true, class: "filters-form" do |form| %>
+      <%= form_with url: orders_path, method: :get, local: true, class: "filters-form", data: { turbo_frame: "main_content" } do |form| %>
         <div class="filters-grid">
           <div class="search-group">
             <i class="fas fa-search search-icon"></i>
@@ -124,7 +124,7 @@
       </button>
     </div>
     
-    <%= form_with url: orders_path, method: :get, local: true, class: "advanced-filters-form" do |form| %>
+    <%= form_with url: orders_path, method: :get, local: true, class: "advanced-filters-form", data: { turbo_frame: "main_content" } do |form| %>
       <div class="modal-body">
         <div class="filter-group">
           <label class="filter-label">Date Range</label>
@@ -181,7 +181,14 @@ function setView(view) {
   } else {
     url.searchParams.delete('view');
   }
-  window.location.href = url.toString();
+  
+  // Use Turbo to navigate within the frame
+  const mainFrame = document.querySelector('turbo-frame#main_content');
+  if (mainFrame) {
+    mainFrame.src = url.toString();
+  } else {
+    window.Turbo.visit(url.toString());
+  }
 }
 
 function showAdvancedFilters() {
@@ -195,7 +202,13 @@ function hideAdvancedFilters() {
 }
 
 function clearFilters() {
-  window.location.href = '<%= orders_path %>';
+  // Use Turbo to navigate within the frame
+  const mainFrame = document.querySelector('turbo-frame#main_content');
+  if (mainFrame) {
+    mainFrame.src = '<%= orders_path %>';
+  } else {
+    window.Turbo.visit('<%= orders_path %>');
+  }
 }
 
 // Auto-submit search after typing
