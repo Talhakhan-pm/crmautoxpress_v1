@@ -41,19 +41,32 @@ export default class extends Controller {
     // Check if we're inside a turbo frame
     const frame = this.element.closest('turbo-frame')
     
+    // Determine target URL with callback context awareness
+    let targetUrl = this.getContextualUrl()
+    
     if (frame) {
       // Stay within the frame - use frame navigation
-      const targetUrl = this.hasCloseUrlValue ? this.closeUrlValue : this.getContextualUrl()
       frame.src = targetUrl
     } else {
       // Only use full navigation if not in a frame
-      const targetUrl = this.hasCloseUrlValue ? this.closeUrlValue : this.getContextualUrl()
       window.Turbo.visit(targetUrl)
     }
   }
 
-  // Get contextual URL based on current location
+  // Get contextual URL based on current location and callback context
   getContextualUrl() {
+    // Use explicit close URL if provided
+    if (this.hasCloseUrlValue) {
+      return this.closeUrlValue
+    }
+    
+    // Check for callback context (order forms opened from callbacks)
+    const urlParams = new URLSearchParams(window.location.search)
+    if (urlParams.get('callback_id')) {
+      return '/callbacks'
+    }
+    
+    // Default to current path context
     const currentPath = window.location.pathname
     
     if (currentPath.includes('/dispatches')) {

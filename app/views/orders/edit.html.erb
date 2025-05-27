@@ -1,7 +1,7 @@
 <%= turbo_frame_tag "main_content" do %>
 <!-- Unified Order Edit Modal -->
-<div id="order-edit-modal" class="unified-modal theme-blue active" data-controller="order-form modal" data-modal-theme-value="blue">
-  <div class="unified-modal-content" data-order-form-target="modal">
+<div id="order-edit-modal" class="unified-modal theme-blue active" data-controller="order-form modal" data-modal-theme-value="blue" data-modal-close-url-value="<%= orders_path %>" data-action="click->modal#closeModal">
+  <div class="unified-modal-content" data-order-form-target="modal" data-action="click->modal#stopPropagation">
     <!-- Unified Modal Header -->
     <div class="unified-modal-header theme-blue">
       <div class="unified-modal-header-content">
@@ -14,9 +14,9 @@
         <p class="unified-modal-subtitle">Update order details and tracking information</p>
       </div>
       
-      <%= link_to orders_path, class: "unified-modal-close" do %>
+      <button type="button" data-action="click->modal#closeModal" class="unified-modal-close">
         <i class="fas fa-times"></i>
-      <% end %>
+      </button>
     </div>
 
     <!-- Unified Modal Body -->
@@ -187,10 +187,10 @@
 
         <!-- Unified Form Actions -->
         <div class="unified-form-actions">
-          <%= link_to orders_path, class: "btn btn-secondary" do %>
+          <button type="button" data-action="click->modal#closeModal" class="btn btn-secondary">
             <i class="fas fa-times"></i>
             Cancel
-          <% end %>
+          </button>
           
           <div class="primary-actions">
             <%= form.submit "Update Order", class: "btn btn-primary" do %>

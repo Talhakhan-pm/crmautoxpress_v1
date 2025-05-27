@@ -4,13 +4,14 @@
         <!-- Smart Callback Creation Modal -->
         <div id="callback-modal" 
              class="callback-modal active" 
-             data-controller="callback-form">
+             data-controller="callback-form modal"
+             data-modal-close-url-value="<%= callbacks_path %>"
+             data-action="click->modal#closeModal">
           
           <div class="modal-overlay" 
-               data-action="click->callback-form#closeModal" 
                title="Click to close"></div>
           
-          <div class="callback-modal-content" data-callback-form-target="modal">
+          <div class="callback-modal-content" data-callback-form-target="modal" data-action="click->modal#stopPropagation">
             <!-- Modal Header -->
             <div class="modal-header">
               <div class="header-content">
@@ -21,9 +22,9 @@
                   </h2>
                   <p class="modal-subtitle">Capture lead information and schedule follow-ups</p>
                 </div>
-                <%= link_to callbacks_path, class: "close-btn", data: { turbo_frame: "main_content" } do %>
+                <button type="button" data-action="click->modal#closeModal" class="close-btn">
                   <i class="fas fa-times"></i>
-                <% end %>
+                </button>
               </div>
             </div>
 
