@@ -169,24 +169,46 @@
                     <!-- Dispatch Status -->
                     <div class="unified-form-group">
                       <%= f.label :dispatch_status, "Dispatch Status", class: "form-label required" %>
-                      <%= f.select :dispatch_status, 
-                          options_for_select([
-                            ['⏳ Pending Processing', 'pending'],
-                            ['📋 Assigned to Agent', 'assigned'],
-                            ['⚙️ Processing Order', 'processing'],
-                            ['🚚 Shipped to Customer', 'shipped'],
-                            ['✅ Completed & Delivered', 'completed'],
-                            ['❌ Cancelled', 'cancelled']
-                          ], @dispatch.dispatch_status), 
-                          { prompt: 'Select dispatch status' }, 
-                          { 
-                            class: "form-select status-select status-#{@dispatch.dispatch_status}",
-                            data: { 
-                              dispatch_form_target: "dispatchStatus",
-                              dispatch_cancellation_target: "statusSelect",
-                              action: "change->dispatch-form#updateStatusFields change->dispatch-cancellation#statusChanged"
-                            }
-                          } %>
+                      <% has_pending_resolution = @dispatch.order.refunds.where(refund_stage: 'pending_resolution').any? %>
+                      <% if has_pending_resolution %>
+                        <div class="alert alert-warning mt-2 mb-3">
+                          <i class="fas fa-exclamation-triangle me-2"></i>
+                          <strong>Status Locked:</strong> This dispatch cannot be modified until the refund resolution is completed.
+                          <a href="<%= refunds_path %>" class="alert-link">Go to Refunds</a> to resolve.
+                        </div>
+                        <%= f.select :dispatch_status, 
+                            options_for_select([
+                              ['❌ Cancelled (Resolution Required)', 'cancelled']
+                            ], @dispatch.dispatch_status), 
+                            {}, 
+                            { 
+                              class: "form-select status-select status-#{@dispatch.dispatch_status}",
+                              disabled: true,
+                              data: { 
+                                dispatch_form_target: "dispatchStatus",
+                                dispatch_cancellation_target: "statusSelect"
+                              }
+                            } %>
+                      <% else %>
+                        <%= f.select :dispatch_status, 
+                            options_for_select([
+                              ['⏳ Pending Processing', 'pending'],
+                              ['📋 Assigned to Agent', 'assigned'],
+                              ['⚙️ Processing Order', 'processing'],
+                              ['🚚 Shipped to Customer', 'shipped'],
+                              ['✅ Completed & Delivered', 'completed'],
+                              ['❌ Cancelled', 'cancelled']
+                            ], @dispatch.dispatch_status), 
+                            { prompt: 'Select dispatch status' }, 
+                            { 
+                              class: "form-select status-select status-#{@dispatch.dispatch_status}",
+                              data: { 
+                                dispatch_form_target: "dispatchStatus",
+                                dispatch_cancellation_target: "statusSelect",
+                                action: "change->dispatch-form#updateStatusFields change->dispatch-cancellation#statusChanged"
+                              }
+                            } %>
+                      <% end %>
                     </div>
                   </div>
 

@@ -78,6 +78,15 @@ class DispatchesController < ApplicationController
   def update
     @dispatch.last_modified_by = current_user.email
     
+    # Check if dispatch has pending resolution
+    if @dispatch.order.refunds.where(refund_stage: 'pending_resolution').any?
+      respond_to do |format|
+        format.html { redirect_to edit_dispatch_path(@dispatch), alert: 'Cannot modify dispatch - pending refund resolution required. Please resolve in Refunds section first.' }
+        format.turbo_stream { redirect_to edit_dispatch_path(@dispatch), alert: 'Cannot modify dispatch - pending refund resolution required.' }
+      end
+      return
+    end
+    
     if @dispatch.update(dispatch_params)
       respond_to do |format|
         format.html { redirect_to dispatches_path, notice: 'Dispatch was successfully updated.' }
@@ -253,6 +262,97 @@ class DispatchesController < ApplicationController
       format.html { redirect_to refunds_path, notice: message }
       format.turbo_stream { redirect_to refunds_path, notice: message }
       format.json { render json: { success: refund.present?, message: message } }
+    end
+  end
+
+  # Resolution actions for cancelled dispatches
+  def retry_dispatch
+    # Find the related refund
+    refund = @dispatch.order.refunds.where(refund_stage: 'pending_resolution').first
+    
+    if refund.present?
+      # Update refund status
+      refund.update!(
+        refund_stage: 'pending_retry',
+        notes: refund.notes + " | Resolution: Retry dispatch with different supplier"
+      )
+      
+      # Reset dispatch to allow retry
+      @dispatch.update!(
+        dispatch_status: 'pending',
+        supplier_name: nil,
+        supplier_cost: nil,
+        internal_notes: (@dispatch.internal_notes || "") + " | Retrying dispatch with different supplier"
+      )
+      
+      refund.create_activity(
+        action: 'resolution_selected',
+        details: "Resolution selected: Retry dispatch with different supplier",
+        user: current_user
+      )
+      
+      redirect_to dispatches_path, notice: "Dispatch reset for retry with different supplier"
+    else
+      redirect_to refunds_path, alert: "No pending resolution found for this dispatch"
+    end
+  end
+
+  def create_replacement_order
+    # Find the related refund
+    refund = @dispatch.order.refunds.where(refund_stage: 'pending_resolution').first
+    
+    if refund.present?
+      # Update refund status
+      refund.update!(
+        refund_stage: 'pending_replacement',
+        notes: refund.notes + " | Resolution: Replacement order created"
+      )
+      
+      # Create new order based on original
+      new_order = @dispatch.order.dup
+      new_order.order_number = "#{@dispatch.order.order_number}-R#{Time.current.to_i}"
+      new_order.order_status = 'pending'
+      new_order.save!
+      
+      refund.update!(replacement_order_number: new_order.order_number)
+      
+      refund.create_activity(
+        action: 'resolution_selected',
+        details: "Resolution selected: Replacement order created - #{new_order.order_number}",
+        user: current_user
+      )
+      
+      redirect_to orders_path, notice: "Replacement order created: #{new_order.order_number}"
+    else
+      redirect_to refunds_path, alert: "No pending resolution found for this dispatch"
+    end
+  end
+
+  def process_full_refund
+    # Find the related refund
+    refund = @dispatch.order.refunds.where(refund_stage: 'pending_resolution').first
+    
+    if refund.present?
+      # Update refund to processing
+      refund.update!(
+        refund_stage: 'processing_refund',
+        refund_amount: refund.original_charge_amount, # Full refund
+        notes: refund.notes + " | Resolution: Full refund approved"
+      )
+      
+      # Cancel the entire order
+      @dispatch.order.update!(order_status: 'cancelled')
+      @dispatch.update!(dispatch_status: 'cancelled')
+      
+      refund.create_activity(
+        action: 'resolution_selected',
+        details: "Resolution selected: Full refund approved - Amount: $#{refund.refund_amount}",
+        user: current_user
+      )
+      
+      redirect_to refunds_path, notice: "Full refund approved and order cancelled"
+    else
+      redirect_to refunds_path, alert: "No pending resolution found for this dispatch"
     end
   end
 
