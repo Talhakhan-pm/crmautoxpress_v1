@@ -56,9 +56,9 @@ show_table = if defined?(view_type)
                   </div>
                 </td>
                 <td>
-                  <span class="status-badge status-<%= order.order_status %>">
+                  <span class="status-badge status-<%= order.has_pending_refund_resolution? ? 'pending_resolution' : order.order_status %> <%= 'status-pending_resolution' if order.has_pending_refund_resolution? %>">
                     <span class="status-icon"></span>
-                    <%= order.order_status.humanize %>
+                    <%= order.display_status %>
                   </span>
                 </td>
                 <td>
@@ -157,9 +157,9 @@ show_table = if defined?(view_type)
 
           <div class="card-footer">
             <div class="status-section">
-              <span class="status-badge status-<%= order.order_status %>">
+              <span class="status-badge status-<%= order.has_pending_refund_resolution? ? 'pending_resolution' : order.order_status %> <%= 'status-pending_resolution' if order.has_pending_refund_resolution? %>">
                 <span class="status-icon"></span>
-                <%= order.order_status.humanize %>
+                <%= order.display_status %>
               </span>
             </div>
             

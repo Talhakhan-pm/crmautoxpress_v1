@@ -83,6 +83,11 @@ class Order < ApplicationRecord
   end
 
   def status_color
+    # Check for pending refund resolution first
+    if has_pending_refund_resolution?
+      return 'warning'
+    end
+    
     case order_status
     when 'pending' then 'warning'
     when 'confirmed' then 'info'
@@ -94,6 +99,20 @@ class Order < ApplicationRecord
     when 'refunded' then 'secondary'
     else 'secondary'
     end
+  end
+  
+  def display_status
+    # Show pending resolution status if applicable
+    if has_pending_refund_resolution?
+      return 'Pending Resolution'
+    end
+    
+    # Otherwise show normal status
+    order_status.humanize
+  end
+  
+  def has_pending_refund_resolution?
+    refunds.where(refund_stage: 'pending_resolution').any?
   end
 
   def priority_color
@@ -124,13 +143,14 @@ class Order < ApplicationRecord
   def unified_status_badges
     badges = []
     
-    # Primary order status
+    # Primary order status (with intelligent pending resolution detection)
     badges << {
       type: 'order',
-      status: order_status,
+      status: has_pending_refund_resolution? ? 'pending_resolution' : order_status,
       color: status_color,
-      text: order_status.humanize,
-      priority: 1
+      text: display_status,
+      priority: 1,
+      pulsing: has_pending_refund_resolution?
     }
     
     # Dispatch status if exists

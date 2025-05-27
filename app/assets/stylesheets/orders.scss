@@ -1,6 +1,27 @@
 /* AutoXpress Orders - Modern Design */
 @use 'unified_modals' as *;
 
+/* Pending Resolution Status Animation */
+.status-pending_resolution {
+  animation: pulse-warning 2s infinite;
+  border-left: 4px solid #fbbf24 !important;
+}
+
+@keyframes pulse-warning {
+  0% { 
+    background-color: rgba(251, 191, 36, 0.1);
+    box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4);
+  }
+  50% { 
+    background-color: rgba(251, 191, 36, 0.2);
+    box-shadow: 0 0 0 8px rgba(251, 191, 36, 0.1);
+  }
+  100% { 
+    background-color: rgba(251, 191, 36, 0.1);
+    box-shadow: 0 0 0 0 rgba(251, 191, 36, 0);
+  }
+}
+
 /* Order Modal Styles */
 .order-modal {
   position: fixed;
