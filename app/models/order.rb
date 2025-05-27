@@ -5,6 +5,7 @@ class Order < ApplicationRecord
   belongs_to :processing_agent, class_name: 'User', optional: true
   belongs_to :agent_callback, optional: true
   has_one :dispatch, dependent: :destroy
+  has_many :refunds, dependent: :destroy
   has_many :activities, as: :trackable, dependent: :destroy
 
   enum order_status: {
