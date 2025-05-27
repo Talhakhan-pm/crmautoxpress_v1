@@ -16,6 +16,7 @@ Rails.application.routes.draw do
       patch :retry_dispatch
       post :create_replacement_order
       patch :process_full_refund
+      patch :cancel_with_reason
     end
   end
   

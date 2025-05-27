@@ -70,7 +70,10 @@
             </div>
 
             <!-- Modal Body -->
-            <div class="unified-modal-body" data-controller="dispatch-form">
+            <div class="unified-modal-body" 
+                 data-controller="dispatch-form dispatch-cancellation"
+                 data-dispatch-cancellation-original-amount-value="<%= @dispatch.total_cost || 0 %>"
+                 data-dispatch-cancellation-dispatch-id-value="<%= @dispatch.id %>">
               <%= form_with model: @dispatch, local: false, data: { turbo_frame: "main_content", dispatch_form_target: "form" } do |f| %>
                 <!-- Order Information Section -->
                 <div class="unified-form-section">
@@ -180,7 +183,8 @@
                             class: "form-select status-select status-#{@dispatch.dispatch_status}",
                             data: { 
                               dispatch_form_target: "dispatchStatus",
-                              action: "change->dispatch-form#updateStatusFields"
+                              dispatch_cancellation_target: "statusSelect",
+                              action: "change->dispatch-form#updateStatusFields change->dispatch-cancellation#statusChanged"
                             }
                           } %>
                     </div>
@@ -321,6 +325,98 @@
                   </div>
                 </div>
               <% end %>
+              
+              <!-- Cancellation Reason Modal (inside the controller scope) -->
+              <div class="modal fade" id="cancellation-modal" tabindex="-1" 
+                   data-dispatch-cancellation-target="cancellationModal"
+                   data-bs-backdrop="static" data-bs-keyboard="false">
+                <div class="modal-dialog modal-lg">
+                  <div class="modal-content">
+                    <div class="modal-header bg-warning">
+                      <h5 class="modal-title text-white">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Cancel Dispatch - Reason Required
+                      </h5>
+                    </div>
+                    <div class="modal-body">
+                      <div class="alert alert-warning">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Important:</strong> Cancelling this dispatch will create a refund record. Please provide the reason and refund amount.
+                      </div>
+                      
+                      <form id="cancellation-form">
+                        <div class="row g-3">
+                          <!-- Cancellation Reason -->
+                          <div class="col-12">
+                            <label class="form-label fw-bold">Cancellation Reason</label>
+                            <select class="form-select" data-dispatch-cancellation-target="reasonSelect"
+                                    data-action="change->dispatch-cancellation#reasonChanged">
+                              <option value="">Select a reason...</option>
+                              <option value="item_not_found">Item Not Found</option>
+                              <option value="supplier_issue">Supplier Issue</option>
+                              <option value="customer_changed_mind">Customer Changed Mind</option>
+                              <option value="wrong_product">Wrong Product Ordered</option>
+                              <option value="quality_issues">Quality Issues</option>
+                              <option value="shipping_delay">Shipping Delay</option>
+                              <option value="other">Other (specify below)</option>
+                            </select>
+                          </div>
+                          
+                          <!-- Custom Reason (hidden by default) -->
+                          <div class="col-12" data-dispatch-cancellation-target="customReason" style="display: none;">
+                            <label class="form-label fw-bold">Custom Reason</label>
+                            <input type="text" class="form-control" placeholder="Please specify the reason...">
+                          </div>
+                          
+                          <!-- Financial Information -->
+                          <div class="col-md-6">
+                            <label class="form-label fw-bold">Original Charge Amount</label>
+                            <div class="input-group">
+                              <span class="input-group-text">$</span>
+                              <input type="number" class="form-control" 
+                                     value="<%= @dispatch.total_cost || 0 %>" 
+                                     step="0.01" readonly>
+                            </div>
+                          </div>
+                          
+                          <div class="col-md-6">
+                            <label class="form-label fw-bold">Refund Amount</label>
+                            <div class="input-group">
+                              <span class="input-group-text">$</span>
+                              <input type="number" class="form-control" 
+                                     data-dispatch-cancellation-target="refundAmount"
+                                     value="<%= @dispatch.total_cost || 0 %>" 
+                                     step="0.01" min="0" max="<%= @dispatch.total_cost || 0 %>">
+                            </div>
+                            <small class="text-muted">Enter the amount to refund to the customer</small>
+                          </div>
+                          
+                          <!-- Refund Percentage Display -->
+                          <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                              <small class="text-muted">Refund Percentage</small>
+                              <span class="fw-bold text-success" id="refund-percentage-display">100%</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                              <div class="progress-bar bg-success" id="refund-progress-bar" style="width: 100%"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" 
+                              data-action="click->dispatch-cancellation#cancelModal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                      </button>
+                      <button type="button" class="btn btn-warning" 
+                              data-action="click->dispatch-cancellation#confirmCancellation">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Confirm Cancellation
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

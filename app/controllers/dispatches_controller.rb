@@ -1,6 +1,6 @@
 class DispatchesController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_dispatch, only: [:show, :edit, :update, :destroy]
+  before_action :set_dispatch, only: [:show, :edit, :update, :destroy, :retry_dispatch, :create_replacement_order, :process_full_refund, :cancel_with_reason]
 
   def index
     @dispatches = Dispatch.includes(:order, :processing_agent)
@@ -170,6 +170,57 @@ class DispatchesController < ApplicationController
     end
   end
 
+  # Cancel dispatch with custom reason and refund amount
+  def cancel_with_reason
+    cancellation_reason = params[:reason] || 'other'
+    refund_amount = params[:refund_amount].to_f
+    
+    # Update dispatch status
+    @dispatch.update!(dispatch_status: 'cancelled')
+    
+    # Update order status
+    @dispatch.order.update!(order_status: 'processing')
+    
+    # Create refund with custom reason and amount
+    if @dispatch.paid? || @dispatch.partially_paid?
+      refund = @dispatch.order.refunds.create!(
+        processing_agent: @dispatch.processing_agent,
+        customer_name: @dispatch.customer_name,
+        customer_email: @dispatch.order.customer_email,
+        original_charge_amount: @dispatch.total_cost,
+        refund_amount: refund_amount,
+        refund_stage: 'pending_resolution',
+        refund_reason: map_cancellation_reason(cancellation_reason),
+        priority: 'high',
+        notes: "Dispatch cancelled - Reason: #{cancellation_reason}",
+        last_modified_by: current_user.email
+      )
+      
+      # Create activities
+      @dispatch.create_activity(
+        action: 'dispatch_cancelled_with_reason',
+        details: "Dispatch cancelled - Reason: #{cancellation_reason}",
+        user: current_user
+      )
+      
+      refund.create_activity(
+        action: 'auto_refund_created',
+        details: "Refund created for dispatch cancellation - Amount: $#{refund_amount}",
+        user: current_user
+      )
+    end
+    
+    respond_to do |format|
+      format.json { 
+        render json: { 
+          success: true, 
+          message: "Dispatch cancelled successfully",
+          redirect_url: dispatches_path
+        }
+      }
+    end
+  end
+
   # Process full refund and cancel everything
   def process_full_refund
     # Find the pending resolution refund
@@ -241,5 +292,24 @@ class DispatchesController < ApplicationController
     @dispatch.shipping_cost = order.shipping_cost
     @dispatch.total_cost = order.total_amount
     @dispatch.processing_agent_id = order.processing_agent_id || order.agent_id
+  end
+
+  def map_cancellation_reason(reason)
+    case reason.downcase
+    when 'item not found', 'item_not_found'
+      'item_not_found'
+    when 'supplier issue', 'supplier_issue'
+      'item_not_found'
+    when 'customer changed mind', 'customer_changed_mind'
+      'customer_changed_mind'
+    when 'wrong product', 'wrong_product'
+      'wrong_product'
+    when 'quality issues', 'quality_issues'
+      'quality_issues'
+    when 'shipping delay', 'shipping_delay'
+      'shipping_delay'
+    else
+      'other'
+    end
   end
 end
