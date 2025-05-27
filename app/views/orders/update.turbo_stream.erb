@@ -1,0 +1,11 @@
+<%= turbo_stream.replace dom_id(@order) do %>
+  <%= render @order %>
+<% end %>
+
+<%= turbo_stream.replace "flash-messages" do %>
+  <%= render "shared/flash_messages", flash: { notice: 'Order was successfully updated.' } %>
+<% end %>
+
+<%= turbo_stream.replace "main_content" do %>
+  <%= render 'orders/index' %>
+<% end %>

@@ -1,3 +1,4 @@
+<%= turbo_frame_tag "main_content" do %>
 <!-- Main Content -->
 <main class="main-content">
   <%= turbo_stream_from "dashboard" %>
@@ -221,3 +222,4 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 </main>
+<% end %>

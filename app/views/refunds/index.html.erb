@@ -1,3 +1,4 @@
+<%= turbo_frame_tag "main_content" do %>
 <% content_for :title, "Refunds Management" %>
 
 <div class="container-fluid p-4 refunds-page-container" style="margin-left: 260px;">
@@ -86,3 +87,4 @@
 
 <!-- Subscribe to Turbo broadcasts -->
 <%= turbo_stream_from "refunds" %>
+<% end %>

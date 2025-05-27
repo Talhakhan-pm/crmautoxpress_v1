@@ -1,11 +1,11 @@
-<%= turbo_stream.replace "refund-#{@refund.id}" do %>
-  <%= render 'refund', refund: @refund %>
+<%= turbo_stream.replace dom_id(@refund) do %>
+  <%= render @refund %>
 <% end %>
 
 <%= turbo_stream.replace "flash-messages" do %>
-  <div class="alert alert-success alert-dismissible fade show" role="alert">
-    <i class="fas fa-check-circle me-2"></i>
-    Refund <strong><%= @refund.refund_number %></strong> updated successfully!
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-  </div>
+  <%= render "shared/flash_messages", flash: { notice: 'Refund was successfully updated.' } %>
+<% end %>
+
+<%= turbo_stream.replace "main_content" do %>
+  <%= render 'refunds/index' %>
 <% end %>

@@ -47,7 +47,7 @@ class CustomersController < ApplicationController
     respond_to do |format|
       if @customer.update(customer_params)
         format.html { redirect_to @customer, notice: 'Customer was successfully updated.' }
-        format.turbo_stream { redirect_to @customer, notice: 'Customer was successfully updated.' }
+        format.turbo_stream { render :update }
       else
         format.html { render :edit, status: :unprocessable_entity }
         format.turbo_stream { render :edit, status: :unprocessable_entity }

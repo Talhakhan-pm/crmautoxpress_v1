@@ -186,10 +186,19 @@ export default class extends Controller {
     this.modalTarget.classList.remove('active')
     this.clearForm()
     
-    // Go back to previous page if this was opened from callbacks
-    const urlParams = new URLSearchParams(window.location.search)
-    if (urlParams.get('callback_id')) {
-      window.history.back()
+    // Check if we're inside a turbo frame
+    const frame = this.element.closest('turbo-frame')
+    
+    if (frame) {
+      // Stay within the frame - determine contextual navigation
+      const urlParams = new URLSearchParams(window.location.search)
+      const targetUrl = urlParams.get('callback_id') ? '/callbacks' : '/orders'
+      frame.src = targetUrl
+    } else {
+      // Only use full navigation if not in a frame
+      const urlParams = new URLSearchParams(window.location.search)
+      const targetUrl = urlParams.get('callback_id') ? '/callbacks' : '/orders'
+      window.Turbo.visit(targetUrl)
     }
   }
 
@@ -233,12 +242,9 @@ export default class extends Controller {
     // Show success feedback
     this.showNotification('Order created successfully!', 'success')
     
-    // Close modal and redirect after a short delay
+    // Close modal after a short delay - let Turbo Stream handle navigation
     setTimeout(() => {
       this.closeModal()
-      
-      // Redirect to orders page
-      window.location.href = '/orders'
     }, 1500)
   }
 

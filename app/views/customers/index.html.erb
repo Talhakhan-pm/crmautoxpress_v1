@@ -1,5 +1,5 @@
+<%= turbo_frame_tag "main_content" do %>
 <main class="main-content">
-  <%= turbo_frame_tag "main_content" do %>
     <%= turbo_stream_from "customers" %>
     
     <header class="main-header">
@@ -62,5 +62,5 @@
         <% end %>
       </div>
     </div>
-  <% end %>
 </main>
+<% end %>

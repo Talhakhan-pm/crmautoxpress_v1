@@ -92,7 +92,7 @@ class RefundsController < ApplicationController
     if @refund.update(refund_params)
       respond_to do |format|
         format.html { redirect_to refunds_path, notice: 'Refund was successfully updated.' }
-        format.turbo_stream { redirect_to refunds_path, notice: 'Refund was successfully updated.' }
+        format.turbo_stream { render :update }
       end
     else
       load_form_data
@@ -126,7 +126,12 @@ class RefundsController < ApplicationController
 
     respond_to do |format|
       format.html { redirect_to refunds_path, notice: message }
-      format.turbo_stream { redirect_to refunds_path, notice: message }
+      format.turbo_stream { 
+        render turbo_stream: [
+          turbo_stream.replace("flash-messages", partial: "shared/flash_messages", locals: { flash: { notice: message } }),
+          turbo_stream.replace("main_content", partial: "refunds/index")
+        ]
+      }
       format.json { render json: { success: true, message: message } }
     end
   end
@@ -142,7 +147,12 @@ class RefundsController < ApplicationController
 
     respond_to do |format|
       format.html { redirect_to refunds_path, notice: message }
-      format.turbo_stream { redirect_to refunds_path, notice: message }
+      format.turbo_stream { 
+        render turbo_stream: [
+          turbo_stream.replace("flash-messages", partial: "shared/flash_messages", locals: { flash: { notice: message } }),
+          turbo_stream.replace("main_content", partial: "refunds/index")
+        ]
+      }
       format.json { render json: { success: true, message: message } }
     end
   end
@@ -159,7 +169,12 @@ class RefundsController < ApplicationController
 
     respond_to do |format|
       format.html { redirect_to refunds_path, notice: message }
-      format.turbo_stream { redirect_to refunds_path, notice: message }
+      format.turbo_stream { 
+        render turbo_stream: [
+          turbo_stream.replace("flash-messages", partial: "shared/flash_messages", locals: { flash: { notice: message } }),
+          turbo_stream.replace("main_content", partial: "refunds/index")
+        ]
+      }
       format.json { render json: { success: replacement_order.present?, message: message } }
     end
   end

@@ -1,6 +1,6 @@
+<%= turbo_frame_tag "main_content" do %>
 <!-- Main Content -->
 <main class="main-content">
-    <%= turbo_frame_tag "main_content" do %>
         <%= turbo_stream_from "callbacks" %>
         <!-- Header -->
         <header class="main-header">
@@ -117,8 +117,8 @@
             </div>
         </div>
     </div>
-    <% end %>
 </main>
+<% end %>
 
 <!-- Add Callback Modal -->
 <div class="modal-overlay" id="addCallbackModal">

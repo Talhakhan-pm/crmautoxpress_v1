@@ -38,30 +38,37 @@ export default class extends Controller {
     event.preventDefault()
     this.close()
     
-    // Determine where to go based on closeUrl value or current URL
-    let targetUrl = '/orders' // default fallback
+    // Check if we're inside a turbo frame
+    const frame = this.element.closest('turbo-frame')
     
-    if (this.hasCloseUrlValue) {
-      targetUrl = this.closeUrlValue
+    if (frame) {
+      // Stay within the frame - use frame navigation
+      const targetUrl = this.hasCloseUrlValue ? this.closeUrlValue : this.getContextualUrl()
+      frame.src = targetUrl
     } else {
-      // Auto-detect based on current URL
-      const currentPath = window.location.pathname
-      if (currentPath.includes('/dispatches')) {
-        targetUrl = '/dispatches'
-      } else if (currentPath.includes('/orders')) {
-        targetUrl = '/orders'
-      } else if (currentPath.includes('/customers')) {
-        targetUrl = '/customers'
-      }
+      // Only use full navigation if not in a frame
+      const targetUrl = this.hasCloseUrlValue ? this.closeUrlValue : this.getContextualUrl()
+      window.Turbo.visit(targetUrl)
+    }
+  }
+
+  // Get contextual URL based on current location
+  getContextualUrl() {
+    const currentPath = window.location.pathname
+    
+    if (currentPath.includes('/dispatches')) {
+      return '/dispatches'
+    } else if (currentPath.includes('/orders')) {
+      return '/orders'
+    } else if (currentPath.includes('/callbacks')) {
+      return '/callbacks'
+    } else if (currentPath.includes('/customers')) {
+      return '/customers'
+    } else if (currentPath.includes('/refunds')) {
+      return '/refunds'
     }
     
-    // Use Turbo to navigate
-    try {
-      window.Turbo.visit(targetUrl)
-    } catch (error) {
-      // Fallback if Turbo is not available
-      window.location.href = targetUrl
-    }
+    return '/dashboard' // Safe fallback
   }
 
   stopPropagation(event) {

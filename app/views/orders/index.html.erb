@@ -1,3 +1,4 @@
+<%= turbo_frame_tag "main_content" do %>
 <%= turbo_stream_from "orders" %>
 <div class="main-content">
   <div class="orders-container">
@@ -213,3 +214,4 @@ document.getElementById('advanced-filters')?.addEventListener('click', function(
   }
 });
 </script>
+<% end %>

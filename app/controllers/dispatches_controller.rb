@@ -82,7 +82,9 @@ class DispatchesController < ApplicationController
     if @dispatch.order.refunds.where(refund_stage: 'pending_resolution').any?
       respond_to do |format|
         format.html { redirect_to edit_dispatch_path(@dispatch), alert: 'Cannot modify dispatch - pending refund resolution required. Please resolve in Refunds section first.' }
-        format.turbo_stream { redirect_to edit_dispatch_path(@dispatch), alert: 'Cannot modify dispatch - pending refund resolution required.' }
+        format.turbo_stream { 
+          render turbo_stream: turbo_stream.replace("flash-messages", partial: "shared/flash_messages", locals: { flash: { alert: 'Cannot modify dispatch - pending refund resolution required.' } })
+        }
       end
       return
     end
@@ -90,7 +92,7 @@ class DispatchesController < ApplicationController
     if @dispatch.update(dispatch_params)
       respond_to do |format|
         format.html { redirect_to dispatches_path, notice: 'Dispatch was successfully updated.' }
-        format.turbo_stream { redirect_to dispatches_path, notice: 'Dispatch was successfully updated.' }
+        format.turbo_stream { render :update }
       end
     else
       load_form_data
@@ -140,7 +142,12 @@ class DispatchesController < ApplicationController
 
     respond_to do |format|
       format.html { redirect_to dispatches_path, notice: message }
-      format.turbo_stream { redirect_to dispatches_path, notice: message }
+      format.turbo_stream { 
+        render turbo_stream: [
+          turbo_stream.replace("flash-messages", partial: "shared/flash_messages", locals: { flash: { notice: message } }),
+          turbo_stream.replace("main_content", partial: "dispatches/index")
+        ]
+      }
       format.json { render json: { success: refund.present?, message: message } }
     end
   end
@@ -174,7 +181,12 @@ class DispatchesController < ApplicationController
 
     respond_to do |format|
       format.html { redirect_to dispatches_path, notice: message }
-      format.turbo_stream { redirect_to dispatches_path, notice: message }
+      format.turbo_stream { 
+        render turbo_stream: [
+          turbo_stream.replace("flash-messages", partial: "shared/flash_messages", locals: { flash: { notice: message } }),
+          turbo_stream.replace("main_content", partial: "dispatches/index")
+        ]
+      }
       format.json { render json: { success: refund.present?, message: message } }
     end
   end
@@ -276,7 +288,12 @@ class DispatchesController < ApplicationController
 
     respond_to do |format|
       format.html { redirect_to refunds_path, notice: message }
-      format.turbo_stream { redirect_to refunds_path, notice: message }
+      format.turbo_stream { 
+        render turbo_stream: [
+          turbo_stream.replace("flash-messages", partial: "shared/flash_messages", locals: { flash: { notice: message } }),
+          turbo_stream.replace("main_content", partial: "refunds/index")
+        ]
+      }
       format.json { render json: { success: refund.present?, message: message } }
     end
   end
