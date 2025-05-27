@@ -1,11 +1,10 @@
-<%= turbo_stream.prepend "callbacks" do %>
-  <%= render @callback %>
-<% end %>
-
 <%= turbo_stream.replace "flash-messages" do %>
-  <%= render "shared/flash_messages", flash: { notice: 'Callback was successfully created.' } %>
+  <div class="alert alert-success">
+    <i class="fas fa-check-circle"></i>
+    Callback was successfully created.
+  </div>
 <% end %>
 
 <%= turbo_stream.replace "main_content" do %>
-  <%= render 'callbacks/index' %>
+  <%= render template: 'callbacks/index' %>
 <% end %>
