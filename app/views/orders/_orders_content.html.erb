@@ -110,92 +110,123 @@ show_table = if defined?(view_type)
   <div class="orders-grid" id="orders">
     <% if orders.any? %>
       <% orders.each do |order| %>
-        <div class="order-card" onclick="window.location.href='<%= order_path(order) %>'" style="cursor: pointer;">
-          <!-- Status stripe indicator -->
-          
-          <div class="card-header">
-            <div class="order-number">
-              <span class="order-id">#<%= order.order_number %></span>
-              <% if order.agent_callback.present? %>
-                <i class="fas fa-phone" title="Created from callback" style="color: #dc2626;"></i>
-              <% end %>
-            </div>
-            <div class="order-meta">
-              <div class="order-date">
-                <i class="fas fa-calendar"></i>
-                <%= order.order_date.strftime("%b %d, %Y") %>
+        <div class="modern-order-card" onclick="window.location.href='<%= order_path(order) %>'" style="cursor: pointer;">
+          <!-- Card Header - Compact order identification -->
+          <div class="card-header-modern">
+            <div class="order-id-section">
+              <span class="order-number">#<%= order.order_number %></span>
+              <div class="order-badges">
+                <% if order.agent_callback.present? %>
+                  <span class="callback-badge" title="Created from callback">
+                    <i class="fas fa-phone"></i>
+                  </span>
+                <% end %>
+                <span class="priority-indicator priority-<%= order.priority %>" title="<%= order.priority.humanize %> Priority">
+                  <% if order.priority == 'urgent' %>
+                    <i class="fas fa-bolt"></i>
+                  <% elsif order.priority == 'rush' %>
+                    <i class="fas fa-tachometer-alt"></i>
+                  <% elsif order.priority == 'high' %>
+                    <i class="fas fa-arrow-up"></i>
+                  <% else %>
+                    <i class="fas fa-equals"></i>
+                  <% end %>
+                </span>
               </div>
-              <span class="priority-badge priority-<%= order.priority %>">
-                <%= order.priority.humanize %>
-              </span>
+            </div>
+            <div class="status-indicator">
+              <span class="status-dot status-<%= order.has_pending_refund_resolution? ? 'pending_resolution' : order.order_status %>"></span>
+              <span class="status-text"><%= order.display_status %></span>
             </div>
           </div>
 
-          <div class="card-body">
-            <div class="customer-info">
-              <div class="customer-name"><%= order.customer_name %></div>
-              <div class="customer-contact">
-                <i class="fas fa-phone"></i>
-                <%= order.customer_phone %>
-                <% if order.customer_email.present? %>
-                  <i class="fas fa-envelope"></i>
-                  <%= order.customer_email %>
+          <!-- Card Body - Dense information layout -->
+          <div class="card-body-modern">
+            <!-- Customer Info Row -->
+            <div class="info-row customer-row">
+              <div class="info-main">
+                <span class="customer-name"><%= order.customer_name %></span>
+                <span class="customer-phone"><%= order.customer_phone %></span>
+              </div>
+              <div class="info-meta">
+                <span class="order-date"><%= order.order_date.strftime("%m/%d") %></span>
+              </div>
+            </div>
+
+            <!-- Product Info Row -->
+            <div class="info-row product-row">
+              <div class="info-main">
+                <span class="product-name"><%= order.product_name %></span>
+                <% if order.vehicle_info.present? %>
+                  <span class="vehicle-info"><%= order.vehicle_info %></span>
                 <% end %>
               </div>
+              <div class="info-meta">
+                <span class="product-price">$<%= number_with_delimiter(order.product_price) %></span>
+              </div>
             </div>
 
-            <div class="product-section">
-              <div class="product-name"><%= order.product_name %></div>
-              <% if order.vehicle_info.present? %>
-                <div class="vehicle-info">
-                  <i class="fas fa-car"></i>
-                  <%= order.vehicle_info %>
+            <!-- Progress Bar -->
+            <div class="progress-section">
+              <div class="progress-bar">
+                <% 
+                  progress_percentage = case order.order_status
+                  when 'pending' then '0%'
+                  when 'confirmed' then '25%'
+                  when 'processing' then '50%'
+                  when 'shipped' then '75%'
+                  when 'delivered' then '100%'
+                  else '0%'
+                  end
+                %>
+                <div class="progress-fill" style="width: <%= progress_percentage %>"></div>
+                <div class="progress-steps">
+                  <% ['pending', 'confirmed', 'processing', 'shipped', 'delivered'].each_with_index do |status, index| %>
+                    <div class="progress-step <%= 'completed' if index < (['pending', 'confirmed', 'processing', 'shipped', 'delivered'].index(order.order_status) || 0) %> <%= 'active' if order.order_status == status %>">
+                    </div>
+                  <% end %>
                 </div>
-              <% end %>
+              </div>
             </div>
           </div>
 
-          <div class="card-footer">
-            <div class="status-section">
-              <span class="status-badge status-<%= order.has_pending_refund_resolution? ? 'pending_resolution' : order.order_status %> <%= 'status-pending_resolution' if order.has_pending_refund_resolution? %>">
-                <span class="status-icon"></span>
-                <%= order.display_status %>
-              </span>
+          <!-- Card Footer - Financial summary and actions -->
+          <div class="card-footer-modern">
+            <div class="financial-section">
+              <div class="total-amount">
+                <span class="amount-value">$<%= number_with_delimiter(order.total_amount) %></span>
+                <div class="amount-breakdown">
+                  <% breakdown_parts = [] %>
+                  <% breakdown_parts << "$#{number_with_delimiter(order.product_price)}" %>
+                  <% if order.tax_amount.present? && order.tax_amount > 0 %>
+                    <% breakdown_parts << "+$#{number_with_delimiter(order.tax_amount)}" %>
+                  <% end %>
+                  <% if order.shipping_cost.present? && order.shipping_cost > 0 %>
+                    <% breakdown_parts << "+$#{number_with_delimiter(order.shipping_cost)}" %>
+                  <% end %>
+                  <%= breakdown_parts.join(' ') %>
+                </div>
+              </div>
             </div>
             
-            <div class="price-section">
-              <div class="total-amount">$<%= number_with_delimiter(order.total_amount) %></div>
-              <div class="price-breakdown">
-                Product: $<%= number_with_delimiter(order.product_price) %>
-                <% if order.tax_amount.present? && order.tax_amount > 0 %>
-                  + Tax: $<%= number_with_delimiter(order.tax_amount) %>
+            <div class="actions-section" onclick="event.stopPropagation();">
+              <div class="quick-actions">
+                <%= link_to order_path(order), class: "action-icon", title: "View Details" do %>
+                  <i class="fas fa-eye"></i>
+                <% end %>
+                <%= link_to edit_order_path(order), class: "action-icon", title: "Edit Order" do %>
+                  <i class="fas fa-edit"></i>
+                <% end %>
+                <% if order.dispatch.present? %>
+                  <%= link_to dispatch_path(order.dispatch), class: "action-icon dispatch-active", title: "View Dispatch" do %>
+                    <i class="fas fa-truck"></i>
+                  <% end %>
+                <% else %>
+                  <%= link_to new_dispatch_path(order_id: order.id), class: "action-icon dispatch-create", title: "Create Dispatch" do %>
+                    <i class="fas fa-plus-circle"></i>
+                  <% end %>
                 <% end %>
               </div>
-            </div>
-          </div>
-
-          <!-- Hover Actions -->
-          <div class="card-actions" onclick="event.stopPropagation();">
-            <div class="action-menu">
-              <%= link_to order_path(order), class: "action-btn" do %>
-                <i class="fas fa-eye"></i>
-                View Details
-              <% end %>
-              <%= link_to edit_order_path(order), class: "action-btn" do %>
-                <i class="fas fa-edit"></i>
-                Edit Order
-              <% end %>
-              <% if order.dispatch.present? %>
-                <%= link_to dispatch_path(order.dispatch), class: "action-btn" do %>
-                  <i class="fas fa-truck"></i>
-                  View Dispatch
-                <% end %>
-              <% else %>
-                <%= link_to new_dispatch_path(order_id: order.id), class: "action-btn" do %>
-                  <i class="fas fa-plus"></i>
-                  Create Dispatch
-                <% end %>
-              <% end %>
             </div>
           </div>
         </div>
