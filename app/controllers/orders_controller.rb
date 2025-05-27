@@ -102,7 +102,10 @@ class OrdersController < ApplicationController
     if @order.update(order_params)
       respond_to do |format|
         format.html { redirect_to @order, notice: 'Order was successfully updated.' }
-        format.turbo_stream
+        format.turbo_stream { 
+          load_orders_for_index
+          render :update 
+        }
       end
     else
       load_form_data
@@ -181,6 +184,31 @@ class OrdersController < ApplicationController
 
   def set_order
     @order = Order.find(params[:id])
+  end
+  
+  def load_orders_for_index
+    @orders = Order.includes(:customer, :product, :agent, :processing_agent, :dispatch)
+                   .recent
+    
+    # Apply filters
+    @orders = @orders.by_status(params[:status]) if params[:status].present?
+    @orders = @orders.by_priority(params[:priority]) if params[:priority].present?
+    @orders = @orders.by_agent(params[:agent_id]) if params[:agent_id].present?
+    
+    # Search functionality
+    if params[:search].present?
+      search_term = "%#{params[:search]}%"
+      @orders = @orders.joins(:customer)
+                       .where("orders.order_number LIKE ? OR customers.name LIKE ? OR orders.product_name LIKE ?", 
+                              search_term, search_term, search_term)
+    end
+
+    @orders = @orders.page(params[:page]).per(25) if defined?(Kaminari)
+
+    # For filter dropdowns (needed for the view)
+    @agents = User.all
+    @statuses = Order.order_statuses.keys
+    @priorities = Order.priorities.keys
   end
 
   def order_params

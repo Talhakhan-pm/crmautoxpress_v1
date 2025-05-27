@@ -92,7 +92,10 @@ class DispatchesController < ApplicationController
     if @dispatch.update(dispatch_params)
       respond_to do |format|
         format.html { redirect_to dispatches_path, notice: 'Dispatch was successfully updated.' }
-        format.turbo_stream { render :update }
+        format.turbo_stream { 
+          load_dispatches_for_index
+          render :update 
+        }
       end
     else
       load_form_data
@@ -405,6 +408,36 @@ class DispatchesController < ApplicationController
 
   def set_dispatch
     @dispatch = Dispatch.find(params[:id])
+  end
+  
+  def load_dispatches_for_index
+    @dispatches = Dispatch.includes(:order, :processing_agent)
+                          .recent
+    
+    # Apply filters
+    @dispatches = @dispatches.by_status(params[:status]) if params[:status].present?
+    @dispatches = @dispatches.by_payment_status(params[:payment_status]) if params[:payment_status].present?
+    @dispatches = @dispatches.by_shipment_status(params[:shipment_status]) if params[:shipment_status].present?
+    @dispatches = @dispatches.by_agent(params[:agent_id]) if params[:agent_id].present?
+    @dispatches = @dispatches.by_supplier(params[:supplier]) if params[:supplier].present?
+    
+    # Search functionality
+    if params[:search].present?
+      search_term = "%#{params[:search].downcase}%"
+      @dispatches = @dispatches.joins(:order).where(
+        "LOWER(dispatches.order_number) LIKE ? OR LOWER(dispatches.customer_name) LIKE ? OR LOWER(dispatches.product_name) LIKE ? OR LOWER(dispatches.supplier_name) LIKE ? OR LOWER(dispatches.tracking_number) LIKE ?",
+        search_term, search_term, search_term, search_term, search_term
+      )
+    end
+
+    @dispatches = @dispatches.page(params[:page]).per(25) if defined?(Kaminari)
+
+    # For filter dropdowns
+    @agents = User.all
+    @statuses = Dispatch.dispatch_statuses.keys
+    @payment_statuses = Dispatch.payment_statuses.keys
+    @shipment_statuses = Dispatch.shipment_statuses.keys
+    @suppliers = Dispatch.distinct.pluck(:supplier_name).compact.sort
   end
 
   def dispatch_params

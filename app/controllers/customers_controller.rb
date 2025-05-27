@@ -47,7 +47,10 @@ class CustomersController < ApplicationController
     respond_to do |format|
       if @customer.update(customer_params)
         format.html { redirect_to @customer, notice: 'Customer was successfully updated.' }
-        format.turbo_stream { render :update }
+        format.turbo_stream { 
+          load_customers_for_index
+          render :update 
+        }
       else
         format.html { render :edit, status: :unprocessable_entity }
         format.turbo_stream { render :edit, status: :unprocessable_entity }
@@ -59,6 +62,37 @@ class CustomersController < ApplicationController
 
   def set_customer
     @customer = Customer.find(params[:id])
+  end
+  
+  def load_customers_for_index
+    @customers = Customer.includes(:agent_callbacks)
+                        .order(created_at: :desc)
+    
+    # Filter by search
+    if params[:search].present?
+      @customers = @customers.where(
+        "name LIKE ? OR phone_number LIKE ? OR email LIKE ?", 
+        "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%"
+      )
+    end
+    
+    # Filter by status
+    if params[:status].present?
+      @customers = @customers.where(status: params[:status])
+    end
+    
+    # Filter by source
+    if params[:source].present?
+      case params[:source]
+      when 'google_ads'
+        @customers = @customers.google_ads
+      when 'with_callbacks'
+        @customers = @customers.with_callbacks
+      end
+    end
+    
+    # Track views for loaded customers
+    @customers.limit(50).each(&:track_view)
   end
 
   def customer_params

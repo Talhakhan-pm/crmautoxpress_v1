@@ -92,7 +92,10 @@ class RefundsController < ApplicationController
     if @refund.update(refund_params)
       respond_to do |format|
         format.html { redirect_to refunds_path, notice: 'Refund was successfully updated.' }
-        format.turbo_stream { render :update }
+        format.turbo_stream { 
+          load_refunds_for_index
+          render :update 
+        }
       end
     else
       load_form_data
@@ -199,6 +202,34 @@ class RefundsController < ApplicationController
   def load_form_data
     @orders = Order.includes(:customer, :dispatch).order(created_at: :desc).limit(100)
     @agents = User.order(:email)
+  end
+
+  def load_refunds_for_index
+    @refunds = Refund.includes(:order, :processing_agent)
+                     .recent
+    
+    # Apply filters
+    @refunds = @refunds.by_stage(params[:stage]) if params[:stage].present?
+    @refunds = @refunds.by_reason(params[:reason]) if params[:reason].present?
+    @refunds = @refunds.by_agent(params[:agent_id]) if params[:agent_id].present?
+    @refunds = @refunds.by_priority(params[:priority]) if params[:priority].present?
+    
+    # Search functionality
+    if params[:search].present?
+      search_term = "%#{params[:search].downcase}%"
+      @refunds = @refunds.joins(:order).where(
+        "LOWER(refunds.refund_number) LIKE ? OR LOWER(refunds.customer_name) LIKE ? OR LOWER(orders.order_number) LIKE ? OR LOWER(refunds.transaction_id) LIKE ?",
+        search_term, search_term, search_term, search_term
+      )
+    end
+
+    @refunds = @refunds.page(params[:page]).per(25) if defined?(Kaminari)
+
+    # For filter dropdowns
+    @agents = User.all
+    @stages = Refund.refund_stages.keys
+    @reasons = Refund.refund_reasons.keys
+    @priorities = Refund.priorities.keys
   end
 
   def populate_from_order(order)

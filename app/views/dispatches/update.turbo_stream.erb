@@ -1,11 +1,10 @@
-<%= turbo_stream.replace dom_id(@dispatch) do %>
-  <%= render 'dispatch', dispatch: @dispatch %>
-<% end %>
-
 <%= turbo_stream.replace "flash-messages" do %>
-  <%= render "shared/flash_messages", flash: { notice: 'Dispatch was successfully updated.' } %>
+  <div class="alert alert-success">
+    <i class="fas fa-check-circle"></i>
+    Dispatch was successfully updated.
+  </div>
 <% end %>
 
 <%= turbo_stream.replace "main_content" do %>
-  <%= render 'dispatches/index' %>
+  <%= render template: 'dispatches/index' %>
 <% end %>
