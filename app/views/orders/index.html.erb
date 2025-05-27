@@ -2,20 +2,21 @@
 <%= turbo_stream_from "orders" %>
 <div class="main-content">
   <div class="orders-container">
-    <!-- Hero Section -->
+    <!-- Compact CRM Header -->
     <div class="orders-hero">
       <div class="orders-hero-content">
-        <div class="hero-left">
-          <h1 class="hero-title">
-            <i class="fas fa-shopping-cart"></i>
-            Order Management
-          </h1>
-          <p class="hero-subtitle">Track, manage, and fulfill customer orders with intelligent automation</p>
+        <div class="hero-stats">
+          <div class="hero-title-section">
+            <h1 class="hero-title">
+              <span class="title-accent">Orders</span>
+            </h1>
+            <p class="hero-subtitle">Manage pipeline</p>
+          </div>
           
-          <div class="hero-stats">
+          <div class="stats-container">
             <div class="hero-stat">
               <span class="stat-value"><%= @orders.count %></span>
-              <span class="stat-label">Total Orders</span>
+              <span class="stat-label">Total</span>
             </div>
             <div class="hero-stat">
               <span class="stat-value"><%= @orders.where(order_status: ['pending', 'confirmed']).count %></span>
@@ -23,25 +24,20 @@
             </div>
             <div class="hero-stat">
               <span class="stat-value"><%= @orders.where(order_status: 'shipped').count %></span>
-              <span class="stat-label">In Transit</span>
+              <span class="stat-label">Shipping</span>
             </div>
             <div class="hero-stat">
-              <span class="stat-value">$<%= @orders.sum(:total_amount).to_i.to_s.gsub(/\B(?=(\d{3})+(?!\d))/, ',') %></span>
-              <span class="stat-label">Total Value</span>
+              <span class="stat-value stat-currency">$<%= @orders.sum(:total_amount).to_i.to_s.gsub(/\B(?=(\d{3})+(?!\d))/, ',') %></span>
+              <span class="stat-label">Revenue</span>
             </div>
           </div>
-        </div>
-        
-        <div class="hero-actions">
-          <%= link_to new_order_path, class: "btn-hero btn-hero-primary", data: { turbo_frame: "main_content" } do %>
-            <i class="fas fa-plus"></i>
-            New Order
-          <% end %>
           
-          <a href="#" class="btn-hero" onclick="showAdvancedFilters()">
-            <i class="fas fa-filter"></i>
-            Advanced Filters
-          </a>
+          <div class="hero-actions">
+            <%= link_to new_order_path, class: "btn-hero btn-hero-primary", data: { turbo_frame: "main_content" } do %>
+              <i class="fas fa-plus"></i>
+              New Order
+            <% end %>
+          </div>
         </div>
       </div>
     </div>
