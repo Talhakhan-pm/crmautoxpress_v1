@@ -1,7 +1,7 @@
 <%= turbo_frame_tag "main_content", data: { turbo_action: "advance" } do %>
 <%= turbo_stream_from "orders" %>
 <div class="main-content">
-  <div class="orders-container">
+  <div class="orders-container" data-controller="orders-filter" data-orders-filter-url-value="<%= orders_path %>">
     <!-- Compact CRM Header -->
     <div class="orders-hero">
       <div class="orders-hero-content">
@@ -44,7 +44,10 @@
 
     <!-- Smart Filters -->
     <div class="smart-filters">
-      <%= form_with url: orders_path, method: :get, local: true, class: "filters-form", data: { turbo_frame: "main_content" } do |form| %>
+      <%= form_with url: orders_path, method: :get, class: "filters-form", data: { 
+            turbo_frame: "orders-frame",
+            orders_filter_target: "form"
+          } do |form| %>
         <div class="filters-grid">
           <div class="search-group">
             <i class="fas fa-search search-icon"></i>
@@ -52,7 +55,11 @@
                 placeholder: "Search orders, customers, products...", 
                 value: params[:search],
                 class: "search-input",
-                autocomplete: "off" %>
+                autocomplete: "off",
+                data: { 
+                  orders_filter_target: "searchInput",
+                  action: "input->orders-filter#search"
+                } %>
           </div>
           
           <%= form.select :status, 
@@ -66,7 +73,10 @@
                 ['Cancelled', 'cancelled']
               ], params[:status]),
               {}, 
-              { class: "filter-select", onchange: "this.form.submit();" } %>
+              { 
+                class: "filter-select",
+                data: { action: "change->orders-filter#change" }
+              } %>
           
           <%= form.select :priority,
               options_for_select([
@@ -78,15 +88,22 @@
                 ['Urgent', 'urgent']
               ], params[:priority]),
               {},
-              { class: "filter-select", onchange: "this.form.submit();" } %>
+              { 
+                class: "filter-select",
+                data: { action: "change->orders-filter#change" }
+              } %>
               
           <div class="view-toggle">
-            <button type="button" class="view-btn <%= 'active' unless params[:view] == 'table' %>" 
-                    onclick="setView('cards')">
+            <button type="button" 
+                    class="view-btn <%= 'active' unless params[:view] == 'table' %>" 
+                    data-action="click->orders-filter#setView"
+                    data-orders-filter-view-param="cards">
               <i class="fas fa-th-large"></i>
             </button>
-            <button type="button" class="view-btn <%= 'active' if params[:view] == 'table' %>" 
-                    onclick="setView('table')">
+            <button type="button" 
+                    class="view-btn <%= 'active' if params[:view] == 'table' %>" 
+                    data-action="click->orders-filter#setView"
+                    data-orders-filter-view-param="table">
               <i class="fas fa-list"></i>
             </button>
           </div>
@@ -95,8 +112,12 @@
     </div>
 
     <!-- Orders Content -->
-    <div id="orders-content">
-      <%= render 'orders_content', orders: @orders %>
+    <div data-orders-filter-target="ordersFrame">
+      <%= turbo_frame_tag "orders-frame" do %>
+        <div id="orders-content">
+          <%= render 'orders_content', orders: @orders %>
+        </div>
+      <% end %>
     </div>
 
     <!-- Quick Action Button -->
@@ -115,12 +136,14 @@
   <div class="filters-modal">
     <div class="modal-header">
       <h3 class="modal-title">Advanced Filters</h3>
-      <button type="button" onclick="hideAdvancedFilters()" class="close-btn">
+      <button type="button" 
+              data-action="click->orders-filter#hideAdvancedFilters"
+              class="close-btn">
         <i class="fas fa-times"></i>
       </button>
     </div>
     
-    <%= form_with url: orders_path, method: :get, local: true, class: "advanced-filters-form", data: { turbo_frame: "main_content" } do |form| %>
+    <%= form_with url: orders_path, method: :get, local: true, class: "advanced-filters-form", data: { turbo_frame: "orders-frame" } do |form| %>
       <div class="modal-body">
         <div class="filter-group">
           <label class="filter-label">Date Range</label>
@@ -162,65 +185,13 @@
       </div>
       
       <div class="modal-footer">
-        <button type="button" onclick="clearFilters()" class="btn btn-secondary">Clear All</button>
+        <button type="button" 
+                data-action="click->orders-filter#clearFilters"
+                class="btn btn-secondary">Clear All</button>
         <%= form.submit "Apply Filters", class: "btn btn-primary" %>
       </div>
     <% end %>
   </div>
 </div>
 
-<script>
-function setView(view) {
-  const url = new URL(window.location);
-  if (view === 'table') {
-    url.searchParams.set('view', 'table');
-  } else {
-    url.searchParams.delete('view');
-  }
-  
-  // Use Turbo to navigate within the frame
-  const mainFrame = document.querySelector('turbo-frame#main_content');
-  if (mainFrame) {
-    mainFrame.src = url.toString();
-  } else {
-    window.Turbo.visit(url.toString());
-  }
-}
-
-function showAdvancedFilters() {
-  document.getElementById('advanced-filters').classList.add('active');
-  document.body.style.overflow = 'hidden';
-}
-
-function hideAdvancedFilters() {
-  document.getElementById('advanced-filters').classList.remove('active');
-  document.body.style.overflow = 'auto';
-}
-
-function clearFilters() {
-  // Use Turbo to navigate within the frame
-  const mainFrame = document.querySelector('turbo-frame#main_content');
-  if (mainFrame) {
-    mainFrame.src = '<%= orders_path %>';
-  } else {
-    window.Turbo.visit('<%= orders_path %>');
-  }
-}
-
-// Auto-submit search after typing
-let searchTimeout;
-document.querySelector('.search-input')?.addEventListener('input', function() {
-  clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(() => {
-    this.form.submit();
-  }, 500);
-});
-
-// Close modal on outside click
-document.getElementById('advanced-filters')?.addEventListener('click', function(e) {
-  if (e.target === this) {
-    hideAdvancedFilters();
-  }
-});
-</script>
 <% end %>
