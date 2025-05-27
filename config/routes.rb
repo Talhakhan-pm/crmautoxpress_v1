@@ -3,6 +3,7 @@ Rails.application.routes.draw do
   resources :orders do
     member do
       get :get_callback
+      get :get_order_details
     end
   end
   
@@ -10,7 +11,22 @@ Rails.application.routes.draw do
   get "test_broadcast", to: "orders#test_broadcast"
   
   # Dispatches routes  
-  resources :dispatches
+  resources :dispatches do
+    member do
+      patch :retry_dispatch
+      post :create_replacement_order
+      patch :process_full_refund
+    end
+  end
+  
+  # Refunds routes
+  resources :refunds do
+    member do
+      patch :process_refund
+      patch :cancel_refund
+      post :create_replacement
+    end
+  end
   devise_for :users
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

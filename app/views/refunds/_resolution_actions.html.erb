@@ -1,0 +1,50 @@
+<% if refund.refund_stage == 'pending_resolution' %>
+  <div class="resolution-actions mt-3 p-3 bg-light rounded">
+    <h6 class="fw-bold mb-3 text-center">
+      <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+      Choose Resolution
+    </h6>
+    
+    <div class="row g-2">
+      <div class="col-4">
+        <%= link_to retry_dispatch_dispatch_path(refund.order.dispatch), 
+                    method: :patch, 
+                    class: "btn btn-outline-primary btn-sm w-100 resolution-btn",
+                    confirm: "Retry dispatch with a different supplier?" do %>
+          <i class="fas fa-redo d-block mb-1"></i>
+          <small class="d-block">Retry</small>
+          <small class="text-muted d-block">Different supplier</small>
+        <% end %>
+      </div>
+      
+      <div class="col-4">
+        <%= link_to create_replacement_order_dispatch_path(refund.order.dispatch), 
+                    method: :post, 
+                    class: "btn btn-outline-info btn-sm w-100 resolution-btn",
+                    confirm: "Create a replacement order?" do %>
+          <i class="fas fa-exchange-alt d-block mb-1"></i>
+          <small class="d-block">Replace</small>
+          <small class="text-muted d-block">New order</small>
+        <% end %>
+      </div>
+      
+      <div class="col-4">
+        <%= link_to process_full_refund_dispatch_path(refund.order.dispatch), 
+                    method: :patch, 
+                    class: "btn btn-outline-success btn-sm w-100 resolution-btn",
+                    confirm: "Process full refund and cancel order?" do %>
+          <i class="fas fa-money-bill-wave d-block mb-1"></i>
+          <small class="d-block">Refund</small>
+          <small class="text-muted d-block">Cancel order</small>
+        <% end %>
+      </div>
+    </div>
+    
+    <div class="text-center mt-2">
+      <small class="text-muted">
+        <i class="fas fa-clock me-1"></i>
+        <%= pluralize(refund.days_since_request, 'day') %> since dispatch cancelled
+      </small>
+    </div>
+  </div>
+<% end %>

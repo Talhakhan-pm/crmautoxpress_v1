@@ -120,6 +120,141 @@ class Order < ApplicationRecord
     product_price - dispatch.supplier_cost
   end
 
+  # Unified status badges for orders, dispatches, and refunds
+  def unified_status_badges
+    badges = []
+    
+    # Primary order status
+    badges << {
+      type: 'order',
+      status: order_status,
+      color: status_color,
+      text: order_status.humanize,
+      priority: 1
+    }
+    
+    # Dispatch status if exists
+    if dispatch.present?
+      badges << {
+        type: 'dispatch',
+        status: dispatch.dispatch_status,
+        color: dispatch.status_color,
+        text: "Dispatch: #{dispatch.dispatch_status.humanize}",
+        priority: 2
+      }
+      
+      # Payment status
+      unless dispatch.payment_pending?
+        badges << {
+          type: 'payment',
+          status: dispatch.payment_status,
+          color: dispatch.payment_status_color,
+          text: "Payment: #{dispatch.payment_status.humanize}",
+          priority: 3
+        }
+      end
+    end
+    
+    # Refund status if exists
+    if refunds.any?
+      latest_refund = refunds.recent.first
+      refund_text = latest_refund.refund_stage.humanize
+      
+      # Special handling for pending resolution
+      if latest_refund.refund_stage == 'pending_resolution'
+        refund_text = "Needs Resolution"
+      end
+      
+      badges << {
+        type: 'refund',
+        status: latest_refund.refund_stage,
+        color: latest_refund.stage_color,
+        text: "Refund: #{refund_text}",
+        priority: 4,
+        pulsing: latest_refund.refund_stage == 'pending_resolution'
+      }
+    end
+    
+    badges.sort_by { |badge| badge[:priority] }
+  end
+
+  # Unified timeline combining order, dispatch, and refund activities
+  def unified_timeline(limit = 10)
+    timeline_items = []
+    
+    # Order activities
+    timeline_items += activities.includes(:user).map do |activity|
+      {
+        type: 'order',
+        timestamp: activity.created_at,
+        action: activity.action,
+        details: activity.details,
+        user: activity.user,
+        model: self,
+        activity: activity
+      }
+    end
+    
+    # Dispatch activities
+    if dispatch.present?
+      timeline_items += dispatch.activities.includes(:user).map do |activity|
+        {
+          type: 'dispatch',
+          timestamp: activity.created_at,
+          action: activity.action,
+          details: activity.details,
+          user: activity.user,
+          model: dispatch,
+          activity: activity
+        }
+      end
+    end
+    
+    # Refund activities
+    refunds.each do |refund|
+      timeline_items += refund.activities.includes(:user).map do |activity|
+        {
+          type: 'refund',
+          timestamp: activity.created_at,
+          action: activity.action,
+          details: activity.details,
+          user: activity.user,
+          model: refund,
+          activity: activity
+        }
+      end
+    end
+    
+    # Sort by timestamp and limit
+    timeline_items.sort_by { |item| item[:timestamp] }.reverse.first(limit)
+  end
+
+  def has_active_refunds?
+    refunds.pending.any?
+  end
+
+  def has_completed_refunds?
+    refunds.completed.any?
+  end
+
+  def total_refunded_amount
+    refunds.where(refund_stage: ['refunded', 'returned']).sum(:refund_amount)
+  end
+
+  def refund_status_summary
+    return nil unless refunds.any?
+    
+    pending_count = refunds.pending.count
+    completed_count = refunds.completed.count
+    total_refunded = total_refunded_amount
+    
+    if pending_count > 0
+      "#{pending_count} pending refund(s)"
+    elsif completed_count > 0
+      "Refunded: $#{total_refunded}"
+    end
+  end
+
 
   private
 
@@ -178,6 +313,7 @@ class Order < ApplicationRecord
       tax_amount: tax_amount,
       shipping_cost: shipping_cost,
       total_cost: total_amount,
+      payment_status: 'paid', # Auto-set payment as paid when order is created
       last_modified_by: last_modified_by
     }
     

@@ -1,0 +1,81 @@
+<% content_for :title, "Refunds Management" %>
+
+<div class="container-fluid p-4">
+  <!-- Header Section -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h3 mb-1 text-gray-900">
+        <i class="fas fa-undo-alt text-warning me-2"></i>
+        Refunds Management
+      </h1>
+      <p class="text-muted mb-0">Track and manage customer refunds, returns, and replacements</p>
+    </div>
+    
+    <div class="d-flex gap-2">
+      <%= link_to new_refund_path, class: "btn btn-primary d-flex align-items-center gap-2" do %>
+        <i class="fas fa-plus"></i>
+        New Refund
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="card mb-4">
+    <div class="card-body py-3">
+      <%= form_with url: refunds_path, method: :get, local: true, class: "d-flex flex-wrap align-items-center gap-3" do |form| %>
+        <!-- Search -->
+        <div class="flex-grow-1" style="min-width: 200px;">
+          <%= form.text_field :search, 
+                placeholder: "Search refunds, order numbers, customers...", 
+                value: params[:search],
+                class: "form-control" %>
+        </div>
+        
+        <!-- Stage Filter -->
+        <div>
+          <%= form.select :stage, 
+                options_for_select([['All Stages', '']] + @stages.map { |s| [s.humanize, s] }, params[:stage]),
+                {}, 
+                { class: "form-select", style: "width: 150px;" } %>
+        </div>
+        
+        <!-- Reason Filter -->
+        <div>
+          <%= form.select :reason, 
+                options_for_select([['All Reasons', '']] + @reasons.map { |r| [r.humanize, r] }, params[:reason]),
+                {}, 
+                { class: "form-select", style: "width: 150px;" } %>
+        </div>
+        
+        <!-- Priority Filter -->
+        <div>
+          <%= form.select :priority, 
+                options_for_select([['All Priorities', '']] + @priorities.map { |p| [p.humanize, p] }, params[:priority]),
+                {}, 
+                { class: "form-select", style: "width: 120px;" } %>
+        </div>
+        
+        <!-- Agent Filter -->
+        <div>
+          <%= form.select :agent_id, 
+                options_for_select([['All Agents', '']] + @agents.map { |a| [a.email, a.id] }, params[:agent_id]),
+                {}, 
+                { class: "form-select", style: "width: 150px;" } %>
+        </div>
+        
+        <div class="d-flex gap-2">
+          <%= form.submit "Filter", class: "btn btn-outline-primary" %>
+          <%= link_to "Clear", refunds_path, class: "btn btn-outline-secondary" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Refunds Content -->
+  <div id="refunds-content">
+    <%= render 'refunds_content', refunds: @refunds %>
+  </div>
+</div>
+
+<!-- Subscribe to Turbo broadcasts -->
+<%= turbo_stream_from "refunds" %>

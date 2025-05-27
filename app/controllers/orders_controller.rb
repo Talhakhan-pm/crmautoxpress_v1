@@ -130,6 +130,23 @@ class OrdersController < ApplicationController
     render json: { error: 'Callback not found' }, status: 404
   end
 
+  # AJAX endpoint for order details (for refund form)
+  def get_order_details
+    order = Order.find(params[:id])
+    render json: {
+      id: order.id,
+      order_number: order.order_number,
+      customer_name: order.customer_name,
+      customer_email: order.customer_email,
+      customer_phone: order.customer_phone,
+      total_amount: order.total_amount,
+      product_name: order.product_name,
+      order_status: order.order_status
+    }
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: 'Order not found' }, status: 404
+  end
+
   # Test broadcast action
   def test_broadcast
     agent = User.first

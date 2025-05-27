@@ -11,7 +11,10 @@ class Refund < ApplicationRecord
     returned: 4,
     urgent_refund: 5,
     failed_refund: 6,
-    cancelled_refund: 7
+    cancelled_refund: 7,
+    pending_resolution: 8,
+    pending_replacement: 9,
+    pending_retry: 10
   }
 
   enum refund_reason: {
@@ -74,7 +77,7 @@ class Refund < ApplicationRecord
   scope :by_agent, ->(agent_id) { where(processing_agent_id: agent_id) }
   scope :by_priority, ->(priority) { where(priority: priority) }
   scope :today, -> { where(refund_date: Date.current.beginning_of_day..Date.current.end_of_day) }
-  scope :pending, -> { where(refund_stage: [:pending_refund, :processing_refund, :pending_return]) }
+  scope :pending, -> { where(refund_stage: [:pending_refund, :processing_refund, :pending_return, :pending_resolution, :pending_replacement, :pending_retry]) }
   scope :completed, -> { where(refund_stage: [:refunded, :returned]) }
 
   def stage_color
@@ -87,6 +90,9 @@ class Refund < ApplicationRecord
     when 'urgent_refund' then 'danger'
     when 'failed_refund' then 'danger'
     when 'cancelled_refund' then 'secondary'
+    when 'pending_resolution' then 'warning'
+    when 'pending_replacement' then 'info'
+    when 'pending_retry' then 'primary'
     else 'secondary'
     end
   end
@@ -191,12 +197,84 @@ class Refund < ApplicationRecord
 
   def sync_order_status
     return unless order.present?
+    old_stage = refund_stage_was
     
     case refund_stage
     when 'refunded', 'returned'
       order.update!(order_status: 'refunded') unless order.refunded?
+      # Update dispatch payment status if exists
+      if order.dispatch.present?
+        order.dispatch.update!(payment_status: 'refunded')
+      end
     when 'pending_return'
       order.update!(order_status: 'returned') unless order.returned?
+    when 'processing_refund'
+      # Create activity for processing
+      create_activity(
+        action: 'refund_processing',
+        details: "Refund processing started - $#{refund_amount}",
+        user: Current.user
+      )
     end
+    
+    # Broadcast updates when stage changes
+    if old_stage != refund_stage
+      broadcast_unified_updates
+    end
+  end
+
+  def broadcast_unified_updates
+    # Trigger broadcasts for order and dispatch views as well
+    order.send(:broadcast_orders_update) if order.present?
+    order.dispatch.send(:broadcast_dispatch_updates) if order.dispatch.present?
+  end
+
+  def create_replacement_order
+    return nil unless order.present?
+    return replacement_order if replacement_order_number.present?
+    
+    # Create new order as replacement
+    replacement = Order.create!(
+      customer_name: order.customer_name,
+      customer_address: order.customer_address,
+      customer_phone: order.customer_phone,
+      customer_email: order.customer_email,
+      product_name: order.product_name,
+      car_year: order.car_year,
+      car_make_model: order.car_make_model,
+      product_price: order.product_price,
+      tax_amount: order.tax_amount,
+      shipping_cost: order.shipping_cost,
+      total_amount: order.total_amount,
+      agent_id: order.agent_id,
+      processing_agent_id: processing_agent_id,
+      priority: 'high', # Replacements should be high priority
+      source_channel: 'replacement',
+      order_status: 'confirmed',
+      comments: "Replacement order for #{order.order_number} (Refund: #{refund_number})"
+    )
+    
+    # Link the replacement
+    update!(replacement_order_number: replacement.order_number)
+    
+    # Create activities
+    create_activity(
+      action: 'replacement_created',
+      details: "Replacement order #{replacement.order_number} created",
+      user: Current.user
+    )
+    
+    replacement.create_activity(
+      action: 'created_as_replacement',
+      details: "Created as replacement for order #{order.order_number}",
+      user: Current.user
+    )
+    
+    replacement
+  end
+
+  def replacement_order
+    return nil unless replacement_order_number.present?
+    Order.find_by(order_number: replacement_order_number)
   end
 end

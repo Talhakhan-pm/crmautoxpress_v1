@@ -1,0 +1,244 @@
+// ============================================
+// REFUNDS SPECIFIC STYLING
+// ============================================
+
+.refund-card {
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+    border-color: rgba(245, 158, 11, 0.3);
+  }
+  
+  .card-header {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    background-size: 200% 200%;
+    animation: gradient-shift 3s ease infinite;
+    border-bottom: none;
+    color: white;
+    
+    .badge {
+      background: rgba(255, 255, 255, 0.2) !important;
+      color: white !important;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+  }
+}
+
+// Refund stage badges
+.badge {
+  &.bg-warning {
+    background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+  }
+  
+  &.bg-success {
+    background: linear-gradient(135deg, #10b981, #059669) !important;
+  }
+  
+  &.bg-info {
+    background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
+  }
+  
+  &.bg-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+  }
+  
+  &.bg-secondary {
+    background: linear-gradient(135deg, #6b7280, #4b5563) !important;
+  }
+}
+
+// Progress bars for refund percentage
+.progress {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  
+  .progress-bar {
+    transition: width 0.8s ease;
+    border-radius: 8px;
+    
+    &.bg-success {
+      background: linear-gradient(90deg, #10b981, #059669) !important;
+    }
+    
+    &.bg-info {
+      background: linear-gradient(90deg, #3b82f6, #2563eb) !important;
+    }
+    
+    &.bg-warning {
+      background: linear-gradient(90deg, #f59e0b, #d97706) !important;
+    }
+  }
+}
+
+// Timeline styling for refund activity
+.timeline {
+  .timeline-item {
+    position: relative;
+    
+    &:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 40px;
+      width: 2px;
+      height: calc(100% - 20px);
+      background: linear-gradient(to bottom, #e5e7eb, transparent);
+    }
+  }
+}
+
+// Refund form specific styling
+.refund-form {
+  .form-input:focus {
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+  }
+  
+  .form-select:focus {
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+  }
+  
+  .btn-primary {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    border: none;
+    
+    &:hover {
+      background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+      transform: translateY(-1px);
+    }
+  }
+}
+
+// Quick action buttons
+.quick-action-btn {
+  &.process-refund {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    
+    &:hover {
+      background: linear-gradient(135deg, #059669, #047857);
+      transform: translateY(-1px);
+    }
+  }
+  
+  &.cancel-refund {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    
+    &:hover {
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+      transform: translateY(-1px);
+    }
+  }
+  
+  &.create-replacement {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    
+    &:hover {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      transform: translateY(-1px);
+    }
+  }
+}
+
+// Resolution actions styling
+.resolution-actions {
+  border: 2px solid #f59e0b;
+  background: linear-gradient(135deg, #fef3c7, #fbbf24, #f59e0b);
+  animation: subtle-glow 3s ease-in-out infinite;
+  
+  .resolution-btn {
+    transition: all 0.3s ease;
+    text-align: center;
+    padding: 12px 8px;
+    font-size: 0.8rem;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    i {
+      font-size: 1.2rem;
+    }
+  }
+}
+
+// Overdue indicator
+.text-danger {
+  &.overdue {
+    animation: pulse-danger 2s infinite;
+  }
+}
+
+// Pulsing badge for pending resolution
+.pulsing-badge {
+  animation: pulse-warning 2s infinite;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+}
+
+@keyframes pulse-danger {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes pulse-warning {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes subtle-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.6);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .refund-card {
+    margin-bottom: 1rem;
+    
+    .card-body {
+      padding: 1rem;
+    }
+    
+    .badge {
+      font-size: 0.7rem;
+    }
+  }
+  
+  .timeline {
+    .timeline-item {
+      &::after {
+        left: 12px;
+      }
+    }
+  }
+}

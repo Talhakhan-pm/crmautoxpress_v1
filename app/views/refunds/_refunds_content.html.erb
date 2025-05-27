@@ -1,0 +1,30 @@
+<div class="row g-3">
+  <% refunds.each do |refund| %>
+    <div class="col-lg-6 col-xl-4">
+      <%= render 'refund', refund: refund %>
+    </div>
+  <% end %>
+  
+  <% if refunds.empty? %>
+    <div class="col-12">
+      <div class="card border-0 text-center py-5">
+        <div class="card-body">
+          <i class="fas fa-undo-alt text-muted mb-3" style="font-size: 3rem;"></i>
+          <h5 class="text-muted">No refunds found</h5>
+          <p class="text-muted mb-3">
+            <% if params[:search].present? || params[:stage].present? || params[:reason].present? %>
+              Try adjusting your filters to see more results.
+            <% else %>
+              Get started by creating your first refund.
+            <% end %>
+          </p>
+          <% unless params[:search].present? || params[:stage].present? || params[:reason].present? %>
+            <%= link_to new_refund_path, class: "btn btn-primary" do %>
+              <i class="fas fa-plus me-2"></i>Create First Refund
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

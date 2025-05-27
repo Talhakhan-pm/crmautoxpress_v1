@@ -1,0 +1,226 @@
+<% content_for :title, "New Refund" %>
+
+<!-- Unified Modal -->
+<div class="unified-modal theme-yellow active" id="refund-modal">
+  <div class="unified-modal-content">
+    <!-- Modal Header -->
+    <div class="unified-modal-header theme-yellow">
+      <div class="unified-modal-header-content">
+        <h5 class="unified-modal-title">
+          <div class="modal-icon">
+            <i class="fas fa-undo-alt"></i>
+          </div>
+          Create New Refund
+        </h5>
+        <p class="unified-modal-subtitle">Process customer refunds, returns, and replacements</p>
+      </div>
+      <%= link_to refunds_path, class: "unified-modal-close" do %>
+        <i class="fas fa-times"></i>
+      <% end %>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="unified-modal-body">
+      <%= form_with model: @refund, local: true, class: "refund-form", data: { controller: "refund-form" } do |form| %>
+        
+        <!-- Order Selection Section -->
+        <div class="unified-form-section">
+          <div class="unified-section-header">
+            <h6 class="section-title">
+              <i class="fas fa-shopping-cart text-primary"></i>
+              Order Information
+            </h6>
+          </div>
+          
+          <div class="unified-form-grid">
+            <div class="unified-form-group">
+              <%= form.label :order_id, "Order", class: "form-label" %>
+              <%= form.select :order_id, 
+                    options_from_collection_for_select(@orders, :id, :order_number, @refund.order_id), 
+                    { prompt: "Select an order..." },
+                    { class: "form-select", data: { action: "change->refund-form#orderChanged" } } %>
+            </div>
+            
+            <div class="unified-form-group">
+              <%= form.label :customer_name, "Customer Name", class: "form-label" %>
+              <%= form.text_field :customer_name, class: "form-input", readonly: true %>
+            </div>
+            
+            <div class="unified-form-group">
+              <%= form.label :customer_email, "Customer Email", class: "form-label" %>
+              <%= form.email_field :customer_email, class: "form-input" %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Refund Details Section -->
+        <div class="unified-form-section">
+          <div class="unified-section-header">
+            <h6 class="section-title">
+              <i class="fas fa-money-bill-wave text-success"></i>
+              Refund Details
+            </h6>
+          </div>
+          
+          <div class="unified-form-grid">
+            <div class="unified-form-group">
+              <%= form.label :original_charge_amount, "Original Charge Amount", class: "form-label" %>
+              <%= form.number_field :original_charge_amount, step: 0.01, class: "form-input", readonly: true %>
+            </div>
+            
+            <div class="unified-form-group">
+              <%= form.label :refund_amount, "Refund Amount", class: "form-label" %>
+              <%= form.number_field :refund_amount, step: 0.01, class: "form-input", 
+                    data: { action: "input->refund-form#calculatePercentage" } %>
+            </div>
+            
+            <div class="unified-form-group">
+              <%= form.label :refund_reason, "Refund Reason", class: "form-label" %>
+              <%= form.select :refund_reason, 
+                    options_for_select(Refund.refund_reasons.map { |key, value| [key.humanize, key] }), 
+                    { prompt: "Select reason..." },
+                    { class: "form-select" } %>
+            </div>
+            
+            <div class="unified-form-group">
+              <%= form.label :refund_stage, "Initial Stage", class: "form-label" %>
+              <%= form.select :refund_stage, 
+                    options_for_select([
+                      ['Pending Refund', 'pending_refund'],
+                      ['Pending Return', 'pending_return'],
+                      ['Urgent Refund', 'urgent_refund']
+                    ]), 
+                    {},
+                    { class: "form-select" } %>
+            </div>
+            
+            <div class="unified-form-group">
+              <%= form.label :priority, "Priority", class: "form-label" %>
+              <%= form.select :priority, 
+                    options_for_select(Refund.priorities.map { |key, value| [key.humanize, key] }), 
+                    {},
+                    { class: "form-select" } %>
+            </div>
+            
+            <div class="unified-form-group">
+              <%= form.label :estimated_processing_days, "Est. Processing Days", class: "form-label" %>
+              <%= form.number_field :estimated_processing_days, class: "form-input", value: 7 %>
+            </div>
+          </div>
+          
+          <!-- Refund Percentage Display -->
+          <div class="mt-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <small class="text-muted">Refund Percentage</small>
+              <span id="refund-percentage" class="fw-bold text-success">0%</span>
+            </div>
+            <div class="progress" style="height: 8px;">
+              <div id="refund-progress-bar" class="progress-bar bg-success" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment & Return Details -->
+        <div class="unified-form-section">
+          <div class="unified-section-header">
+            <h6 class="section-title">
+              <i class="fas fa-credit-card text-info"></i>
+              Payment & Return Details
+            </h6>
+          </div>
+          
+          <div class="unified-form-grid">
+            <div class="unified-form-group">
+              <%= form.label :refund_method, "Refund Method", class: "form-label" %>
+              <%= form.select :refund_method, 
+                    options_for_select(Refund.refund_methods.map { |key, value| [key.humanize, key] }), 
+                    { prompt: "Select method..." },
+                    { class: "form-select" } %>
+            </div>
+            
+            <div class="unified-form-group">
+              <%= form.label :payment_processor, "Payment Processor", class: "form-label" %>
+              <%= form.text_field :payment_processor, class: "form-input", placeholder: "Stripe, PayPal, etc." %>
+            </div>
+            
+            <div class="unified-form-group">
+              <%= form.label :transaction_id, "Transaction ID", class: "form-label" %>
+              <%= form.text_field :transaction_id, class: "form-input", placeholder: "Original transaction ID" %>
+            </div>
+            
+            <div class="unified-form-group">
+              <%= form.label :return_tracking_number, "Return Tracking Number", class: "form-label" %>
+              <%= form.text_field :return_tracking_number, class: "form-input", placeholder: "If return required" %>
+            </div>
+            
+            <div class="unified-form-group">
+              <%= form.label :return_deadline, "Return Deadline", class: "form-label" %>
+              <%= form.datetime_local_field :return_deadline, class: "form-input" %>
+            </div>
+            
+            <div class="unified-form-group">
+              <%= form.label :processing_agent_id, "Processing Agent", class: "form-label" %>
+              <%= form.select :processing_agent_id, 
+                    options_from_collection_for_select(@agents, :id, :email, current_user.id), 
+                    {},
+                    { class: "form-select" } %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes Section -->
+        <div class="unified-form-section">
+          <div class="unified-section-header">
+            <h6 class="section-title">
+              <i class="fas fa-sticky-note text-secondary"></i>
+              Notes & Comments
+            </h6>
+          </div>
+          
+          <div class="unified-form-grid">
+            <div class="unified-form-group full-width">
+              <%= form.label :notes, "Customer Notes", class: "form-label" %>
+              <%= form.text_area :notes, rows: 3, class: "form-input", 
+                    placeholder: "Notes visible to customer..." %>
+            </div>
+            
+            <div class="unified-form-group full-width">
+              <%= form.label :internal_notes, "Internal Notes", class: "form-label" %>
+              <%= form.text_area :internal_notes, rows: 3, class: "form-input", 
+                    placeholder: "Internal notes for team..." %>
+            </div>
+            
+            <div class="unified-form-group full-width">
+              <%= form.label :bank_details, "Bank Details (if applicable)", class: "form-label" %>
+              <%= form.text_area :bank_details, rows: 2, class: "form-input", 
+                    placeholder: "Bank account details for wire transfers..." %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="unified-form-actions">
+          <div class="primary-actions">
+            <%= link_to refunds_path, class: "btn btn-secondary" do %>
+              <i class="fas fa-times me-2"></i>Cancel
+            <% end %>
+            
+            <%= form.submit "Create Refund", class: "btn btn-primary" do %>
+              <i class="fas fa-plus me-2"></i>Create Refund
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<style>
+  .theme-yellow .unified-modal-header {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  }
+  
+  .theme-yellow .unified-modal {
+    background: rgba(245, 158, 11, 0.1);
+  }
+</style>

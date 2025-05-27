@@ -19,6 +19,20 @@ module Trackable
     )
   end
 
+  def create_activity(action:, details: nil, user: nil)
+    user ||= Current.user
+    return unless user
+    
+    Activity.create!(
+      trackable: self,
+      user: user,
+      action: action.to_s,
+      details: details,
+      ip_address: Current.ip_address,
+      user_agent: Current.user_agent
+    )
+  end
+
   private
 
   def track_changes

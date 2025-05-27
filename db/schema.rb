@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_05_25_042947) do
+ActiveRecord::Schema[7.1].define(version: 2025_05_27_105130) do
   create_table "activities", force: :cascade do |t|
     t.string "trackable_type", null: false
     t.integer "trackable_id", null: false
@@ -23,6 +23,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_25_042947) do
     t.text "user_agent"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "details"
     t.index ["trackable_type", "trackable_id"], name: "index_activities_on_trackable"
     t.index ["user_id"], name: "index_activities_on_user_id"
   end
@@ -162,6 +163,40 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_25_042947) do
     t.index ["status"], name: "index_products_on_status"
   end
 
+  create_table "refunds", force: :cascade do |t|
+    t.integer "order_id"
+    t.integer "processing_agent_id"
+    t.string "refund_number"
+    t.datetime "refund_date"
+    t.string "customer_name"
+    t.string "customer_email"
+    t.decimal "original_charge_amount", precision: 10, scale: 2
+    t.decimal "refund_amount", precision: 10, scale: 2
+    t.integer "refund_stage", default: 0
+    t.integer "refund_reason"
+    t.string "order_status"
+    t.string "agent_name"
+    t.text "notes"
+    t.text "internal_notes"
+    t.string "payment_processor"
+    t.string "transaction_id"
+    t.string "refund_method"
+    t.text "bank_details"
+    t.integer "estimated_processing_days", default: 7
+    t.datetime "completed_at"
+    t.string "last_modified_by"
+    t.integer "priority", default: 1
+    t.string "replacement_order_number"
+    t.string "return_tracking_number"
+    t.datetime "return_deadline"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["order_id"], name: "index_refunds_on_order_id"
+    t.index ["refund_date"], name: "index_refunds_on_refund_date"
+    t.index ["refund_number"], name: "index_refunds_on_refund_number"
+    t.index ["refund_stage"], name: "index_refunds_on_refund_stage"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -176,4 +211,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_25_042947) do
 
   add_foreign_key "activities", "users"
   add_foreign_key "agent_callbacks", "users"
+  add_foreign_key "refunds", "orders"
+  add_foreign_key "refunds", "users", column: "processing_agent_id"
 end

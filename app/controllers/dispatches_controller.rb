@@ -97,6 +97,114 @@ class DispatchesController < ApplicationController
     redirect_to dispatches_url, notice: 'Dispatch was successfully deleted.'
   end
 
+  # Retry dispatch with new supplier
+  def retry_dispatch
+    # Find the pending resolution refund
+    refund = @dispatch.order.refunds.where(refund_stage: 'pending_resolution').first
+    
+    if refund.present?
+      # Update refund to pending retry
+      refund.update!(
+        refund_stage: 'pending_retry',
+        notes: "#{refund.notes}\n\nRetry attempt initiated by #{current_user.email}"
+      )
+      
+      # Reset dispatch to pending for retry
+      @dispatch.update!(
+        dispatch_status: 'pending',
+        supplier_name: nil,
+        supplier_order_number: nil,
+        comments: "#{@dispatch.comments}\n\nRetry attempt - #{Time.current}"
+      )
+      
+      # Create activity
+      @dispatch.create_activity(
+        action: 'dispatch_retry_initiated',
+        details: "Dispatch retry initiated - Looking for alternative supplier",
+        user: current_user
+      )
+      
+      message = "Dispatch retry initiated. Update supplier details to continue."
+    else
+      message = "No pending resolution found for this dispatch."
+    end
+
+    respond_to do |format|
+      format.html { redirect_to dispatches_path, notice: message }
+      format.turbo_stream { redirect_to dispatches_path, notice: message }
+      format.json { render json: { success: refund.present?, message: message } }
+    end
+  end
+
+  # Create replacement order
+  def create_replacement_order
+    # Find the pending resolution refund
+    refund = @dispatch.order.refunds.where(refund_stage: 'pending_resolution').first
+    
+    if refund.present?
+      # Create replacement order via refund
+      replacement_order = refund.create_replacement_order
+      
+      if replacement_order.present?
+        # Update refund stage
+        refund.update!(
+          refund_stage: 'pending_replacement',
+          notes: "#{refund.notes}\n\nReplacement order #{replacement_order.order_number} created"
+        )
+        
+        # Cancel current dispatch
+        @dispatch.update!(dispatch_status: 'cancelled')
+        
+        message = "Replacement order #{replacement_order.order_number} created successfully."
+      else
+        message = "Failed to create replacement order."
+      end
+    else
+      message = "No pending resolution found for this dispatch."
+    end
+
+    respond_to do |format|
+      format.html { redirect_to dispatches_path, notice: message }
+      format.turbo_stream { redirect_to dispatches_path, notice: message }
+      format.json { render json: { success: refund.present?, message: message } }
+    end
+  end
+
+  # Process full refund and cancel everything
+  def process_full_refund
+    # Find the pending resolution refund
+    refund = @dispatch.order.refunds.where(refund_stage: 'pending_resolution').first
+    
+    if refund.present?
+      # Update refund to processing
+      refund.update!(
+        refund_stage: 'processing_refund',
+        notes: "#{refund.notes}\n\nFull refund processing initiated by #{current_user.email}"
+      )
+      
+      # Cancel order and dispatch
+      @dispatch.order.update!(order_status: 'cancelled')
+      @dispatch.update!(dispatch_status: 'cancelled')
+      
+      # Create activity
+      refund.create_activity(
+        action: 'full_refund_processing',
+        details: "Full refund processing - Order and dispatch cancelled",
+        user: current_user
+      )
+      
+      message = "Full refund processing initiated. Order and dispatch cancelled."
+    else
+      message = "No pending resolution found for this dispatch."
+    end
+
+    respond_to do |format|
+      format.html { redirect_to refunds_path, notice: message }
+      format.turbo_stream { redirect_to refunds_path, notice: message }
+      format.json { render json: { success: refund.present?, message: message } }
+    end
+  end
+
   private
 
   def set_dispatch

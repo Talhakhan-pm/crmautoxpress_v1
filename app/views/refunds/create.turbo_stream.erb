@@ -1,0 +1,13 @@
+<%= turbo_stream.prepend "refunds-content" do %>
+  <div class="col-lg-6 col-xl-4">
+    <%= render 'refund', refund: @refund %>
+  </div>
+<% end %>
+
+<%= turbo_stream.replace "flash-messages" do %>
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="fas fa-check-circle me-2"></i>
+    Refund <strong><%= @refund.refund_number %></strong> created successfully!
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+<% end %>

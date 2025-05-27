@@ -2,6 +2,7 @@ class Dispatch < ApplicationRecord
   belongs_to :order
   belongs_to :processing_agent, class_name: 'User'
   has_many :activities, as: :trackable, dependent: :destroy
+  has_many :refunds, through: :order
 
   enum payment_status: {
     payment_pending: 0,
@@ -159,7 +160,8 @@ class Dispatch < ApplicationRecord
 
   def sync_with_order
     return unless order.present?
-
+    old_status = dispatch_status_was
+    
     # Update order status based on dispatch status
     case dispatch_status
     when 'processing'
@@ -169,7 +171,7 @@ class Dispatch < ApplicationRecord
     when 'completed'
       order.update!(order_status: 'delivered') if order.shipped?
     when 'cancelled'
-      order.update!(order_status: 'cancelled')
+      handle_dispatch_cancellation
     end
 
     # Update order tracking number if changed
@@ -181,6 +183,83 @@ class Dispatch < ApplicationRecord
     if shipped? && order.estimated_delivery.blank?
       estimated_date = Date.current + 3.days # Default 3-day shipping estimate
       order.update!(estimated_delivery: estimated_date)
+    end
+
+    # Handle payment status changes that affect refunds
+    sync_payment_with_refunds if payment_status_changed?
+  end
+
+  def handle_dispatch_cancellation
+    # Keep order in processing state (don't cancel immediately)
+    order.update!(order_status: 'processing')
+    
+    # Auto-create refund with resolution options
+    if paid? || partially_paid?
+      create_auto_refund_for_cancellation
+    end
+    
+    # Create activity for the cancellation
+    create_activity(
+      action: 'dispatch_cancelled',
+      details: "Dispatch cancelled - Awaiting resolution decision",
+      user: Current.user
+    )
+  end
+
+  def create_auto_refund_for_cancellation
+    return if order.refunds.any? # Don't create duplicate refunds
+    
+    refund_amount = calculate_refund_amount_for_cancellation
+    
+    refund = order.refunds.create!(
+      processing_agent: processing_agent,
+      customer_name: customer_name,
+      customer_email: order.customer_email,
+      original_charge_amount: total_cost,
+      refund_amount: refund_amount,
+      refund_stage: 'pending_resolution', # New stage for resolution options
+      refund_reason: 'item_not_found', # More accurate for dispatch cancellation
+      priority: 'high', # Cancellations should be high priority
+      notes: "Dispatch cancelled - Choose resolution: Retry, Replace, or Refund",
+      last_modified_by: Current.user&.email || 'system'
+    )
+    
+    # Create linked activity
+    refund.create_activity(
+      action: 'auto_refund_created',
+      details: "Refund automatically created due to dispatch cancellation",
+      user: Current.user
+    )
+  end
+
+  def calculate_refund_amount_for_cancellation
+    case payment_status
+    when 'paid'
+      total_cost # Full refund
+    when 'partially_paid'
+      # Calculate partial refund based on amount paid
+      # This would need to be enhanced based on your payment tracking
+      total_cost * 0.5 # Default to 50% for partial payments
+    else
+      0
+    end
+  end
+
+  def sync_payment_with_refunds
+    case payment_status
+    when 'refunded'
+      # Update any pending refunds to completed
+      order.refunds.pending.each do |refund|
+        refund.update!(
+          refund_stage: 'refunded',
+          completed_at: Time.current
+        )
+      end
+    when 'failed'
+      # Mark refunds as urgent if payment failed
+      order.refunds.pending.each do |refund|
+        refund.update!(refund_stage: 'urgent_refund')
+      end
     end
   end
 
