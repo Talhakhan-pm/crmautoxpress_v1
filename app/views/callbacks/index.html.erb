@@ -1,4 +1,4 @@
-<%= turbo_frame_tag "main_content" do %>
+<%= turbo_frame_tag "main_content", data: { turbo_action: "advance" } do %>
 <!-- Main Content -->
 <main class="main-content">
         <%= turbo_stream_from "callbacks" %>

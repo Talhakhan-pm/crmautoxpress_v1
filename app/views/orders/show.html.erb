@@ -1,5 +1,6 @@
 <!-- Order Show Page with Unified Modal Theme -->
-<div class="unified-modal theme-red active" data-controller="modal" data-modal-theme-value="red" data-modal-close-url-value="<%= orders_path %>" data-action="click->modal#closeModal" data-turbo-permanent>
+<%= turbo_frame_tag "main_content" do %>
+<div class="unified-modal theme-red active" data-controller="modal" data-modal-theme-value="red" data-modal-close-url-value="<%= orders_path %>" data-action="click->modal#closeModal">
   <div class="unified-modal-content" data-modal-target="content" data-action="click->modal#stopPropagation">
     <!-- Unified Modal Header with Red Theme -->
     <div class="unified-modal-header theme-red">
@@ -350,4 +351,5 @@
     </div>
   </div>
 </div>
+<% end %>
 
