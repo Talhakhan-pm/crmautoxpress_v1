@@ -190,20 +190,36 @@ class DispatchesController < ApplicationController
     # Update order status
     @dispatch.order.update!(order_status: 'processing')
     
-    # Create refund with custom reason and amount
+    # Find or create refund with custom reason and amount
     if @dispatch.paid? || @dispatch.partially_paid?
-      refund = @dispatch.order.refunds.create!(
-        processing_agent: @dispatch.processing_agent,
-        customer_name: @dispatch.customer_name,
-        customer_email: @dispatch.order.customer_email,
-        original_charge_amount: @dispatch.total_cost,
-        refund_amount: refund_amount,
-        refund_stage: 'pending_resolution',
-        refund_reason: map_cancellation_reason(cancellation_reason),
-        priority: 'high',
-        notes: "Dispatch cancelled - Reason: #{cancellation_reason}",
-        last_modified_by: current_user.email
-      )
+      # Check if a refund already exists for this order
+      existing_refund = @dispatch.order.refunds.first
+      
+      if existing_refund
+        # Update existing refund with new values
+        refund = existing_refund
+        refund.update!(
+          refund_amount: refund_amount,
+          refund_stage: 'pending_resolution',
+          refund_reason: map_cancellation_reason(cancellation_reason),
+          notes: "Dispatch cancelled - Reason: #{cancellation_reason}",
+          last_modified_by: current_user.email
+        )
+      else
+        # Create new refund if none exists
+        refund = @dispatch.order.refunds.create!(
+          processing_agent: @dispatch.processing_agent,
+          customer_name: @dispatch.customer_name,
+          customer_email: @dispatch.order.customer_email,
+          original_charge_amount: @dispatch.total_cost,
+          refund_amount: refund_amount,
+          refund_stage: 'pending_resolution',
+          refund_reason: map_cancellation_reason(cancellation_reason),
+          priority: 'high',
+          notes: "Dispatch cancelled - Reason: #{cancellation_reason}",
+          last_modified_by: current_user.email
+        )
+      end
       
       # Create activities
       @dispatch.create_activity(
