@@ -47,6 +47,8 @@ export default class extends Controller {
     if (frame) {
       // Stay within the frame - use frame navigation
       frame.src = targetUrl
+      // Also update the browser URL to ensure consistency
+      window.history.replaceState(null, '', targetUrl)
     } else {
       // Only use full navigation if not in a frame
       window.Turbo.visit(targetUrl)
