@@ -170,18 +170,43 @@
     <% end %>
     
     <!-- Replacement Order Link -->
-    <% if refund.replacement_order_number.present? %>
-      <div class="mb-3">
-        <div class="d-flex align-items-center gap-2 p-2 bg-light rounded">
-          <i class="fas fa-exchange-alt text-info"></i>
-          <div>
+    <div class="mb-3">
+      <div class="d-flex align-items-center gap-2 p-2 bg-light rounded">
+        <% if refund.has_replacement_order? %>
+          <i class="fas fa-exchange-alt text-success"></i>
+          <div class="flex-grow-1">
             <small class="text-muted d-block">Replacement Order</small>
             <%= link_to refund.replacement_order_number, order_path(refund.replacement_order), 
-                        class: "small fw-bold text-decoration-none" %>
+                        class: "small fw-bold text-decoration-none text-success" %>
+            <div class="d-flex align-items-center gap-2 mt-1">
+              <span class="badge bg-<%= refund.replacement_order.status_color %> badge-sm">
+                <%= refund.replacement_order_status %>
+              </span>
+              <% if refund.replacement_order_active? %>
+                <span class="text-success">
+                  <i class="fas fa-check-circle fa-sm"></i>
+                  Active
+                </span>
+              <% end %>
+            </div>
           </div>
-        </div>
+        <% elsif refund.replacement_order_number.present? %>
+          <i class="fas fa-exclamation-triangle text-warning"></i>
+          <div>
+            <small class="text-muted d-block">Replacement Order</small>
+            <span class="small fw-bold text-warning">
+              <%= refund.replacement_order_number %>
+            </span>
+            <small class="text-danger d-block">Order not found</small>
+          </div>
+        <% else %>
+          <i class="fas fa-clock text-muted"></i>
+          <div>
+            <small class="text-muted">No replacement order created yet</small>
+          </div>
+        <% end %>
       </div>
-    <% end %>
+    </div>
     
     <!-- Return Tracking -->
     <% if refund.return_tracking_number.present? %>

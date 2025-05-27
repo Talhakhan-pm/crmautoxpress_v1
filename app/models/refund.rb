@@ -154,6 +154,36 @@ class Refund < ApplicationRecord
     (refund_amount / original_charge_amount * 100).round(2)
   end
 
+  # Smart replacement order lookup with caching
+  def replacement_order
+    return nil unless replacement_order_number.present?
+    
+    # Use instance variable caching to avoid multiple DB queries
+    @replacement_order ||= Order.find_by(order_number: replacement_order_number)
+  end
+
+  # Check if replacement order exists and is accessible
+  def has_replacement_order?
+    replacement_order_number.present? && replacement_order.present?
+  end
+
+  # Smart replacement order link - returns nil if order doesn't exist
+  def replacement_order_link
+    return nil unless has_replacement_order?
+    replacement_order
+  end
+
+  # Get replacement order status with fallback
+  def replacement_order_status
+    return 'Order Not Found' unless has_replacement_order?
+    replacement_order.display_status
+  end
+
+  # Check if replacement order is still active
+  def replacement_order_active?
+    has_replacement_order? && !['cancelled', 'refunded'].include?(replacement_order.order_status)
+  end
+
   private
 
   def broadcast_refunds_update
@@ -273,8 +303,4 @@ class Refund < ApplicationRecord
     replacement
   end
 
-  def replacement_order
-    return nil unless replacement_order_number.present?
-    Order.find_by(order_number: replacement_order_number)
-  end
 end
