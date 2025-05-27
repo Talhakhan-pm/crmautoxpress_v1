@@ -171,7 +171,15 @@ class Dispatch < ApplicationRecord
     when 'completed'
       order.update!(order_status: 'delivered') if order.shipped?
     when 'cancelled'
-      handle_dispatch_cancellation
+      # Order status update only - refund creation handled by controller for custom amounts/reasons
+      order.update!(order_status: 'processing')
+      
+      # Create activity for the cancellation
+      create_activity(
+        action: 'dispatch_cancelled',
+        details: "Dispatch cancelled - Awaiting resolution decision",
+        user: Current.user
+      )
     end
 
     # Update order tracking number if changed

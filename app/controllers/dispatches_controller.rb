@@ -291,7 +291,8 @@ class DispatchesController < ApplicationController
         user: current_user
       )
       
-      redirect_to dispatches_path, notice: "Dispatch reset for retry with different supplier"
+      flash[:notice] = "✅ Dispatch reset for retry with different supplier"
+      redirect_to refunds_path
     else
       redirect_to refunds_path, alert: "No pending resolution found for this dispatch"
     end
@@ -322,7 +323,8 @@ class DispatchesController < ApplicationController
         user: current_user
       )
       
-      redirect_to orders_path, notice: "Replacement order created: #{new_order.order_number}"
+      flash[:notice] = "✅ Replacement order created: #{new_order.order_number}"
+      redirect_to refunds_path
     else
       redirect_to refunds_path, alert: "No pending resolution found for this dispatch"
     end
@@ -350,7 +352,8 @@ class DispatchesController < ApplicationController
         user: current_user
       )
       
-      redirect_to refunds_path, notice: "Full refund approved and order cancelled"
+      flash[:notice] = "✅ Full refund approved and order cancelled"
+      redirect_to refunds_path
     else
       redirect_to refunds_path, alert: "No pending resolution found for this dispatch"
     end

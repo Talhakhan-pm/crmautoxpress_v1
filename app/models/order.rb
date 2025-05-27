@@ -458,6 +458,8 @@ class Order < ApplicationRecord
     when 'confirmed'
       dispatch.update!(dispatch_status: 'assigned') if dispatch.pending?
     when 'processing'
+      # DON'T override cancelled dispatches - manual cancellation should stay cancelled
+      # Only update if dispatch is in a state that allows processing
       dispatch.update!(dispatch_status: 'processing') if dispatch.assigned?
     end
   end
