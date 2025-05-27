@@ -112,7 +112,7 @@ class Order < ApplicationRecord
   end
   
   def has_pending_refund_resolution?
-    refunds.where(refund_stage: 'pending_resolution').any?
+    refunds.where(refund_stage: ['pending_resolution', 'pending_retry', 'pending_replacement']).any?
   end
 
   def priority_color
