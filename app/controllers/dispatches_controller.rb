@@ -325,21 +325,30 @@ class DispatchesController < ApplicationController
         notes: refund.notes + " | Resolution: Replacement order created"
       )
       
-      # Create new order based on original
-      new_order = @dispatch.order.dup
-      new_order.order_number = "#{@dispatch.order.order_number}-R#{Time.current.to_i}"
-      new_order.order_status = 'pending'
-      new_order.save!
+      # Reset existing order for replacement (don't create new order)
+      @dispatch.order.update!(
+        order_status: 'pending',
+        comments: "Order reset for replacement due to dispatch cancellation"
+      )
       
-      refund.update!(replacement_order_number: new_order.order_number)
+      # Reset dispatch for fresh start
+      @dispatch.update!(
+        dispatch_status: 'pending',
+        supplier_name: nil,
+        supplier_cost: nil,
+        supplier_order_number: nil,
+        tracking_number: nil,
+        tracking_link: nil,
+        internal_notes: (@dispatch.internal_notes || "") + " | Reset for replacement order"
+      )
       
       refund.create_activity(
         action: 'resolution_selected',
-        details: "Resolution selected: Replacement order created - #{new_order.order_number}",
+        details: "Resolution selected: Order reset for replacement processing",
         user: current_user
       )
       
-      flash[:notice] = "✅ Replacement order created: #{new_order.order_number}"
+      flash[:notice] = "✅ Order reset for replacement - Agent can now reprocess the same order"
       redirect_to refunds_path
     else
       redirect_to refunds_path, alert: "No pending resolution found for this dispatch"
