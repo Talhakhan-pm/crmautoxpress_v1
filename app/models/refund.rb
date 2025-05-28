@@ -17,6 +17,13 @@ class Refund < ApplicationRecord
     pending_retry: 10
   }
 
+  enum resolution_stage: {
+    pending_customer_clarification: 0,
+    pending_dispatch_decision: 1,
+    pending_customer_approval: 2,
+    resolution_completed: 3
+  }
+
   enum refund_reason: {
     item_not_found: 0,
     item_sold_below_purchase: 1,
@@ -81,6 +88,11 @@ class Refund < ApplicationRecord
   scope :completed, -> { where(refund_stage: [:refunded, :returned]) }
   scope :overdue, -> { where(refund_date: ...3.days.ago).where.not(refund_stage: [:refunded, :returned, :cancelled_refund]) }
   scope :needs_escalation, -> { where(refund_date: ...3.days.ago).where(refund_stage: [:pending_refund, :processing_refund, :pending_return]) }
+  scope :needs_resolution, -> { where(refund_stage: 'pending_resolution') }
+  scope :by_resolution_stage, ->(stage) { where(resolution_stage: stage) }
+  scope :awaiting_agent_action, -> { where(resolution_stage: 'pending_customer_clarification') }
+  scope :awaiting_dispatcher_action, -> { where(resolution_stage: 'pending_dispatch_decision') }
+  scope :awaiting_customer_action, -> { where(resolution_stage: 'pending_customer_approval') }
 
   def stage_color
     # Check for escalation first
@@ -120,6 +132,30 @@ class Refund < ApplicationRecord
     when 'billing_error', 'duplicate_order' then 'info'
     when 'warranty_claim' then 'primary'
     else 'secondary'
+    end
+  end
+
+  def resolution_stage_color
+    case resolution_stage
+    when 'pending_customer_clarification' then 'warning'
+    when 'pending_dispatch_decision' then 'info'
+    when 'pending_customer_approval' then 'primary'
+    when 'resolution_completed' then 'success'
+    else 'secondary'
+    end
+  end
+
+  def needs_resolution_action?
+    refund_stage == 'pending_resolution' && !resolution_completed?
+  end
+
+  def resolution_stage_description
+    case resolution_stage
+    when 'pending_customer_clarification' then 'Agent needs to contact customer'
+    when 'pending_dispatch_decision' then 'Dispatcher reviewing resolution options'
+    when 'pending_customer_approval' then 'Waiting for customer approval'
+    when 'resolution_completed' then 'Resolution process complete'
+    else 'Resolution status unknown'
     end
   end
 

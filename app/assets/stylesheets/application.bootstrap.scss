@@ -11,6 +11,7 @@
 @use 'orders';
 @use 'dispatches';
 @use 'refunds';
+@use 'resolution';
 
 /* Error alerts for validation */
 .alert {

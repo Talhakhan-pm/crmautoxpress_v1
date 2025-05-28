@@ -1,0 +1,179 @@
+<%= turbo_frame_tag "main_content", data: { turbo_action: "advance" } do %>
+<!-- Main Content -->
+<main class="main-content">
+  <%= turbo_stream_from "resolution" %>
+
+  <div class="dashboard-container">
+    <!-- Header Section -->
+    <div class="dashboard-header">
+      <div class="header-content">
+        <h1 class="dashboard-title">Resolution Queue</h1>
+        <p class="dashboard-subtitle">Manage pending resolution items and track progress</p>
+      </div>
+      <div class="header-actions">
+        <div class="filter-controls">
+          <%= form_tag resolution_path, method: :get, local: false, 
+                       data: { turbo_frame: "main_content", turbo_action: "advance" }, 
+                       class: "filter-form" do %>
+            <%= select_tag :stage, 
+                          options_for_select([
+                            ['All Stages', ''],
+                            ['Agent Clarification', 'pending_customer_clarification'],
+                            ['Dispatcher Decision', 'pending_dispatch_decision'],
+                            ['Customer Approval', 'pending_customer_approval']
+                          ], params[:stage]), 
+                          class: "filter-select" %>
+            
+            <%= select_tag :priority,
+                          options_for_select([
+                            ['All Priorities', ''],
+                            ['Urgent', 'urgent'],
+                            ['High', 'high'],
+                            ['Standard', 'standard'],
+                            ['Low', 'low']
+                          ], params[:priority]),
+                          class: "filter-select" %>
+            
+            <label class="filter-checkbox">
+              <%= check_box_tag :overdue, 'true', params[:overdue] == 'true' %>
+              <span>Overdue Only</span>
+            </label>
+            
+            <%= submit_tag "Filter", class: "btn btn-primary" %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Metrics Grid -->
+    <div class="metrics-grid" id="resolution-stats">
+      <%= render 'stats', stats: @stats %>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="resolution-dashboard-grid">
+      <!-- Resolution Queue -->
+      <div class="queue-section">
+        <div class="section-card">
+          <div class="section-header">
+            <h3>Pending Resolutions</h3>
+            <span class="queue-count"><%= @pending_queue.count %> items</span>
+          </div>
+          <div class="resolution-queue" id="resolution-queue">
+            <% if @pending_queue.any? %>
+              <% @pending_queue.each do |refund| %>
+                <%= render 'resolution_queue_item', refund: refund %>
+              <% end %>
+            <% else %>
+              <div class="empty-state">
+                <i class="fas fa-check-circle"></i>
+                <h4>All Clear!</h4>
+                <p>No items pending resolution at this time.</p>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Metrics & Analytics -->
+      <div class="analytics-section">
+        <!-- Stage Breakdown -->
+        <div class="section-card">
+          <div class="section-header">
+            <h3>Resolution Stage Breakdown</h3>
+          </div>
+          <div class="stage-breakdown">
+            <% @resolution_metrics[:by_stage].each do |stage, count| %>
+              <div class="stage-item">
+                <div class="stage-info">
+                  <span class="stage-name"><%= stage.humanize %></span>
+                  <span class="stage-count"><%= count %></span>
+                </div>
+                <div class="stage-bar">
+                  <div class="stage-progress" 
+                       style="width: <%= @stats[:total_pending_resolution] > 0 ? (count.to_f / @stats[:total_pending_resolution] * 100).round(1) : 0 %>%"
+                       data-stage="<%= stage %>"></div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Priority Distribution -->
+        <div class="section-card">
+          <div class="section-header">
+            <h3>Priority Distribution</h3>
+          </div>
+          <div class="priority-chart">
+            <canvas id="priorityChart" width="300" height="200"></canvas>
+          </div>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="section-card">
+          <div class="section-header">
+            <h3>Performance Overview</h3>
+          </div>
+          <div class="performance-metrics">
+            <div class="metric-item">
+              <div class="metric-label">Avg Resolution Time</div>
+              <div class="metric-value"><%= @stats[:avg_resolution_time] %> days</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">Completion Rate</div>
+              <div class="metric-value"><%= @stats[:resolution_completion_rate] %>%</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">Overdue Items</div>
+              <div class="metric-value urgent"><%= @stats[:overdue_resolutions] %></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart.js for Priority Distribution -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const priorityCtx = document.getElementById('priorityChart').getContext('2d');
+    const priorityData = <%= raw @resolution_metrics[:by_priority].to_json %>;
+    
+    new Chart(priorityCtx, {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(priorityData).map(k => k.charAt(0).toUpperCase() + k.slice(1)),
+        datasets: [{
+          data: Object.values(priorityData),
+          backgroundColor: [
+            '#ef4444', // urgent - red
+            '#f59e0b', // high - yellow
+            '#10b981', // standard - green
+            '#6b7280'  // low - gray
+          ],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { usePointStyle: true }
+          }
+        }
+      }
+    });
+
+    // Auto-refresh form on filter changes
+    document.querySelectorAll('.filter-select, .filter-checkbox input').forEach(element => {
+      element.addEventListener('change', function() {
+        document.querySelector('.filter-form').submit();
+      });
+    });
+  });
+  </script>
+</main>
+<% end %>

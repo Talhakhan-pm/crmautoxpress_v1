@@ -1,0 +1,126 @@
+<div class="resolution-item" id="refund_<%= refund.id %>">
+  <div class="resolution-header">
+    <div class="refund-info">
+      <h4 class="refund-number">
+        <%= link_to refund.refund_number, refund_path(refund), class: "refund-link" %>
+      </h4>
+      <p class="customer-name"><%= refund.customer_name %></p>
+      <p class="order-reference">Order: <%= refund.order.order_number %></p>
+    </div>
+    <div class="resolution-status">
+      <span class="badge badge-<%= refund.resolution_stage_color %>">
+        <%= refund.resolution_stage.humanize %>
+      </span>
+      <span class="badge badge-<%= refund.priority_color %> priority">
+        <%= refund.priority.humanize %>
+      </span>
+    </div>
+  </div>
+
+  <div class="resolution-details">
+    <div class="financial-info">
+      <span class="amount">$<%= number_with_precision(refund.refund_amount, precision: 2) %></span>
+      <span class="reason"><%= refund.refund_reason.humanize %></span>
+    </div>
+    <div class="timing-info">
+      <span class="created-time">
+        <%= time_ago_in_words(refund.created_at) %> ago
+      </span>
+      <% if refund.created_at < 2.days.ago %>
+        <span class="overdue-indicator">OVERDUE</span>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="resolution-communication">
+    <div class="communication-grid">
+      <!-- Agent Notes -->
+      <div class="communication-section">
+        <label class="comm-label">Agent Notes</label>
+        <%= form_with model: refund, url: update_resolution_notes_path(refund), 
+                      method: :patch, local: false, class: "notes-form" do |f| %>
+          <%= f.text_area :agent_notes, 
+                          placeholder: "Add agent communication notes...",
+                          class: "comm-textarea",
+                          rows: 2 %>
+        <% end %>
+      </div>
+
+      <!-- Dispatcher Notes -->
+      <div class="communication-section">
+        <label class="comm-label">Dispatcher Notes</label>
+        <%= form_with model: refund, url: update_resolution_notes_path(refund), 
+                      method: :patch, local: false, class: "notes-form" do |f| %>
+          <%= f.text_area :dispatcher_notes, 
+                          placeholder: "Add dispatcher decision notes...",
+                          class: "comm-textarea",
+                          rows: 2 %>
+        <% end %>
+      </div>
+
+      <!-- Customer Response -->
+      <div class="communication-section">
+        <label class="comm-label">Customer Response</label>
+        <%= form_with model: refund, url: update_resolution_notes_path(refund), 
+                      method: :patch, local: false, class: "notes-form" do |f| %>
+          <%= f.text_area :customer_response, 
+                          placeholder: "Record customer feedback...",
+                          class: "comm-textarea",
+                          rows: 2 %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="resolution-actions">
+    <div class="stage-actions">
+      <%= form_with model: refund, url: update_resolution_stage_path(refund), 
+                    method: :patch, local: false, class: "stage-form" do |f| %>
+        
+        <% case refund.resolution_stage %>
+        <% when 'pending_customer_clarification' %>
+          <button type="submit" name="refund[resolution_stage]" value="pending_dispatch_decision" 
+                  class="btn btn-success">
+            <i class="fas fa-phone-check"></i> Customer Contacted
+          </button>
+          
+        <% when 'pending_dispatch_decision' %>
+          <button type="submit" name="refund[resolution_stage]" value="pending_customer_approval" 
+                  class="btn btn-info">
+            <i class="fas fa-arrow-right"></i> Send to Customer
+          </button>
+          <button type="submit" name="refund[resolution_stage]" value="resolution_completed" 
+                  class="btn btn-success">
+            <i class="fas fa-check"></i> Resolve Directly
+          </button>
+          
+        <% when 'pending_customer_approval' %>
+          <button type="submit" name="refund[resolution_stage]" value="resolution_completed" 
+                  class="btn btn-success">
+            <i class="fas fa-thumbs-up"></i> Customer Approved
+          </button>
+          <button type="submit" name="refund[resolution_stage]" value="pending_dispatch_decision" 
+                  class="btn btn-warning">
+            <i class="fas fa-thumbs-down"></i> Customer Declined
+          </button>
+          
+        <% when 'resolution_completed' %>
+          <span class="completed-status">
+            <i class="fas fa-check-circle"></i> Resolution Complete
+          </span>
+        <% end %>
+      <% end %>
+    </div>
+
+    <div class="secondary-actions">
+      <%= link_to refund_path(refund), class: "btn btn-outline-primary" do %>
+        <i class="fas fa-eye"></i> View Details
+      <% end %>
+      <% if refund.order.present? %>
+        <%= link_to order_path(refund.order), class: "btn btn-outline-secondary" do %>
+          <i class="fas fa-box"></i> View Order
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>

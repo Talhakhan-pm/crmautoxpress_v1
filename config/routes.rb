@@ -44,6 +44,11 @@ Rails.application.routes.draw do
 
   # Dashboard route
   get "dashboard", to: "dashboard#index"
+  
+  # Resolution Queue Dashboard
+  get "resolution", to: "resolution#index"
+  patch "resolution/:id/stage", to: "resolution#update_stage", as: :update_resolution_stage
+  patch "resolution/:id/notes", to: "resolution#update_notes", as: :update_resolution_notes
 
   # Callbacks routes  
   resources :callbacks
