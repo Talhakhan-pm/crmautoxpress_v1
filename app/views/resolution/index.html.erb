@@ -62,7 +62,7 @@
           <div class="resolution-queue" id="resolution-queue">
             <% if @pending_queue.any? %>
               <% @pending_queue.each do |refund| %>
-                <%= render 'resolution_queue_item', refund: refund %>
+                <%= render 'simplified_resolution_item', refund: refund %>
               <% end %>
             <% else %>
               <div class="empty-state">

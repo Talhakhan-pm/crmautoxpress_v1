@@ -15,7 +15,7 @@ class ResolutionController < ApplicationController
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
-            turbo_stream.replace("refund_#{@refund.id}", partial: "resolution_queue_item", locals: { refund: @refund }),
+            turbo_stream.replace("refund_#{@refund.id}", partial: "simplified_resolution_item", locals: { refund: @refund }),
             turbo_stream.update("resolution-stats-container", partial: "stats", locals: { stats: calculate_resolution_stats })
           ]
         end
@@ -60,7 +60,7 @@ class ResolutionController < ApplicationController
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
-            turbo_stream.replace("refund_#{@refund.id}", partial: "resolution_queue_item", locals: { refund: @refund }),
+            turbo_stream.replace("refund_#{@refund.id}", partial: "simplified_resolution_item", locals: { refund: @refund }),
             turbo_stream.update("resolution-stats-container", partial: "stats", locals: { stats: calculate_resolution_stats })
           ]
         end
@@ -88,7 +88,7 @@ class ResolutionController < ApplicationController
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
-            turbo_stream.replace("refund_#{@refund.id}", partial: "resolution_queue_item", locals: { refund: @refund }),
+            turbo_stream.replace("refund_#{@refund.id}", partial: "simplified_resolution_item", locals: { refund: @refund }),
             turbo_stream.update("resolution-stats-container", partial: "stats", locals: { stats: calculate_resolution_stats })
           ]
         end
@@ -107,7 +107,7 @@ class ResolutionController < ApplicationController
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
-            turbo_stream.replace("refund_#{@refund.id}", partial: "resolution_queue_item", locals: { refund: @refund }),
+            turbo_stream.replace("refund_#{@refund.id}", partial: "simplified_resolution_item", locals: { refund: @refund }),
             turbo_stream.update("resolution-stats-container", partial: "stats", locals: { stats: calculate_resolution_stats })
           ]
         end

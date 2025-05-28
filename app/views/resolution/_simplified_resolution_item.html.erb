@@ -1,0 +1,190 @@
+<div class="resolution-item simplified" id="refund_<%= refund.id %>">
+  <!-- Clean Header -->
+  <div class="resolution-header">
+    <div class="refund-info">
+      <h4 class="refund-number">
+        <%= link_to refund.refund_number, refund_path(refund), class: "refund-link" %>
+      </h4>
+      <p class="customer-name"><%= refund.customer_name %> • $<%= number_with_precision(refund.refund_amount, precision: 2) %></p>
+      <p class="order-reference">Order: <%= refund.order.order_number %> • <%= refund.refund_reason.humanize %></p>
+    </div>
+    
+    <!-- Simple Status Progress -->
+    <div class="resolution-progress">
+      <div class="progress-steps">
+        <div class="step <%= 'active' if refund.resolution_stage == 'pending_customer_clarification' %>">
+          <span class="step-number">1</span>
+          <span class="step-label">Agent</span>
+        </div>
+        <div class="step <%= 'active' if refund.resolution_stage == 'pending_dispatch_decision' %>">
+          <span class="step-number">2</span>
+          <span class="step-label">Dispatcher</span>
+        </div>
+        <div class="step <%= 'active' if refund.resolution_stage == 'pending_customer_approval' %>">
+          <span class="step-number">3</span>
+          <span class="step-label">Customer</span>
+        </div>
+        <div class="step <%= 'active' if refund.resolution_stage == 'resolution_completed' %>">
+          <span class="step-number">✓</span>
+          <span class="step-label">Done</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Current Status Banner -->
+  <div class="status-banner status-<%= refund.resolution_stage %>">
+    <div class="status-content">
+      <% case refund.resolution_stage %>
+      <% when 'pending_customer_clarification' %>
+        <strong>👤 Agent Action Needed:</strong> Contact customer to verify details
+      <% when 'pending_dispatch_decision' %>
+        <strong>📦 Dispatcher Review:</strong> Check part availability and decide next steps
+      <% when 'pending_customer_approval' %>
+        <strong>☎️ Customer Decision:</strong> Waiting for customer approval on alternative part
+      <% when 'resolution_completed' %>
+        <strong>✅ Resolution Complete:</strong> Case has been resolved
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Unified Communication Panel -->
+  <div class="communication-panel">
+    <div class="communication-grid">
+      <!-- Agent Column -->
+      <div class="comm-column agent-column">
+        <div class="column-header">
+          <i class="fas fa-user"></i>
+          <span>Agent Notes</span>
+        </div>
+        <%= form_with model: refund, url: update_resolution_notes_path(refund), 
+                      method: :patch, local: false, class: "quick-form" do |f| %>
+          <%= f.text_area :agent_notes, 
+                          placeholder: "Customer call notes, updated details, etc...",
+                          class: "comm-input",
+                          rows: 3,
+                          value: refund.agent_notes %>
+          <%= f.submit "Update", class: "btn btn-sm btn-outline-primary" %>
+        <% end %>
+      </div>
+
+      <!-- Dispatcher Column -->
+      <div class="comm-column dispatcher-column">
+        <div class="column-header">
+          <i class="fas fa-cog"></i>
+          <span>Dispatcher Notes</span>
+        </div>
+        <%= form_with model: refund, url: update_resolution_notes_path(refund), 
+                      method: :patch, local: false, class: "quick-form" do |f| %>
+          <%= f.text_area :dispatcher_notes, 
+                          placeholder: "Part research, supplier notes, etc...",
+                          class: "comm-input",
+                          rows: 3,
+                          value: refund.dispatcher_notes %>
+          <%= f.submit "Update", class: "btn btn-sm btn-outline-info" %>
+        <% end %>
+      </div>
+
+      <!-- Customer Column -->
+      <div class="comm-column customer-column">
+        <div class="column-header">
+          <i class="fas fa-phone"></i>
+          <span>Customer Response</span>
+        </div>
+        <%= form_with model: refund, url: update_resolution_notes_path(refund), 
+                      method: :patch, local: false, class: "quick-form" do |f| %>
+          <%= f.text_area :customer_response, 
+                          placeholder: "What did the customer say?",
+                          class: "comm-input",
+                          rows: 3,
+                          value: refund.customer_response %>
+          <%= f.submit "Update", class: "btn btn-sm btn-outline-success" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Simple Action Buttons -->
+  <div class="action-buttons">
+    <% case refund.resolution_stage %>
+    <% when 'pending_customer_clarification' %>
+      <!-- Agent Actions -->
+      <%= button_to "Customer Contacted → Send to Dispatcher", 
+                    update_resolution_stage_path(refund),
+                    method: :patch,
+                    params: { refund: { resolution_stage: 'pending_dispatch_decision' } },
+                    class: "btn btn-success",
+                    form: { data: { turbo: true } } %>
+
+    <% when 'pending_dispatch_decision' %>
+      <!-- Dispatcher Actions -->
+      <div class="dispatcher-actions">
+        <%= button_to "✓ Retry Dispatch", 
+                      update_resolution_stage_path(refund),
+                      method: :patch,
+                      params: { refund: { resolution_stage: 'resolution_completed' } },
+                      class: "btn btn-success",
+                      form: { data: { turbo: true } } %>
+        
+        <%= button_to "💰 Found Alternative → Ask Customer", 
+                      update_resolution_stage_path(refund),
+                      method: :patch,
+                      params: { refund: { resolution_stage: 'pending_customer_approval' } },
+                      class: "btn btn-warning",
+                      form: { data: { turbo: true } } %>
+        
+        <%= button_to "❌ No Part Found → Refund", 
+                      update_resolution_stage_path(refund),
+                      method: :patch,
+                      params: { refund: { resolution_stage: 'resolution_completed' } },
+                      class: "btn btn-danger",
+                      form: { data: { turbo: true } } %>
+      </div>
+
+    <% when 'pending_customer_approval' %>
+      <!-- Customer Decision Actions -->
+      <div class="customer-actions">
+        <%= button_to "✓ Customer Approved", 
+                      update_resolution_stage_path(refund),
+                      method: :patch,
+                      params: { refund: { resolution_stage: 'resolution_completed' } },
+                      class: "btn btn-success",
+                      form: { data: { turbo: true } } %>
+        
+        <%= button_to "✗ Customer Declined → Refund", 
+                      update_resolution_stage_path(refund),
+                      method: :patch,
+                      params: { refund: { resolution_stage: 'resolution_completed' } },
+                      class: "btn btn-danger",
+                      form: { data: { turbo: true } } %>
+        
+        <%= button_to "🔄 Different Part → New Order", 
+                      resolution_create_replacement_path(refund),
+                      method: :post,
+                      class: "btn btn-info",
+                      form: { data: { turbo: true } } %>
+      </div>
+
+    <% when 'resolution_completed' %>
+      <!-- Completed State -->
+      <div class="completed-actions">
+        <span class="completion-badge">
+          <i class="fas fa-check-circle"></i>
+          Resolution Complete
+        </span>
+        <small class="text-muted">
+          Completed <%= time_ago_in_words(refund.updated_at) %> ago
+        </small>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Quick Links -->
+  <div class="quick-links">
+    <%= link_to "View Refund", refund_path(refund), class: "link-btn" %>
+    <%= link_to "View Order", order_path(refund.order), class: "link-btn" %>
+    <% if refund.replacement_order_number.present? %>
+      <%= link_to "View Replacement", order_path(refund.replacement_order), class: "link-btn replacement" %>
+    <% end %>
+  </div>
+</div>
