@@ -79,8 +79,13 @@ class Refund < ApplicationRecord
   scope :today, -> { where(refund_date: Date.current.beginning_of_day..Date.current.end_of_day) }
   scope :pending, -> { where(refund_stage: [:pending_refund, :processing_refund, :pending_return, :pending_resolution, :pending_replacement, :pending_retry]) }
   scope :completed, -> { where(refund_stage: [:refunded, :returned]) }
+  scope :overdue, -> { where(refund_date: ...3.days.ago).where.not(refund_stage: [:refunded, :returned, :cancelled_refund]) }
+  scope :needs_escalation, -> { where(refund_date: ...3.days.ago).where(refund_stage: [:pending_refund, :processing_refund, :pending_return]) }
 
   def stage_color
+    # Check for escalation first
+    return 'danger' if needs_escalation? && !completed_stage?
+    
     case refund_stage
     when 'pending_refund' then 'warning'
     when 'processing_refund' then 'info'
@@ -184,6 +189,87 @@ class Refund < ApplicationRecord
     has_replacement_order? && !['cancelled', 'refunded'].include?(replacement_order.order_status)
   end
 
+  # Auto-escalation based on time
+  def needs_escalation?
+    return false if completed_stage?
+    
+    case refund_stage
+    when 'pending_refund'
+      refund_date < 3.days.ago
+    when 'processing_refund'
+      refund_date < 7.days.ago
+    when 'pending_return'
+      refund_date < 14.days.ago
+    when 'pending_resolution'
+      refund_date < 2.days.ago # Faster escalation for pending resolution
+    else
+      false
+    end
+  end
+
+  def completed_stage?
+    ['refunded', 'returned', 'cancelled_refund'].include?(refund_stage)
+  end
+
+  def escalation_days
+    return 0 if completed_stage?
+    
+    case refund_stage
+    when 'pending_refund' then 3
+    when 'processing_refund' then 7
+    when 'pending_return' then 14
+    when 'pending_resolution' then 2
+    else 0
+    end
+  end
+
+  def auto_escalate_if_needed!
+    return false unless needs_escalation?
+    return false if urgent? # Already at highest priority
+    
+    old_stage = refund_stage
+    old_priority = priority
+    
+    # Auto-escalate based on time rules
+    case refund_stage
+    when 'pending_refund'
+      if refund_date < 3.days.ago
+        update!(refund_stage: 'urgent_refund', priority: 'urgent')
+      end
+    when 'processing_refund'
+      if refund_date < 7.days.ago
+        update!(refund_stage: 'urgent_refund', priority: 'urgent')
+      end
+    when 'pending_return'
+      if refund_date < 14.days.ago
+        update!(refund_stage: 'urgent_refund', priority: 'urgent')
+      end
+    when 'pending_resolution'
+      if refund_date < 2.days.ago
+        update!(priority: 'urgent')
+      end
+    end
+    
+    # Log the escalation
+    if refund_stage_changed? || priority_changed?
+      create_activity(
+        action: 'auto_escalated',
+        details: "Auto-escalated from #{old_stage} (#{old_priority}) to #{refund_stage} (#{priority}) due to #{days_since_request} days elapsed",
+        user: nil # System-generated
+      )
+      true
+    else
+      false
+    end
+  end
+
+  # Class method to escalate all overdue refunds
+  def self.escalate_overdue_refunds!
+    needs_escalation.find_each do |refund|
+      refund.auto_escalate_if_needed!
+    end
+  end
+
   private
 
   def broadcast_refunds_update
@@ -231,11 +317,24 @@ class Refund < ApplicationRecord
     
     case refund_stage
     when 'refunded', 'returned'
-      order.update!(order_status: 'refunded') unless order.refunded?
-      # Update dispatch payment status if exists
+      # When refund is completed, cancel the order
+      order.update!(order_status: 'cancelled') unless order.cancelled?
+      
+      # Update dispatch status and payment status if exists
       if order.dispatch.present?
-        order.dispatch.update!(payment_status: 'refunded')
+        order.dispatch.update!(
+          dispatch_status: 'cancelled',
+          payment_status: 'refunded'
+        )
       end
+      
+      # Create activity for order cancellation due to refund
+      order.create_activity(
+        action: 'cancelled_by_refund',
+        details: "Order cancelled due to completed refund #{refund_number} - $#{refund_amount}",
+        user: Current.user || processing_agent
+      )
+      
     when 'pending_return'
       order.update!(order_status: 'returned') unless order.returned?
     when 'processing_refund'
@@ -245,6 +344,22 @@ class Refund < ApplicationRecord
         details: "Refund processing started - $#{refund_amount}",
         user: Current.user
       )
+    when 'pending_refund'
+      # When refund is created (not pending_resolution), immediately impact order/dispatch
+      unless refund_stage_was == 'pending_resolution' # Don't re-process resolution refunds
+        order.update!(order_status: 'cancelled') unless order.cancelled?
+        
+        if order.dispatch.present?
+          order.dispatch.update!(dispatch_status: 'cancelled')
+        end
+        
+        # Create activity for immediate cancellation
+        order.create_activity(
+          action: 'cancelled_by_refund_request',
+          details: "Order cancelled due to refund request #{refund_number} - Reason: #{refund_reason.humanize}",
+          user: Current.user || processing_agent
+        )
+      end
     end
     
     # Broadcast updates when stage changes

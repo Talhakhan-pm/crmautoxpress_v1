@@ -11,12 +11,14 @@ class OrdersController < ApplicationController
     @orders = @orders.by_priority(params[:priority]) if params[:priority].present?
     @orders = @orders.by_agent(params[:agent_id]) if params[:agent_id].present?
     
-    # Search functionality
+    # Search functionality - database agnostic
     if params[:search].present?
-      search_term = "%#{params[:search].downcase}%"
+      search_term = "%#{params[:search]}%"
       @orders = @orders.where(
-        "LOWER(orders.order_number) LIKE ? OR LOWER(orders.customer_name) LIKE ? OR LOWER(orders.product_name) LIKE ? OR LOWER(orders.car_make_model) LIKE ?",
-        search_term, search_term, search_term, search_term
+        Order.arel_table[:order_number].matches(search_term)
+          .or(Order.arel_table[:customer_name].matches(search_term))
+          .or(Order.arel_table[:product_name].matches(search_term))
+          .or(Order.arel_table[:car_make_model].matches(search_term))
       )
     end
 
