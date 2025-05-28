@@ -173,6 +173,53 @@
         </div>
       </div>
     <% end %>
+
+    <!-- Resolution Actions for Pending Resolution -->
+    <% if refund.refund_stage == 'pending_resolution' %>
+      <div class="refunds-resolution-section">
+        <div class="refunds-resolution-header">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span>Choose Resolution Action</span>
+        </div>
+        
+        <div class="refunds-resolution-actions">
+          <%= button_to retry_dispatch_dispatch_path(refund.order.dispatch), 
+                        method: :patch, 
+                        class: "refunds-resolution-btn refunds-resolution-retry",
+                        confirm: "Retry dispatch with a different supplier?",
+                        data: { turbo_frame: "_top" } do %>
+            <i class="fas fa-redo"></i>
+            <span class="refunds-btn-label">Retry</span>
+            <span class="refunds-btn-subtitle">Different supplier</span>
+          <% end %>
+          
+          <%= button_to create_replacement_order_dispatch_path(refund.order.dispatch), 
+                        method: :post, 
+                        class: "refunds-resolution-btn refunds-resolution-replace",
+                        confirm: "Create a replacement order?",
+                        data: { turbo_frame: "_top" } do %>
+            <i class="fas fa-exchange-alt"></i>
+            <span class="refunds-btn-label">Replace</span>
+            <span class="refunds-btn-subtitle">New order</span>
+          <% end %>
+          
+          <%= button_to process_full_refund_dispatch_path(refund.order.dispatch), 
+                        method: :patch, 
+                        class: "refunds-resolution-btn refunds-resolution-refund",
+                        confirm: "Process full refund and cancel order?",
+                        data: { turbo_frame: "_top" } do %>
+            <i class="fas fa-money-bill-wave"></i>
+            <span class="refunds-btn-label">Refund</span>
+            <span class="refunds-btn-subtitle">Cancel order</span>
+          <% end %>
+        </div>
+        
+        <div class="refunds-resolution-timer">
+          <i class="fas fa-clock"></i>
+          <span><%= pluralize(refund.days_since_request, 'day') %> since dispatch cancelled</span>
+        </div>
+      </div>
+    <% end %>
   </div>
 
   <!-- Card Footer -->

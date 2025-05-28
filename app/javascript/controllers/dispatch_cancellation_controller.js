@@ -31,30 +31,19 @@ export default class extends Controller {
       console.log("Refund amount set to:", this.originalAmountValue)
     }
     
-    // Show the modal - try different approaches
+    // Show the modern modal with animation
     if (this.hasCancellationModalTarget) {
-      console.log("Modal target found, trying to show")
+      console.log("Modal target found, showing modern modal")
       
-      // Try Bootstrap 5 approach first
-      try {
-        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-          const modal = new bootstrap.Modal(this.cancellationModalTarget)
-          modal.show()
-          console.log("Bootstrap modal shown")
-        } else {
-          // Fallback: show manually
-          console.log("Bootstrap not available, showing manually")
-          this.cancellationModalTarget.style.display = 'block'
-          this.cancellationModalTarget.classList.add('show')
-          document.body.classList.add('modal-open')
-        }
-      } catch (error) {
-        console.error("Error showing modal:", error)
-        // Fallback: show manually
-        this.cancellationModalTarget.style.display = 'block'
-        this.cancellationModalTarget.classList.add('show')
-        document.body.classList.add('modal-open')
-      }
+      // Show modal with fade-in animation
+      this.cancellationModalTarget.style.display = 'flex'
+      this.cancellationModalTarget.classList.add('modal-show')
+      document.body.classList.add('modal-open')
+      
+      // Add fade-in animation
+      requestAnimationFrame(() => {
+        this.cancellationModalTarget.classList.add('modal-visible')
+      })
     } else {
       console.log("Modal target not found!")
     }
@@ -155,26 +144,15 @@ export default class extends Controller {
   hideModal() {
     console.log("Hiding modal")
     
-    // Hide the modal
-    try {
-      if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-        const modal = bootstrap.Modal.getInstance(this.cancellationModalTarget)
-        if (modal) {
-          modal.hide()
-        }
-      } else {
-        // Manual hide
-        this.cancellationModalTarget.style.display = 'none'
-        this.cancellationModalTarget.classList.remove('show')
-        document.body.classList.remove('modal-open')
-      }
-    } catch (error) {
-      console.error("Error hiding modal:", error)
-      // Fallback: hide manually
+    // Hide the modern modal with animation
+    this.cancellationModalTarget.classList.remove('modal-visible')
+    
+    // Wait for animation to complete before hiding
+    setTimeout(() => {
       this.cancellationModalTarget.style.display = 'none'
-      this.cancellationModalTarget.classList.remove('show')
+      this.cancellationModalTarget.classList.remove('modal-show')
       document.body.classList.remove('modal-open')
-    }
+    }, 300)
   }
 
   cancelModal() {

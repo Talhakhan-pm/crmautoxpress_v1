@@ -348,92 +348,99 @@
                 </div>
               <% end %>
               
-              <!-- Cancellation Reason Modal (inside the controller scope) -->
-              <div class="modal fade" id="cancellation-modal" tabindex="-1" 
+              <!-- Modern Cancellation Modal -->
+              <div class="modern-modal-overlay" id="cancellation-modal" 
                    data-dispatch-cancellation-target="cancellationModal"
-                   data-bs-backdrop="static" data-bs-keyboard="false">
-                <div class="modal-dialog modal-lg">
-                  <div class="modal-content">
-                    <div class="modal-header bg-warning">
-                      <h5 class="modal-title text-white">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        Cancel Dispatch - Reason Required
-                      </h5>
+                   style="display: none;">
+                <div class="modern-modal-container">
+                  <div class="modern-modal-card">
+                    <!-- Header -->
+                    <div class="modern-modal-header">
+                      <div class="modern-modal-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                      </div>
+                      <h3 class="modern-modal-title">Cancel Dispatch</h3>
+                      <p class="modern-modal-subtitle">Please provide cancellation details</p>
                     </div>
-                    <div class="modal-body">
-                      <div class="alert alert-warning">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>Important:</strong> Cancelling this dispatch will create a refund record. Please provide the reason and refund amount.
+
+                    <!-- Body -->
+                    <div class="modern-modal-body">
+                      <div class="modern-alert">
+                        <i class="fas fa-info-circle"></i>
+                        <span>This will create a refund record for the customer</span>
                       </div>
                       
-                      <form id="cancellation-form">
-                        <div class="row g-3">
-                          <!-- Cancellation Reason -->
-                          <div class="col-12">
-                            <label class="form-label fw-bold">Cancellation Reason</label>
-                            <select class="form-select" data-dispatch-cancellation-target="reasonSelect"
+                      <form id="cancellation-form" class="modern-form">
+                        <!-- Reason Selection -->
+                        <div class="modern-form-group">
+                          <label class="modern-form-label">Cancellation Reason</label>
+                          <div class="modern-select-wrapper">
+                            <select class="modern-select" data-dispatch-cancellation-target="reasonSelect"
                                     data-action="change->dispatch-cancellation#reasonChanged">
                               <option value="">Select a reason...</option>
-                              <option value="item_not_found">Item Not Found</option>
-                              <option value="supplier_issue">Supplier Issue</option>
-                              <option value="customer_changed_mind">Customer Changed Mind</option>
-                              <option value="wrong_product">Wrong Product Ordered</option>
-                              <option value="quality_issues">Quality Issues</option>
-                              <option value="shipping_delay">Shipping Delay</option>
-                              <option value="other">Other (specify below)</option>
+                              <option value="item_not_found">📦 Item Not Found</option>
+                              <option value="supplier_issue">🏪 Supplier Issue</option>
+                              <option value="customer_changed_mind">💭 Customer Changed Mind</option>
+                              <option value="wrong_product">❌ Wrong Product Ordered</option>
+                              <option value="quality_issues">⚠️ Quality Issues</option>
+                              <option value="shipping_delay">🚚 Shipping Delay</option>
+                              <option value="other">✏️ Other (specify below)</option>
                             </select>
+                            <i class="fas fa-chevron-down modern-select-arrow"></i>
+                          </div>
+                        </div>
+                        
+                        <!-- Custom Reason -->
+                        <div class="modern-form-group" data-dispatch-cancellation-target="customReason" style="display: none;">
+                          <label class="modern-form-label">Custom Reason</label>
+                          <input type="text" class="modern-input" placeholder="Please specify the reason...">
+                        </div>
+                        
+                        <!-- Financial Grid -->
+                        <div class="modern-financial-grid">
+                          <div class="modern-amount-card">
+                            <div class="modern-amount-label">Original Amount</div>
+                            <div class="modern-amount-value">$<%= number_with_precision(@dispatch.total_cost || 0, precision: 2) %></div>
+                            <input type="hidden" value="<%= @dispatch.total_cost || 0 %>">
                           </div>
                           
-                          <!-- Custom Reason (hidden by default) -->
-                          <div class="col-12" data-dispatch-cancellation-target="customReason" style="display: none;">
-                            <label class="form-label fw-bold">Custom Reason</label>
-                            <input type="text" class="form-control" placeholder="Please specify the reason...">
-                          </div>
-                          
-                          <!-- Financial Information -->
-                          <div class="col-md-6">
-                            <label class="form-label fw-bold">Original Charge Amount</label>
-                            <div class="input-group">
-                              <span class="input-group-text">$</span>
-                              <input type="number" class="form-control" 
-                                     value="<%= @dispatch.total_cost || 0 %>" 
-                                     step="0.01" readonly>
-                            </div>
-                          </div>
-                          
-                          <div class="col-md-6">
-                            <label class="form-label fw-bold">Refund Amount</label>
-                            <div class="input-group">
-                              <span class="input-group-text">$</span>
-                              <input type="number" class="form-control" 
+                          <div class="modern-amount-card modern-amount-editable">
+                            <label class="modern-amount-label">Refund Amount</label>
+                            <div class="modern-amount-input-wrapper">
+                              <span class="modern-currency">$</span>
+                              <input type="number" class="modern-amount-input" 
                                      data-dispatch-cancellation-target="refundAmount"
                                      value="<%= @dispatch.total_cost || 0 %>" 
                                      step="0.01" min="0" max="<%= @dispatch.total_cost || 0 %>">
                             </div>
-                            <small class="text-muted">Enter the amount to refund to the customer</small>
+                            <small class="modern-help-text">Amount to refund</small>
                           </div>
-                          
-                          <!-- Refund Percentage Display -->
-                          <div class="col-12">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                              <small class="text-muted">Refund Percentage</small>
-                              <span class="fw-bold text-success" id="refund-percentage-display">100%</span>
-                            </div>
-                            <div class="progress" style="height: 8px;">
-                              <div class="progress-bar bg-success" id="refund-progress-bar" style="width: 100%"></div>
-                            </div>
+                        </div>
+                        
+                        <!-- Refund Percentage Indicator -->
+                        <div class="modern-percentage-card">
+                          <div class="modern-percentage-header">
+                            <span class="modern-percentage-label">Refund Percentage</span>
+                            <span class="modern-percentage-value" id="refund-percentage-display">100%</span>
+                          </div>
+                          <div class="modern-percentage-bar">
+                            <div class="modern-percentage-fill" id="refund-progress-bar" style="width: 100%"></div>
                           </div>
                         </div>
                       </form>
                     </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" 
+
+                    <!-- Footer -->
+                    <div class="modern-modal-footer">
+                      <button type="button" class="modern-btn modern-btn-secondary" 
                               data-action="click->dispatch-cancellation#cancelModal">
-                        <i class="fas fa-times me-2"></i>Cancel
+                        <i class="fas fa-times"></i>
+                        <span>Cancel</span>
                       </button>
-                      <button type="button" class="btn btn-warning" 
+                      <button type="button" class="modern-btn modern-btn-danger" 
                               data-action="click->dispatch-cancellation#confirmCancellation">
-                        <i class="fas fa-exclamation-triangle me-2"></i>Confirm Cancellation
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Confirm Cancellation</span>
                       </button>
                     </div>
                   </div>
