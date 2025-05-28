@@ -1,270 +1,200 @@
-<div class="card border-0 shadow-sm h-100 refund-card" data-refund-id="<%= refund.id %>">
-  <div class="card-header bg-white border-0 pb-0">
-    <div class="d-flex justify-content-between align-items-start mb-2">
-      <div>
-        <h6 class="mb-1 fw-bold text-primary">
-          <%= refund.refund_number %>
-        </h6>
-        <small class="text-muted">
-          <i class="fas fa-shopping-cart me-1"></i>
-          Order: <%= link_to refund.order.order_number, order_path(refund.order), class: "text-decoration-none" %>
-        </small>
+<div class="refunds-modern-card" data-refund-id="<%= refund.id %>">
+  <!-- Card Header -->
+  <div class="refunds-card-header">
+    <div class="refunds-card-header-left">
+      <div class="refunds-card-id">
+        <%= refund.refund_number %>
       </div>
-      
-      <div class="dropdown">
-        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown">
-          <i class="fas fa-ellipsis-v"></i>
+      <div class="refunds-card-order">
+        <%= link_to refund.order.order_number, order_path(refund.order), class: "refunds-order-link" %>
+      </div>
+    </div>
+    
+    <div class="refunds-card-actions">
+      <div class="refunds-actions-dropdown">
+        <button class="refunds-action-btn" type="button" data-bs-toggle="dropdown">
+          <i class="fas fa-ellipsis-h"></i>
         </button>
-        <ul class="dropdown-menu">
+        <ul class="dropdown-menu refunds-dropdown-menu">
           <li>
-            <%= link_to refund_path(refund), class: "dropdown-item" do %>
-              <i class="fas fa-eye me-2"></i>View Details
+            <%= link_to refund_path(refund), class: "refunds-dropdown-item" do %>
+              <i class="fas fa-eye"></i>
+              <span>View Details</span>
             <% end %>
           </li>
           <li>
-            <%= link_to edit_refund_path(refund), class: "dropdown-item" do %>
-              <i class="fas fa-edit me-2"></i>Edit
+            <%= link_to edit_refund_path(refund), class: "refunds-dropdown-item" do %>
+              <i class="fas fa-edit"></i>
+              <span>Edit</span>
             <% end %>
           </li>
           <% if refund.can_be_processed? %>
             <li>
-              <%= link_to process_refund_refund_path(refund), method: :patch, class: "dropdown-item" do %>
-                <i class="fas fa-play me-2"></i>Process
+              <%= link_to process_refund_refund_path(refund), method: :patch, class: "refunds-dropdown-item refunds-dropdown-process" do %>
+                <i class="fas fa-play"></i>
+                <span>Process</span>
               <% end %>
             </li>
           <% end %>
           <% if refund.can_be_cancelled? %>
             <li>
-              <%= link_to cancel_refund_refund_path(refund), method: :patch, class: "dropdown-item text-danger" do %>
-                <i class="fas fa-times me-2"></i>Cancel
-              <% end %>
-            </li>
-          <% end %>
-          
-          <!-- Resolution Options for Pending Resolution -->
-          <% if refund.refund_stage == 'pending_resolution' %>
-            <li><hr class="dropdown-divider"></li>
-            <li class="dropdown-header">Resolution Options</li>
-            <li>
-              <%= link_to retry_dispatch_dispatch_path(refund.order.dispatch), method: :patch, class: "dropdown-item text-primary" do %>
-                <i class="fas fa-redo me-2"></i>Retry Dispatch
-              <% end %>
-            </li>
-            <li>
-              <%= link_to create_replacement_order_dispatch_path(refund.order.dispatch), method: :post, class: "dropdown-item text-info" do %>
-                <i class="fas fa-exchange-alt me-2"></i>Create Replacement
-              <% end %>
-            </li>
-            <li>
-              <%= link_to process_full_refund_dispatch_path(refund.order.dispatch), method: :patch, class: "dropdown-item text-success" do %>
-                <i class="fas fa-money-bill-wave me-2"></i>Process Refund
-              <% end %>
-            </li>
-          <% elsif refund.refund_reason == 'return_request' && refund.replacement_order_number.blank? %>
-            <li>
-              <%= link_to create_replacement_refund_path(refund), method: :post, class: "dropdown-item" do %>
-                <i class="fas fa-exchange-alt me-2"></i>Create Replacement
+              <%= link_to cancel_refund_refund_path(refund), method: :patch, class: "refunds-dropdown-item refunds-dropdown-danger" do %>
+                <i class="fas fa-times"></i>
+                <span>Cancel</span>
               <% end %>
             </li>
           <% end %>
         </ul>
       </div>
     </div>
-    
-    <!-- Status Badges -->
-    <div class="d-flex flex-wrap gap-1 mb-2">
-      <span class="badge bg-<%= refund.stage_color %> fs-6 <%= 'pulsing-badge' if refund.refund_stage == 'pending_resolution' %>">
-        <%= refund.refund_stage.humanize %>
-        <% if refund.refund_stage == 'pending_resolution' %>
-          <i class="fas fa-exclamation-triangle ms-1"></i>
-        <% end %>
-      </span>
-      <span class="badge bg-<%= refund.reason_color %> bg-opacity-75">
-        <%= refund.refund_reason.humanize %>
-      </span>
-      <span class="badge bg-<%= refund.priority_color %> bg-opacity-50">
-        <i class="fas fa-flag me-1"></i><%= refund.priority.humanize %>
-      </span>
-      
-      <!-- SLA Status Badge -->
-      <% sla_status = refund.sla_status %>
-      <span class="badge <%= case sla_status
-                              when 'breached' then 'bg-danger'
-                              when 'at_risk' then 'bg-warning'
-                              when 'completed' then 'bg-success'
-                              else 'bg-info'
-                              end %> fs-6 <%= 'urgent-notification' if sla_status == 'breached' %>">
-        <i class="fas fa-clock me-1"></i>
-        SLA: <%= sla_status.humanize %>
-        <% unless refund.completed_stage? %>
-          (<%= refund.sla_remaining_hours %>h left)
-        <% end %>
-      </span>
-      
-      <!-- Performance Score Badge -->
-      <% if refund.completed_stage? %>
-        <span class="badge bg-<%= refund.sla_performance_score >= 90 ? 'success' : refund.sla_performance_score >= 70 ? 'warning' : 'danger' %> bg-opacity-75">
-          <i class="fas fa-chart-line me-1"></i>
-          Score: <%= refund.sla_performance_score %>%
-        </span>
-      <% end %>
-    </div>
-    
-    <!-- Resolution Alert -->
-    <% if refund.refund_stage == 'pending_resolution' %>
-      <div class="alert alert-warning alert-sm mb-2" style="padding: 8px 12px; font-size: 0.85rem;">
-        <i class="fas fa-clock me-1"></i>
-        <strong>Action Required:</strong> Choose resolution option
-      </div>
-    <% end %>
   </div>
-  
-  <div class="card-body">
-    <!-- Customer Info -->
-    <div class="mb-3">
-      <h6 class="fw-bold text-dark mb-1">
-        <i class="fas fa-user me-1 text-primary"></i>
-        <%= refund.customer_name %>
-      </h6>
-      <% if refund.customer_email.present? %>
-        <small class="text-muted d-block">
-          <i class="fas fa-envelope me-1"></i>
-          <%= refund.customer_email %>
-        </small>
+
+  <!-- Status Bar -->
+  <div class="refunds-status-bar">
+    <div class="refunds-status-badge refunds-status-<%= refund.refund_stage %>">
+      <%= refund.refund_stage.humanize %>
+    </div>
+    
+    <div class="refunds-sla-indicator refunds-sla-<%= refund.sla_status %>">
+      <i class="fas fa-clock"></i>
+      <span><%= refund.sla_status.humanize %></span>
+      <% unless refund.completed_stage? %>
+        <small>(<%= refund.sla_remaining_hours %>h)</small>
       <% end %>
     </div>
-    
-    <!-- Refund Amount -->
-    <div class="row g-2 mb-3">
-      <div class="col-6">
-        <small class="text-muted d-block">Original Amount</small>
-        <div class="fw-bold">$<%= number_with_precision(refund.original_charge_amount, precision: 2) %></div>
+  </div>
+
+  <!-- Card Body -->
+  <div class="refunds-card-body">
+    <!-- Customer Section -->
+    <div class="refunds-customer-section">
+      <div class="refunds-customer-avatar">
+        <i class="fas fa-user"></i>
       </div>
-      <div class="col-6">
-        <small class="text-muted d-block">Refund Amount</small>
-        <div class="fw-bold text-success">$<%= number_with_precision(refund.refund_amount, precision: 2) %></div>
+      <div class="refunds-customer-info">
+        <div class="refunds-customer-name"><%= refund.customer_name %></div>
+        <% if refund.customer_email.present? %>
+          <div class="refunds-customer-email"><%= refund.customer_email %></div>
+        <% end %>
       </div>
     </div>
-    
-    <!-- Refund Percentage -->
-    <div class="mb-3">
-      <small class="text-muted d-block">Refund Percentage</small>
-      <div class="progress" style="height: 6px;">
-        <div class="progress-bar bg-success" style="width: <%= refund.refund_percentage %>%"></div>
+
+    <!-- Amount Section -->
+    <div class="refunds-amount-section">
+      <div class="refunds-amount-row">
+        <div class="refunds-amount-item">
+          <span class="refunds-amount-label">Original</span>
+          <span class="refunds-amount-value">$<%= number_with_precision(refund.original_charge_amount, precision: 2) %></span>
+        </div>
+        <div class="refunds-amount-arrow">
+          <i class="fas fa-arrow-right"></i>
+        </div>
+        <div class="refunds-amount-item">
+          <span class="refunds-amount-label">Refund</span>
+          <span class="refunds-amount-value refunds-amount-refund">$<%= number_with_precision(refund.refund_amount, precision: 2) %></span>
+        </div>
       </div>
-      <small class="text-muted"><%= refund.refund_percentage %>% refund</small>
+      
+      <div class="refunds-percentage-bar">
+        <div class="refunds-percentage-fill" style="width: <%= refund.refund_percentage %>%"></div>
+        <span class="refunds-percentage-text"><%= refund.refund_percentage %>%</span>
+      </div>
     </div>
-    
-    <!-- Timeline Info -->
-    <div class="row g-2 mb-3 text-center">
-      <div class="col-6">
-        <small class="text-muted d-block">Days Since Request</small>
-        <div class="fw-bold <%= refund.is_overdue? ? 'text-danger' : 'text-primary' %>">
+
+    <!-- Details Grid -->
+    <div class="refunds-details-grid">
+      <div class="refunds-detail-item">
+        <div class="refunds-detail-label">Days elapsed</div>
+        <div class="refunds-detail-value <%= 'refunds-overdue' if refund.is_overdue? %>">
           <%= refund.days_since_request %>
         </div>
       </div>
-      <div class="col-6">
-        <small class="text-muted d-block">Est. Processing</small>
-        <div class="fw-bold">
-          <%= refund.estimated_processing_days %> days
+      
+      <div class="refunds-detail-item">
+        <div class="refunds-detail-label">Priority</div>
+        <div class="refunds-detail-value">
+          <span class="refunds-priority-badge refunds-priority-<%= refund.priority %>">
+            <%= refund.priority.humanize %>
+          </span>
         </div>
       </div>
-    </div>
-    
-    <!-- Processing Agent -->
-    <% if refund.processing_agent.present? %>
-      <div class="mb-3">
-        <small class="text-muted d-block">Processing Agent</small>
-        <div class="d-flex align-items-center">
-          <i class="fas fa-user-tie me-2 text-secondary"></i>
-          <span class="small"><%= refund.processing_agent.email %></span>
+      
+      <div class="refunds-detail-item">
+        <div class="refunds-detail-label">Reason</div>
+        <div class="refunds-detail-value">
+          <span class="refunds-reason-badge">
+            <%= refund.refund_reason.humanize %>
+          </span>
         </div>
       </div>
-    <% end %>
-    
-    <!-- Notes Preview -->
-    <% if refund.notes.present? %>
-      <div class="mb-3">
-        <small class="text-muted d-block">Notes</small>
-        <div class="small text-dark">
-          <%= truncate(refund.notes, length: 100) %>
-        </div>
-      </div>
-    <% end %>
-    
-    <!-- Replacement Order Link -->
-    <div class="mb-3">
-      <div class="d-flex align-items-center gap-2 p-2 bg-light rounded">
-        <% if refund.has_replacement_order? %>
-          <i class="fas fa-exchange-alt text-success"></i>
-          <div class="flex-grow-1">
-            <small class="text-muted d-block">Replacement Order</small>
-            <%= link_to refund.replacement_order_number, order_path(refund.replacement_order), 
-                        class: "small fw-bold text-decoration-none text-success" %>
-            <div class="d-flex align-items-center gap-2 mt-1">
-              <span class="badge bg-<%= refund.replacement_order.status_color %> badge-sm">
-                <%= refund.replacement_order_status %>
-              </span>
-              <% if refund.replacement_order_active? %>
-                <span class="text-success">
-                  <i class="fas fa-check-circle fa-sm"></i>
-                  Active
-                </span>
-              <% end %>
+      
+      <% if refund.processing_agent.present? %>
+        <div class="refunds-detail-item">
+          <div class="refunds-detail-label">Agent</div>
+          <div class="refunds-detail-value">
+            <div class="refunds-agent-info">
+              <i class="fas fa-user-tie"></i>
+              <span><%= refund.processing_agent.email.split('@').first %></span>
             </div>
           </div>
-        <% elsif refund.replacement_order_number.present? %>
-          <i class="fas fa-exclamation-triangle text-warning"></i>
-          <div>
-            <small class="text-muted d-block">Replacement Order</small>
-            <span class="small fw-bold text-warning">
-              <%= refund.replacement_order_number %>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Replacement Order (if exists) -->
+    <% if refund.has_replacement_order? || refund.replacement_order_number.present? %>
+      <div class="refunds-replacement-section">
+        <div class="refunds-replacement-header">
+          <i class="fas fa-exchange-alt"></i>
+          <span>Replacement Order</span>
+        </div>
+        <% if refund.has_replacement_order? %>
+          <div class="refunds-replacement-content">
+            <%= link_to refund.replacement_order_number, order_path(refund.replacement_order), 
+                        class: "refunds-replacement-link" %>
+            <span class="refunds-replacement-status refunds-status-<%= refund.replacement_order.order_status %>">
+              <%= refund.replacement_order_status %>
             </span>
-            <small class="text-danger d-block">Order not found</small>
           </div>
         <% else %>
-          <i class="fas fa-clock text-muted"></i>
-          <div>
-            <small class="text-muted">No replacement order created yet</small>
+          <div class="refunds-replacement-content refunds-replacement-error">
+            <span class="refunds-replacement-number"><%= refund.replacement_order_number %></span>
+            <span class="refunds-replacement-error-text">Order not found</span>
           </div>
         <% end %>
       </div>
-    </div>
-    
-    <!-- Return Tracking -->
-    <% if refund.return_tracking_number.present? %>
-      <div class="mb-3">
-        <small class="text-muted d-block">Return Tracking</small>
-        <div class="small font-monospace fw-bold">
-          <%= refund.return_tracking_number %>
+    <% end %>
+
+    <!-- Notes Preview -->
+    <% if refund.notes.present? %>
+      <div class="refunds-notes-section">
+        <div class="refunds-notes-content">
+          <%= truncate(refund.notes, length: 80) %>
         </div>
       </div>
     <% end %>
-    
-    <!-- Resolution Actions -->
-    <%= render 'refunds/resolution_actions', refund: refund %>
   </div>
-  
-  <div class="card-footer bg-light border-0">
-    <div class="d-flex justify-content-between align-items-center">
-      <small class="text-muted">
-        <i class="fas fa-clock me-1"></i>
+
+  <!-- Card Footer -->
+  <div class="refunds-card-footer">
+    <div class="refunds-footer-left">
+      <span class="refunds-time-ago">
         <%= time_ago_in_words(refund.created_at) %> ago
-      </small>
+      </span>
+    </div>
+    
+    <div class="refunds-footer-right">
+      <%= link_to refund_path(refund), class: "refunds-footer-btn refunds-footer-view" do %>
+        <i class="fas fa-eye"></i>
+      <% end %>
       
-      <div class="d-flex gap-2">
-        <%= link_to refund_path(refund), class: "btn btn-sm btn-outline-primary" do %>
-          <i class="fas fa-eye"></i>
+      <% if refund.can_be_processed? %>
+        <%= link_to process_refund_refund_path(refund), method: :patch, 
+                    class: "refunds-footer-btn refunds-footer-process",
+                    confirm: "Process this refund?" do %>
+          <i class="fas fa-play"></i>
         <% end %>
-        
-        <% if refund.can_be_processed? %>
-          <%= link_to process_refund_refund_path(refund), method: :patch, 
-                      class: "btn btn-sm btn-success",
-                      confirm: "Process this refund?" do %>
-            <i class="fas fa-play"></i>
-          <% end %>
-        <% end %>
-      </div>
+      <% end %>
     </div>
   </div>
 </div>
