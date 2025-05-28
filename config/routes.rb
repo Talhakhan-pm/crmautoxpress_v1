@@ -22,6 +22,9 @@ Rails.application.routes.draw do
   
   # Refunds routes
   resources :refunds do
+    collection do
+      get :sla_analytics
+    end
     member do
       patch :process_refund
       patch :cancel_refund

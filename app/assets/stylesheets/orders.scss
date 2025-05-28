@@ -1,10 +1,49 @@
 /* AutoXpress Orders - Modern Design */
 @use 'unified_modals' as *;
 
-/* Pending Resolution Status Animation */
+/* Enhanced Status Animations */
 .status-pending_resolution {
   animation: pulse-warning 2s infinite;
   border-left: 4px solid #fbbf24 !important;
+}
+
+/* Urgent/Escalated Refund Animations */
+.status-urgent_refund, .escalated-badge {
+  animation: pulse-danger 1.5s infinite;
+  border-left: 4px solid #dc2626 !important;
+}
+
+.overdue-indicator {
+  animation: pulse-critical 1s infinite;
+}
+
+/* Pulsing Badge Animations */
+.pulsing-badge {
+  animation: badge-pulse 2s infinite;
+  position: relative;
+}
+
+.pulsing-badge::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: inherit;
+  animation: badge-glow 2s infinite;
+  z-index: -1;
+}
+
+/* Urgent Priority Indicators */
+.priority-urgent {
+  animation: urgentPulse 2s infinite;
+  box-shadow: 0 0 10px rgba(220, 38, 38, 0.5);
+}
+
+.urgent-notification {
+  animation: shake 0.5s infinite;
+  background: linear-gradient(45deg, #dc2626, #f87171);
 }
 
 @keyframes pulse-warning {
@@ -21,6 +60,154 @@
   100% {
     background-color: rgba(251, 191, 36, 0.1);
     box-shadow: 0 0 0 0 rgba(251, 191, 36, 0);
+  }
+}
+
+@keyframes pulse-danger {
+  0% {
+    background-color: rgba(220, 38, 38, 0.1);
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.5);
+  }
+
+  50% {
+    background-color: rgba(220, 38, 38, 0.25);
+    box-shadow: 0 0 0 10px rgba(220, 38, 38, 0.1);
+  }
+
+  100% {
+    background-color: rgba(220, 38, 38, 0.1);
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+  }
+}
+
+@keyframes pulse-critical {
+  0% {
+    background-color: rgba(220, 38, 38, 0.2);
+    transform: scale(1);
+  }
+
+  50% {
+    background-color: rgba(220, 38, 38, 0.4);
+    transform: scale(1.05);
+  }
+
+  100% {
+    background-color: rgba(220, 38, 38, 0.2);
+    transform: scale(1);
+  }
+}
+
+@keyframes badge-pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes badge-glow {
+  0% {
+    background: rgba(220, 38, 38, 0.2);
+    transform: scale(1);
+  }
+
+  50% {
+    background: rgba(220, 38, 38, 0.4);
+    transform: scale(1.2);
+  }
+
+  100% {
+    background: rgba(220, 38, 38, 0.2);
+    transform: scale(1);
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-2px);
+  }
+
+  75% {
+    transform: translateX(2px);
+  }
+}
+
+/* Escalation Badge Styles */
+.escalation-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #dc2626;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  margin-left: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.escalation-badge i {
+  font-size: 8px;
+}
+
+/* Dashboard Widget Styles */
+.escalation-metrics {
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.escalation-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.escalation-stat {
+  text-align: center;
+  padding: 12px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #f3f4f6;
+
+  .stat-number {
+    font-size: 24px;
+    font-weight: 700;
+    color: #dc2626;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+
+  &.critical {
+    background: #fef2f2;
+    border-color: #fecaca;
+    
+    .stat-number {
+      animation: badge-pulse 2s infinite;
+    }
   }
 }
 

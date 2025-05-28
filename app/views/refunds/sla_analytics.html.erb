@@ -1,0 +1,279 @@
+<%= turbo_frame_tag "main_content", data: { turbo_action: "advance" } do %>
+<% content_for :title, "SLA Analytics & Performance Metrics" %>
+
+<div class="container-fluid p-4 sla-analytics-container" style="margin-left: 260px;">
+  <style>
+    @media (max-width: 768px) {
+      .sla-analytics-container {
+        margin-left: 0 !important;
+      }
+    }
+  </style>
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">SLA Analytics & Performance Dashboard</h2>
+        <div class="btn-group" role="group">
+          <%= link_to "All Refunds", refunds_path, class: "btn btn-outline-primary" %>
+          <%= link_to "Dashboard", dashboard_path, class: "btn btn-outline-secondary" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overall SLA Metrics -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body text-center">
+          <div class="d-flex align-items-center justify-content-center mb-2">
+            <div class="rounded-circle bg-success bg-opacity-10 p-2 me-2">
+              <i class="fas fa-check-circle text-success"></i>
+            </div>
+            <h5 class="card-title mb-0">On Track</h5>
+          </div>
+          <h3 class="text-success mb-0"><%= @sla_metrics[:on_track] || 0 %></h3>
+          <small class="text-muted">refunds</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body text-center">
+          <div class="d-flex align-items-center justify-content-center mb-2">
+            <div class="rounded-circle bg-warning bg-opacity-10 p-2 me-2">
+              <i class="fas fa-exclamation-triangle text-warning"></i>
+            </div>
+            <h5 class="card-title mb-0">At Risk</h5>
+          </div>
+          <h3 class="text-warning mb-0"><%= @sla_metrics[:at_risk] || 0 %></h3>
+          <small class="text-muted">refunds</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body text-center">
+          <div class="d-flex align-items-center justify-content-center mb-2">
+            <div class="rounded-circle bg-danger bg-opacity-10 p-2 me-2">
+              <i class="fas fa-times-circle text-danger"></i>
+            </div>
+            <h5 class="card-title mb-0">Breached</h5>
+          </div>
+          <h3 class="text-danger mb-0"><%= @sla_metrics[:breached] || 0 %></h3>
+          <small class="text-muted">refunds</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body text-center">
+          <div class="d-flex align-items-center justify-content-center mb-2">
+            <div class="rounded-circle bg-primary bg-opacity-10 p-2 me-2">
+              <i class="fas fa-trophy text-primary"></i>
+            </div>
+            <h5 class="card-title mb-0">Completed</h5>
+          </div>
+          <h3 class="text-primary mb-0"><%= @sla_metrics[:completed] || 0 %></h3>
+          <small class="text-muted">refunds</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Performance Metrics Row -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-transparent border-0">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-chart-line me-2"></i>
+            Overall Performance
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row text-center">
+            <div class="col-6">
+              <h3 class="mb-1">
+                <span class="badge bg-<%= (@sla_metrics[:avg_performance_score] || 0) >= 80 ? 'success' : (@sla_metrics[:avg_performance_score] || 0) >= 60 ? 'warning' : 'danger' %> fs-5">
+                  <%= number_with_precision(@sla_metrics[:avg_performance_score] || 0, precision: 1) %>%
+                </span>
+              </h3>
+              <small class="text-muted">Average SLA Score</small>
+            </div>
+            <div class="col-6">
+              <h3 class="mb-1">
+                <span class="badge bg-<%= (@sla_metrics[:sla_compliance_rate] || 0) >= 90 ? 'success' : (@sla_metrics[:sla_compliance_rate] || 0) >= 70 ? 'warning' : 'danger' %> fs-5">
+                  <%= number_with_precision(@sla_metrics[:sla_compliance_rate] || 0, precision: 1) %>%
+                </span>
+              </h3>
+              <small class="text-muted">SLA Compliance Rate</small>
+            </div>
+          </div>
+          <hr>
+          <div class="row text-center">
+            <div class="col-6">
+              <h4 class="mb-1"><%= number_with_precision(@sla_metrics[:avg_resolution_time] || 0, precision: 1) %></h4>
+              <small class="text-muted">Avg Resolution Days</small>
+            </div>
+            <div class="col-6">
+              <h4 class="mb-1"><%= @sla_metrics[:total_escalations] || 0 %></h4>
+              <small class="text-muted">Total Escalations</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-transparent border-0">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-clock me-2"></i>
+            Stage Performance Breakdown
+          </h5>
+        </div>
+        <div class="card-body">
+          <% (@stage_performance || {}).each do |stage, metrics| %>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <span class="badge bg-secondary me-2"><%= stage.humanize %></span>
+                <small class="text-muted">(<%= metrics[:count] || 0 %> refunds)</small>
+              </div>
+              <div class="text-end">
+                <div class="small">
+                  <span class="badge bg-<%= (metrics[:avg_score] || 0) >= 80 ? 'success' : (metrics[:avg_score] || 0) >= 60 ? 'warning' : 'danger' %>">
+                    <%= number_with_precision(metrics[:avg_score] || 0, precision: 0) %>%
+                  </span>
+                </div>
+                <small class="text-muted"><%= number_with_precision(metrics[:avg_days] || 0, precision: 1) %> days avg</small>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Agent Performance Table -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-transparent border-0">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-users me-2"></i>
+            Agent Performance Metrics
+          </h5>
+        </div>
+        <div class="card-body">
+          <% if (@agent_performance || {}).any? %>
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Agent</th>
+                    <th class="text-center">Total Refunds</th>
+                    <th class="text-center">Avg Performance Score</th>
+                    <th class="text-center">SLA Compliance</th>
+                    <th class="text-center">Avg Resolution Time</th>
+                    <th class="text-center">Escalations</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% (@agent_performance || {}).each do |agent_id, metrics| %>
+                    <tr>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <div class="rounded-circle bg-primary bg-opacity-10 p-2 me-2">
+                            <i class="fas fa-user text-primary"></i>
+                          </div>
+                          <span class="fw-medium">Agent #<%= agent_id || 'Unassigned' %></span>
+                        </div>
+                      </td>
+                      <td class="text-center">
+                        <span class="badge bg-light text-dark"><%= metrics[:total_refunds] || 0 %></span>
+                      </td>
+                      <td class="text-center">
+                        <span class="badge bg-<%= (metrics[:avg_performance_score] || 0) >= 80 ? 'success' : (metrics[:avg_performance_score] || 0) >= 60 ? 'warning' : 'danger' %>">
+                          <%= number_with_precision(metrics[:avg_performance_score] || 0, precision: 1) %>%
+                        </span>
+                      </td>
+                      <td class="text-center">
+                        <span class="badge bg-<%= (metrics[:sla_compliance_rate] || 0) >= 90 ? 'success' : (metrics[:sla_compliance_rate] || 0) >= 70 ? 'warning' : 'danger' %>">
+                          <%= number_with_precision(metrics[:sla_compliance_rate] || 0, precision: 1) %>%
+                        </span>
+                      </td>
+                      <td class="text-center">
+                        <span class="text-muted"><%= number_with_precision(metrics[:avg_resolution_time] || 0, precision: 1) %> days</span>
+                      </td>
+                      <td class="text-center">
+                        <% if (metrics[:total_escalations] || 0) > 0 %>
+                          <span class="badge bg-warning"><%= metrics[:total_escalations] %></span>
+                        <% else %>
+                          <span class="text-muted">0</span>
+                        <% end %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% else %>
+            <div class="text-center py-4">
+              <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+              <h5 class="text-muted">No performance data available yet</h5>
+              <p class="text-muted">Agent performance metrics will appear here once refunds are processed.</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.card {
+  transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.badge {
+  font-size: 0.875em;
+}
+
+.table-responsive {
+  border-radius: 0.5rem;
+}
+
+.bg-opacity-10 {
+  background-color: rgba(var(--bs-primary-rgb), 0.1) !important;
+}
+
+.sla-metric-card {
+  border-left: 4px solid var(--bs-primary);
+}
+
+.performance-indicator {
+  position: relative;
+  overflow: hidden;
+}
+
+.performance-indicator::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.performance-indicator:hover::before {
+  left: 100%;
+}
+</style>
+</div>
+<% end %>

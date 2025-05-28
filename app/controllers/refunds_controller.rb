@@ -12,6 +12,11 @@ class RefundsController < ApplicationController
     @refunds = @refunds.by_agent(params[:agent_id]) if params[:agent_id].present?
     @refunds = @refunds.by_priority(params[:priority]) if params[:priority].present?
     
+    # SLA filtering
+    if params[:sla_status].present?
+      @refunds = @refunds.select { |r| r.sla_status == params[:sla_status] }
+    end
+    
     # Search functionality
     if params[:search].present?
       search_term = "%#{params[:search].downcase}%"
@@ -179,6 +184,18 @@ class RefundsController < ApplicationController
         ]
       }
       format.json { render json: { success: replacement_order.present?, message: message } }
+    end
+  end
+
+  # SLA Analytics Dashboard
+  def sla_analytics
+    @sla_metrics = Refund.sla_metrics
+    @stage_performance = Refund.stage_performance_breakdown
+    @agent_performance = Refund.agent_performance_metrics
+
+    respond_to do |format|
+      format.html
+      format.json { render json: { sla_metrics: @sla_metrics, stage_performance: @stage_performance } }
     end
   end
 

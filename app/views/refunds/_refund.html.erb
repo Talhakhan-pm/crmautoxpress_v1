@@ -85,6 +85,29 @@
       <span class="badge bg-<%= refund.priority_color %> bg-opacity-50">
         <i class="fas fa-flag me-1"></i><%= refund.priority.humanize %>
       </span>
+      
+      <!-- SLA Status Badge -->
+      <% sla_status = refund.sla_status %>
+      <span class="badge <%= case sla_status
+                              when 'breached' then 'bg-danger'
+                              when 'at_risk' then 'bg-warning'
+                              when 'completed' then 'bg-success'
+                              else 'bg-info'
+                              end %> fs-6 <%= 'urgent-notification' if sla_status == 'breached' %>">
+        <i class="fas fa-clock me-1"></i>
+        SLA: <%= sla_status.humanize %>
+        <% unless refund.completed_stage? %>
+          (<%= refund.sla_remaining_hours %>h left)
+        <% end %>
+      </span>
+      
+      <!-- Performance Score Badge -->
+      <% if refund.completed_stage? %>
+        <span class="badge bg-<%= refund.sla_performance_score >= 90 ? 'success' : refund.sla_performance_score >= 70 ? 'warning' : 'danger' %> bg-opacity-75">
+          <i class="fas fa-chart-line me-1"></i>
+          Score: <%= refund.sla_performance_score %>%
+        </span>
+      <% end %>
     </div>
     
     <!-- Resolution Alert -->

@@ -20,6 +20,10 @@
     </div>
     
     <div class="d-flex gap-2">
+      <%= link_to sla_analytics_refunds_path, class: "btn btn-outline-info d-flex align-items-center gap-2" do %>
+        <i class="fas fa-chart-line"></i>
+        SLA Analytics
+      <% end %>
       <%= link_to new_refund_path, class: "btn btn-primary d-flex align-items-center gap-2" do %>
         <i class="fas fa-plus"></i>
         New Refund
