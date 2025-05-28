@@ -220,7 +220,6 @@ class ResolutionController < ApplicationController
     changed_fields = []
     changed_fields << 'agent notes' if @refund.agent_notes_changed?
     changed_fields << 'dispatcher notes' if @refund.dispatcher_notes_changed?
-    changed_fields << 'customer response' if @refund.customer_response_changed?
     
     return if changed_fields.empty?
     
@@ -232,13 +231,13 @@ class ResolutionController < ApplicationController
   end
 
   def refund_params
-    params.require(:refund).permit(:resolution_stage, :agent_notes, :dispatcher_notes, :customer_response, 
+    params.require(:refund).permit(:resolution_stage, :agent_notes, :dispatcher_notes, 
                                    :corrected_customer_details, :part_research_notes, :price_difference, 
                                    :alternative_part_name, :alternative_part_price)
   end
 
   def notes_params
-    params.require(:refund).permit(:agent_notes, :dispatcher_notes, :customer_response, 
+    params.require(:refund).permit(:agent_notes, :dispatcher_notes, 
                                    :corrected_customer_details, :part_research_notes, :price_difference, 
                                    :alternative_part_name, :alternative_part_price)
   end

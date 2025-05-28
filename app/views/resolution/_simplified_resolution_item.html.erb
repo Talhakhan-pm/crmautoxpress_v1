@@ -60,7 +60,7 @@
         <%= form_with model: refund, url: update_resolution_notes_path(refund), 
                       method: :patch, local: false, class: "quick-form" do |f| %>
           <%= f.text_area :agent_notes, 
-                          placeholder: "Customer call notes, updated details, etc...",
+                          placeholder: "Customer call notes, responses, updated details, etc...",
                           class: "comm-input",
                           rows: 3,
                           value: refund.agent_notes %>
@@ -82,23 +82,6 @@
                           rows: 3,
                           value: refund.dispatcher_notes %>
           <%= f.submit "Update", class: "btn btn-sm btn-outline-info" %>
-        <% end %>
-      </div>
-
-      <!-- Customer Column -->
-      <div class="comm-column customer-column">
-        <div class="column-header">
-          <i class="fas fa-phone"></i>
-          <span>Customer Response</span>
-        </div>
-        <%= form_with model: refund, url: update_resolution_notes_path(refund), 
-                      method: :patch, local: false, class: "quick-form" do |f| %>
-          <%= f.text_area :customer_response, 
-                          placeholder: "What did the customer say?",
-                          class: "comm-input",
-                          rows: 3,
-                          value: refund.customer_response %>
-          <%= f.submit "Update", class: "btn btn-sm btn-outline-success" %>
         <% end %>
       </div>
     </div>

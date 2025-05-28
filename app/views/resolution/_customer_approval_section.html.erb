@@ -46,25 +46,16 @@
     <!-- Customer Communication -->
     <%= form_with model: refund, url: update_resolution_notes_path(refund), 
                   method: :patch, local: false, class: "customer-form" do |f| %>
-      <div class="customer-communication">
-        <h7>Customer Response:</h7>
-        <%= f.text_area :customer_response, 
-                        placeholder: "Record customer's response to the alternative part and pricing...",
-                        class: "form-textarea",
-                        rows: 3,
-                        value: refund.customer_response %>
-      </div>
-
-      <div class="agent-followup">
-        <h7>Agent Follow-up Notes:</h7>
+      <div class="agent-communication">
+        <h7>Agent Notes from Customer Call:</h7>
         <%= f.text_area :agent_notes, 
-                        placeholder: "Additional notes from customer conversation...",
+                        placeholder: "Record customer's response to the alternative part and pricing, plus any additional conversation notes...",
                         class: "form-textarea",
-                        rows: 2,
+                        rows: 5,
                         value: refund.agent_notes %>
       </div>
 
-      <%= f.submit "Update Customer Response", class: "btn btn-info", 
+      <%= f.submit "Update Agent Notes", class: "btn btn-info", 
                    data: { disable_with: "Updating..." } %>
     <% end %>
 
@@ -98,12 +89,12 @@
       </div>
     </div>
 
-    <!-- Current Customer Response Display -->
-    <% if refund.customer_response.present? %>
+    <!-- Current Agent Notes Display -->
+    <% if refund.agent_notes.present? %>
       <div class="current-response">
         <div class="response-section">
-          <span class="response-label">Customer Response:</span>
-          <div class="response-content"><%= simple_format(refund.customer_response) %></div>
+          <span class="response-label">Agent Notes:</span>
+          <div class="response-content"><%= simple_format(refund.agent_notes) %></div>
         </div>
       </div>
     <% end %>
