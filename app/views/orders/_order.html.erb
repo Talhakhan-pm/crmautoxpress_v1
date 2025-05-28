@@ -1,4 +1,5 @@
-<%= link_to order_path(order), class: "order-card", style: "cursor: pointer; text-decoration: none; color: inherit;", id: dom_id(order), data: { turbo_frame: "main_content" } do %>
+<div class="order-card <%= 'needs-attention' if order.has_pending_refund_resolution? %>" id="<%= dom_id(order) %>" data-controller="order-resolution">
+  <div class="order-card-link" onclick="window.location.href='<%= order_path(order) %>'" style="cursor: pointer;">
   <div class="card-header">
     <div class="order-number">
       <span class="order-id">#<%= order.order_number %></span>
@@ -11,9 +12,16 @@
         <i class="fas fa-calendar"></i>
         <%= order.order_date.strftime("%b %d, %Y") %>
       </div>
-      <span class="priority-badge priority-<%= order.priority %>">
-        <%= order.priority.humanize %>
-      </span>
+      <% if order.has_pending_refund_resolution? %>
+        <span class="attention-badge">
+          <i class="fas fa-exclamation-triangle"></i>
+          Needs Your Attention
+        </span>
+      <% else %>
+        <span class="priority-badge priority-<%= order.priority %>">
+          <%= order.priority.humanize %>
+        </span>
+      <% end %>
     </div>
   </div>
 
@@ -85,6 +93,15 @@
     </div>
 
     <div class="actions-section" onclick="event.stopPropagation();">
+      <% if order.has_pending_refund_resolution? %>
+        <button class="action-btn resolution-toggle" 
+                data-action="click->order-resolution#toggleResolution"
+                data-order-resolution-expanded-value="false">
+          <i class="fas fa-tools"></i>
+          Resolve Issue
+        </button>
+      <% end %>
+      
       <%= link_to order_path(order), class: "action-btn", data: { turbo_frame: "main_content" } do %>
         <i class="fas fa-eye"></i>
         View
@@ -106,4 +123,11 @@
       <% end %>
     </div>
   </div>
-<% end %>
+  
+  <!-- Resolution Panel (hidden by default) -->
+  <% if order.has_pending_refund_resolution? %>
+    <div class="resolution-panel" data-order-resolution-target="panel" style="display: none;">
+      <%= render 'resolution_panel', order: order %>
+    </div>
+  <% end %>
+</div>

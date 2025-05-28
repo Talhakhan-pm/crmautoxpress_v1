@@ -7,6 +7,7 @@ import ModalController from "./modal_controller"
 import RefundFormController from "./refund_form_controller"
 import DispatchCancellationController from "./dispatch_cancellation_controller"
 import OrdersFilterController from "./orders_filter_controller"
+import OrderResolutionController from "./order_resolution_controller"
 
 application.register("hello", HelloController)
 application.register("order-form", OrderFormController)
@@ -15,5 +16,6 @@ application.register("modal", ModalController)
 application.register("refund-form", RefundFormController)
 application.register("dispatch-cancellation", DispatchCancellationController)
 application.register("orders-filter", OrdersFilterController)
+application.register("order-resolution", OrderResolutionController)
 
-console.log("Controllers registered: hello, order-form, dispatch-form, modal, refund-form, dispatch-cancellation, orders-filter")
+console.log("Controllers registered: hello, order-form, dispatch-form, modal, refund-form, dispatch-cancellation, orders-filter, order-resolution")

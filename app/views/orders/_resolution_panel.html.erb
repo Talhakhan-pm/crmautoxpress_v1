@@ -1,0 +1,126 @@
+<div class="resolution-content">
+  <% refund = order.refund %>
+  
+  <!-- Resolution Header -->
+  <div class="resolution-header">
+    <div class="resolution-title">
+      <i class="fas fa-exclamation-triangle text-warning"></i>
+      <h6>Dispatch Cancelled - Resolution Required</h6>
+    </div>
+    <div class="resolution-info">
+      <span class="refund-amount">$<%= number_with_precision(refund.refund_amount, precision: 2) %></span>
+      <span class="cancellation-reason"><%= refund.refund_reason.humanize %></span>
+    </div>
+  </div>
+
+  <!-- Quick Action Buttons -->
+  <div class="resolution-actions">
+    <div class="action-row">
+      <!-- Call Customer Button -->
+      <button class="resolution-btn call-customer"
+              data-action="click->order-resolution#showCustomerForm">
+        <i class="fas fa-phone"></i>
+        <span>Call Customer</span>
+        <small>Get details</small>
+      </button>
+
+      <!-- Quick Actions -->
+      <button class="resolution-btn retry-dispatch"
+              data-action="click->order-resolution#retryDispatch"
+              data-dispatch-id="<%= order.dispatch&.id %>">
+        <i class="fas fa-redo"></i>
+        <span>Retry</span>
+        <small>Different supplier</small>
+      </button>
+
+      <button class="resolution-btn create-replacement"
+              data-action="click->order-resolution#createReplacement"
+              data-dispatch-id="<%= order.dispatch&.id %>">
+        <i class="fas fa-exchange-alt"></i>
+        <span>Replace</span>
+        <small>New order</small>
+      </button>
+
+      <button class="resolution-btn process-refund"
+              data-action="click->order-resolution#processRefund"
+              data-dispatch-id="<%= order.dispatch&.id %>">
+        <i class="fas fa-money-bill-wave"></i>
+        <span>Refund</span>
+        <small>Cancel order</small>
+      </button>
+    </div>
+  </div>
+
+  <!-- Customer Communication Form (hidden by default) -->
+  <div class="customer-form" data-order-resolution-target="customerForm" style="display: none;">
+    <%= form_with model: refund, url: update_resolution_notes_path(refund), 
+                  method: :patch, local: false, 
+                  class: "resolution-form",
+                  data: { 
+                    action: "submit->order-resolution#submitNotes",
+                    order_resolution_target: "form"
+                  } do |f| %>
+      
+      <div class="form-section">
+        <label class="form-label">
+          <i class="fas fa-phone text-primary"></i>
+          Customer Call Notes
+        </label>
+        <%= f.text_area :agent_notes, 
+                        placeholder: "What did the customer say? Any updated details, preferences, etc...",
+                        class: "form-textarea",
+                        rows: 4,
+                        value: refund.agent_notes %>
+      </div>
+
+      <div class="form-actions">
+        <%= f.submit "Save Notes", class: "btn btn-primary" %>
+        <button type="button" class="btn btn-secondary" 
+                data-action="click->order-resolution#hideCustomerForm">
+          Cancel
+        </button>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Current Notes Display -->
+  <% if refund.agent_notes.present? %>
+    <div class="current-notes">
+      <div class="notes-header">
+        <i class="fas fa-sticky-note text-info"></i>
+        <span>Agent Notes</span>
+      </div>
+      <div class="notes-content">
+        <%= simple_format(refund.agent_notes) %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Resolution Timeline -->
+  <div class="resolution-timeline">
+    <div class="timeline-item">
+      <i class="fas fa-times-circle text-danger"></i>
+      <span>Dispatch cancelled</span>
+      <small><%= time_ago_in_words(refund.created_at) %> ago</small>
+    </div>
+    <% if refund.agent_notes.present? %>
+      <div class="timeline-item">
+        <i class="fas fa-phone text-primary"></i>
+        <span>Customer contacted</span>
+        <small><%= time_ago_in_words(refund.updated_at) %> ago</small>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Quick Links -->
+  <div class="resolution-links">
+    <%= link_to "View Full Refund Details", refund_path(refund), 
+                class: "quick-link", 
+                target: "_blank" %>
+    <% if order.dispatch.present? %>
+      <%= link_to "View Dispatch Details", dispatch_path(order.dispatch), 
+                  class: "quick-link", 
+                  target: "_blank" %>
+    <% end %>
+  </div>
+</div>

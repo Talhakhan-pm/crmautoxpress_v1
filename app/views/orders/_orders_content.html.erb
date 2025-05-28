@@ -110,7 +110,10 @@ show_table = if defined?(view_type)
   <div class="orders-grid" id="orders">
     <% if orders.any? %>
       <% orders.each do |order| %>
-        <div class="modern-order-card" onclick="window.location.href='<%= order_path(order) %>'" style="cursor: pointer;">
+        <div class="modern-order-card <%= 'needs-attention' if order.has_pending_refund_resolution? %>" 
+             data-controller="order-resolution"
+             id="<%= dom_id(order) %>">
+          <div class="card-clickable-area" onclick="window.location.href='<%= order_path(order) %>'" style="cursor: pointer;">
           <!-- Card Header - Compact order identification -->
           <div class="card-header-modern">
             <div class="order-id-section">
@@ -135,8 +138,16 @@ show_table = if defined?(view_type)
               </div>
             </div>
             <div class="status-indicator">
-              <span class="status-dot status-<%= order.has_pending_refund_resolution? ? 'pending_resolution' : order.order_status %>"></span>
-              <span class="status-text"><%= order.display_status %></span>
+              <% if order.has_pending_refund_resolution? %>
+                <span class="status-dot status-pending_resolution"></span>
+                <span class="attention-badge">
+                  <i class="fas fa-exclamation-triangle"></i>
+                  Needs Your Attention
+                </span>
+              <% else %>
+                <span class="status-dot status-<%= order.order_status %>"></span>
+                <span class="status-text"><%= order.display_status %></span>
+              <% end %>
               
               <!-- Escalation indicators -->
               <% if order.refund.present? %>
@@ -221,6 +232,15 @@ show_table = if defined?(view_type)
             
             <div class="actions-section" onclick="event.stopPropagation();">
               <div class="quick-actions">
+                <% if order.has_pending_refund_resolution? %>
+                  <button class="action-icon resolution-toggle" 
+                          data-action="click->order-resolution#toggleResolution"
+                          data-order-resolution-expanded-value="false"
+                          title="Resolve Issue">
+                    <i class="fas fa-tools"></i>
+                  </button>
+                <% end %>
+                
                 <%= link_to order_path(order), class: "action-icon", title: "View Details" do %>
                   <i class="fas fa-eye"></i>
                 <% end %>
@@ -239,6 +259,14 @@ show_table = if defined?(view_type)
               </div>
             </div>
           </div>
+          </div>
+          
+          <!-- Resolution Panel (hidden by default) -->
+          <% if order.has_pending_refund_resolution? %>
+            <div class="resolution-panel" data-order-resolution-target="panel" style="display: none;">
+              <%= render 'resolution_panel', order: order %>
+            </div>
+          <% end %>
         </div>
       <% end %>
     <% else %>

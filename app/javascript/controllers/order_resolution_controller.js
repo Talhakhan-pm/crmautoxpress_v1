@@ -1,0 +1,211 @@
+import { Controller } from "@hotwired/stimulus"
+
+export default class extends Controller {
+  static targets = ["panel", "customerForm", "form"]
+  static values = { expanded: Boolean }
+
+  connect() {
+    console.log("Order resolution controller connected")
+  }
+
+  toggleResolution(event) {
+    event.preventDefault()
+    event.stopPropagation()
+    
+    const panel = this.panelTarget
+    const button = event.currentTarget
+    
+    if (this.expandedValue) {
+      // Collapse
+      panel.style.display = "none"
+      button.innerHTML = '<i class="fas fa-tools"></i>Resolve Issue'
+      this.expandedValue = false
+      this.element.classList.remove("expanded")
+    } else {
+      // Expand
+      panel.style.display = "block"
+      button.innerHTML = '<i class="fas fa-times"></i>Close'
+      this.expandedValue = true
+      this.element.classList.add("expanded")
+    }
+  }
+
+  showCustomerForm(event) {
+    event.preventDefault()
+    this.customerFormTarget.style.display = "block"
+    this.customerFormTarget.querySelector('textarea').focus()
+  }
+
+  hideCustomerForm(event) {
+    event.preventDefault()
+    this.customerFormTarget.style.display = "none"
+  }
+
+  submitNotes(event) {
+    // Let the form submit normally via Turbo
+    // Hide the form after successful submission
+    setTimeout(() => {
+      if (this.hasCustomerFormTarget) {
+        this.customerFormTarget.style.display = "none"
+      }
+    }, 100)
+  }
+
+  async retryDispatch(event) {
+    event.preventDefault()
+    
+    if (!confirm("Retry dispatch with a different supplier?")) {
+      return
+    }
+
+    try {
+      const dispatchId = event.currentTarget.dataset.dispatchId
+      if (!dispatchId) {
+        this.showError('No dispatch found for this order')
+        return
+      }
+
+      const response = await fetch(`/dispatches/${dispatchId}/retry_dispatch`, {
+        method: 'PATCH',
+        headers: {
+          'X-CSRF-Token': this.getCSRFToken(),
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      })
+
+      const result = await response.json()
+      
+      if (result.success) {
+        this.showSuccess(result.message)
+        this.refreshOrderCard()
+      } else {
+        this.showError(result.message || 'Failed to retry dispatch')
+      }
+    } catch (error) {
+      console.error('Error retrying dispatch:', error)
+      this.showError('Failed to retry dispatch')
+    }
+  }
+
+  async createReplacement(event) {
+    event.preventDefault()
+    
+    if (!confirm("Create a replacement order?")) {
+      return
+    }
+
+    try {
+      const dispatchId = event.currentTarget.dataset.dispatchId
+      if (!dispatchId) {
+        this.showError('No dispatch found for this order')
+        return
+      }
+
+      const response = await fetch(`/dispatches/${dispatchId}/create_replacement_order`, {
+        method: 'POST',
+        headers: {
+          'X-CSRF-Token': this.getCSRFToken(),
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      })
+
+      const result = await response.json()
+      
+      if (result.success) {
+        this.showSuccess(result.message)
+        this.refreshOrderCard()
+      } else {
+        this.showError(result.message || 'Failed to create replacement order')
+      }
+    } catch (error) {
+      console.error('Error creating replacement:', error)
+      this.showError('Failed to create replacement order')
+    }
+  }
+
+  async processRefund(event) {
+    event.preventDefault()
+    
+    if (!confirm("Process full refund and cancel order?")) {
+      return
+    }
+
+    try {
+      const dispatchId = event.currentTarget.dataset.dispatchId
+      if (!dispatchId) {
+        this.showError('No dispatch found for this order')
+        return
+      }
+
+      const response = await fetch(`/dispatches/${dispatchId}/process_full_refund`, {
+        method: 'PATCH',
+        headers: {
+          'X-CSRF-Token': this.getCSRFToken(),
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      })
+
+      const result = await response.json()
+      
+      if (result.success) {
+        this.showSuccess(result.message)
+        this.refreshOrderCard()
+      } else {
+        this.showError(result.message || 'Failed to process refund')
+      }
+    } catch (error) {
+      console.error('Error processing refund:', error)
+      this.showError('Failed to process refund')
+    }
+  }
+
+  getCSRFToken() {
+    const token = document.querySelector('meta[name="csrf-token"]')
+    return token ? token.getAttribute('content') : ''
+  }
+
+  showSuccess(message) {
+    // Create a temporary success message
+    const alert = document.createElement('div')
+    alert.className = 'alert alert-success'
+    alert.textContent = message
+    alert.style.position = 'fixed'
+    alert.style.top = '20px'
+    alert.style.right = '20px'
+    alert.style.zIndex = '9999'
+    
+    document.body.appendChild(alert)
+    
+    setTimeout(() => {
+      alert.remove()
+    }, 3000)
+  }
+
+  showError(message) {
+    // Create a temporary error message
+    const alert = document.createElement('div')
+    alert.className = 'alert alert-danger'
+    alert.textContent = message
+    alert.style.position = 'fixed'
+    alert.style.top = '20px'
+    alert.style.right = '20px'
+    alert.style.zIndex = '9999'
+    
+    document.body.appendChild(alert)
+    
+    setTimeout(() => {
+      alert.remove()
+    }, 3000)
+  }
+
+  refreshOrderCard() {
+    // Refresh the entire page to see updated order status
+    // In a more sophisticated setup, you'd use Turbo streams
+    setTimeout(() => {
+      window.location.reload()
+    }, 1000)
+  }
+}
