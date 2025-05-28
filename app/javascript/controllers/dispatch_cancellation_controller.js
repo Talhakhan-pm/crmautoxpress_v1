@@ -43,6 +43,8 @@ export default class extends Controller {
       // Add fade-in animation
       requestAnimationFrame(() => {
         this.cancellationModalTarget.classList.add('modal-visible')
+        // Initialize the percentage meter
+        this.updateRefundPercentage()
       })
     } else {
       console.log("Modal target not found!")
@@ -59,6 +61,63 @@ export default class extends Controller {
       } else {
         this.customReasonTarget.style.display = 'none'
       }
+    }
+  }
+
+  refundAmountChanged() {
+    this.updateRefundPercentage()
+  }
+
+  updateRefundPercentage() {
+    if (!this.hasRefundAmountTarget || !this.originalAmountValue) {
+      return
+    }
+
+    const refundAmount = parseFloat(this.refundAmountTarget.value) || 0
+    const originalAmount = this.originalAmountValue
+    
+    // Calculate percentage
+    const percentage = originalAmount > 0 ? (refundAmount / originalAmount * 100) : 0
+    const clampedPercentage = Math.max(0, Math.min(100, percentage))
+    
+    // Update percentage display
+    const percentageDisplay = document.getElementById('refund-percentage-display')
+    const progressBar = document.getElementById('refund-progress-bar')
+    
+    if (percentageDisplay) {
+      percentageDisplay.textContent = `${clampedPercentage.toFixed(1)}%`
+      
+      // Add color coding based on percentage
+      percentageDisplay.className = 'modern-percentage-value'
+      if (clampedPercentage >= 90) {
+        percentageDisplay.classList.add('percentage-full')
+      } else if (clampedPercentage >= 50) {
+        percentageDisplay.classList.add('percentage-partial')
+      } else {
+        percentageDisplay.classList.add('percentage-minimal')
+      }
+    }
+    
+    if (progressBar) {
+      progressBar.style.width = `${clampedPercentage}%`
+      
+      // Update progress bar color based on percentage
+      progressBar.className = 'modern-percentage-fill'
+      if (clampedPercentage >= 90) {
+        progressBar.classList.add('fill-full')
+      } else if (clampedPercentage >= 50) {
+        progressBar.classList.add('fill-partial')
+      } else {
+        progressBar.classList.add('fill-minimal')
+      }
+    }
+    
+    // Add bounce animation on change
+    if (percentageDisplay) {
+      percentageDisplay.classList.add('percentage-bounce')
+      setTimeout(() => {
+        percentageDisplay.classList.remove('percentage-bounce')
+      }, 300)
     }
   }
 
