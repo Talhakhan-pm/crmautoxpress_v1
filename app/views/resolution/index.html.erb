@@ -46,7 +46,7 @@
     </div>
 
     <!-- Key Metrics Grid -->
-    <div class="metrics-grid" id="resolution-stats">
+    <div class="metrics-grid" id="resolution-stats-container">
       <%= render 'stats', stats: @stats %>
     </div>
 
@@ -86,7 +86,7 @@
             <% @resolution_metrics[:by_stage].each do |stage, count| %>
               <div class="stage-item">
                 <div class="stage-info">
-                  <span class="stage-name"><%= stage.humanize %></span>
+                  <span class="stage-name"><%= stage.to_s.humanize %></span>
                   <span class="stage-count"><%= count %></span>
                 </div>
                 <div class="stage-bar">
