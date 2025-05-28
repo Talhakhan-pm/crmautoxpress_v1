@@ -2,7 +2,7 @@ class Dispatch < ApplicationRecord
   belongs_to :order
   belongs_to :processing_agent, class_name: 'User'
   has_many :activities, as: :trackable, dependent: :destroy
-  has_many :refunds, through: :order
+  has_one :refund, through: :order
 
   enum payment_status: {
     payment_pending: 0,
@@ -162,6 +162,9 @@ class Dispatch < ApplicationRecord
     return unless order.present?
     old_status = dispatch_status_was
     
+    # Don't sync order status if there's an active refund - let refund logic handle order status
+    return if order.refund.present?
+    
     # Update order status based on dispatch status
     case dispatch_status
     when 'processing'
@@ -215,11 +218,11 @@ class Dispatch < ApplicationRecord
   end
 
   def create_auto_refund_for_cancellation
-    return if order.refunds.any? # Don't create duplicate refunds
+    return if order.refund.present? # Don't create duplicate refunds (1:1 relationship)
     
     refund_amount = calculate_refund_amount_for_cancellation
     
-    refund = order.refunds.create!(
+    refund = order.create_refund!(
       processing_agent: processing_agent,
       customer_name: customer_name,
       customer_email: order.customer_email,
@@ -254,19 +257,21 @@ class Dispatch < ApplicationRecord
   end
 
   def sync_payment_with_refunds
+    return unless order.refund.present?
+    
     case payment_status
     when 'refunded'
-      # Update any pending refunds to completed
-      order.refunds.pending.each do |refund|
-        refund.update!(
+      # Update pending refund to completed
+      if order.refund.pending?
+        order.refund.update!(
           refund_stage: 'refunded',
           completed_at: Time.current
         )
       end
     when 'failed'
-      # Mark refunds as urgent if payment failed
-      order.refunds.pending.each do |refund|
-        refund.update!(refund_stage: 'urgent_refund')
+      # Mark refund as urgent if payment failed
+      if order.refund.pending?
+        order.refund.update!(refund_stage: 'urgent_refund')
       end
     end
   end

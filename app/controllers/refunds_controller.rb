@@ -1,6 +1,6 @@
 class RefundsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_refund, only: [:show, :edit, :update, :destroy, :process_refund, :cancel_refund, :create_replacement]
+  before_action :set_refund, only: [:show, :edit, :update, :destroy, :process_refund, :cancel_refund, :create_replacement, :refund_full_amount]
 
   def index
     @refunds = Refund.includes(:order, :processing_agent)
@@ -184,6 +184,34 @@ class RefundsController < ApplicationController
         ]
       }
       format.json { render json: { success: replacement_order.present?, message: message } }
+    end
+  end
+
+  # Process refund - immediately cancel order and dispatch
+  def refund_full_amount
+    Rails.logger.info "DEBUG: refund_full_amount called for refund #{@refund.id}"
+    Rails.logger.info "DEBUG: refund_stage before update: #{@refund.refund_stage}"
+    Rails.logger.info "DEBUG: current refund_amount: #{@refund.refund_amount}"
+    
+    # Don't change the refund amount - use whatever amount was already set
+    @refund.update!(
+      refund_stage: 'pending_refund',
+      last_modified_by: current_user.email
+    )
+    
+    Rails.logger.info "DEBUG: refund_stage after update: #{@refund.reload.refund_stage}"
+
+    message = "Refund of $#{@refund.refund_amount} processed successfully. Order and dispatch cancelled."
+
+    respond_to do |format|
+      format.html { redirect_to refunds_path, notice: message }
+      format.turbo_stream { 
+        render turbo_stream: [
+          turbo_stream.replace("flash-messages", partial: "shared/flash_messages", locals: { flash: { notice: message } }),
+          turbo_stream.replace("main_content", partial: "refunds/index")
+        ]
+      }
+      format.json { render json: { success: true, message: message } }
     end
   end
 

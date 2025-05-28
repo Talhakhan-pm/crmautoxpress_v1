@@ -169,7 +169,7 @@
                     <!-- Dispatch Status -->
                     <div class="unified-form-group">
                       <%= f.label :dispatch_status, "Dispatch Status", class: "form-label required" %>
-                      <% has_pending_resolution = @dispatch.order.refunds.where(refund_stage: 'pending_resolution').any? %>
+                      <% has_pending_resolution = @dispatch.order.refund.present? && @dispatch.order.refund.refund_stage == 'pending_resolution' %>
                       <% if has_pending_resolution %>
                         <div class="alert alert-warning mt-2 mb-3">
                           <i class="fas fa-exclamation-triangle me-2"></i>

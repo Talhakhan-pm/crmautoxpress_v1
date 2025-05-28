@@ -79,7 +79,7 @@ class DispatchesController < ApplicationController
     @dispatch.last_modified_by = current_user.email
     
     # Check if dispatch has pending resolution
-    if @dispatch.order.refunds.where(refund_stage: 'pending_resolution').any?
+    if @dispatch.order.refund.present? && @dispatch.order.refund.refund_stage == 'pending_resolution'
       respond_to do |format|
         format.html { redirect_to edit_dispatch_path(@dispatch), alert: 'Cannot modify dispatch - pending refund resolution required. Please resolve in Refunds section first.' }
         format.turbo_stream { 
@@ -114,9 +114,9 @@ class DispatchesController < ApplicationController
   # Retry dispatch with new supplier
   def retry_dispatch
     # Find the pending resolution refund
-    refund = @dispatch.order.refunds.where(refund_stage: 'pending_resolution').first
+    refund = @dispatch.order.refund
     
-    if refund.present?
+    if refund.present? && refund.refund_stage == 'pending_resolution'
       # Update refund to pending retry
       refund.update!(
         refund_stage: 'pending_retry',
@@ -158,9 +158,9 @@ class DispatchesController < ApplicationController
   # Create replacement order
   def create_replacement_order
     # Find the pending resolution refund
-    refund = @dispatch.order.refunds.where(refund_stage: 'pending_resolution').first
+    refund = @dispatch.order.refund
     
-    if refund.present?
+    if refund.present? && refund.refund_stage == 'pending_resolution'
       # Create replacement order via refund
       replacement_order = refund.create_replacement_order
       
@@ -208,7 +208,7 @@ class DispatchesController < ApplicationController
     # Find or create refund with custom reason and amount
     if @dispatch.paid? || @dispatch.partially_paid?
       # Check if a refund already exists for this order
-      existing_refund = @dispatch.order.refunds.first
+      existing_refund = @dispatch.order.refund
       
       if existing_refund
         # Update existing refund with new values
@@ -222,7 +222,7 @@ class DispatchesController < ApplicationController
         )
       else
         # Create new refund if none exists
-        refund = @dispatch.order.refunds.create!(
+        refund = @dispatch.order.create_refund!(
           processing_agent: @dispatch.processing_agent,
           customer_name: @dispatch.customer_name,
           customer_email: @dispatch.order.customer_email,
@@ -264,9 +264,9 @@ class DispatchesController < ApplicationController
   # Process full refund and cancel everything
   def process_full_refund
     # Find the pending resolution refund
-    refund = @dispatch.order.refunds.where(refund_stage: 'pending_resolution').first
+    refund = @dispatch.order.refund
     
-    if refund.present?
+    if refund.present? && refund.refund_stage == 'pending_resolution'
       # Update refund to processing
       refund.update!(
         refund_stage: 'processing_refund',
@@ -304,9 +304,9 @@ class DispatchesController < ApplicationController
   # Resolution actions for cancelled dispatches
   def retry_dispatch
     # Find the related refund
-    refund = @dispatch.order.refunds.where(refund_stage: 'pending_resolution').first
+    refund = @dispatch.order.refund
     
-    if refund.present?
+    if refund.present? && refund.refund_stage == 'pending_resolution'
       # Update refund status
       refund.update!(
         refund_stage: 'pending_retry',
@@ -336,9 +336,9 @@ class DispatchesController < ApplicationController
 
   def create_replacement_order
     # Find the related refund
-    refund = @dispatch.order.refunds.where(refund_stage: 'pending_resolution').first
+    refund = @dispatch.order.refund
     
-    if refund.present?
+    if refund.present? && refund.refund_stage == 'pending_resolution'
       # Update refund status
       refund.update!(
         refund_stage: 'pending_replacement',
@@ -377,9 +377,9 @@ class DispatchesController < ApplicationController
 
   def process_full_refund
     # Find the related refund
-    refund = @dispatch.order.refunds.where(refund_stage: 'pending_resolution').first
+    refund = @dispatch.order.refund
     
-    if refund.present?
+    if refund.present? && refund.refund_stage == 'pending_resolution'
       # Update refund to processing
       refund.update!(
         refund_stage: 'processing_refund',

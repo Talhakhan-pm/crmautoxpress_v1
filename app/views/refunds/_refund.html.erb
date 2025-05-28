@@ -44,6 +44,14 @@
               <% end %>
             </li>
           <% end %>
+          <li>
+            <%= link_to refund_full_amount_refund_path(refund), method: :patch, 
+                        class: "refunds-dropdown-item refunds-dropdown-urgent",
+                        confirm: "Process refund of $#{number_with_precision(refund.refund_amount, precision: 2)} and cancel order immediately?" do %>
+              <i class="fas fa-money-bill-wave"></i>
+              <span>Process Refund</span>
+            <% end %>
+          </li>
         </ul>
       </div>
     </div>

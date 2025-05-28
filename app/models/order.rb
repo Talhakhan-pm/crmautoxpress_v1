@@ -5,7 +5,7 @@ class Order < ApplicationRecord
   belongs_to :processing_agent, class_name: 'User', optional: true
   belongs_to :agent_callback, optional: true
   has_one :dispatch, dependent: :destroy
-  has_many :refunds, dependent: :destroy
+  has_one :refund, dependent: :destroy
   has_many :activities, as: :trackable, dependent: :destroy
 
   enum order_status: {
@@ -112,7 +112,7 @@ class Order < ApplicationRecord
   end
   
   def has_pending_refund_resolution?
-    refunds.where(refund_stage: ['pending_resolution', 'pending_retry', 'pending_replacement']).any?
+    refund.present? && ['pending_resolution', 'pending_retry', 'pending_replacement'].include?(refund.refund_stage)
   end
 
   def priority_color
@@ -176,22 +176,21 @@ class Order < ApplicationRecord
     end
     
     # Refund status if exists
-    if refunds.any?
-      latest_refund = refunds.recent.first
-      refund_text = latest_refund.refund_stage.humanize
+    if refund.present?
+      refund_text = refund.refund_stage.humanize
       
       # Special handling for pending resolution
-      if latest_refund.refund_stage == 'pending_resolution'
+      if refund.refund_stage == 'pending_resolution'
         refund_text = "Needs Resolution"
       end
       
       badges << {
         type: 'refund',
-        status: latest_refund.refund_stage,
-        color: latest_refund.stage_color,
+        status: refund.refund_stage,
+        color: refund.stage_color,
         text: "Refund: #{refund_text}",
         priority: 4,
-        pulsing: latest_refund.refund_stage == 'pending_resolution'
+        pulsing: refund.refund_stage == 'pending_resolution'
       }
     end
     
@@ -231,7 +230,7 @@ class Order < ApplicationRecord
     end
     
     # Refund activities
-    refunds.each do |refund|
+    if refund.present?
       timeline_items += refund.activities.includes(:user).map do |activity|
         {
           type: 'refund',
@@ -249,29 +248,26 @@ class Order < ApplicationRecord
     timeline_items.sort_by { |item| item[:timestamp] }.reverse.first(limit)
   end
 
-  def has_active_refunds?
-    refunds.pending.any?
+  def has_active_refund?
+    refund.present? && refund.pending?
   end
 
-  def has_completed_refunds?
-    refunds.completed.any?
+  def has_completed_refund?
+    refund.present? && refund.completed?
   end
 
   def total_refunded_amount
-    refunds.where(refund_stage: ['refunded', 'returned']).sum(:refund_amount)
+    return 0 unless refund.present? && ['refunded', 'returned'].include?(refund.refund_stage)
+    refund.refund_amount
   end
 
   def refund_status_summary
-    return nil unless refunds.any?
+    return nil unless refund.present?
     
-    pending_count = refunds.pending.count
-    completed_count = refunds.completed.count
-    total_refunded = total_refunded_amount
-    
-    if pending_count > 0
-      "#{pending_count} pending refund(s)"
-    elsif completed_count > 0
-      "Refunded: $#{total_refunded}"
+    if refund.pending?
+      "Pending refund"
+    elsif refund.completed?
+      "Refunded: $#{refund.refund_amount}"
     end
   end
 

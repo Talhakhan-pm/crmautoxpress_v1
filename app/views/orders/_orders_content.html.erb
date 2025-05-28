@@ -139,12 +139,11 @@ show_table = if defined?(view_type)
               <span class="status-text"><%= order.display_status %></span>
               
               <!-- Escalation indicators -->
-              <% if order.refunds.any? %>
-                <% escalated_refund = order.refunds.find { |r| r.needs_escalation? } %>
-                <% if escalated_refund %>
-                  <span class="escalation-badge overdue-indicator" title="Refund overdue: <%= escalated_refund.days_since_request %> days">
+              <% if order.refund.present? %>
+                <% if order.refund.needs_escalation? %>
+                  <span class="escalation-badge overdue-indicator" title="Refund overdue: <%= order.refund.days_since_request %> days">
                     <i class="fas fa-exclamation-triangle"></i>
-                    <%= escalated_refund.days_since_request %>d
+                    <%= order.refund.days_since_request %>d
                   </span>
                 <% end %>
               <% end %>

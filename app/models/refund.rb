@@ -525,21 +525,36 @@ class Refund < ApplicationRecord
         user: Current.user
       )
     when 'pending_refund'
-      # When refund is created (not pending_resolution), immediately impact order/dispatch
-      unless refund_stage_was == 'pending_resolution' # Don't re-process resolution refunds
-        order.update!(order_status: 'cancelled') unless order.cancelled?
-        
-        if order.dispatch.present?
-          order.dispatch.update!(dispatch_status: 'cancelled')
+      # When refund moves to pending_refund, immediately cancel order/dispatch
+      Rails.logger.info "DEBUG: Refund #{id} entering pending_refund stage, cancelling order #{order.id}"
+      Rails.logger.info "DEBUG: Order status before update: #{order.order_status}"
+      Rails.logger.info "DEBUG: Order cancelled?: #{order.cancelled?}"
+      
+      unless order.cancelled?
+        Rails.logger.info "DEBUG: About to update order status to cancelled"
+        begin
+          order.update!(order_status: 'cancelled')
+          Rails.logger.info "DEBUG: Order update successful"
+        rescue => e
+          Rails.logger.error "DEBUG: Order update failed: #{e.message}"
+          Rails.logger.error "DEBUG: Order errors: #{order.errors.full_messages}"
         end
-        
-        # Create activity for immediate cancellation
-        order.create_activity(
-          action: 'cancelled_by_refund_request',
-          details: "Order cancelled due to refund request #{refund_number} - Reason: #{refund_reason.humanize}",
-          user: Current.user || processing_agent
-        )
       end
+      
+      if order.dispatch.present?
+        Rails.logger.info "DEBUG: Dispatch status before update: #{order.dispatch.dispatch_status}"
+        order.dispatch.update!(dispatch_status: 'cancelled') unless order.dispatch.cancelled?
+        Rails.logger.info "DEBUG: Dispatch status after update: #{order.dispatch.reload.dispatch_status}"
+      end
+      
+      # Create activity for immediate cancellation
+      order.create_activity(
+        action: 'cancelled_by_refund_request',
+        details: "Order cancelled due to refund request #{refund_number} - Reason: #{refund_reason.humanize}",
+        user: Current.user || processing_agent
+      )
+      
+      Rails.logger.info "DEBUG: Order #{order.id} status after cancellation: #{order.reload.order_status}"
     end
     
     # Broadcast updates when stage changes

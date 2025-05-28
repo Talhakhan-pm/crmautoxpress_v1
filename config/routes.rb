@@ -29,6 +29,7 @@ Rails.application.routes.draw do
       patch :process_refund
       patch :cancel_refund
       post :create_replacement
+      patch :refund_full_amount
     end
   end
   devise_for :users
