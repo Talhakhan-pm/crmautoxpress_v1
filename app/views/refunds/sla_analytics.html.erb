@@ -1,152 +1,194 @@
 <%= turbo_frame_tag "main_content", data: { turbo_action: "advance" } do %>
 <% content_for :title, "SLA Analytics & Performance Metrics" %>
 
-<div class="container-fluid p-4 sla-analytics-container" style="margin-left: 260px;">
-  <style>
-    @media (max-width: 768px) {
-      .sla-analytics-container {
-        margin-left: 0 !important;
-      }
-    }
-  </style>
-  <div class="row mb-4">
-    <div class="col-12">
-      <div class="d-flex justify-content-between align-items-center">
-        <h2 class="mb-0">SLA Analytics & Performance Dashboard</h2>
-        <div class="btn-group" role="group">
-          <%= link_to "All Refunds", refunds_path, class: "btn btn-outline-primary" %>
-          <%= link_to "Dashboard", dashboard_path, class: "btn btn-outline-secondary" %>
+<div class="sla-analytics-container">
+  <!-- Hero Section -->
+  <div class="sla-hero-section">
+    <div class="sla-hero-content">
+      <div class="sla-hero-left">
+        <div class="sla-hero-icon">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <div class="sla-hero-text">
+          <h1 class="sla-hero-title">SLA Analytics</h1>
+          <p class="sla-hero-subtitle">Performance insights & service level monitoring</p>
+        </div>
+      </div>
+      
+      <div class="sla-hero-actions">
+        <%= link_to refunds_path, class: "sla-btn sla-btn-ghost" do %>
+          <i class="fas fa-arrow-left"></i>
+          <span>Back to Refunds</span>
+        <% end %>
+        <%= link_to dashboard_path, class: "sla-btn sla-btn-outline" do %>
+          <i class="fas fa-home"></i>
+          <span>Dashboard</span>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLA Status Overview Cards -->
+  <div class="sla-overview-section">
+    <div class="sla-overview-grid">
+      <div class="sla-metric-card sla-metric-success">
+        <div class="sla-metric-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="sla-metric-content">
+          <div class="sla-metric-number"><%= @sla_metrics[:on_track] || 0 %></div>
+          <div class="sla-metric-label">On Track</div>
+          <div class="sla-metric-subtitle">Meeting SLA targets</div>
+        </div>
+        <div class="sla-metric-trend sla-trend-positive">
+          <i class="fas fa-arrow-up"></i>
+        </div>
+      </div>
+
+      <div class="sla-metric-card sla-metric-warning">
+        <div class="sla-metric-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="sla-metric-content">
+          <div class="sla-metric-number"><%= @sla_metrics[:at_risk] || 0 %></div>
+          <div class="sla-metric-label">At Risk</div>
+          <div class="sla-metric-subtitle">Approaching deadline</div>
+        </div>
+        <div class="sla-metric-trend sla-trend-warning">
+          <i class="fas fa-exclamation"></i>
+        </div>
+      </div>
+
+      <div class="sla-metric-card sla-metric-danger">
+        <div class="sla-metric-icon">
+          <i class="fas fa-times-circle"></i>
+        </div>
+        <div class="sla-metric-content">
+          <div class="sla-metric-number"><%= @sla_metrics[:breached] || 0 %></div>
+          <div class="sla-metric-label">Breached</div>
+          <div class="sla-metric-subtitle">Exceeded target time</div>
+        </div>
+        <div class="sla-metric-trend sla-trend-danger">
+          <i class="fas fa-arrow-down"></i>
+        </div>
+      </div>
+
+      <div class="sla-metric-card sla-metric-primary">
+        <div class="sla-metric-icon">
+          <i class="fas fa-trophy"></i>
+        </div>
+        <div class="sla-metric-content">
+          <div class="sla-metric-number"><%= @sla_metrics[:completed] || 0 %></div>
+          <div class="sla-metric-label">Completed</div>
+          <div class="sla-metric-subtitle">Successfully resolved</div>
+        </div>
+        <div class="sla-metric-trend sla-trend-positive">
+          <i class="fas fa-check"></i>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Overall SLA Metrics -->
-  <div class="row mb-4">
-    <div class="col-md-3">
-      <div class="card border-0 shadow-sm">
-        <div class="card-body text-center">
-          <div class="d-flex align-items-center justify-content-center mb-2">
-            <div class="rounded-circle bg-success bg-opacity-10 p-2 me-2">
-              <i class="fas fa-check-circle text-success"></i>
-            </div>
-            <h5 class="card-title mb-0">On Track</h5>
-          </div>
-          <h3 class="text-success mb-0"><%= @sla_metrics[:on_track] || 0 %></h3>
-          <small class="text-muted">refunds</small>
+  <!-- Performance Dashboard -->
+  <div class="sla-dashboard-section">
+    <div class="sla-dashboard-grid">
+      <!-- Performance Score Card -->
+      <div class="sla-dashboard-card sla-performance-card">
+        <div class="sla-card-header">
+          <h3 class="sla-card-title">
+            <i class="fas fa-speedometer-alt"></i>
+            Performance Overview
+          </h3>
         </div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="card border-0 shadow-sm">
-        <div class="card-body text-center">
-          <div class="d-flex align-items-center justify-content-center mb-2">
-            <div class="rounded-circle bg-warning bg-opacity-10 p-2 me-2">
-              <i class="fas fa-exclamation-triangle text-warning"></i>
-            </div>
-            <h5 class="card-title mb-0">At Risk</h5>
-          </div>
-          <h3 class="text-warning mb-0"><%= @sla_metrics[:at_risk] || 0 %></h3>
-          <small class="text-muted">refunds</small>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="card border-0 shadow-sm">
-        <div class="card-body text-center">
-          <div class="d-flex align-items-center justify-content-center mb-2">
-            <div class="rounded-circle bg-danger bg-opacity-10 p-2 me-2">
-              <i class="fas fa-times-circle text-danger"></i>
-            </div>
-            <h5 class="card-title mb-0">Breached</h5>
-          </div>
-          <h3 class="text-danger mb-0"><%= @sla_metrics[:breached] || 0 %></h3>
-          <small class="text-muted">refunds</small>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="card border-0 shadow-sm">
-        <div class="card-body text-center">
-          <div class="d-flex align-items-center justify-content-center mb-2">
-            <div class="rounded-circle bg-primary bg-opacity-10 p-2 me-2">
-              <i class="fas fa-trophy text-primary"></i>
-            </div>
-            <h5 class="card-title mb-0">Completed</h5>
-          </div>
-          <h3 class="text-primary mb-0"><%= @sla_metrics[:completed] || 0 %></h3>
-          <small class="text-muted">refunds</small>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Performance Metrics Row -->
-  <div class="row mb-4">
-    <div class="col-md-6">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-header bg-transparent border-0">
-          <h5 class="card-title mb-0">
-            <i class="fas fa-chart-line me-2"></i>
-            Overall Performance
-          </h5>
-        </div>
-        <div class="card-body">
-          <div class="row text-center">
-            <div class="col-6">
-              <h3 class="mb-1">
-                <span class="badge bg-<%= (@sla_metrics[:avg_performance_score] || 0) >= 80 ? 'success' : (@sla_metrics[:avg_performance_score] || 0) >= 60 ? 'warning' : 'danger' %> fs-5">
-                  <%= number_with_precision(@sla_metrics[:avg_performance_score] || 0, precision: 1) %>%
-                </span>
-              </h3>
-              <small class="text-muted">Average SLA Score</small>
-            </div>
-            <div class="col-6">
-              <h3 class="mb-1">
-                <span class="badge bg-<%= (@sla_metrics[:sla_compliance_rate] || 0) >= 90 ? 'success' : (@sla_metrics[:sla_compliance_rate] || 0) >= 70 ? 'warning' : 'danger' %> fs-5">
-                  <%= number_with_precision(@sla_metrics[:sla_compliance_rate] || 0, precision: 1) %>%
-                </span>
-              </h3>
-              <small class="text-muted">SLA Compliance Rate</small>
-            </div>
-          </div>
-          <hr>
-          <div class="row text-center">
-            <div class="col-6">
-              <h4 class="mb-1"><%= number_with_precision(@sla_metrics[:avg_resolution_time] || 0, precision: 1) %></h4>
-              <small class="text-muted">Avg Resolution Days</small>
-            </div>
-            <div class="col-6">
-              <h4 class="mb-1"><%= @sla_metrics[:total_escalations] || 0 %></h4>
-              <small class="text-muted">Total Escalations</small>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-6">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-header bg-transparent border-0">
-          <h5 class="card-title mb-0">
-            <i class="fas fa-clock me-2"></i>
-            Stage Performance Breakdown
-          </h5>
-        </div>
-        <div class="card-body">
-          <% (@stage_performance || {}).each do |stage, metrics| %>
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <div>
-                <span class="badge bg-secondary me-2"><%= stage.humanize %></span>
-                <small class="text-muted">(<%= metrics[:count] || 0 %> refunds)</small>
-              </div>
-              <div class="text-end">
-                <div class="small">
-                  <span class="badge bg-<%= (metrics[:avg_score] || 0) >= 80 ? 'success' : (metrics[:avg_score] || 0) >= 60 ? 'warning' : 'danger' %>">
-                    <%= number_with_precision(metrics[:avg_score] || 0, precision: 0) %>%
-                  </span>
+        <div class="sla-card-body">
+          <div class="sla-performance-metrics">
+            <div class="sla-performance-item">
+              <div class="sla-performance-circle" data-percentage="<%= (@sla_metrics[:avg_performance_score] || 0).round %>">
+                <div class="sla-circle-content">
+                  <span class="sla-circle-number"><%= (@sla_metrics[:avg_performance_score] || 0).round %>%</span>
+                  <span class="sla-circle-label">Avg Score</span>
                 </div>
-                <small class="text-muted"><%= number_with_precision(metrics[:avg_days] || 0, precision: 1) %> days avg</small>
               </div>
+            </div>
+            
+            <div class="sla-performance-stats">
+              <div class="sla-stat-row">
+                <div class="sla-stat-item">
+                  <div class="sla-stat-icon sla-stat-compliance">
+                    <i class="fas fa-shield-alt"></i>
+                  </div>
+                  <div class="sla-stat-content">
+                    <div class="sla-stat-value"><%= number_with_precision(@sla_metrics[:sla_compliance_rate] || 0, precision: 1) %>%</div>
+                    <div class="sla-stat-label">SLA Compliance</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="sla-stat-row">
+                <div class="sla-stat-item">
+                  <div class="sla-stat-icon sla-stat-time">
+                    <i class="fas fa-clock"></i>
+                  </div>
+                  <div class="sla-stat-content">
+                    <div class="sla-stat-value"><%= number_with_precision(@sla_metrics[:avg_resolution_time] || 0, precision: 1) %></div>
+                    <div class="sla-stat-label">Avg Resolution Days</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="sla-stat-row">
+                <div class="sla-stat-item">
+                  <div class="sla-stat-icon sla-stat-escalation">
+                    <i class="fas fa-bolt"></i>
+                  </div>
+                  <div class="sla-stat-content">
+                    <div class="sla-stat-value"><%= @sla_metrics[:total_escalations] || 0 %></div>
+                    <div class="sla-stat-label">Total Escalations</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stage Performance Card -->
+      <div class="sla-dashboard-card sla-stages-card">
+        <div class="sla-card-header">
+          <h3 class="sla-card-title">
+            <i class="fas fa-layer-group"></i>
+            Stage Performance
+          </h3>
+        </div>
+        <div class="sla-card-body">
+          <% if (@stage_performance || {}).any? %>
+            <div class="sla-stages-list">
+              <% (@stage_performance || {}).each do |stage, metrics| %>
+                <div class="sla-stage-item">
+                  <div class="sla-stage-header">
+                    <div class="sla-stage-info">
+                      <div class="sla-stage-name"><%= stage.humanize %></div>
+                      <div class="sla-stage-count"><%= metrics[:count] || 0 %> refunds</div>
+                    </div>
+                    <div class="sla-stage-score">
+                      <span class="sla-score-badge sla-score-<%= (metrics[:avg_score] || 0) >= 80 ? 'excellent' : (metrics[:avg_score] || 0) >= 60 ? 'good' : 'poor' %>">
+                        <%= (metrics[:avg_score] || 0).round %>%
+                      </span>
+                    </div>
+                  </div>
+                  <div class="sla-stage-progress">
+                    <div class="sla-progress-bar">
+                      <div class="sla-progress-fill" style="width: <%= (metrics[:avg_score] || 0) %>%"></div>
+                    </div>
+                    <div class="sla-stage-time"><%= number_with_precision(metrics[:avg_days] || 0, precision: 1) %> days avg</div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="sla-empty-state">
+              <i class="fas fa-chart-bar"></i>
+              <p>No stage data available yet</p>
             </div>
           <% end %>
         </div>
@@ -155,124 +197,73 @@
   </div>
 
   <!-- Agent Performance Table -->
-  <div class="row">
-    <div class="col-12">
-      <div class="card border-0 shadow-sm">
-        <div class="card-header bg-transparent border-0">
-          <h5 class="card-title mb-0">
-            <i class="fas fa-users me-2"></i>
-            Agent Performance Metrics
-          </h5>
-        </div>
-        <div class="card-body">
-          <% if (@agent_performance || {}).any? %>
-            <div class="table-responsive">
-              <table class="table table-hover">
-                <thead>
-                  <tr>
-                    <th>Agent</th>
-                    <th class="text-center">Total Refunds</th>
-                    <th class="text-center">Avg Performance Score</th>
-                    <th class="text-center">SLA Compliance</th>
-                    <th class="text-center">Avg Resolution Time</th>
-                    <th class="text-center">Escalations</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% (@agent_performance || {}).each do |agent_id, metrics| %>
-                    <tr>
-                      <td>
-                        <div class="d-flex align-items-center">
-                          <div class="rounded-circle bg-primary bg-opacity-10 p-2 me-2">
-                            <i class="fas fa-user text-primary"></i>
-                          </div>
-                          <span class="fw-medium">Agent #<%= agent_id || 'Unassigned' %></span>
-                        </div>
-                      </td>
-                      <td class="text-center">
-                        <span class="badge bg-light text-dark"><%= metrics[:total_refunds] || 0 %></span>
-                      </td>
-                      <td class="text-center">
-                        <span class="badge bg-<%= (metrics[:avg_performance_score] || 0) >= 80 ? 'success' : (metrics[:avg_performance_score] || 0) >= 60 ? 'warning' : 'danger' %>">
-                          <%= number_with_precision(metrics[:avg_performance_score] || 0, precision: 1) %>%
-                        </span>
-                      </td>
-                      <td class="text-center">
-                        <span class="badge bg-<%= (metrics[:sla_compliance_rate] || 0) >= 90 ? 'success' : (metrics[:sla_compliance_rate] || 0) >= 70 ? 'warning' : 'danger' %>">
-                          <%= number_with_precision(metrics[:sla_compliance_rate] || 0, precision: 1) %>%
-                        </span>
-                      </td>
-                      <td class="text-center">
-                        <span class="text-muted"><%= number_with_precision(metrics[:avg_resolution_time] || 0, precision: 1) %> days</span>
-                      </td>
-                      <td class="text-center">
-                        <% if (metrics[:total_escalations] || 0) > 0 %>
-                          <span class="badge bg-warning"><%= metrics[:total_escalations] %></span>
-                        <% else %>
-                          <span class="text-muted">0</span>
-                        <% end %>
-                      </td>
-                    </tr>
-                  <% end %>
-                </tbody>
-              </table>
+  <div class="sla-agents-section">
+    <div class="sla-agents-card">
+      <div class="sla-card-header">
+        <h3 class="sla-card-title">
+          <i class="fas fa-users"></i>
+          Agent Performance Leaderboard
+        </h3>
+      </div>
+      <div class="sla-card-body">
+        <% if (@agent_performance || {}).any? %>
+          <div class="sla-agents-grid">
+            <% (@agent_performance || {}).each_with_index do |(agent_id, metrics), index| %>
+              <div class="sla-agent-card">
+                <div class="sla-agent-rank">
+                  <div class="sla-rank-number sla-rank-<%= index < 3 ? ['gold', 'silver', 'bronze'][index] : 'default' %>">
+                    <%= index + 1 %>
+                  </div>
+                </div>
+                
+                <div class="sla-agent-info">
+                  <div class="sla-agent-avatar">
+                    <i class="fas fa-user"></i>
+                  </div>
+                  <div class="sla-agent-details">
+                    <div class="sla-agent-name">Agent #<%= agent_id || 'Unassigned' %></div>
+                    <div class="sla-agent-meta"><%= metrics[:total_refunds] || 0 %> refunds handled</div>
+                  </div>
+                </div>
+
+                <div class="sla-agent-metrics">
+                  <div class="sla-agent-score">
+                    <div class="sla-score-circle" data-score="<%= (metrics[:avg_performance_score] || 0).round %>">
+                      <span class="sla-score-text"><%= (metrics[:avg_performance_score] || 0).round %>%</span>
+                    </div>
+                  </div>
+                  
+                  <div class="sla-agent-stats">
+                    <div class="sla-agent-stat">
+                      <span class="sla-stat-icon"><i class="fas fa-shield-check"></i></span>
+                      <span class="sla-stat-text"><%= number_with_precision(metrics[:sla_compliance_rate] || 0, precision: 1) %>%</span>
+                    </div>
+                    <div class="sla-agent-stat">
+                      <span class="sla-stat-icon"><i class="fas fa-clock"></i></span>
+                      <span class="sla-stat-text"><%= number_with_precision(metrics[:avg_resolution_time] || 0, precision: 1) %>d</span>
+                    </div>
+                    <% if (metrics[:total_escalations] || 0) > 0 %>
+                      <div class="sla-agent-stat sla-stat-warning">
+                        <span class="sla-stat-icon"><i class="fas fa-exclamation-triangle"></i></span>
+                        <span class="sla-stat-text"><%= metrics[:total_escalations] %></span>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="sla-empty-state sla-empty-agents">
+            <div class="sla-empty-icon">
+              <i class="fas fa-user-friends"></i>
             </div>
-          <% else %>
-            <div class="text-center py-4">
-              <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
-              <h5 class="text-muted">No performance data available yet</h5>
-              <p class="text-muted">Agent performance metrics will appear here once refunds are processed.</p>
-            </div>
-          <% end %>
-        </div>
+            <h4>No agent data available</h4>
+            <p>Agent performance metrics will appear here once refunds are processed.</p>
+          </div>
+        <% end %>
       </div>
     </div>
   </div>
-
-  <style>
-  .card {
-    transition: transform 0.2s ease-in-out;
-  }
-
-  .card:hover {
-    transform: translateY(-2px);
-  }
-
-  .badge {
-    font-size: 0.875em;
-  }
-
-  .table-responsive {
-    border-radius: 0.5rem;
-  }
-
-  .bg-opacity-10 {
-    background-color: rgba(var(--bs-primary-rgb), 0.1) !important;
-  }
-
-  .sla-metric-card {
-    border-left: 4px solid var(--bs-primary);
-  }
-
-  .performance-indicator {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .performance-indicator::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-    transition: left 0.5s;
-  }
-
-  .performance-indicator:hover::before {
-    left: 100%;
-  }
-  </style>
 </div>
 <% end %>

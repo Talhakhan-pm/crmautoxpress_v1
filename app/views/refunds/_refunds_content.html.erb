@@ -15,15 +15,9 @@
         <% if params[:search].present? || params[:stage].present? || params[:reason].present? %>
           Try adjusting your filters to see more results.
         <% else %>
-          Get started by creating your first refund.
+          Refunds will appear here when they are automatically created from dispatch issues or customer requests.
         <% end %>
       </p>
-      <% unless params[:search].present? || params[:stage].present? || params[:reason].present? %>
-        <%= link_to new_refund_path, class: "refunds-btn refunds-btn-primary" do %>
-          <i class="fas fa-plus"></i>
-          <span>Create First Refund</span>
-        <% end %>
-      <% end %>
     </div>
   <% end %>
 </div>
