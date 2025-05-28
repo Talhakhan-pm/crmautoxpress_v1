@@ -18,13 +18,17 @@ export default class extends Controller {
     if (this.expandedValue) {
       // Collapse
       panel.style.display = "none"
-      button.innerHTML = '<i class="fas fa-tools"></i>Resolve Issue'
+      button.innerHTML = '<i class="fas fa-tools"></i>'
+      button.title = "Resolve Issue"
+      button.classList.remove("expanded")
       this.expandedValue = false
       this.element.classList.remove("expanded")
     } else {
       // Expand
       panel.style.display = "block"
-      button.innerHTML = '<i class="fas fa-times"></i>Close'
+      button.innerHTML = '<i class="fas fa-times"></i>'
+      button.title = "Close"
+      button.classList.add("expanded")
       this.expandedValue = true
       this.element.classList.add("expanded")
     }
