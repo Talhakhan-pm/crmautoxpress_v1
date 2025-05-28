@@ -1,0 +1,78 @@
+<div class="workflow-section resolution-completed">
+  <div class="section-header">
+    <h6><i class="fas fa-check-circle"></i> Resolution Completed</h6>
+    <span class="section-description">This refund resolution has been completed</span>
+  </div>
+
+  <div class="workflow-content">
+    <div class="completion-summary">
+      <div class="completion-status">
+        <i class="fas fa-check-circle text-success"></i>
+        <span class="status-text">Resolution Process Complete</span>
+      </div>
+      
+      <!-- Show Resolution Summary -->
+      <div class="resolution-details">
+        <% if refund.replacement_order_number.present? %>
+          <div class="resolution-outcome">
+            <h7>Outcome: Replacement Order Created</h7>
+            <div class="outcome-details">
+              <p>New order <strong><%= refund.replacement_order_number %></strong> has been created to replace the original order.</p>
+            </div>
+          </div>
+        <% elsif refund.alternative_part_name.present? %>
+          <div class="resolution-outcome">
+            <h7>Outcome: Alternative Part Approved</h7>
+            <div class="outcome-details">
+              <p>Customer approved alternative part: <strong><%= refund.alternative_part_name %></strong></p>
+              <% if refund.price_difference.present? && refund.price_difference != 0 %>
+                <p>Price adjustment: <strong>
+                  <%= refund.price_difference > 0 ? '+' : '' %>$<%= number_with_precision(refund.price_difference, precision: 2) %>
+                </strong></p>
+              <% end %>
+            </div>
+          </div>
+        <% else %>
+          <div class="resolution-outcome">
+            <h7>Outcome: Standard Resolution</h7>
+            <div class="outcome-details">
+              <p>Resolution completed through standard process.</p>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Show Final Notes -->
+      <div class="final-notes">
+        <% if refund.agent_notes.present? %>
+          <div class="note-section">
+            <span class="note-label">Final Agent Notes:</span>
+            <div class="note-content"><%= simple_format(refund.agent_notes) %></div>
+          </div>
+        <% end %>
+        
+        <% if refund.dispatcher_notes.present? %>
+          <div class="note-section">
+            <span class="note-label">Final Dispatcher Notes:</span>
+            <div class="note-content"><%= simple_format(refund.dispatcher_notes) %></div>
+          </div>
+        <% end %>
+        
+        <% if refund.customer_response.present? %>
+          <div class="note-section">
+            <span class="note-label">Final Customer Response:</span>
+            <div class="note-content"><%= simple_format(refund.customer_response) %></div>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Completion Timestamp -->
+      <div class="completion-timestamp">
+        <small class="text-muted">
+          <i class="fas fa-clock"></i>
+          Completed <%= time_ago_in_words(refund.updated_at) %> ago
+        </small>
+      </div>
+    </div>
+  </div>
+</div>

@@ -49,6 +49,9 @@ Rails.application.routes.draw do
   get "resolution", to: "resolution#index"
   patch "resolution/:id/stage", to: "resolution#update_stage", as: :update_resolution_stage
   patch "resolution/:id/notes", to: "resolution#update_notes", as: :update_resolution_notes
+  post "resolution/:id/retry", to: "resolution#dispatcher_retry", as: :resolution_dispatcher_retry
+  post "resolution/:id/alternative", to: "resolution#dispatcher_alternative", as: :resolution_dispatcher_alternative
+  post "resolution/:id/replacement", to: "resolution#create_replacement_order", as: :resolution_create_replacement
 
   # Callbacks routes  
   resources :callbacks

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_05_28_173814) do
+ActiveRecord::Schema[7.1].define(version: 2025_05_28_182152) do
   create_table "activities", force: :cascade do |t|
     t.string "trackable_type", null: false
     t.integer "trackable_id", null: false
@@ -195,6 +195,11 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_28_173814) do
     t.text "dispatcher_notes"
     t.text "customer_response"
     t.integer "resolution_stage", default: 0
+    t.text "corrected_customer_details"
+    t.text "part_research_notes"
+    t.decimal "price_difference"
+    t.string "alternative_part_name"
+    t.decimal "alternative_part_price"
     t.index ["order_id"], name: "index_refunds_on_order_id"
     t.index ["refund_date"], name: "index_refunds_on_refund_date"
     t.index ["refund_number"], name: "index_refunds_on_refund_number"

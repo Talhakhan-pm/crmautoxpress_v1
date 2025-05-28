@@ -690,6 +690,492 @@
   }
 }
 
+/* Replacement Order Tracking */
+.replacement-tracking {
+  margin: 1rem 0;
+  padding: 1rem;
+  background: linear-gradient(135deg, #f0f9ff, #e0f7fa);
+  border: 1px solid #b3e5fc;
+  border-radius: 10px;
+  
+  .replacement-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: var(--info);
+    
+    i {
+      font-size: 1rem;
+    }
+  }
+  
+  .replacement-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    
+    .original-order,
+    .replacement-order {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      
+      .order-label {
+        font-size: 0.75rem;
+        color: var(--gray-600);
+        font-weight: 500;
+        min-width: 80px;
+      }
+      
+      .order-number {
+        font-weight: 600;
+        color: var(--gray-800);
+      }
+    }
+  }
+}
+
+/* Workflow Sections */
+.resolution-workflow {
+  margin: 1.5rem 0;
+}
+
+.workflow-section {
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  
+  .section-header {
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--gray-100);
+    
+    h6 {
+      margin: 0 0 0.25rem 0;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--gray-900);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      
+      i {
+        color: var(--brand-red);
+      }
+    }
+    
+    .section-description {
+      font-size: 0.875rem;
+      color: var(--gray-600);
+      font-style: italic;
+    }
+  }
+  
+  h7 {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  h8 {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--gray-800);
+    margin-bottom: 0.25rem;
+  }
+}
+
+/* Agent Clarification Section */
+.agent-clarification {
+  border-left: 4px solid var(--warning);
+  
+  .customer-verification {
+    margin-bottom: 1.5rem;
+    
+    .original-details {
+      background: var(--gray-50);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 0.75rem;
+      
+      .detail-item {
+        display: flex;
+        margin-bottom: 0.5rem;
+        
+        .label {
+          font-weight: 600;
+          min-width: 80px;
+          color: var(--gray-600);
+        }
+        
+        .value {
+          color: var(--gray-800);
+        }
+      }
+    }
+  }
+  
+  .corrected-details,
+  .agent-communication {
+    margin-bottom: 1.25rem;
+  }
+  
+  .workflow-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+    }
+  }
+}
+
+/* Dispatcher Decision Section */
+.dispatcher-decision {
+  border-left: 4px solid var(--info);
+  
+  .agent-updates {
+    background: linear-gradient(135deg, #fef3c7, #fcd34d);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    
+    .update-item {
+      margin-bottom: 1rem;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+      
+      .update-label {
+        font-weight: 600;
+        color: var(--gray-700);
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+      
+      .update-content {
+        color: var(--gray-800);
+        background: white;
+        padding: 0.75rem;
+        border-radius: 6px;
+        font-size: 0.875rem;
+      }
+    }
+  }
+  
+  .part-research,
+  .dispatcher-communication {
+    margin-bottom: 1.25rem;
+  }
+  
+  .dispatcher-decisions {
+    margin-top: 1.5rem;
+    
+    .decision-options {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+    
+    .decision-option {
+      border: 1px solid var(--gray-200);
+      border-radius: 10px;
+      padding: 1.25rem;
+      background: var(--gray-50);
+      
+      h8 {
+        color: var(--gray-900);
+        margin-bottom: 0.5rem;
+      }
+      
+      p {
+        color: var(--gray-600);
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+      }
+      
+      .alternative-details {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+        
+        .price-fields {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0.75rem;
+          
+          @media (max-width: 768px) {
+            grid-template-columns: 1fr;
+          }
+        }
+      }
+      
+      .form-input {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid var(--gray-300);
+        border-radius: 6px;
+        font-size: 0.875rem;
+        
+        &:focus {
+          outline: none;
+          border-color: var(--brand-red);
+          box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.1);
+        }
+      }
+      
+      .form-textarea.small {
+        min-height: 60px;
+      }
+    }
+  }
+}
+
+/* Customer Approval Section */
+.customer-approval {
+  border-left: 4px solid var(--success);
+  
+  .alternative-part-info {
+    background: linear-gradient(135deg, #f0f9ff, #e0f7fa);
+    border-radius: 10px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    
+    .part-comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 1rem;
+      
+      @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      
+      .original-part,
+      .alternative-part {
+        background: white;
+        border-radius: 8px;
+        padding: 1rem;
+        border: 1px solid var(--gray-200);
+        
+        .part-label {
+          font-size: 0.75rem;
+          font-weight: 600;
+          color: var(--gray-600);
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          display: block;
+          margin-bottom: 0.5rem;
+        }
+        
+        .part-details {
+          .part-name {
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 0.25rem;
+          }
+          
+          .part-price {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--success);
+            
+            .price-difference {
+              font-size: 0.875rem;
+              margin-left: 0.5rem;
+              
+              &.price-increase {
+                color: var(--brand-red);
+              }
+              
+              &.price-decrease {
+                color: var(--success);
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    .research-notes {
+      margin-top: 1rem;
+      
+      .notes-label {
+        font-weight: 600;
+        color: var(--gray-700);
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+      
+      .notes-content {
+        background: white;
+        padding: 0.75rem;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        color: var(--gray-800);
+      }
+    }
+  }
+  
+  .customer-decision-actions {
+    margin-top: 1.5rem;
+    
+    .decision-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 1rem;
+      
+      @media (min-width: 768px) {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+    }
+  }
+}
+
+/* Resolution Completed Section */
+.resolution-completed {
+  border-left: 4px solid var(--success);
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  
+  .completion-summary {
+    .completion-status {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: white;
+      border-radius: 10px;
+      border: 1px solid #bbf7d0;
+      
+      i {
+        font-size: 1.5rem;
+      }
+      
+      .status-text {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--success);
+      }
+    }
+    
+    .resolution-outcome {
+      margin-bottom: 1.5rem;
+      
+      h7 {
+        color: var(--success);
+      }
+      
+      .outcome-details {
+        background: white;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-top: 0.75rem;
+        
+        p {
+          margin-bottom: 0.5rem;
+          color: var(--gray-800);
+          
+          &:last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
+    }
+    
+    .completion-timestamp {
+      text-align: center;
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid #bbf7d0;
+    }
+  }
+}
+
+/* Common Note Sections */
+.current-notes,
+.current-research,
+.current-response {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: var(--gray-50);
+  border-radius: 8px;
+  border: 1px solid var(--gray-200);
+  
+  .note-section,
+  .research-section,
+  .response-section {
+    margin-bottom: 1rem;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    .note-label,
+    .research-label,
+    .response-label {
+      font-weight: 600;
+      color: var(--gray-700);
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+    }
+    
+    .note-content,
+    .research-content,
+    .response-content {
+      color: var(--gray-800);
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+  }
+}
+
+/* Form Styling */
+.correction-form,
+.research-form,
+.customer-form {
+  .form-textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--gray-300);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: var(--gray-700);
+    background: white;
+    resize: vertical;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    line-height: 1.5;
+    
+    &:focus {
+      outline: none;
+      border-color: var(--brand-red);
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+    }
+    
+    &::placeholder {
+      color: var(--gray-400);
+      font-style: italic;
+    }
+  }
+}
+
 /* Responsive adjustments */
 @media (max-width: 1024px) {
   .resolution-item {

@@ -1,0 +1,135 @@
+<div class="workflow-section dispatcher-decision">
+  <div class="section-header">
+    <h6><i class="fas fa-clipboard-check"></i> Dispatcher Part Research & Decision</h6>
+    <span class="section-description">Review updated customer details and decide on part availability</span>
+  </div>
+
+  <div class="workflow-content">
+    <!-- Agent Updates Display -->
+    <% if refund.corrected_customer_details.present? || refund.agent_notes.present? %>
+      <div class="agent-updates">
+        <h7>Updates from Agent:</h7>
+        <% if refund.corrected_customer_details.present? %>
+          <div class="update-item">
+            <span class="update-label">Corrected Customer Details:</span>
+            <div class="update-content"><%= simple_format(refund.corrected_customer_details) %></div>
+          </div>
+        <% end %>
+        <% if refund.agent_notes.present? %>
+          <div class="update-item">
+            <span class="update-label">Agent Notes:</span>
+            <div class="update-content"><%= simple_format(refund.agent_notes) %></div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- Part Research Section -->
+    <%= form_with model: refund, url: update_resolution_notes_path(refund), 
+                  method: :patch, local: false, class: "research-form" do |f| %>
+      <div class="part-research">
+        <h7>Part Research Notes:</h7>
+        <%= f.text_area :part_research_notes, 
+                        placeholder: "Research findings: suppliers checked, availability, compatibility notes...",
+                        class: "form-textarea",
+                        rows: 4,
+                        value: refund.part_research_notes %>
+      </div>
+
+      <div class="dispatcher-communication">
+        <h7>Internal Notes:</h7>
+        <%= f.text_area :dispatcher_notes, 
+                        placeholder: "Internal dispatcher notes and recommendations...",
+                        class: "form-textarea",
+                        rows: 3,
+                        value: refund.dispatcher_notes %>
+      </div>
+
+      <%= f.submit "Update Research", class: "btn btn-info", 
+                   data: { disable_with: "Updating..." } %>
+    <% end %>
+
+    <!-- Decision Actions -->
+    <div class="dispatcher-decisions">
+      <h7>Dispatcher Decision:</h7>
+      
+      <div class="decision-options">
+        <!-- Option 1: Retry with Updated Details -->
+        <%= form_with url: resolution_dispatcher_retry_path(refund), 
+                      method: :post, local: false, class: "decision-form retry-form" do |f| %>
+          <div class="decision-option">
+            <h8>✓ Retry Dispatch</h8>
+            <p>Part available with updated customer details</p>
+            <%= f.text_area :retry_notes, 
+                            placeholder: "Notes for retry (supplier, timeline, etc.)...",
+                            class: "form-textarea small",
+                            rows: 2 %>
+            <%= f.submit "Approve Retry", class: "btn btn-success", 
+                         confirm: "Confirm retry dispatch with updated details?",
+                         data: { disable_with: "Processing..." } %>
+          </div>
+        <% end %>
+
+        <!-- Option 2: Alternative Part Found -->
+        <%= form_with url: resolution_dispatcher_alternative_path(refund), 
+                      method: :post, local: false, class: "decision-form alternative-form" do |f| %>
+          <div class="decision-option">
+            <h8>💰 Alternative Part Found</h8>
+            <p>Compatible part available at different price</p>
+            
+            <div class="alternative-details">
+              <%= f.text_field :part_name, 
+                              placeholder: "Alternative part name/number",
+                              class: "form-input" %>
+              <div class="price-fields">
+                <%= f.number_field :part_price, 
+                                  placeholder: "New part price",
+                                  step: 0.01,
+                                  class: "form-input" %>
+                <%= f.number_field :price_difference, 
+                                  placeholder: "Price difference (+/-)",
+                                  step: 0.01,
+                                  class: "form-input" %>
+              </div>
+              <%= f.text_area :research_notes, 
+                              placeholder: "Research notes about alternative part...",
+                              class: "form-textarea small",
+                              rows: 2 %>
+            </div>
+            
+            <%= f.submit "Send to Customer for Approval", class: "btn btn-warning", 
+                         confirm: "Send alternative part details to customer?",
+                         data: { disable_with: "Processing..." } %>
+          </div>
+        <% end %>
+
+        <!-- Option 3: Part Not Found - Recommend Refund -->
+        <%= button_to "❌ Part Not Found - Recommend Refund", 
+                      update_resolution_stage_path(refund),
+                      method: :patch,
+                      params: { refund: { resolution_stage: 'resolution_completed', dispatcher_notes: 'Part not available from any supplier - recommending full refund' } },
+                      class: "btn btn-danger decision-option",
+                      confirm: "Confirm that part cannot be found and refund should be processed?",
+                      form: { data: { turbo: true } } %>
+      </div>
+    </div>
+
+    <!-- Current Research Display -->
+    <% if refund.part_research_notes.present? || refund.dispatcher_notes.present? %>
+      <div class="current-research">
+        <% if refund.part_research_notes.present? %>
+          <div class="research-section">
+            <span class="research-label">Part Research:</span>
+            <div class="research-content"><%= simple_format(refund.part_research_notes) %></div>
+          </div>
+        <% end %>
+        <% if refund.dispatcher_notes.present? %>
+          <div class="research-section">
+            <span class="research-label">Dispatcher Notes:</span>
+            <div class="research-content"><%= simple_format(refund.dispatcher_notes) %></div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

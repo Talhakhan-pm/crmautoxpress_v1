@@ -1,0 +1,111 @@
+<div class="workflow-section customer-approval">
+  <div class="section-header">
+    <h6><i class="fas fa-user-check"></i> Customer Approval Required</h6>
+    <span class="section-description">Alternative part found - waiting for customer approval</span>
+  </div>
+
+  <div class="workflow-content">
+    <!-- Alternative Part Details -->
+    <% if refund.alternative_part_name.present? %>
+      <div class="alternative-part-info">
+        <h7>Alternative Part Found:</h7>
+        <div class="part-comparison">
+          <div class="original-part">
+            <span class="part-label">Original Part:</span>
+            <div class="part-details">
+              <div class="part-name"><%= refund.order.product_name %></div>
+              <div class="part-price">$<%= number_with_precision(refund.order.product_price, precision: 2) %></div>
+            </div>
+          </div>
+          
+          <div class="alternative-part">
+            <span class="part-label">Alternative Part:</span>
+            <div class="part-details">
+              <div class="part-name"><%= refund.alternative_part_name %></div>
+              <div class="part-price">
+                $<%= number_with_precision(refund.alternative_part_price, precision: 2) %>
+                <% if refund.price_difference.present? && refund.price_difference != 0 %>
+                  <span class="price-difference <%= refund.price_difference > 0 ? 'price-increase' : 'price-decrease' %>">
+                    (<%= refund.price_difference > 0 ? '+' : '' %>$<%= number_with_precision(refund.price_difference, precision: 2) %>)
+                  </span>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <% if refund.part_research_notes.present? %>
+          <div class="research-notes">
+            <span class="notes-label">Dispatcher Research:</span>
+            <div class="notes-content"><%= simple_format(refund.part_research_notes) %></div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- Customer Communication -->
+    <%= form_with model: refund, url: update_resolution_notes_path(refund), 
+                  method: :patch, local: false, class: "customer-form" do |f| %>
+      <div class="customer-communication">
+        <h7>Customer Response:</h7>
+        <%= f.text_area :customer_response, 
+                        placeholder: "Record customer's response to the alternative part and pricing...",
+                        class: "form-textarea",
+                        rows: 3,
+                        value: refund.customer_response %>
+      </div>
+
+      <div class="agent-followup">
+        <h7>Agent Follow-up Notes:</h7>
+        <%= f.text_area :agent_notes, 
+                        placeholder: "Additional notes from customer conversation...",
+                        class: "form-textarea",
+                        rows: 2,
+                        value: refund.agent_notes %>
+      </div>
+
+      <%= f.submit "Update Customer Response", class: "btn btn-info", 
+                   data: { disable_with: "Updating..." } %>
+    <% end %>
+
+    <!-- Customer Decision Actions -->
+    <div class="customer-decision-actions">
+      <h7>Customer Decision:</h7>
+      
+      <div class="decision-buttons">
+        <%= button_to "✓ Customer Approved Alternative", 
+                      update_resolution_stage_path(refund),
+                      method: :patch,
+                      params: { refund: { resolution_stage: 'resolution_completed' } },
+                      class: "btn btn-success",
+                      confirm: "Confirm customer approved the alternative part?",
+                      form: { data: { turbo: true } } %>
+
+        <%= button_to "✗ Customer Declined - Process Refund", 
+                      update_resolution_stage_path(refund),
+                      method: :patch,
+                      params: { refund: { resolution_stage: 'resolution_completed' } },
+                      class: "btn btn-danger",
+                      confirm: "Confirm customer declined and wants refund?",
+                      form: { data: { turbo: true } } %>
+
+        <%= button_to "🔄 Customer Wants Different Part", 
+                      resolution_create_replacement_path(refund),
+                      method: :post,
+                      class: "btn btn-info",
+                      confirm: "Create replacement order for different part?",
+                      form: { data: { turbo: true } } %>
+      </div>
+    </div>
+
+    <!-- Current Customer Response Display -->
+    <% if refund.customer_response.present? %>
+      <div class="current-response">
+        <div class="response-section">
+          <span class="response-label">Customer Response:</span>
+          <div class="response-content"><%= simple_format(refund.customer_response) %></div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

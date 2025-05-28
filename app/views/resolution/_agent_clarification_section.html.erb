@@ -1,0 +1,88 @@
+<div class="workflow-section agent-clarification">
+  <div class="section-header">
+    <h6><i class="fas fa-phone"></i> Agent Customer Clarification</h6>
+    <span class="section-description">Contact customer to verify details and update information</span>
+  </div>
+
+  <div class="workflow-content">
+    <!-- Customer Details to Verify -->
+    <div class="customer-verification">
+      <h7>Original Customer Information:</h7>
+      <div class="original-details">
+        <div class="detail-item">
+          <span class="label">Name:</span>
+          <span class="value"><%= refund.customer_name %></span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Email:</span>
+          <span class="value"><%= refund.customer_email %></span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Address:</span>
+          <span class="value"><%= refund.order.customer_address %></span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Phone:</span>
+          <span class="value"><%= refund.order.customer_phone %></span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Vehicle:</span>
+          <span class="value"><%= refund.order.car_year %> <%= refund.order.car_make_model %></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Corrected Details Form -->
+    <%= form_with model: refund, url: update_resolution_notes_path(refund), 
+                  method: :patch, local: false, class: "correction-form" do |f| %>
+      <div class="corrected-details">
+        <h7>Corrected Customer Details:</h7>
+        <%= f.text_area :corrected_customer_details, 
+                        placeholder: "Enter corrected customer information (address, phone, vehicle details, etc.)...",
+                        class: "form-textarea",
+                        rows: 4,
+                        value: refund.corrected_customer_details %>
+      </div>
+
+      <div class="agent-communication">
+        <h7>Agent Notes:</h7>
+        <%= f.text_area :agent_notes, 
+                        placeholder: "Notes from customer call (what was wrong, customer feedback, etc.)...",
+                        class: "form-textarea",
+                        rows: 3,
+                        value: refund.agent_notes %>
+      </div>
+
+      <div class="workflow-actions">
+        <%= f.submit "Update Details", class: "btn btn-info", 
+                     data: { disable_with: "Updating..." } %>
+        
+        <%= button_to "Customer Contacted - Send to Dispatcher", 
+                      update_resolution_stage_path(refund),
+                      method: :patch,
+                      params: { refund: { resolution_stage: 'pending_dispatch_decision' } },
+                      class: "btn btn-success",
+                      confirm: "Confirm that customer has been contacted and details are updated?",
+                      form: { data: { turbo: true } } %>
+      </div>
+    <% end %>
+
+    <!-- Current Notes Display -->
+    <% if refund.agent_notes.present? || refund.corrected_customer_details.present? %>
+      <div class="current-notes">
+        <% if refund.corrected_customer_details.present? %>
+          <div class="note-section">
+            <span class="note-label">Corrected Details:</span>
+            <div class="note-content"><%= simple_format(refund.corrected_customer_details) %></div>
+          </div>
+        <% end %>
+        <% if refund.agent_notes.present? %>
+          <div class="note-section">
+            <span class="note-label">Agent Notes:</span>
+            <div class="note-content"><%= simple_format(refund.agent_notes) %></div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -47,6 +47,80 @@ class ResolutionController < ApplicationController
     end
   end
 
+  def dispatcher_retry
+    @refund = Refund.find(params[:id])
+    
+    if @refund.update(resolution_stage: 'resolution_completed', dispatcher_notes: params[:retry_notes])
+      @refund.create_activity(
+        action: 'dispatch_retry_approved',
+        details: "Dispatcher approved retry with updated details",
+        user: Current.user
+      )
+      
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: [
+            turbo_stream.replace("refund_#{@refund.id}", partial: "resolution_queue_item", locals: { refund: @refund }),
+            turbo_stream.update("resolution-stats-container", partial: "stats", locals: { stats: calculate_resolution_stats })
+          ]
+        end
+        format.json { render json: { status: 'success' } }
+      end
+    end
+  end
+
+  def dispatcher_alternative
+    @refund = Refund.find(params[:id])
+    
+    if @refund.update(
+      resolution_stage: 'pending_customer_approval',
+      alternative_part_name: params[:part_name],
+      alternative_part_price: params[:part_price],
+      price_difference: params[:price_difference],
+      part_research_notes: params[:research_notes]
+    )
+      @refund.create_activity(
+        action: 'alternative_part_found',
+        details: "Found alternative: #{params[:part_name]} - Price difference: $#{params[:price_difference]}",
+        user: Current.user
+      )
+      
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: [
+            turbo_stream.replace("refund_#{@refund.id}", partial: "resolution_queue_item", locals: { refund: @refund }),
+            turbo_stream.update("resolution-stats-container", partial: "stats", locals: { stats: calculate_resolution_stats })
+          ]
+        end
+        format.json { render json: { status: 'success' } }
+      end
+    end
+  end
+
+  def create_replacement_order
+    @refund = Refund.find(params[:id])
+    replacement = @refund.create_replacement_order
+    
+    if replacement.present?
+      @refund.update!(resolution_stage: 'resolution_completed')
+      
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: [
+            turbo_stream.replace("refund_#{@refund.id}", partial: "resolution_queue_item", locals: { refund: @refund }),
+            turbo_stream.update("resolution-stats-container", partial: "stats", locals: { stats: calculate_resolution_stats })
+          ]
+        end
+        format.json { render json: { status: 'success', replacement_order: replacement.order_number } }
+      end
+    else
+      respond_to do |format|
+        format.turbo_stream { render turbo_stream: turbo_stream.replace("refund_#{@refund.id}", partial: "resolution_queue_item", locals: { refund: @refund }) }
+        format.json { render json: { errors: ['Failed to create replacement order'] } }
+      end
+    end
+  end
+
   private
 
   def calculate_resolution_stats
@@ -158,10 +232,14 @@ class ResolutionController < ApplicationController
   end
 
   def refund_params
-    params.require(:refund).permit(:resolution_stage, :agent_notes, :dispatcher_notes, :customer_response)
+    params.require(:refund).permit(:resolution_stage, :agent_notes, :dispatcher_notes, :customer_response, 
+                                   :corrected_customer_details, :part_research_notes, :price_difference, 
+                                   :alternative_part_name, :alternative_part_price)
   end
 
   def notes_params
-    params.require(:refund).permit(:agent_notes, :dispatcher_notes, :customer_response)
+    params.require(:refund).permit(:agent_notes, :dispatcher_notes, :customer_response, 
+                                   :corrected_customer_details, :part_research_notes, :price_difference, 
+                                   :alternative_part_name, :alternative_part_price)
   end
 end
