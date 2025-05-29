@@ -59,30 +59,48 @@ Part Not Found (17%) → Resolution Workflow
 
 ### **When Issues Occur**
 - **Frequency**: 17% of all orders require resolution
-- **Primary Trigger**: "Item not found" at supplier level
+- **Primary Trigger**: "Item not found" during initial supplier sourcing
 
-### **Resolution Options**
-1. **Retry with Supplier**
-   - Same supplier retry
-   - Different supplier attempt
-   
-2. **Replace with Alternative Part**
-   - Research alternative parts
-   - Price difference handling
-   - Customer approval process
-   
-3. **Process Full Refund**
-   - Complete order cancellation
-   - Payment processing
+### **Current Business Process**
+1. **Order Placed**: Customer pays for quoted price
+2. **Supplier Sourcing**: Dispatcher researches part availability (2-3 days)
+3. **Resolution Scenarios**:
+   - **Extended Processing**: Part found but delayed shipment (5-7 days)
+   - **Price Adjustment**: Part found but higher cost ($100-300 increase typical)
+   - **Complete Unavailability**: Part not available in current market
 
-### **Customer Preferences**
-- **Mixed acceptance** of alternative parts vs. retries/refunds
-- **Current confusion** around when to use "retry with supplier" vs "replace" statuses
+### **Resolution Workflow (Professional Customer Communication)**
+```
+Supplier Sourcing (2-3 days) → Dispatcher Status Update → Agent Customer Contact:
+  ├─ "Sourcing Complete: Extended Processing" → Agent: "Contact Customer: Shipping Delay"
+  ├─ "Sourcing Complete: Price Adjustment" → Agent: "Contact Customer: Price Increase $XXX"
+  └─ "Sourcing Complete: Unavailable" → Agent: "Process Customer Refund"
+```
+
+### **Agent Communication Scripts**
+1. **Extended Processing Time**
+   - "Part confirmed, processing requires additional 5-7 days"
+   - **Customer Response**: Accept delay OR request refund
+   
+2. **Price Adjustment Required**
+   - "Part confirmed at updated market price of $XXX (additional $XXX)"
+   - **Customer Response**: Pay difference OR request refund
+   
+3. **Part Unavailable**
+   - "Part currently unavailable in market"
+   - **Action**: Process full refund
+
+### **Save the Sale Performance**
+- **Shipping Delays**: Customers typically accept delays
+- **Price Increases**: Lower customer acceptance rate
+- **Goal**: Track "save rate" by agent and scenario type
+- **Key Metric**: Percentage of customers who accept delays vs price increases
 
 ### **Current Pain Points**
-- **Screen redundancy**: Refunds tab, resolution center, and order cards feel overlapping
-- **Workflow confusion**: Unclear guidance on resolution decision-making
-- **Too many interfaces**: Jumping between multiple screens for single resolutions
+- **Terminology Confusion**: Current "retry supplier" vs "replace" language doesn't match actual business process
+- **Screen Redundancy**: Multiple interfaces for single resolution workflow
+- **No Save Rate Tracking**: Missing conversion metrics for resolution scenarios
+- **Manual Communication**: No automated customer updates during 2-3 day sourcing period
 
 ---
 
@@ -152,7 +170,8 @@ Part Not Found (17%) → Resolution Workflow
 ### **2. Consolidate Resolution Interfaces**
 - Merge refunds/resolution into unified dispatch management
 - Create single screen for all issue resolution decisions
-- Implement clear action buttons: "Retry Supplier" | "Find Alternative" | "Process Refund"
+- Implement clear action buttons: "Contact Customer: Shipping Delay" | "Contact Customer: Price Increase" | "Process Refund"
+- Add save-the-sale tracking with customer response recording
 - Reduce screen jumping and redundancy
 
 ### **3. Enhance Dispatch Management**
@@ -179,10 +198,19 @@ Part Not Found (17%) → Resolution Workflow
 
 ### **Streamlined Resolution Process**
 ```
-Item Not Found → Single Resolution Screen → Decision Matrix:
-  ├─ Supplier Available? → Retry Process
-  ├─ Alternative Found? → Replacement Process  
-  └─ No Options? → Refund Process
+Item Not Found → Dispatcher Sourcing (2-3 days) → Status Update → Agent Action:
+  ├─ Extended Processing (5-7 days) → Contact Customer: Accept Delay?
+  ├─ Price Adjustment (+$100-300) → Contact Customer: Pay Difference?
+  └─ Part Unavailable → Process Refund Immediately
+```
+
+### **Save the Sale Workflow**
+```
+Agent Customer Contact → Customer Decision → Outcome Tracking:
+  ├─ Accepts Delay → Order Continues (Save Success)
+  ├─ Accepts Price Increase → Collect Payment → Order Continues (Save Success)
+  ├─ Declines Delay → Process Refund (Save Failed)
+  └─ Declines Price Increase → Process Refund (Save Failed)
 ```
 
 ### **Enhanced Callback Management**
