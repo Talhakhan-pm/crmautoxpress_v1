@@ -1,0 +1,172 @@
+<div class="timeline-content-panel">
+  <!-- Timeline Header -->
+  <div class="timeline-header-section">
+    <div class="timeline-title-row">
+      <i class="fas fa-history timeline-icon"></i>
+      <h6 class="timeline-title">Order Timeline</h6>
+    </div>
+    <div class="timeline-subtitle">
+      Complete activity history for Order #<%= order.order_number %>
+    </div>
+  </div>
+
+  <!-- Timeline Stats -->
+  <div class="timeline-stats-row">
+    <div class="timeline-stat-item">
+      <span class="stat-label">Order Status</span>
+      <span class="stat-value status-<%= order.order_status %>"><%= order.order_status.humanize %></span>
+    </div>
+    <% if order.dispatch.present? %>
+      <div class="timeline-stat-item">
+        <span class="stat-label">Dispatch</span>
+        <span class="stat-value status-<%= order.dispatch.dispatch_status %>"><%= order.dispatch.dispatch_status.humanize %></span>
+      </div>
+    <% end %>
+    <% if order.refund.present? %>
+      <div class="timeline-stat-item">
+        <span class="stat-label">Resolution</span>
+        <span class="stat-value status-<%= order.refund.refund_stage %>"><%= order.refund.refund_stage.humanize %></span>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Timeline Filter (Optional) -->
+  <div class="timeline-filter-section">
+    <div class="timeline-filter-buttons">
+      <button class="timeline-filter-btn active-filter" 
+              data-action="click->order-timeline#filterByType"
+              data-filter-type="all">
+        All
+      </button>
+      <button class="timeline-filter-btn" 
+              data-action="click->order-timeline#filterByType"
+              data-filter-type="order">
+        Order
+      </button>
+      <% if order.dispatch.present? %>
+        <button class="timeline-filter-btn" 
+                data-action="click->order-timeline#filterByType"
+                data-filter-type="dispatch">
+          Dispatch
+        </button>
+      <% end %>
+      <% if order.refund.present? %>
+        <button class="timeline-filter-btn" 
+                data-action="click->order-timeline#filterByType"
+                data-filter-type="refund">
+          Resolution
+        </button>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Timeline Flow -->
+  <div class="timeline-flow-section">
+    <% timeline_items = order.unified_timeline(20) %>
+    <% if timeline_items.any? %>
+      <div class="timeline-flow-list">
+        <% timeline_items.each_with_index do |item, index| %>
+          <div class="timeline-flow-item" 
+               data-timeline-type="<%= item[:type] %>"
+               data-action="click->order-timeline#highlightItem">
+            
+            <!-- Timeline Node -->
+            <div class="timeline-node-wrapper">
+              <div class="timeline-node-icon timeline-<%= item[:type] %>">
+                <% case item[:type] %>
+                <% when 'order' %>
+                  <i class="fas fa-shopping-cart"></i>
+                <% when 'dispatch' %>
+                  <i class="fas fa-truck"></i>
+                <% when 'refund' %>
+                  <i class="fas fa-money-bill-wave"></i>
+                <% else %>
+                  <i class="fas fa-circle"></i>
+                <% end %>
+              </div>
+              <% unless index == timeline_items.length - 1 %>
+                <div class="timeline-connector-line"></div>
+              <% end %>
+            </div>
+            
+            <!-- Timeline Content -->
+            <div class="timeline-item-content">
+              <div class="timeline-item-header">
+                <h6 class="timeline-action-title">
+                  <% if item[:activity].field_changed.present? %>
+                    <%= item[:action].humanize %> <%= item[:activity].field_changed.humanize %>
+                  <% elsif item[:activity].details.present? %>
+                    <%= item[:activity].details %>
+                  <% else %>
+                    <%= item[:action].humanize %>
+                  <% end %>
+                </h6>
+                <span class="timeline-timestamp">
+                  <%= time_ago_in_words(item[:timestamp]) %> ago
+                </span>
+              </div>
+              
+              <div class="timeline-item-details">
+                <!-- Field Changes -->
+                <% if item[:activity].field_changed.present? && 
+                      item[:activity].old_value.present? && 
+                      item[:activity].new_value.present? %>
+                  <div class="timeline-field-change">
+                    <span class="change-from">From: "<%= truncate(item[:activity].old_value, length: 20) %>"</span>
+                    <i class="fas fa-arrow-right change-arrow"></i>
+                    <span class="change-to">To: "<%= truncate(item[:activity].new_value, length: 20) %>"</span>
+                  </div>
+                <% end %>
+                
+                <!-- User Info -->
+                <% if item[:user].present? %>
+                  <div class="timeline-user-info">
+                    <i class="fas fa-user user-icon"></i>
+                    <span><%= item[:user].email %></span>
+                  </div>
+                <% end %>
+                
+                <!-- Type Badge -->
+                <div class="timeline-type-badge">
+                  <span class="type-badge type-<%= item[:type] %>">
+                    <%= item[:type].humanize %>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="timeline-empty-state">
+        <i class="fas fa-history timeline-empty-icon"></i>
+        <h6>No Timeline Data</h6>
+        <p>This order doesn't have any recorded activities yet.</p>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Timeline Actions -->
+  <div class="timeline-actions-section">
+    <div class="timeline-quick-links">
+      <%= link_to order_path(order), class: "timeline-quick-link" do %>
+        <i class="fas fa-eye"></i>
+        <span>View Details</span>
+      <% end %>
+      
+      <% if order.dispatch.present? %>
+        <%= link_to dispatch_path(order.dispatch), class: "timeline-quick-link" do %>
+          <i class="fas fa-truck"></i>
+          <span>View Dispatch</span>
+        <% end %>
+      <% end %>
+      
+      <% if order.has_pending_refund_resolution? %>
+        <%= link_to resolution_path(order_id: order.id), class: "timeline-quick-link resolution-link" do %>
+          <i class="fas fa-tools"></i>
+          <span>Go to Resolution</span>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>

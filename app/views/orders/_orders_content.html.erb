@@ -111,7 +111,8 @@ show_table = if defined?(view_type)
     <% if orders.any? %>
       <% orders.each do |order| %>
         <div class="modern-order-card <%= 'needs-attention' if order.has_pending_refund_resolution? %>" 
-             data-controller="order-resolution"
+             data-controller="order-resolution order-timeline"
+             data-order-timeline-expanded-value="false"
              id="<%= dom_id(order) %>">
           <div class="card-clickable-area" onclick="window.location.href='<%= order_path(order) %>'" style="cursor: pointer;">
           <!-- Card Header - Compact order identification -->
@@ -232,6 +233,14 @@ show_table = if defined?(view_type)
             
             <div class="actions-section" onclick="event.stopPropagation();">
               <div class="quick-actions">
+                <!-- Timeline Button (All Cards) -->
+                <button class="action-icon timeline-toggle" 
+                        data-action="click->order-timeline#toggleTimeline"
+                        data-order-timeline-target="toggleButton"
+                        title="View Timeline">
+                  <i class="fas fa-history"></i>
+                </button>
+                
                 <% if order.has_pending_refund_resolution? %>
                   <button class="action-icon resolution-toggle" 
                           data-action="click->order-resolution#toggleResolution"
@@ -259,6 +268,11 @@ show_table = if defined?(view_type)
               </div>
             </div>
           </div>
+          </div>
+          
+          <!-- Timeline Panel (hidden by default) -->
+          <div class="timeline-panel" data-order-timeline-target="panel" style="display: none;">
+            <%= render 'orders/timeline_panel', order: order %>
           </div>
           
           <!-- Resolution Panel (hidden by default) -->

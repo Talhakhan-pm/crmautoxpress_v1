@@ -8,6 +8,7 @@ import RefundFormController from "./refund_form_controller"
 import DispatchCancellationController from "./dispatch_cancellation_controller"
 import OrdersFilterController from "./orders_filter_controller"
 import OrderResolutionController from "./order_resolution_controller"
+import OrderTimelineController from "./order_timeline_controller"
 
 application.register("hello", HelloController)
 application.register("order-form", OrderFormController)
@@ -17,5 +18,6 @@ application.register("refund-form", RefundFormController)
 application.register("dispatch-cancellation", DispatchCancellationController)
 application.register("orders-filter", OrdersFilterController)
 application.register("order-resolution", OrderResolutionController)
+application.register("order-timeline", OrderTimelineController)
 
-console.log("Controllers registered: hello, order-form, dispatch-form, modal, refund-form, dispatch-cancellation, orders-filter, order-resolution")
+console.log("Controllers registered: hello, order-form, dispatch-form, modal, refund-form, dispatch-cancellation, orders-filter, order-resolution, order-timeline")
