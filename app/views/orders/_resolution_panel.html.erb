@@ -53,52 +53,12 @@
 
   <!-- Quick Actions Based on Stage -->
   <div class="quick-resolution-actions">
-    <% case refund.resolution_stage %>
-    <% when 'pending_customer_clarification' %>
-      <div class="action-buttons">
-        <button class="action-btn primary" onclick="openResolutionHub(<%= refund.id %>, '<%= refund.resolution_stage %>')">
-          <i class="fas fa-comments"></i>
-          Start Resolution Chat
-        </button>
-        <a href="tel:<%= order.customer_phone %>" class="action-btn secondary">
-          <i class="fas fa-phone"></i>
-          Call <%= order.customer_name.split(' ').first %>
-        </a>
-      </div>
-    <% when 'pending_dispatch_decision' %>
-      <div class="action-buttons">
-        <button class="action-btn primary" onclick="openResolutionHub(<%= refund.id %>, '<%= refund.resolution_stage %>')">
-          <i class="fas fa-tools"></i>
-          Open Dispatch Tools
-        </button>
-        <%= link_to resolution_path, class: "action-btn secondary", data: { turbo_frame: "main_content" } do %>
-          <i class="fas fa-list"></i>
-          View All Resolutions
-        <% end %>
-      </div>
-    <% when 'pending_customer_approval' %>
-      <div class="action-buttons">
-        <button class="action-btn primary" onclick="openResolutionHub(<%= refund.id %>, '<%= refund.resolution_stage %>')">
-          <i class="fas fa-clock"></i>
-          Check Customer Response
-        </button>
-        <a href="tel:<%= order.customer_phone %>" class="action-btn secondary">
-          <i class="fas fa-phone"></i>
-          Follow Up Call
-        </a>
-      </div>
-    <% else %>
-      <div class="action-buttons">
-        <button class="action-btn primary" onclick="openResolutionHub(<%= refund.id %>, '<%= refund.resolution_stage %>')">
-          <i class="fas fa-play"></i>
-          Start Resolution Process
-        </button>
-        <%= link_to resolution_path, class: "action-btn secondary", data: { turbo_frame: "main_content" } do %>
-          <i class="fas fa-external-link-alt"></i>
-          Resolution Center
-        <% end %>
-      </div>
-    <% end %>
+    <div class="action-buttons">
+      <%= link_to resolution_path(refund_id: refund.id), class: "action-btn primary", data: { turbo_frame: "main_content" } do %>
+        <i class="fas fa-arrow-right"></i>
+        Go to Resolution Center
+      <% end %>
+    </div>
   </div>
 
   <!-- Recent Activity Feed (3-4 items) -->

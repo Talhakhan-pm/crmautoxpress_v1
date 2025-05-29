@@ -268,6 +268,7 @@ class ResolutionController < ApplicationController
 
     # Apply filters if present
     query = base_query
+    query = query.where(id: params[:refund_id]) if params[:refund_id].present?
     query = query.by_resolution_stage(params[:stage]) if params[:stage].present?
     query = query.by_priority(params[:priority]) if params[:priority].present?
     query = query.by_agent(params[:agent_id]) if params[:agent_id].present?

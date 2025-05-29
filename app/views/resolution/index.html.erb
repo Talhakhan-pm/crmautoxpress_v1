@@ -7,8 +7,17 @@
     <!-- Header Section -->
     <div class="dashboard-header">
       <div class="header-content">
-        <h1 class="dashboard-title">Resolution Queue</h1>
-        <p class="dashboard-subtitle">Manage pending resolution items and track progress</p>
+        <h1 class="dashboard-title">
+          <%= params[:refund_id].present? ? "Focus: Resolution Required" : "Resolution Queue" %>
+        </h1>
+        <p class="dashboard-subtitle">
+          <% if params[:refund_id].present? %>
+            Working on specific resolution case
+            <%= link_to "← Back to All Resolutions", resolution_path, class: "btn btn-sm btn-outline-secondary ms-2" %>
+          <% else %>
+            Manage pending resolution items and track progress
+          <% end %>
+        </p>
       </div>
       <div class="header-actions">
         <div class="filter-controls">
