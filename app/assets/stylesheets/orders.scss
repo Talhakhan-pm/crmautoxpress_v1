@@ -163,6 +163,56 @@
   50% { transform: scale(1.05); opacity: 0.9; }
 }
 
+/* Stage-Specific Resolution Badges */
+.attention-badge {
+  &.stage-agent {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    
+    i {
+      animation: pulse-warning 2s infinite;
+    }
+  }
+  
+  &.stage-dispatcher {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    
+    i {
+      animation: pulse-info 2s infinite;
+    }
+  }
+  
+  &.stage-customer {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: white;
+    
+    i {
+      animation: pulse-purple 2s infinite;
+    }
+  }
+}
+
+.status-badge {
+  &.stage-agent {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    border: 1px solid #d97706;
+  }
+  
+  &.stage-dispatcher {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    border: 1px solid #2563eb;
+  }
+  
+  &.stage-customer {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: white;
+    border: 1px solid #7c3aed;
+  }
+}
+
 /* Enhanced Status Animations */
 .status-pending_resolution {
   animation: pulse-warning 2s infinite;

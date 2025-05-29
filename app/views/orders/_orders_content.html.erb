@@ -56,10 +56,36 @@ show_table = if defined?(view_type)
                   </div>
                 </td>
                 <td>
-                  <span class="status-badge status-<%= order.has_pending_refund_resolution? ? 'pending_resolution' : order.order_status %> <%= 'status-pending_resolution' if order.has_pending_refund_resolution? %>">
-                    <span class="status-icon"></span>
-                    <%= order.display_status %>
-                  </span>
+                  <% if order.has_pending_refund_resolution? %>
+                    <% refund = order.refund %>
+                    <% case refund&.resolution_stage %>
+                    <% when 'pending_customer_clarification' %>
+                      <span class="status-badge status-pending_resolution stage-agent">
+                        <span class="status-icon"></span>
+                        Agent Review
+                      </span>
+                    <% when 'pending_dispatch_decision' %>
+                      <span class="status-badge status-pending_resolution stage-dispatcher">
+                        <span class="status-icon"></span>
+                        Dispatcher Review
+                      </span>
+                    <% when 'pending_customer_approval' %>
+                      <span class="status-badge status-pending_resolution stage-customer">
+                        <span class="status-icon"></span>
+                        Customer Response
+                      </span>
+                    <% else %>
+                      <span class="status-badge status-pending_resolution">
+                        <span class="status-icon"></span>
+                        Pending Resolution
+                      </span>
+                    <% end %>
+                  <% else %>
+                    <span class="status-badge status-<%= order.order_status %>">
+                      <span class="status-icon"></span>
+                      <%= order.display_status %>
+                    </span>
+                  <% end %>
                 </td>
                 <td>
                   <span class="priority-badge priority-<%= order.priority %>">
@@ -141,10 +167,29 @@ show_table = if defined?(view_type)
             <div class="status-indicator">
               <% if order.has_pending_refund_resolution? %>
                 <span class="status-dot status-pending_resolution"></span>
-                <span class="attention-badge">
-                  <i class="fas fa-exclamation-triangle"></i>
-                  Pending Resolution
-                </span>
+                <% refund = order.refund %>
+                <% case refund&.resolution_stage %>
+                <% when 'pending_customer_clarification' %>
+                  <span class="attention-badge stage-agent">
+                    <i class="fas fa-phone"></i>
+                    Agent Review
+                  </span>
+                <% when 'pending_dispatch_decision' %>
+                  <span class="attention-badge stage-dispatcher">
+                    <i class="fas fa-search"></i>
+                    Dispatcher Review
+                  </span>
+                <% when 'pending_customer_approval' %>
+                  <span class="attention-badge stage-customer">
+                    <i class="fas fa-clock"></i>
+                    Customer Response
+                  </span>
+                <% else %>
+                  <span class="attention-badge">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Pending Resolution
+                  </span>
+                <% end %>
               <% else %>
                 <span class="status-dot status-<%= order.order_status %>"></span>
                 <span class="status-text"><%= order.display_status %></span>

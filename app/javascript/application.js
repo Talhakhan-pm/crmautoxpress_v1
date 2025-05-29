@@ -105,3 +105,20 @@ if (window.location.pathname.includes('/dispatches')) {
     console.log('Dispatch functions loaded');
   }
 }
+
+// === GLOBAL RESOLUTION HUB FUNCTIONALITY ===
+// Available on all pages for seamless resolution workflow
+
+window.openResolutionHub = function(refundId, stage) {
+  console.log('Opening hub for refund:', refundId, 'stage:', stage);
+  
+  // For now, navigate to resolution center with the specific refund
+  // This provides a working solution while we build the modal
+  const url = `/resolution#refund_${refundId}`;
+  
+  if (window.Turbo) {
+    Turbo.visit(url, { frame: "main_content" });
+  } else {
+    window.location.href = url;
+  }
+};
