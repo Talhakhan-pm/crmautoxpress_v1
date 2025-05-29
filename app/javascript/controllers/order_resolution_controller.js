@@ -83,7 +83,7 @@ export default class extends Controller {
       if (result.success) {
         this.showSuccess('Customer contacted about shipping delay. Record their response below.')
         this.showCustomerForm()
-        this.refreshOrderCard()
+        // Don't refresh card immediately - let user fill out the form first
       } else {
         this.showError(result.message || 'Failed to contact customer')
       }
@@ -125,7 +125,7 @@ export default class extends Controller {
       if (result.success) {
         this.showSuccess(`Customer contacted about $${priceDifference} price increase. Record their response below.`)
         this.showCustomerForm()
-        this.refreshOrderCard()
+        // Don't refresh card immediately - let user fill out the form first
       } else {
         this.showError(result.message || 'Failed to contact customer')
       }
