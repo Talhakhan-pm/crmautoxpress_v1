@@ -16,15 +16,27 @@
 
 ## System Overview
 
-**AutoXpress CRM** is a sophisticated Ruby on Rails 7 application designed for automotive parts sales and customer relationship management. The system leverages modern web technologies including Hotwire (Turbo + Stimulus), ActionCable, and advanced Rails patterns to deliver a real-time, interactive user experience.
+**AutoXpress CRM** is a sophisticated Ruby on Rails 7 application designed for automotive parts e-commerce and customer relationship management. The system leverages modern web technologies including Hotwire (Turbo + Stimulus), ActionCable, and advanced Rails patterns to deliver a real-time, interactive user experience.
+
+### Business Model
+- **Lead Source**: 100% Google Ads lead generation with GCLID tracking
+- **Sales Process**: Phone-based sales (90% calls, 10% email/text)
+- **Fulfillment**: No inventory - all parts sourced from suppliers on-demand
+- **Team Structure**: Agents (lead conversion) + Dispatchers (fulfillment & resolution)
 
 ### Key Capabilities
-- **Lead Management**: Agent callback system with conversion tracking
+- **Lead Management**: Agent callback system with 20% conversion tracking
 - **Order Processing**: Complete order lifecycle from callback to fulfillment
-- **Dispatch Management**: Sophisticated supply chain coordination
-- **Refund Processing**: Multi-stage refund workflows with resolution tracking
+- **Dispatch Management**: Sophisticated supply chain coordination (83% success rate)
+- **Issue Resolution**: Multi-stage resolution workflows for 17% failure cases
 - **Real-time Dashboard**: Live metrics and activity tracking
-- **Customer Management**: Comprehensive customer data with marketing attribution
+- **Customer Management**: Google Ads attribution and phone-based deduplication
+
+### Current Performance Metrics
+- **Callback Conversion**: 20% (identified as low, needs improvement)
+- **Dispatch Success**: 83% successful fulfillment
+- **Resolution Required**: 17% of orders need intervention
+- **Primary KPIs**: Orders placed, dispatched, refunded, returned/replaced
 
 ---
 
@@ -68,66 +80,78 @@ SQLite (Development) / PostgreSQL (Production)
 
 ```mermaid
 graph TD
-    A[Agent Callback] --> B[Customer Auto-Creation]
-    B --> C[Product Auto-Creation]
-    C --> D[Order Conversion]
-    D --> E[Dispatch Processing]
-    E --> F[Fulfillment]
-    F --> G{Issue?}
-    G -->|Yes| H[Refund Processing]
-    G -->|No| I[Completion]
+    A[Google Ads Lead] --> B[Agent Callback]
+    B --> C[Phone Follow-up<br/>90% calls, 10% email/text]
+    C --> D{Conversion?}
+    D -->|20% Success| E[Order Creation]
+    D -->|80% Lost| F[Lost Lead]
+    E --> G[Auto-Dispatch Creation]
+    G --> H[Supplier Sourcing]
+    H --> I{Part Available?}
+    I -->|83% Success| J[Fulfillment]
+    I -->|17% Failure| K[Resolution Workflow]
+    K --> L[Retry/Replace/Refund]
+    J --> M[Completion]
 ```
 
 ### 2. Core Business Entities
 
 #### **Agent Callbacks** (`app/models/agent_callback.rb`)
-- **Purpose**: Initial lead capture from sales agents
+- **Purpose**: Initial Google Ads lead capture and conversion tracking
 - **Auto-creation**: Automatically creates Customer and Product records
-- **Status Flow**: `pending` → `contacted` → `converted` → `cancelled`
+- **Status Flow**: `pending` → `not_interested` → `already_purchased` → `sale` → `payment_link` → `follow_up`
+- **Performance**: 20% conversion rate (needs improvement)
 - **Broadcasting**: Real-time updates to dashboard and callback list
 
 ```ruby
 # Key Features
-after_create_commit :auto_create_customer_and_product
-after_update_commit :broadcast_updates
-has_one :order, dependent: :destroy
+after_create_commit :find_or_create_customer
+after_create_commit :extract_and_create_product
+enum status: { pending: 0, not_interested: 1, already_purchased: 2, 
+               sale: 3, payment_link: 4, follow_up: 5 }
 ```
 
 #### **Customers** (`app/models/customer.rb`)
-- **Marketing Attribution**: UTM tracking, GCLID capture
-- **Status Management**: `active`, `inactive`, `vip`
-- **Data Integration**: Phone-based deduplication
+- **Marketing Attribution**: Google Ads GCLID capture and UTM tracking
+- **Status Management**: `active`, `inactive`, `blacklisted`
+- **Data Integration**: Phone-based deduplication (primary identifier)
+- **Lead Source**: 100% Google Ads, no other sources currently active
 - **Activity Tracking**: All interactions tracked via polymorphic association
 
 #### **Products** (`app/models/product.rb`)
-- **Dynamic Creation**: Auto-generated from callback data
-- **Pricing Logic**: Vendor cost + markup calculations
-- **Vehicle Compatibility**: Text-based compatibility matrix
-- **Source Tracking**: Differentiates callback vs manual creation
+- **Dynamic Creation**: Auto-generated from callback and order data
+- **Pricing Logic**: Vendor cost + markup calculations with profit margins
+- **Vehicle Compatibility**: JSON-based compatibility matrix for automotive parts
+- **Source Tracking**: Differentiates callback vs order vs manual creation
+- **Category System**: Auto-categorization based on part name analysis
 
 #### **Orders** (`app/models/order.rb`)
-- **Unified Status System**: 10-stage status progression
-- **Financial Calculations**: Product + tax + shipping = total
-- **Timeline Generation**: Auto-generated status history
+- **Unified Status System**: 8-stage status progression with smart status handling
+- **Financial Calculations**: Product + tax + shipping = total amount
+- **Auto-creation**: Automatically creates dispatch, customer, and product records
 - **Dispatch Integration**: One-to-one relationship with dispatches
+- **Resolution Integration**: One-to-one relationship with refunds for 17% failure cases
 
 ```ruby
 # Status Progression
-pending → confirmed → processing → dispatched → 
-shipped → delivered → completed → cancelled → refunded → exchanged
+enum order_status: { pending: 0, confirmed: 1, processing: 2, shipped: 3,
+                     delivered: 4, cancelled: 5, returned: 6, refunded: 7 }
 ```
 
 #### **Dispatches** (`app/models/dispatch.rb`)
-- **Supply Chain Management**: Supplier coordination and cost tracking
-- **Payment Processing**: Multi-processor support (Stripe, PayPal, etc.)
+- **Supply Chain Management**: No inventory - all parts sourced from suppliers on-demand
+- **Success Rate**: 83% successful fulfillment, 17% trigger resolution workflow
+- **Payment Processing**: Multiple payment processor support
 - **Shipment Tracking**: Integration with shipping providers
-- **Profit Calculation**: Real-time margin analysis
+- **Profit Calculation**: Real-time margin analysis (product cost vs supplier cost)
+- **Critical Process**: Identified as most critical part of business success
 
 #### **Refunds** (`app/models/refund.rb`)
-- **Multi-stage Processing**: 6-stage workflow
-- **Resolution Options**: Refund, exchange, replacement
-- **Financial Tracking**: Original vs refund amounts
-- **Integration**: Creates replacement orders when needed
+- **Multi-stage Processing**: 11-stage workflow including resolution options
+- **Resolution Options**: Retry supplier, replace with alternative, or full refund
+- **SLA Tracking**: Performance metrics with time-based analytics
+- **Financial Tracking**: Original vs refund amounts with replacement order linking
+- **Auto-escalation**: Time-based priority escalation system
 
 ---
 
@@ -454,10 +478,11 @@ enum dispatch_status: {
   delivered: 3, completed: 4, cancelled: 5
 }
 
-# Refund Stages (6 stages)
+# Refund Stages (11 stages including resolution workflow)
 enum refund_stage: {
-  initiated: 0, processing: 1, approved: 2,
-  completed: 3, cancelled: 4, pending_resolution: 5
+  pending_refund: 0, processing_refund: 1, refunded: 2, pending_return: 3,
+  returned: 4, urgent_refund: 5, failed_refund: 6, cancelled_refund: 7,
+  pending_resolution: 8, pending_replacement: 9, pending_retry: 10
 }
 ```
 
@@ -631,19 +656,32 @@ end
 
 ## Conclusion
 
-AutoXpress CRM demonstrates sophisticated use of modern Rails patterns and technologies. The application successfully combines:
+AutoXpress CRM demonstrates sophisticated use of modern Rails patterns and technologies for automotive parts e-commerce. The application successfully combines:
 
-1. **Real-time Updates**: Comprehensive Turbo Streams broadcasting
-2. **Interactive UI**: Advanced Stimulus controllers with rich behavior
+1. **Real-time Updates**: Comprehensive Turbo Streams broadcasting across all business entities
+2. **Interactive UI**: Advanced Stimulus controllers with real-time calculations and form enhancements
 3. **Data Integrity**: Polymorphic activity tracking for complete audit trails
-4. **Business Logic**: Complex workflow automation and status management
+4. **Business Logic**: Complex workflow automation with supplier-based fulfillment
 5. **Performance**: Optimized database queries and efficient frontend updates
 6. **User Experience**: SPA-like navigation with progressive enhancement
 
-The system provides a solid foundation for automotive parts sales operations while maintaining flexibility for future enhancements and scaling.
+### Current Business Challenges Identified
+- **Low Conversion Rate**: 20% callback-to-order conversion needs improvement
+- **Screen Redundancy**: Multiple interfaces for resolution workflows causing confusion
+- **Workflow Clarity**: Unclear guidance between retry/replace/refund options
+- **Performance Gaps**: SLA tracking available but not yet utilized
+
+### Technical Strengths
+- **Robust Resolution System**: Multi-stage workflows for handling 17% failure rate
+- **Real-time Broadcasting**: Live updates across all business processes
+- **Auto-creation Workflows**: Intelligent customer and product creation
+- **Google Ads Integration**: Complete lead attribution and tracking
+
+The system provides a solid foundation for automotive parts sales operations with clear opportunities for optimization in workflow consolidation and conversion rate improvement.
 
 ---
 
-*Analysis completed on: May 27, 2025*  
+*Analysis completed on: May 28, 2025*  
 *Rails Version: 7.1*  
+*Business Flow Analysis: Comprehensive*  
 *Generated by: Claude Code Analysis*
