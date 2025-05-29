@@ -174,6 +174,257 @@
       });
     });
   });
+
+  // Global Communication Hub Management
+  let currentHubRefundId = null;
+  let hubOpen = false;
+
+  window.openResolutionHub = function(refundId, stage) {
+    console.log('Opening hub for refund:', refundId, 'stage:', stage);
+    
+    currentHubRefundId = refundId;
+    
+    // Create or update the hub
+    let hub = document.getElementById('global-resolution-hub');
+    if (!hub) {
+      createGlobalHub();
+      hub = document.getElementById('global-resolution-hub');
+    }
+    
+    // Load refund data and show hub
+    loadHubData(refundId, stage);
+    showHub();
+  };
+
+  function createGlobalHub() {
+    const hubHTML = `
+      <div id="global-resolution-hub" class="global-communication-hub d-none">
+        <div class="hub-panel">
+          <div class="hub-header">
+            <div class="hub-title">
+              <h5 class="mb-0">
+                <i class="fas fa-comments me-2"></i>
+                Resolution Center
+              </h5>
+              <span class="order-info" id="hub-order-info">Loading...</span>
+            </div>
+            <button type="button" class="btn-close-hub" onclick="closeHub()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          
+          <div class="hub-progress" id="hub-progress">
+            <!-- Progress will be loaded here -->
+          </div>
+          
+          <div class="hub-conversation" id="hub-conversation">
+            <div class="loading-state">
+              <i class="fas fa-spinner fa-spin"></i>
+              Loading conversation...
+            </div>
+          </div>
+          
+          <div class="hub-quick-actions" id="hub-quick-actions">
+            <!-- Quick actions will be loaded here -->
+          </div>
+          
+          <div class="hub-message-input">
+            <form onsubmit="sendHubMessage(event)">
+              <div class="input-group">
+                <input type="text" 
+                       id="hub-message-input"
+                       class="form-control"
+                       placeholder="Type your message..."
+                       autocomplete="off">
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-paper-plane"></i>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', hubHTML);
+  }
+
+  function loadHubData(refundId, stage) {
+    // Load conversation history
+    fetch(`/resolution/${refundId}/conversation`)
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById('hub-conversation').innerHTML = html;
+        scrollHubToBottom();
+      })
+      .catch(error => {
+        console.error('Error loading conversation:', error);
+        document.getElementById('hub-conversation').innerHTML = '<div class="error-state">Error loading conversation</div>';
+      });
+
+    // Update hub info
+    document.getElementById('hub-order-info').textContent = `Refund #${refundId}`;
+    
+    // Load quick actions based on stage
+    loadQuickActions(stage);
+    
+    // Update progress
+    updateHubProgress(stage);
+  }
+
+  function loadQuickActions(stage) {
+    const actionsContainer = document.getElementById('hub-quick-actions');
+    let actions = [];
+    
+    switch(stage) {
+      case 'pending_customer_clarification':
+        actions = [
+          { label: 'Mark as Clarified', action: 'mark_clarified', variant: 'success' },
+          { label: 'Request More Info', action: 'request_info', variant: 'warning' },
+          { label: 'Escalate', action: 'escalate', variant: 'danger' }
+        ];
+        break;
+      case 'pending_dispatch_decision':
+        actions = [
+          { label: 'Approve Retry', action: 'approve_retry', variant: 'success' },
+          { label: 'Suggest Alternative', action: 'suggest_alternative', variant: 'primary' },
+          { label: 'Approve Refund', action: 'approve_refund', variant: 'warning' }
+        ];
+        break;
+      case 'pending_customer_approval':
+        actions = [
+          { label: 'Customer Approved', action: 'customer_approved', variant: 'success' },
+          { label: 'Customer Declined', action: 'customer_declined', variant: 'danger' },
+          { label: 'Follow Up', action: 'follow_up', variant: 'info' }
+        ];
+        break;
+      default:
+        actions = [];
+    }
+    
+    if (actions.length > 0) {
+      actionsContainer.innerHTML = `
+        <div class="quick-actions-header">Quick Actions</div>
+        <div class="quick-actions-grid">
+          ${actions.map(action => `
+            <button type="button" 
+                    class="btn btn-${action.variant} btn-sm"
+                    onclick="executeQuickAction('${action.action}')">
+              ${action.label}
+            </button>
+          `).join('')}
+        </div>
+      `;
+    } else {
+      actionsContainer.innerHTML = '';
+    }
+  }
+
+  function updateHubProgress(stage) {
+    const stages = ['pending_customer_clarification', 'pending_dispatch_decision', 'pending_customer_approval', 'resolution_completed'];
+    const currentIndex = stages.indexOf(stage);
+    const progress = ((currentIndex + 1) / stages.length) * 100;
+    
+    document.getElementById('hub-progress').innerHTML = `
+      <div class="progress-header">
+        <span class="current-stage">${stage.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+        <span class="progress-percentage">${Math.round(progress)}%</span>
+      </div>
+      <div class="progress">
+        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+             style="width: ${progress}%" 
+             role="progressbar">
+        </div>
+      </div>
+    `;
+  }
+
+  function showHub() {
+    const hub = document.getElementById('global-resolution-hub');
+    if (hub) {
+      hub.classList.remove('d-none');
+      setTimeout(() => hub.classList.add('show'), 10);
+      hubOpen = true;
+    }
+  }
+
+  window.closeHub = function() {
+    const hub = document.getElementById('global-resolution-hub');
+    if (hub) {
+      hub.classList.remove('show');
+      setTimeout(() => hub.classList.add('d-none'), 300);
+      hubOpen = false;
+      currentHubRefundId = null;
+    }
+  };
+
+  function scrollHubToBottom() {
+    const conversation = document.getElementById('hub-conversation');
+    if (conversation) {
+      conversation.scrollTop = conversation.scrollHeight;
+    }
+  }
+
+  window.sendHubMessage = function(event) {
+    event.preventDefault();
+    
+    const input = document.getElementById('hub-message-input');
+    const message = input.value.trim();
+    
+    if (!message || !currentHubRefundId) return;
+    
+    // Clear input
+    input.value = '';
+    
+    // Send message
+    const formData = new FormData();
+    formData.append('message', message);
+    formData.append('message_type', 'agent'); // Default to agent for now
+    
+    fetch(`/resolution/${currentHubRefundId}/message`, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+      }
+    })
+    .then(response => {
+      if (response.ok) {
+        // Reload conversation
+        loadHubData(currentHubRefundId, 'pending_customer_clarification'); // Will be updated from server
+      }
+    })
+    .catch(error => console.error('Error sending message:', error));
+  };
+
+  window.executeQuickAction = function(action) {
+    if (!currentHubRefundId) return;
+    
+    const criticalActions = ['approve_refund', 'escalate', 'customer_declined'];
+    if (criticalActions.includes(action)) {
+      if (!confirm(`Are you sure you want to ${action.replace('_', ' ')}?`)) {
+        return;
+      }
+    }
+    
+    fetch(`/resolution/${currentHubRefundId}/${action}`, {
+      method: 'PATCH',
+      headers: {
+        'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+      }
+    })
+    .then(response => {
+      if (response.ok) {
+        // Close hub and refresh page
+        closeHub();
+        window.location.reload();
+      }
+    })
+    .catch(error => console.error('Error executing action:', error));
+  };
   </script>
+
+  <!-- Global Communication Hub (will be created dynamically) -->
+  
 </main>
 <% end %>

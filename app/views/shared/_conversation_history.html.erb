@@ -1,0 +1,132 @@
+<!-- System Message -->
+<div class="message system-message">
+  <div class="message-avatar">
+    <i class="fas fa-robot"></i>
+  </div>
+  <div class="message-content">
+    <div class="message-header">
+      <span class="sender-name">AutoXpress System</span>
+      <span class="message-time"><%= refund.created_at.strftime("%I:%M %p") %></span>
+    </div>
+    <div class="message-body">
+      Resolution process initiated for <%= refund.refund_reason.humanize %> refund.
+      <% if refund.order.dispatch&.cancelled? %>
+        Triggered by dispatch cancellation.
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- Activity Messages -->
+<% activities.each do |activity| %>
+  <div class="message activity-message">
+    <div class="message-avatar">
+      <% case activity.action %>
+      <% when 'resolution_stage_updated' %>
+        <i class="fas fa-arrow-right"></i>
+      <% when 'message_sent' %>
+        <i class="fas fa-comment"></i>
+      <% when 'info_requested' %>
+        <i class="fas fa-question-circle"></i>
+      <% when 'escalated' %>
+        <i class="fas fa-exclamation-triangle"></i>
+      <% when 'follow_up' %>
+        <i class="fas fa-calendar"></i>
+      <% else %>
+        <i class="fas fa-info-circle"></i>
+      <% end %>
+    </div>
+    <div class="message-content">
+      <div class="message-header">
+        <span class="sender-name">
+          <%= activity.user ? "#{activity.user.email.split('@').first.capitalize}" : 'System' %>
+        </span>
+        <span class="message-time"><%= activity.created_at.strftime("%I:%M %p") %></span>
+      </div>
+      <div class="message-body">
+        <%= activity.details %>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<!-- Agent Notes as Messages -->
+<% if refund.agent_notes.present? %>
+  <% refund.agent_notes.split(/\n\n/).each do |note_line| %>
+    <% next if note_line.strip.blank? %>
+    <div class="message agent-message">
+      <div class="message-avatar">
+        <i class="fas fa-user-tie"></i>
+      </div>
+      <div class="message-content">
+        <div class="message-header">
+          <span class="sender-name">Customer Agent</span>
+          <span class="message-time">
+            <% if note_line.match(/(\d{1,2}\/\d{1,2} \d{1,2}:\d{2}[AP]M):/) %>
+              <%= note_line.match(/(\d{1,2}\/\d{1,2} \d{1,2}:\d{2}[AP]M):/)[1] %>
+            <% else %>
+              <%= refund.updated_at.strftime("%I:%M %p") %>
+            <% end %>
+          </span>
+        </div>
+        <div class="message-body">
+          <%= simple_format(note_line.gsub(/^\d{1,2}\/\d{1,2} \d{1,2}:\d{2}[AP]M:\s*/, '')) %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+<% end %>
+
+<!-- Dispatcher Notes as Messages -->
+<% if refund.dispatcher_notes.present? %>
+  <% refund.dispatcher_notes.split(/\n\n/).each do |note_line| %>
+    <% next if note_line.strip.blank? %>
+    <div class="message dispatcher-message">
+      <div class="message-avatar">
+        <i class="fas fa-truck"></i>
+      </div>
+      <div class="message-content">
+        <div class="message-header">
+          <span class="sender-name">Dispatch Team</span>
+          <span class="message-time">
+            <% if note_line.match(/(\d{1,2}\/\d{1,2} \d{1,2}:\d{2}[AP]M):/) %>
+              <%= note_line.match(/(\d{1,2}\/\d{1,2} \d{1,2}:\d{2}[AP]M):/)[1] %>
+            <% else %>
+              <%= refund.updated_at.strftime("%I:%M %p") %>
+            <% end %>
+          </span>
+        </div>
+        <div class="message-body">
+          <%= simple_format(note_line.gsub(/^\d{1,2}\/\d{1,2} \d{1,2}:\d{2}[AP]M:\s*/, '')) %>
+          <% if refund.alternative_part_name.present? %>
+            <div class="alternative-part-info mt-2">
+              <strong>Alternative Part:</strong> <%= refund.alternative_part_name %><br>
+              <strong>Price:</strong> $<%= refund.alternative_part_price %>
+              <% if refund.price_difference != 0 %>
+                (<%= refund.price_difference > 0 ? '+' : '' %>$<%= refund.price_difference %> difference)
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+<% end %>
+
+<!-- Customer Response as Message -->
+<% if refund.customer_response.present? %>
+  <div class="message customer-message">
+    <div class="message-avatar">
+      <i class="fas fa-user"></i>
+    </div>
+    <div class="message-content">
+      <div class="message-header">
+        <span class="sender-name"><%= refund.order.customer.name %></span>
+        <span class="message-time"><%= refund.updated_at.strftime("%I:%M %p") %></span>
+      </div>
+      <div class="message-body">
+        <%= simple_format(refund.customer_response) %>
+      </div>
+    </div>
+  </div>
+<% end %>

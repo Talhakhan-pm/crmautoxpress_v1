@@ -1,28 +1,103 @@
 <div class="resolution-content-simplified">
   <% refund = order.refund %>
   
-  <!-- Simplified Resolution Header -->
-  <div class="resolution-header-clean">
-    <div class="resolution-alert">
-      <i class="fas fa-exclamation-triangle"></i>
-      <div class="alert-content">
-        <h6>Resolution Required</h6>
+  <!-- Resolution Status & Next Action -->
+  <div class="resolution-status-card">
+    <div class="status-header">
+      <div class="status-icon status-<%= refund.resolution_stage %>">
+        <% case refund.resolution_stage %>
+        <% when 'pending_customer_clarification' %>
+          <i class="fas fa-phone"></i>
+        <% when 'pending_dispatch_decision' %>
+          <i class="fas fa-search"></i>
+        <% when 'pending_customer_approval' %>
+          <i class="fas fa-clock"></i>
+        <% else %>
+          <i class="fas fa-exclamation-triangle"></i>
+        <% end %>
+      </div>
+      <div class="status-content">
+        <h6>
+          <% case refund.resolution_stage %>
+          <% when 'pending_customer_clarification' %>
+            📞 Contact Customer Now
+          <% when 'pending_dispatch_decision' %>
+            🔍 Dispatcher Review Needed
+          <% when 'pending_customer_approval' %>
+            ⏳ Awaiting Customer Response
+          <% else %>
+            ⚠️ Resolution Required
+          <% end %>
+        </h6>
         <p><%= refund.refund_reason.humanize %> • $<%= number_with_precision(refund.refund_amount, precision: 2) %></p>
+      </div>
+    </div>
+    
+    <!-- Clear Next Steps -->
+    <div class="next-action-guide">
+      <div class="action-title">What to do next:</div>
+      <div class="action-description">
+        <% case refund.resolution_stage %>
+        <% when 'pending_customer_clarification' %>
+          Call <%= order.customer_name %> at <strong><%= order.customer_phone %></strong> to verify order details and understand the issue. Once clarified, update notes and forward to dispatch team.
+        <% when 'pending_dispatch_decision' %>
+          Dispatch team needs to research part availability and decide: retry delivery, offer alternative part, or process refund.
+        <% when 'pending_customer_approval' %>
+          Customer needs to approve/decline the alternative part suggestion. Follow up if no response within 24 hours.
+        <% else %>
+          This order requires immediate attention. Review the refund details and begin the resolution process.
+        <% end %>
       </div>
     </div>
   </div>
 
-  <!-- Go to Resolution Center Button -->
-  <div class="resolution-action">
-    <%= link_to resolution_path(order_id: order.id), 
-                class: "resolution-center-btn",
-                data: { 
-                  turbo_frame: "main_content",
-                  turbo_action: "replace" 
-                } do %>
-      <i class="fas fa-tools"></i>
-      <span>Go to Resolution Center</span>
-      <i class="fas fa-arrow-right"></i>
+  <!-- Quick Actions Based on Stage -->
+  <div class="quick-resolution-actions">
+    <% case refund.resolution_stage %>
+    <% when 'pending_customer_clarification' %>
+      <div class="action-buttons">
+        <button class="action-btn primary" onclick="openResolutionHub(<%= refund.id %>, '<%= refund.resolution_stage %>')">
+          <i class="fas fa-comments"></i>
+          Start Resolution Chat
+        </button>
+        <a href="tel:<%= order.customer_phone %>" class="action-btn secondary">
+          <i class="fas fa-phone"></i>
+          Call <%= order.customer_name.split(' ').first %>
+        </a>
+      </div>
+    <% when 'pending_dispatch_decision' %>
+      <div class="action-buttons">
+        <button class="action-btn primary" onclick="openResolutionHub(<%= refund.id %>, '<%= refund.resolution_stage %>')">
+          <i class="fas fa-tools"></i>
+          Open Dispatch Tools
+        </button>
+        <%= link_to resolution_path, class: "action-btn secondary", data: { turbo_frame: "main_content" } do %>
+          <i class="fas fa-list"></i>
+          View All Resolutions
+        <% end %>
+      </div>
+    <% when 'pending_customer_approval' %>
+      <div class="action-buttons">
+        <button class="action-btn primary" onclick="openResolutionHub(<%= refund.id %>, '<%= refund.resolution_stage %>')">
+          <i class="fas fa-clock"></i>
+          Check Customer Response
+        </button>
+        <a href="tel:<%= order.customer_phone %>" class="action-btn secondary">
+          <i class="fas fa-phone"></i>
+          Follow Up Call
+        </a>
+      </div>
+    <% else %>
+      <div class="action-buttons">
+        <button class="action-btn primary" onclick="openResolutionHub(<%= refund.id %>, '<%= refund.resolution_stage %>')">
+          <i class="fas fa-play"></i>
+          Start Resolution Process
+        </button>
+        <%= link_to resolution_path, class: "action-btn secondary", data: { turbo_frame: "main_content" } do %>
+          <i class="fas fa-external-link-alt"></i>
+          Resolution Center
+        <% end %>
+      </div>
     <% end %>
   </div>
 

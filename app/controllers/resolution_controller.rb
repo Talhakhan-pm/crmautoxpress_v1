@@ -121,6 +121,129 @@ class ResolutionController < ApplicationController
     end
   end
 
+  def conversation
+    @refund = Refund.find(params[:id])
+    @activities = @refund.activities.order(:created_at)
+    
+    render partial: 'shared/conversation_history', locals: { refund: @refund, activities: @activities }
+  end
+
+  def send_message
+    @refund = Refund.find(params[:id])
+    message = params[:message]
+    message_type = params[:message_type] || 'agent'
+    
+    if message.present?
+      # Update appropriate notes field based on message type
+      case message_type
+      when 'agent'
+        current_notes = @refund.agent_notes || ''
+        new_notes = current_notes.present? ? "#{current_notes}\n\n#{Time.current.strftime('%m/%d %I:%M%p')}: #{message}" : "#{Time.current.strftime('%m/%d %I:%M%p')}: #{message}"
+        @refund.update!(agent_notes: new_notes)
+      when 'dispatcher'
+        current_notes = @refund.dispatcher_notes || ''
+        new_notes = current_notes.present? ? "#{current_notes}\n\n#{Time.current.strftime('%m/%d %I:%M%p')}: #{message}" : "#{Time.current.strftime('%m/%d %I:%M%p')}: #{message}"
+        @refund.update!(dispatcher_notes: new_notes)
+      end
+      
+      # Create activity
+      @refund.create_activity(
+        action: 'message_sent',
+        details: "#{message_type.capitalize} sent message: #{message.truncate(100)}",
+        user: Current.user
+      )
+      
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: [
+            turbo_stream.replace("refund_#{@refund.id}", partial: "simplified_resolution_item", locals: { refund: @refund }),
+            turbo_stream.update("conversation_#{@refund.id}", partial: "shared/conversation_history", locals: { refund: @refund, activities: @refund.activities.order(:created_at) })
+          ]
+        end
+        format.json { render json: { status: 'success' } }
+      end
+    else
+      respond_to do |format|
+        format.turbo_stream { head :unprocessable_entity }
+        format.json { render json: { errors: ['Message cannot be blank'] } }
+      end
+    end
+  end
+
+  def mark_viewed
+    @refund = Refund.find(params[:id])
+    # Could track viewed status in database if needed
+    render json: { status: 'success' }
+  end
+
+  # Quick action methods
+  def mark_clarified
+    @refund = Refund.find(params[:id])
+    @refund.update!(resolution_stage: 'pending_dispatch_decision')
+    render_quick_action_response
+  end
+
+  def request_info
+    @refund = Refund.find(params[:id])
+    # Add system note about requesting more info
+    @refund.create_activity(
+      action: 'info_requested',
+      details: 'Additional information requested from customer',
+      user: Current.user
+    )
+    render_quick_action_response
+  end
+
+  def escalate
+    @refund = Refund.find(params[:id])
+    @refund.create_activity(
+      action: 'escalated',
+      details: 'Case escalated to manager',
+      user: Current.user
+    )
+    render_quick_action_response
+  end
+
+  def approve_retry
+    @refund = Refund.find(params[:id])
+    @refund.update!(resolution_stage: 'resolution_completed')
+    render_quick_action_response
+  end
+
+  def suggest_alternative
+    @refund = Refund.find(params[:id])
+    @refund.update!(resolution_stage: 'pending_customer_approval')
+    render_quick_action_response
+  end
+
+  def approve_refund
+    @refund = Refund.find(params[:id])
+    @refund.update!(resolution_stage: 'resolution_completed')
+    render_quick_action_response
+  end
+
+  def customer_approved
+    @refund = Refund.find(params[:id])
+    @refund.update!(resolution_stage: 'resolution_completed')
+    render_quick_action_response
+  end
+
+  def customer_declined
+    @refund = Refund.find(params[:id])
+    @refund.update!(resolution_stage: 'resolution_completed')
+    render_quick_action_response
+  end
+
+  def follow_up
+    @refund = Refund.find(params[:id])
+    @refund.create_activity(
+      action: 'follow_up',
+      details: 'Follow-up scheduled with customer',
+      user: Current.user
+    )
+    render_quick_action_response
+  end
+
   private
 
   def calculate_resolution_stats
@@ -240,5 +363,17 @@ class ResolutionController < ApplicationController
     params.require(:refund).permit(:agent_notes, :dispatcher_notes, 
                                    :corrected_customer_details, :part_research_notes, :price_difference, 
                                    :alternative_part_name, :alternative_part_price)
+  end
+
+  def render_quick_action_response
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: [
+          turbo_stream.replace("refund_#{@refund.id}", partial: "simplified_resolution_item", locals: { refund: @refund }),
+          turbo_stream.update("resolution-stats-container", partial: "stats", locals: { stats: calculate_resolution_stats })
+        ]
+      end
+      format.json { render json: { status: 'success' } }
+    end
   end
 end

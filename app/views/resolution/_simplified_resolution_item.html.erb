@@ -1,4 +1,5 @@
-<div class="resolution-item simplified" id="refund_<%= refund.id %>">
+<div class="resolution-item simplified" 
+     id="refund_<%= refund.id %>">
   <!-- Clean Header -->
   <div class="resolution-header">
     <div class="refund-info">
@@ -169,5 +170,18 @@
     <% if refund.replacement_order_number.present? %>
       <%= link_to "View Replacement", order_path(refund.replacement_order), class: "link-btn replacement" %>
     <% end %>
+    
+    <!-- Communication Hub Trigger -->
+    <a href="#" 
+       class="link-btn communication-trigger"
+       data-refund-id="<%= refund.id %>"
+       data-stage="<%= refund.resolution_stage %>"
+       onclick="event.preventDefault(); openResolutionHub(<%= refund.id %>, '<%= refund.resolution_stage %>'); return false;">
+      <i class="fas fa-comments me-1"></i>
+      Communication Hub
+      <% if refund.needs_resolution_action? %>
+        <span class="notification-dot"></span>
+      <% end %>
+    </a>
   </div>
 </div>

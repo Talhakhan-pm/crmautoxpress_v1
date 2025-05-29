@@ -54,6 +54,22 @@ Rails.application.routes.draw do
   post "resolution/:id/retry", to: "resolution#dispatcher_retry", as: :resolution_dispatcher_retry
   post "resolution/:id/alternative", to: "resolution#dispatcher_alternative", as: :resolution_dispatcher_alternative
   post "resolution/:id/replacement", to: "resolution#create_replacement_order", as: :resolution_create_replacement
+  
+  # Communication Hub routes
+  get "resolution/:id/conversation", to: "resolution#conversation", as: :resolution_conversation
+  post "resolution/:id/message", to: "resolution#send_message", as: :resolution_send_message
+  patch "resolution/:id/mark_viewed", to: "resolution#mark_viewed", as: :resolution_mark_viewed
+  
+  # Quick Action routes
+  patch "resolution/:id/mark_clarified", to: "resolution#mark_clarified", as: :resolution_mark_clarified
+  patch "resolution/:id/request_info", to: "resolution#request_info", as: :resolution_request_info
+  patch "resolution/:id/escalate", to: "resolution#escalate", as: :resolution_escalate
+  patch "resolution/:id/approve_retry", to: "resolution#approve_retry", as: :resolution_approve_retry
+  patch "resolution/:id/suggest_alternative", to: "resolution#suggest_alternative", as: :resolution_suggest_alternative
+  patch "resolution/:id/approve_refund", to: "resolution#approve_refund", as: :resolution_approve_refund
+  patch "resolution/:id/customer_approved", to: "resolution#customer_approved", as: :resolution_customer_approved
+  patch "resolution/:id/customer_declined", to: "resolution#customer_declined", as: :resolution_customer_declined
+  patch "resolution/:id/follow_up", to: "resolution#follow_up", as: :resolution_follow_up
 
   # Callbacks routes  
   resources :callbacks
