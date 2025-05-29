@@ -431,6 +431,54 @@
     })
     .catch(error => console.error('Error executing action:', error));
   };
+
+  // Dispatcher Decision Modals
+  window.openDelayModal = function(refundId) {
+    const delayDays = prompt("How many days delay?", "3");
+    if (delayDays && !isNaN(delayDays)) {
+      submitDispatcherDecision(refundId, 'accept_delay', { delay_days: delayDays });
+    }
+  };
+
+  window.openPriceModal = function(refundId) {
+    const additionalAmount = prompt("Additional amount customer needs to pay ($):", "25");
+    if (additionalAmount && !isNaN(additionalAmount)) {
+      submitDispatcherDecision(refundId, 'request_price_increase', { additional_amount: additionalAmount });
+    }
+  };
+
+  window.openAlternativeModal = function(refundId) {
+    const partName = prompt("Alternative part name:", "Compatible OEM Part");
+    if (partName && partName.trim()) {
+      submitDispatcherDecision(refundId, 'send_compatible_alternative', { alternative_part_name: partName.trim() });
+    }
+  };
+
+  function submitDispatcherDecision(refundId, action, params) {
+    const formData = new FormData();
+    Object.keys(params).forEach(key => {
+      formData.append(key, params[key]);
+    });
+
+    fetch(`/resolution/${refundId}/${action}`, {
+      method: 'PATCH',
+      body: formData,
+      headers: {
+        'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+      }
+    })
+    .then(response => {
+      if (response.ok) {
+        window.location.reload();
+      } else {
+        alert('Error processing decision. Please try again.');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Network error. Please try again.');
+    });
+  }
   </script>
 
   <!-- Global Communication Hub (will be created dynamically) -->

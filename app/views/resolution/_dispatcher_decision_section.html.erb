@@ -49,68 +49,70 @@
                    data: { disable_with: "Updating..." } %>
     <% end %>
 
+    <!-- Sourcing Research Summary -->
+    <div class="sourcing-simulation">
+      <div class="sourcing-header">
+        <i class="fas fa-industry"></i>
+        <span>Supplier Research Results</span>
+      </div>
+      <div class="simulated-results">
+        <div class="supplier-option">
+          <div class="supplier-name">Primary Supplier</div>
+          <div class="supplier-details">$<%= (refund.order.total_amount * 0.6).round(2) %> • 2-3 days • ⭐⭐⭐⭐</div>
+          <div class="profit-calc">Profit: $<%= (refund.order.total_amount * 0.4).round(2) %></div>
+        </div>
+        <div class="supplier-option">
+          <div class="supplier-name">Secondary Supplier</div>
+          <div class="supplier-details">$<%= (refund.order.total_amount * 0.7).round(2) %> • 5-7 days • ⭐⭐⭐</div>
+          <div class="profit-calc">Profit: $<%= (refund.order.total_amount * 0.3).round(2) %></div>
+        </div>
+        <div class="supplier-option disabled">
+          <div class="supplier-name">Alternative Supplier</div>
+          <div class="supplier-details">$<%= (refund.order.total_amount * 1.2).round(2) %> • 3 days • ⭐⭐⭐⭐⭐</div>
+          <div class="profit-calc loss">Loss: $<%= (refund.order.total_amount * 0.2).round(2) %></div>
+        </div>
+      </div>
+    </div>
+
     <!-- Decision Actions -->
     <div class="dispatcher-decisions">
-      <h7>Dispatcher Decision:</h7>
+      <h7>Business Decision (Dispatcher):</h7>
       
-      <div class="decision-options">
-        <!-- Option 1: Retry with Updated Details -->
-        <%= form_with url: resolution_dispatcher_retry_path(refund), 
-                      method: :post, local: false, class: "decision-form retry-form" do |f| %>
-          <div class="decision-option">
-            <h8>✓ Retry Dispatch</h8>
-            <p>Part available with updated customer details</p>
-            <%= f.text_area :retry_notes, 
-                            placeholder: "Notes for retry (supplier, timeline, etc.)...",
-                            class: "form-textarea small",
-                            rows: 2 %>
-            <%= f.submit "Approve Retry", class: "btn btn-success", 
-                         confirm: "Confirm retry dispatch with updated details?",
-                         data: { disable_with: "Processing..." } %>
-          </div>
-        <% end %>
-
-        <!-- Option 2: Alternative Part Found -->
-        <%= form_with url: resolution_dispatcher_alternative_path(refund), 
-                      method: :post, local: false, class: "decision-form alternative-form" do |f| %>
-          <div class="decision-option">
-            <h8>💰 Alternative Part Found</h8>
-            <p>Compatible part available at different price</p>
-            
-            <div class="alternative-details">
-              <%= f.text_field :part_name, 
-                              placeholder: "Alternative part name/number",
-                              class: "form-input" %>
-              <div class="price-fields">
-                <%= f.number_field :part_price, 
-                                  placeholder: "New part price",
-                                  step: 0.01,
-                                  class: "form-input" %>
-                <%= f.number_field :price_difference, 
-                                  placeholder: "Price difference (+/-)",
-                                  step: 0.01,
-                                  class: "form-input" %>
-              </div>
-              <%= f.text_area :research_notes, 
-                              placeholder: "Research notes about alternative part...",
-                              class: "form-textarea small",
-                              rows: 2 %>
-            </div>
-            
-            <%= f.submit "Send to Customer for Approval", class: "btn btn-warning", 
-                         confirm: "Send alternative part details to customer?",
-                         data: { disable_with: "Processing..." } %>
-          </div>
-        <% end %>
-
-        <!-- Option 3: Part Not Found - Recommend Refund -->
-        <%= button_to "❌ Part Not Found - Recommend Refund", 
-                      update_resolution_stage_path(refund),
+      <div class="decision-grid">
+        <button class="decision-btn accept-delay" 
+                onclick="openDelayModal(<%= refund.id %>)"
+                data-refund-id="<%= refund.id %>">
+          <i class="fas fa-clock"></i>
+          <span class="btn-title">Accept Delay</span>
+          <span class="btn-desc">Part available, tell customer about timing</span>
+        </button>
+        
+        <button class="decision-btn price-increase"
+                onclick="openPriceModal(<%= refund.id %>)"
+                data-refund-id="<%= refund.id %>">
+          <i class="fas fa-dollar-sign"></i>
+          <span class="btn-title">Request Price Increase</span>
+          <span class="btn-desc">Part costs more than customer paid</span>
+        </button>
+        
+        <button class="decision-btn compatible-alternative"
+                onclick="openAlternativeModal(<%= refund.id %>)"
+                data-refund-id="<%= refund.id %>">
+          <i class="fas fa-exchange-alt"></i>
+          <span class="btn-title">Send Compatible Alternative</span>
+          <span class="btn-desc">Found substitute part, create replacement</span>
+        </button>
+        
+        <%= button_to resolution_dispatcher_refund_path(refund),
                       method: :patch,
-                      params: { refund: { resolution_stage: 'resolution_completed', dispatcher_notes: 'Part not available from any supplier - recommending full refund' } },
-                      class: "btn btn-danger decision-option",
-                      confirm: "Confirm that part cannot be found and refund should be processed?",
-                      form: { data: { turbo: true } } %>
+                      params: { refund_reason: 'Not economical to source' },
+                      class: "decision-btn refund-option",
+                      confirm: "Process refund? This cannot be undone.",
+                      form: { data: { turbo: true } } do %>
+          <i class="fas fa-money-bill-wave"></i>
+          <span class="btn-title">Issue Refund</span>
+          <span class="btn-desc">No profitable sourcing options</span>
+        <% end %>
       </div>
     </div>
 

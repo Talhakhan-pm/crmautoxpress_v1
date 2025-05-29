@@ -1,45 +1,46 @@
-<div class="workflow-section customer-approval">
+<div class="workflow-section agent-task">
   <div class="section-header">
-    <h6><i class="fas fa-user-check"></i> Customer Approval Required</h6>
-    <span class="section-description">Alternative part found - waiting for customer approval</span>
+    <h6><i class="fas fa-headset"></i> Agent Task: Customer Contact</h6>
+    <span class="section-description">Execute customer decision based on dispatcher's sourcing results</span>
   </div>
 
   <div class="workflow-content">
-    <!-- Alternative Part Details -->
-    <% if refund.alternative_part_name.present? %>
-      <div class="alternative-part-info">
-        <h7>Alternative Part Found:</h7>
-        <div class="part-comparison">
-          <div class="original-part">
-            <span class="part-label">Original Part:</span>
-            <div class="part-details">
-              <div class="part-name"><%= refund.order.product_name %></div>
-              <div class="part-price">$<%= number_with_precision(refund.order.product_price, precision: 2) %></div>
-            </div>
-          </div>
-          
-          <div class="alternative-part">
-            <span class="part-label">Alternative Part:</span>
-            <div class="part-details">
-              <div class="part-name"><%= refund.alternative_part_name %></div>
-              <div class="part-price">
-                $<%= number_with_precision(refund.alternative_part_price, precision: 2) %>
-                <% if refund.price_difference.present? && refund.price_difference != 0 %>
-                  <span class="price-difference <%= refund.price_difference > 0 ? 'price-increase' : 'price-decrease' %>">
-                    (<%= refund.price_difference > 0 ? '+' : '' %>$<%= number_with_precision(refund.price_difference, precision: 2) %>)
-                  </span>
-                <% end %>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <% if refund.part_research_notes.present? %>
-          <div class="research-notes">
-            <span class="notes-label">Dispatcher Research:</span>
-            <div class="notes-content"><%= simple_format(refund.part_research_notes) %></div>
-          </div>
+    <!-- Dispatcher Instructions -->
+    <div class="dispatcher-instructions">
+      <h7>Dispatcher's Sourcing Results:</h7>
+      <div class="instructions-content">
+        <%= refund.agent_instructions.present? ? simple_format(refund.agent_instructions) : "Contact customer for approval" %>
+      </div>
+    </div>
+
+    <!-- Customer Contact Info -->
+    <div class="customer-contact">
+      <h7>Customer Contact:</h7>
+      <div class="contact-details">
+        <strong>Name:</strong> <%= refund.order.customer_name %><br>
+        <strong>Phone:</strong> <%= refund.order.customer_phone %><br>
+        <% if refund.order.customer_email.present? %>
+          <strong>Email:</strong> <%= refund.order.customer_email %><br>
         <% end %>
+      </div>
+    </div>
+
+    <!-- Decision Context -->
+    <% case refund.dispatcher_decision %>
+    <% when 'delay_required' %>
+      <div class="decision-context delay-context">
+        <h7>Delay Information:</h7>
+        <p><strong><%= refund.delay_duration %> day delay</strong> - Part sourced successfully but delivery timing affected</p>
+      </div>
+    <% when 'price_increase' %>
+      <div class="decision-context price-context">
+        <h7>Price Increase Required:</h7>
+        <p><strong>Additional $<%= refund.additional_cost %></strong> - Part cost increased since original order</p>
+      </div>
+    <% when 'compatible_alternative' %>
+      <div class="decision-context alternative-context">
+        <h7>Compatible Alternative Found:</h7>
+        <p><strong><%= refund.alternative_part_name %></strong> - Upgrade/substitute part, same price</p>
       </div>
     <% end %>
 
@@ -59,33 +60,68 @@
                    data: { disable_with: "Updating..." } %>
     <% end %>
 
-    <!-- Customer Decision Actions -->
+    <!-- Agent Actions -->
+    <div class="agent-actions">
+      <h7>Contact Customer:</h7>
+      <div class="contact-actions">
+        <a href="tel:<%= refund.order.customer_phone %>" class="btn btn-primary">
+          <i class="fas fa-phone"></i> Call Customer Now
+        </a>
+        <% if refund.order.customer_email.present? %>
+          <a href="mailto:<%= refund.order.customer_email %>" class="btn btn-secondary">
+            <i class="fas fa-envelope"></i> Send Email
+          </a>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Customer Response Actions -->
     <div class="customer-decision-actions">
-      <h7>Customer Decision:</h7>
+      <h7>Customer Response:</h7>
       
       <div class="decision-buttons">
-        <%= button_to "✓ Customer Approved Alternative", 
-                      update_resolution_stage_path(refund),
-                      method: :patch,
-                      params: { refund: { resolution_stage: 'resolution_completed' } },
-                      class: "btn btn-success",
-                      confirm: "Confirm customer approved the alternative part?",
-                      form: { data: { turbo: true } } %>
-
-        <%= button_to "✗ Customer Declined - Process Refund", 
-                      update_resolution_stage_path(refund),
-                      method: :patch,
-                      params: { refund: { resolution_stage: 'resolution_completed' } },
-                      class: "btn btn-danger",
-                      confirm: "Confirm customer declined and wants refund?",
-                      form: { data: { turbo: true } } %>
-
-        <%= button_to "🔄 Customer Wants Different Part", 
-                      resolution_create_replacement_path(refund),
-                      method: :post,
-                      class: "btn btn-info",
-                      confirm: "Create replacement order for different part?",
-                      form: { data: { turbo: true } } %>
+        <% case refund.dispatcher_decision %>
+        <% when 'delay_required' %>
+          <%= button_to "Customer Accepts #{refund.delay_duration}-Day Delay", 
+                        resolution_customer_approved_path(refund),
+                        method: :patch,
+                        class: "btn btn-success",
+                        form: { data: { turbo: true } } %>
+          <%= button_to "Customer Requests Refund Instead", 
+                        resolution_customer_declined_path(refund),
+                        method: :patch,
+                        class: "btn btn-danger",
+                        form: { data: { turbo: true } } %>
+        <% when 'price_increase' %>
+          <%= button_to "Customer Pays Extra $#{refund.additional_cost}", 
+                        resolution_customer_approved_path(refund),
+                        method: :patch,
+                        class: "btn btn-success",
+                        form: { data: { turbo: true } } %>
+          <%= button_to "Customer Requests Refund Instead", 
+                        resolution_customer_declined_path(refund),
+                        method: :patch,
+                        class: "btn btn-danger",
+                        form: { data: { turbo: true } } %>
+        <% when 'compatible_alternative' %>
+          <%= button_to "Create Replacement with #{refund.alternative_part_name}", 
+                        resolution_create_replacement_path(refund),
+                        method: :post,
+                        class: "btn btn-success",
+                        form: { data: { turbo: true } } %>
+          <div class="helper-text">Customer gets compatible upgrade at same price</div>
+        <% else %>
+          <%= button_to "Customer Approved", 
+                        resolution_customer_approved_path(refund),
+                        method: :patch,
+                        class: "btn btn-success",
+                        form: { data: { turbo: true } } %>
+          <%= button_to "Customer Declined", 
+                        resolution_customer_declined_path(refund),
+                        method: :patch,
+                        class: "btn btn-danger",
+                        form: { data: { turbo: true } } %>
+        <% end %>
       </div>
     </div>
 

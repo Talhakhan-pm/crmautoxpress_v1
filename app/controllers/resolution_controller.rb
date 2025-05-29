@@ -244,6 +244,90 @@ class ResolutionController < ApplicationController
     render_quick_action_response
   end
 
+  # New Dispatcher Sourcing Actions
+  def accept_delay
+    @refund = Refund.find(params[:id])
+    delay_days = params[:delay_days] || 3
+    
+    @refund.update!(
+      resolution_stage: 'pending_customer_approval',
+      dispatcher_notes: "#{@refund.dispatcher_notes}\n\n#{Time.current.strftime('%m/%d %I:%M%p')}: Sourcing complete - Part available with #{delay_days} day delay",
+      dispatcher_decision: 'delay_required',
+      delay_duration: delay_days,
+      agent_instructions: "Contact customer about #{delay_days}-day delivery delay. Customer can accept delay or request refund."
+    )
+    
+    @refund.create_activity(
+      action: 'dispatcher_decision',
+      details: "Dispatcher confirmed sourcing option: #{delay_days}-day delay required",
+      user: Current.user
+    )
+    
+    render_quick_action_response
+  end
+
+  def request_price_increase
+    @refund = Refund.find(params[:id])
+    additional_amount = params[:additional_amount]
+    
+    @refund.update!(
+      resolution_stage: 'pending_customer_approval',
+      dispatcher_notes: "#{@refund.dispatcher_notes}\n\n#{Time.current.strftime('%m/%d %I:%M%p')}: Sourcing complete - Part costs $#{additional_amount} more than customer paid",
+      dispatcher_decision: 'price_increase',
+      additional_cost: additional_amount,
+      agent_instructions: "Contact customer about $#{additional_amount} price increase. Customer can pay extra or request refund."
+    )
+    
+    @refund.create_activity(
+      action: 'dispatcher_decision',
+      details: "Dispatcher confirmed sourcing option: $#{additional_amount} price increase required",
+      user: Current.user
+    )
+    
+    render_quick_action_response
+  end
+
+  def send_compatible_alternative
+    @refund = Refund.find(params[:id])
+    alternative_part = params[:alternative_part_name]
+    
+    @refund.update!(
+      resolution_stage: 'pending_customer_approval',
+      dispatcher_notes: "#{@refund.dispatcher_notes}\n\n#{Time.current.strftime('%m/%d %I:%M%p')}: Found compatible alternative: #{alternative_part}",
+      dispatcher_decision: 'compatible_alternative',
+      alternative_part_name: alternative_part,
+      agent_instructions: "Alternative part sourced: #{alternative_part}. Customer gets upgraded part at same price. Create replacement order."
+    )
+    
+    @refund.create_activity(
+      action: 'dispatcher_decision',
+      details: "Dispatcher confirmed sourcing option: Compatible alternative #{alternative_part}",
+      user: Current.user
+    )
+    
+    render_quick_action_response
+  end
+
+  def dispatcher_refund
+    @refund = Refund.find(params[:id])
+    refund_reason = params[:refund_reason] || 'Part not economical to source'
+    
+    @refund.update!(
+      resolution_stage: 'resolution_completed',
+      dispatcher_notes: "#{@refund.dispatcher_notes}\n\n#{Time.current.strftime('%m/%d %I:%M%p')}: Decision: Process refund - #{refund_reason}",
+      dispatcher_decision: 'issue_refund',
+      refund_stage: 'processing_refund'
+    )
+    
+    @refund.create_activity(
+      action: 'dispatcher_refund',
+      details: "Dispatcher determined sourcing not viable: #{refund_reason}",
+      user: Current.user
+    )
+    
+    render_quick_action_response
+  end
+
   private
 
   def calculate_resolution_stats
@@ -357,13 +441,15 @@ class ResolutionController < ApplicationController
   def refund_params
     params.require(:refund).permit(:resolution_stage, :agent_notes, :dispatcher_notes, 
                                    :corrected_customer_details, :part_research_notes, :price_difference, 
-                                   :alternative_part_name, :alternative_part_price)
+                                   :alternative_part_name, :alternative_part_price, :dispatcher_decision,
+                                   :delay_duration, :additional_cost, :agent_instructions)
   end
 
   def notes_params
     params.require(:refund).permit(:agent_notes, :dispatcher_notes, 
                                    :corrected_customer_details, :part_research_notes, :price_difference, 
-                                   :alternative_part_name, :alternative_part_price)
+                                   :alternative_part_name, :alternative_part_price, :dispatcher_decision,
+                                   :delay_duration, :additional_cost, :agent_instructions)
   end
 
   def render_quick_action_response

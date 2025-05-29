@@ -2413,6 +2413,405 @@
   }
 }
 
+/* New Dispatcher Sourcing Workflow Styles */
+.sourcing-workspace {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  
+  .product-research {
+    margin-bottom: 1.5rem;
+    
+    .product-summary {
+      background: white;
+      border-radius: 8px;
+      padding: 1rem;
+      border: 1px solid #e2e8f0;
+      font-size: 0.875rem;
+      line-height: 1.6;
+      
+      strong {
+        color: #374151;
+      }
+    }
+    
+    .agent-findings {
+      margin-top: 1rem;
+      
+      h6 {
+        margin: 0 0 0.5rem 0;
+        color: #374151;
+        font-size: 0.875rem;
+        font-weight: 600;
+      }
+      
+      .findings-box {
+        background: #fef3c7;
+        border: 1px solid #fcd34d;
+        border-radius: 8px;
+        padding: 1rem;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        color: #92400e;
+      }
+    }
+  }
+  
+  .sourcing-simulation {
+    .sourcing-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+      color: #374151;
+      
+      i {
+        color: #3b82f6;
+        font-size: 1.125rem;
+      }
+    }
+    
+    .simulated-results {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      
+      .supplier-option {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 1rem;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          border-color: #3b82f6;
+          box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+        }
+        
+        &.disabled {
+          opacity: 0.6;
+          background: #f9fafb;
+          
+          .profit-calc.loss {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+          }
+        }
+        
+        .supplier-name {
+          font-weight: 600;
+          color: #1f2937;
+          font-size: 0.875rem;
+        }
+        
+        .supplier-details {
+          font-size: 0.75rem;
+          color: #6b7280;
+          margin: 0.25rem 0;
+        }
+        
+        .profit-calc {
+          background: #dcfce7;
+          color: #166534;
+          padding: 0.25rem 0.5rem;
+          border-radius: 6px;
+          font-size: 0.75rem;
+          font-weight: 600;
+          border: 1px solid #bbf7d0;
+          
+          &.loss {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+          }
+        }
+      }
+    }
+  }
+}
+
+.dispatcher-decisions {
+  .decision-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .decision-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .decision-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.5rem 1rem;
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: #374151;
+    font-family: inherit;
+    
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      border-color: #3b82f6;
+      color: #1f2937;
+      text-decoration: none;
+    }
+    
+    &.accept-delay {
+      border-color: #f59e0b;
+      
+      &:hover {
+        border-color: #d97706;
+        background: #fffbeb;
+        
+        i {
+          color: #d97706;
+        }
+      }
+      
+      i {
+        color: #f59e0b;
+        font-size: 1.5rem;
+      }
+    }
+    
+    &.price-increase {
+      border-color: #ef4444;
+      
+      &:hover {
+        border-color: #dc2626;
+        background: #fef2f2;
+        
+        i {
+          color: #dc2626;
+        }
+      }
+      
+      i {
+        color: #ef4444;
+        font-size: 1.5rem;
+      }
+    }
+    
+    &.compatible-alternative {
+      border-color: #8b5cf6;
+      
+      &:hover {
+        border-color: #7c3aed;
+        background: #faf5ff;
+        
+        i {
+          color: #7c3aed;
+        }
+      }
+      
+      i {
+        color: #8b5cf6;
+        font-size: 1.5rem;
+      }
+    }
+    
+    &.refund-option {
+      border-color: #6b7280;
+      
+      &:hover {
+        border-color: #4b5563;
+        background: #f9fafb;
+        
+        i {
+          color: #4b5563;
+        }
+      }
+      
+      i {
+        color: #6b7280;
+        font-size: 1.5rem;
+      }
+    }
+    
+    .btn-title {
+      font-weight: 600;
+      font-size: 0.875rem;
+      text-align: center;
+    }
+    
+    .btn-desc {
+      font-size: 0.75rem;
+      color: #6b7280;
+      text-align: center;
+      line-height: 1.4;
+    }
+  }
+}
+
+/* Agent Task Interface Styles */
+.action-card.agent-task {
+  .action-header .action-icon {
+    background: #10b981;
+  }
+  
+  .dispatcher-instructions {
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    
+    .instructions-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+      color: #0369a1;
+      
+      i {
+        color: #0284c7;
+      }
+    }
+    
+    .instructions-content {
+      font-size: 0.875rem;
+      line-height: 1.5;
+      color: #0c4a6e;
+    }
+  }
+  
+  .customer-contact {
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    
+    .contact-details {
+      font-size: 0.875rem;
+      line-height: 1.6;
+      color: #374151;
+      
+      strong {
+        color: #1f2937;
+      }
+    }
+  }
+  
+  .decision-context {
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    
+    &.delay-context {
+      background: #fef3c7;
+      border: 1px solid #fcd34d;
+      
+      h7 {
+        color: #92400e;
+      }
+      
+      p {
+        color: #78350f;
+        margin: 0.5rem 0 0 0;
+        font-size: 0.875rem;
+      }
+    }
+    
+    &.price-context {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      
+      h7 {
+        color: #dc2626;
+      }
+      
+      p {
+        color: #991b1b;
+        margin: 0.5rem 0 0 0;
+        font-size: 0.875rem;
+      }
+    }
+    
+    &.alternative-context {
+      background: #faf5ff;
+      border: 1px solid #e9d5ff;
+      
+      h7 {
+        color: #7c3aed;
+      }
+      
+      p {
+        color: #6b21a8;
+        margin: 0.5rem 0 0 0;
+        font-size: 0.875rem;
+      }
+    }
+  }
+  
+  .agent-actions {
+    margin-bottom: 1.5rem;
+    
+    .contact-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.75rem;
+      
+      @media (max-width: 768px) {
+        flex-direction: column;
+      }
+      
+      .action-btn {
+        &.primary {
+          background: #3b82f6;
+          color: white;
+          
+          &:hover {
+            background: #2563eb;
+          }
+        }
+        
+        &.secondary {
+          background: #f3f4f6;
+          color: #374151;
+          
+          &:hover {
+            background: #e5e7eb;
+          }
+        }
+      }
+    }
+  }
+  
+  .response-actions {
+    .helper-text {
+      font-size: 0.75rem;
+      color: #6b7280;
+      font-style: italic;
+      text-align: center;
+      margin-top: 0.5rem;
+    }
+  }
+}
+
 /* Responsive adjustments */
 @media (max-width: 1024px) {
   .resolution-item {

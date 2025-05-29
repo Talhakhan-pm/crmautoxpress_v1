@@ -70,6 +70,12 @@ Rails.application.routes.draw do
   patch "resolution/:id/customer_approved", to: "resolution#customer_approved", as: :resolution_customer_approved
   patch "resolution/:id/customer_declined", to: "resolution#customer_declined", as: :resolution_customer_declined
   patch "resolution/:id/follow_up", to: "resolution#follow_up", as: :resolution_follow_up
+  
+  # New Dispatcher Sourcing Actions
+  patch "resolution/:id/accept_delay", to: "resolution#accept_delay", as: :resolution_accept_delay
+  patch "resolution/:id/request_price_increase", to: "resolution#request_price_increase", as: :resolution_request_price_increase
+  patch "resolution/:id/send_compatible_alternative", to: "resolution#send_compatible_alternative", as: :resolution_send_compatible_alternative
+  patch "resolution/:id/dispatcher_refund", to: "resolution#dispatcher_refund", as: :resolution_dispatcher_refund
 
   # Callbacks routes  
   resources :callbacks
