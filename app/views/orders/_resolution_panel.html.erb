@@ -46,7 +46,21 @@
             <% end %>
           </div>
           <div class="activity-content">
-            <span class="activity-action"><%= activity[:action].humanize %></span>
+            <span class="activity-action">
+              <% if activity[:activity].field_changed.present? %>
+                <%= activity[:action].humanize %> <%= activity[:activity].field_changed.humanize.downcase %>
+                <% if activity[:activity].old_value.present? && activity[:activity].new_value.present? %>
+                  <span class="field-change">
+                    from "<%= truncate(activity[:activity].old_value, length: 15) %>" 
+                    to "<%= truncate(activity[:activity].new_value, length: 15) %>"
+                  </span>
+                <% end %>
+              <% elsif activity[:activity].details.present? %>
+                <%= truncate(activity[:activity].details, length: 40) %>
+              <% else %>
+                <%= activity[:action].humanize %>
+              <% end %>
+            </span>
             <small class="activity-time"><%= time_ago_in_words(activity[:timestamp]) %> ago</small>
           </div>
         </div>
