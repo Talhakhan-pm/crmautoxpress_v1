@@ -1518,6 +1518,33 @@
             background: #bfdbfe;
           }
         }
+        
+        &.timeline-toggle {
+          background: #f8fafc;
+          color: #64748b;
+          border: none;
+          
+          &:hover {
+            background: #e2e8f0;
+            color: #334155;
+          }
+          
+          &.timeline-expanded {
+            background: #f1f5f9;
+            color: #475569;
+          }
+        }
+        
+        &.resolution-toggle {
+          background: #fef2f2;
+          color: #dc2626;
+          border: none;
+          
+          &:hover {
+            background: #fee2e2;
+            color: #b91c1c;
+          }
+        }
       }
     }
   }
@@ -2632,26 +2659,6 @@
   }
 }
 
-/* Timeline Button Styles */
-.timeline-toggle {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
-  color: white !important;
-  
-  &:hover {
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-    color: white !important;
-  }
-
-  &.timeline-expanded {
-    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
-
-    &:hover {
-      background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%) !important;
-    }
-  }
-}
 
 /* Responsive Timeline */
 @media (max-width: 768px) {
