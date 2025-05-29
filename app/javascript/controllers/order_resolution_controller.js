@@ -34,14 +34,14 @@ export default class extends Controller {
     }
   }
 
-  showCustomerForm(event) {
-    event.preventDefault()
+  showCustomerForm(event = null) {
+    if (event) event.preventDefault()
     this.customerFormTarget.style.display = "block"
     this.customerFormTarget.querySelector('textarea').focus()
   }
 
-  hideCustomerForm(event) {
-    event.preventDefault()
+  hideCustomerForm(event = null) {
+    if (event) event.preventDefault()
     this.customerFormTarget.style.display = "none"
   }
 
@@ -55,10 +55,10 @@ export default class extends Controller {
     }, 100)
   }
 
-  async retryDispatch(event) {
+  async contactCustomerDelay(event) {
     event.preventDefault()
     
-    if (!confirm("Retry dispatch with a different supplier?")) {
+    if (!confirm("Contact customer about shipping delay? This will update the resolution stage.")) {
       return
     }
 
@@ -69,7 +69,7 @@ export default class extends Controller {
         return
       }
 
-      const response = await fetch(`/dispatches/${dispatchId}/retry_dispatch`, {
+      const response = await fetch(`/dispatches/${dispatchId}/contact_customer_delay`, {
         method: 'PATCH',
         headers: {
           'X-CSRF-Token': this.getCSRFToken(),
@@ -81,14 +81,57 @@ export default class extends Controller {
       const result = await response.json()
       
       if (result.success) {
-        this.showSuccess(result.message)
+        this.showSuccess('Customer contacted about shipping delay. Record their response below.')
+        this.showCustomerForm()
         this.refreshOrderCard()
       } else {
-        this.showError(result.message || 'Failed to retry dispatch')
+        this.showError(result.message || 'Failed to contact customer')
       }
     } catch (error) {
-      console.error('Error retrying dispatch:', error)
-      this.showError('Failed to retry dispatch')
+      console.error('Error contacting customer:', error)
+      this.showError('Failed to contact customer')
+    }
+  }
+
+  async contactCustomerPriceIncrease(event) {
+    event.preventDefault()
+    
+    const priceDifference = event.currentTarget.dataset.priceDifference
+    if (!confirm(`Contact customer about $${priceDifference} price increase? This will update the resolution stage.`)) {
+      return
+    }
+
+    try {
+      const dispatchId = event.currentTarget.dataset.dispatchId
+      if (!dispatchId) {
+        this.showError('No dispatch found for this order')
+        return
+      }
+
+      const response = await fetch(`/dispatches/${dispatchId}/contact_customer_price_increase`, {
+        method: 'PATCH',
+        headers: {
+          'X-CSRF-Token': this.getCSRFToken(),
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          price_difference: priceDifference
+        })
+      })
+
+      const result = await response.json()
+      
+      if (result.success) {
+        this.showSuccess(`Customer contacted about $${priceDifference} price increase. Record their response below.`)
+        this.showCustomerForm()
+        this.refreshOrderCard()
+      } else {
+        this.showError(result.message || 'Failed to contact customer')
+      }
+    } catch (error) {
+      console.error('Error contacting customer:', error)
+      this.showError('Failed to contact customer')
     }
   }
 

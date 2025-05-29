@@ -1,6 +1,6 @@
 class DispatchesController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_dispatch, only: [:show, :edit, :update, :destroy, :retry_dispatch, :create_replacement_order, :process_full_refund, :cancel_with_reason]
+  before_action :set_dispatch, only: [:show, :edit, :update, :destroy, :retry_dispatch, :create_replacement_order, :process_full_refund, :cancel_with_reason, :contact_customer_delay, :contact_customer_price_increase]
 
   def index
     @dispatches = Dispatch.includes(:order, :processing_agent)
@@ -198,6 +198,7 @@ class DispatchesController < ApplicationController
   def cancel_with_reason
     cancellation_reason = params[:reason] || 'other'
     refund_amount = params[:refund_amount].to_f
+    price_difference = params[:price_difference].to_f
     
     # Update dispatch status
     @dispatch.update!(dispatch_status: 'cancelled')
@@ -217,7 +218,9 @@ class DispatchesController < ApplicationController
           refund_amount: refund_amount,
           refund_stage: 'pending_resolution',
           refund_reason: map_cancellation_reason(cancellation_reason),
-          notes: "Dispatch cancelled - Reason: #{cancellation_reason}",
+          price_difference: price_difference > 0 ? price_difference : nil,
+          dispatcher_notes: get_dispatcher_action_message(cancellation_reason, price_difference),
+          notes: "Dispatch cancelled - Agent action: #{get_dispatcher_action_message(cancellation_reason, price_difference)}",
           last_modified_by: current_user.email
         )
       else
@@ -230,8 +233,10 @@ class DispatchesController < ApplicationController
           refund_amount: refund_amount,
           refund_stage: 'pending_resolution',
           refund_reason: map_cancellation_reason(cancellation_reason),
+          price_difference: price_difference > 0 ? price_difference : nil,
           priority: 'high',
-          notes: "Dispatch cancelled - Reason: #{cancellation_reason}",
+          dispatcher_notes: get_dispatcher_action_message(cancellation_reason, price_difference),
+          notes: "Dispatch cancelled - Agent action: #{get_dispatcher_action_message(cancellation_reason, price_difference)}",
           last_modified_by: current_user.email
         )
       end
@@ -404,6 +409,70 @@ class DispatchesController < ApplicationController
     end
   end
 
+  # Agent contacted customer about shipping delay
+  def contact_customer_delay
+    refund = @dispatch.order.refund
+    
+    if refund.present? && refund.refund_stage == 'pending_resolution'
+      # Update refund to customer clarification stage
+      refund.update!(
+        resolution_stage: 'pending_customer_approval',
+        agent_notes: "Agent contacted customer about 5-7 day shipping delay at #{Time.current.strftime('%Y-%m-%d %H:%M')}",
+        refund_reason: 'shipping_delay'
+      )
+      
+      # Create activity
+      refund.create_activity(
+        action: 'customer_contacted_delay',
+        details: "Agent contacted customer about shipping delay - awaiting customer response",
+        user: current_user
+      )
+      
+      message = "Customer contacted about shipping delay. Record their response in the resolution panel."
+      success = true
+    else
+      message = "No pending resolution found for this dispatch."
+      success = false
+    end
+
+    respond_to do |format|
+      format.json { render json: { success: success, message: message } }
+    end
+  end
+
+  # Agent contacted customer about price increase
+  def contact_customer_price_increase
+    refund = @dispatch.order.refund
+    price_difference = params[:price_difference].to_f
+    
+    if refund.present? && refund.refund_stage == 'pending_resolution'
+      # Update refund with price increase details
+      refund.update!(
+        resolution_stage: 'pending_customer_approval',
+        agent_notes: "Agent contacted customer about $#{price_difference} price increase at #{Time.current.strftime('%Y-%m-%d %H:%M')}",
+        price_difference: price_difference,
+        refund_reason: 'item_not_found' # Item found but at higher price
+      )
+      
+      # Create activity
+      refund.create_activity(
+        action: 'customer_contacted_price_increase',
+        details: "Agent contacted customer about $#{price_difference} price increase - awaiting customer response",
+        user: current_user
+      )
+      
+      message = "Customer contacted about price increase. Record their response in the resolution panel."
+      success = true
+    else
+      message = "No pending resolution found for this dispatch."
+      success = false
+    end
+
+    respond_to do |format|
+      format.json { render json: { success: success, message: message } }
+    end
+  end
+
   private
 
   def set_dispatch
@@ -488,6 +557,29 @@ class DispatchesController < ApplicationController
       'shipping_delay'
     else
       'other'
+    end
+  end
+
+  def get_dispatcher_action_message(reason, price_difference = 0)
+    case reason.downcase
+    when 'shipping_delay'
+      'Contact Customer: Accept 5-7 day shipping delay?'
+    when 'item_not_found'
+      if price_difference > 0
+        "Contact Customer: Accept $#{price_difference} price increase?"
+      else
+        'Contact Customer: Accept price increase? (amount TBD)'
+      end
+    when 'supplier_issue'
+      'Process Customer Refund - Item unavailable'
+    when 'customer_changed_mind'
+      'Customer Changed Mind'
+    when 'wrong_product'
+      'Wrong Product Ordered'
+    when 'quality_issues'
+      'Quality Issues'
+    else
+      'Other - See notes'
     end
   end
 end

@@ -373,17 +373,17 @@
                       <form id="cancellation-form" class="modern-form">
                         <!-- Reason Selection -->
                         <div class="modern-form-group">
-                          <label class="modern-form-label">Cancellation Reason</label>
+                          <label class="modern-form-label">Agent Action Required</label>
                           <div class="modern-select-wrapper">
                             <select class="modern-select" data-dispatch-cancellation-target="reasonSelect"
                                     data-action="change->dispatch-cancellation#reasonChanged">
-                              <option value="">Select a reason...</option>
-                              <option value="item_not_found">📦 Item Not Found</option>
-                              <option value="supplier_issue">🏪 Supplier Issue</option>
+                              <option value="">Select agent action needed...</option>
+                              <option value="shipping_delay">📞 Agent: Contact Customer - Accept 5-7 day delay?</option>
+                              <option value="item_not_found">📞 Agent: Contact Customer - Accept price increase?</option>
+                              <option value="supplier_issue">💰 Agent: Process Customer Refund - Item unavailable</option>
                               <option value="customer_changed_mind">💭 Customer Changed Mind</option>
                               <option value="wrong_product">❌ Wrong Product Ordered</option>
                               <option value="quality_issues">⚠️ Quality Issues</option>
-                              <option value="shipping_delay">🚚 Shipping Delay</option>
                               <option value="other">✏️ Other (specify below)</option>
                             </select>
                             <i class="fas fa-chevron-down modern-select-arrow"></i>
@@ -394,6 +394,19 @@
                         <div class="modern-form-group" data-dispatch-cancellation-target="customReason" style="display: none;">
                           <label class="modern-form-label">Custom Reason</label>
                           <input type="text" class="modern-input" placeholder="Please specify the reason...">
+                        </div>
+                        
+                        <!-- Price Difference for Price Increase -->
+                        <div class="modern-form-group" data-dispatch-cancellation-target="priceIncrease" style="display: none;">
+                          <label class="modern-form-label">Price Increase Amount</label>
+                          <div class="modern-amount-input-wrapper">
+                            <span class="modern-currency">$</span>
+                            <input type="number" class="modern-input" 
+                                   data-dispatch-cancellation-target="priceIncreaseAmount"
+                                   placeholder="0.00" 
+                                   step="0.01" min="0">
+                          </div>
+                          <small class="modern-help-text">Additional cost for the item</small>
                         </div>
                         
                         <!-- Financial Grid -->

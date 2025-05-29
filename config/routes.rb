@@ -17,6 +17,8 @@ Rails.application.routes.draw do
       post :create_replacement_order
       patch :process_full_refund
       patch :cancel_with_reason
+      patch :contact_customer_delay
+      patch :contact_customer_price_increase
     end
   end
   

@@ -112,7 +112,8 @@ class Order < ApplicationRecord
   end
   
   def has_pending_refund_resolution?
-    refund.present? && ['pending_resolution', 'pending_retry', 'pending_replacement'].include?(refund.refund_stage)
+    return false unless refund.present?
+    ['pending_resolution', 'pending_retry', 'pending_replacement'].include?(refund.refund_stage)
   end
 
   def priority_color
@@ -278,7 +279,7 @@ class Order < ApplicationRecord
     Rails.logger.info "=== ORDERS BROADCAST TRIGGERED ==="
     
     # Fetch fresh orders data with the same logic as controller
-    fresh_orders = Order.includes(:customer, :product, :agent, :processing_agent, :dispatch)
+    fresh_orders = Order.includes(:customer, :product, :agent, :processing_agent, :dispatch, :refund)
                         .recent
                         .limit(25)
     

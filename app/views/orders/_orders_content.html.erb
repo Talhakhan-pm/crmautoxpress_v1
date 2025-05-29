@@ -264,7 +264,7 @@ show_table = if defined?(view_type)
           <!-- Resolution Panel (hidden by default) -->
           <% if order.has_pending_refund_resolution? %>
             <div class="resolution-panel" data-order-resolution-target="panel" style="display: none;">
-              <%= render 'resolution_panel', order: order %>
+              <%= render 'orders/resolution_panel', order: order %>
             </div>
           <% end %>
         </div>

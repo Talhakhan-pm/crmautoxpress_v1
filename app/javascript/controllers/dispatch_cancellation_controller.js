@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["statusSelect", "cancellationModal", "reasonSelect", "customReason", "refundAmount"]
+  static targets = ["statusSelect", "cancellationModal", "reasonSelect", "customReason", "priceIncrease", "priceIncreaseAmount", "refundAmount"]
   static values = { 
     originalAmount: Number,
     dispatchId: Number
@@ -60,6 +60,15 @@ export default class extends Controller {
         this.customReasonTarget.style.display = 'block'
       } else {
         this.customReasonTarget.style.display = 'none'
+      }
+    }
+    
+    // Show price increase input if "item_not_found" (price increase) is selected
+    if (this.hasPriceIncreaseTarget) {
+      if (selectedReason === 'item_not_found') {
+        this.priceIncreaseTarget.style.display = 'block'
+      } else {
+        this.priceIncreaseTarget.style.display = 'none'
       }
     }
   }
@@ -125,15 +134,21 @@ export default class extends Controller {
     const reason = this.reasonSelectTarget.value
     const customReason = this.customReasonTarget.querySelector('input').value
     const refundAmount = parseFloat(this.refundAmountTarget.value) || 0
+    const priceIncrease = this.hasPriceIncreaseAmountTarget ? parseFloat(this.priceIncreaseAmountTarget.value) || 0 : 0
     
     // Validate inputs
     if (!reason) {
-      alert('Please select a cancellation reason')
+      alert('Please select an agent action')
       return
     }
     
     if (reason === 'other' && !customReason.trim()) {
       alert('Please provide a custom reason')
+      return
+    }
+    
+    if (reason === 'item_not_found' && priceIncrease <= 0) {
+      alert('Please specify the price increase amount')
       return
     }
     
@@ -151,6 +166,7 @@ export default class extends Controller {
     const cancellationData = {
       reason: reason === 'other' ? customReason.trim() : reason,
       refund_amount: refundAmount,
+      price_difference: priceIncrease,
       dispatch_status: 'cancelled'
     }
     

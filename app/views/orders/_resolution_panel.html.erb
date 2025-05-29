@@ -13,26 +13,38 @@
     </div>
   </div>
 
-  <!-- Quick Action Buttons -->
+  <!-- Agent Communication Actions -->
   <div class="resolution-actions">
     <div class="action-row">
-      <!-- Call Customer Button -->
-      <button class="resolution-btn call-customer"
-              data-action="click->order-resolution#showCustomerForm">
-        <i class="fas fa-phone"></i>
-        <span>Call Customer</span>
-        <small>Get details</small>
-      </button>
+      <!-- Agent Communication Actions Based on Dispatch Reason -->
+      <% if refund.refund_reason == 'shipping_delay' %>
+        <button class="resolution-btn contact-delay"
+                data-action="click->order-resolution#contactCustomerDelay"
+                data-dispatch-id="<%= order.dispatch&.id %>">
+          <i class="fas fa-phone"></i>
+          <span>Call Customer</span>
+          <small>Accept 5-7 day delay?</small>
+        </button>
+      <% elsif refund.price_difference.present? && refund.price_difference > 0 %>
+        <button class="resolution-btn contact-price"
+                data-action="click->order-resolution#contactCustomerPriceIncrease"
+                data-dispatch-id="<%= order.dispatch&.id %>"
+                data-price-difference="<%= refund.price_difference %>">
+          <i class="fas fa-phone"></i>
+          <span>Call Customer</span>
+          <small>Accept $<%= number_with_precision(refund.price_difference, precision: 0) %> price increase?</small>
+        </button>
+      <% else %>
+        <!-- Default communication option -->
+        <button class="resolution-btn call-customer"
+                data-action="click->order-resolution#showCustomerForm">
+          <i class="fas fa-phone"></i>
+          <span>Call Customer</span>
+          <small>Get clarification</small>
+        </button>
+      <% end %>
 
-      <!-- Quick Actions -->
-      <button class="resolution-btn retry-dispatch"
-              data-action="click->order-resolution#retryDispatch"
-              data-dispatch-id="<%= order.dispatch&.id %>">
-        <i class="fas fa-redo"></i>
-        <span>Retry</span>
-        <small>Different supplier</small>
-      </button>
-
+      <!-- Keep Replacement Option (agents handle customer calls for replacements) -->
       <button class="resolution-btn create-replacement"
               data-action="click->order-resolution#createReplacement"
               data-dispatch-id="<%= order.dispatch&.id %>">
@@ -41,12 +53,13 @@
         <small>New order</small>
       </button>
 
+      <!-- Process Refund (for item unavailable) -->
       <button class="resolution-btn process-refund"
               data-action="click->order-resolution#processRefund"
               data-dispatch-id="<%= order.dispatch&.id %>">
         <i class="fas fa-money-bill-wave"></i>
-        <span>Refund</span>
-        <small>Cancel order</small>
+        <span>Process Refund</span>
+        <small>Item unavailable</small>
       </button>
     </div>
   </div>
