@@ -1,187 +1,365 @@
-<div class="resolution-item simplified" 
-     id="refund_<%= refund.id %>">
-  <!-- Clean Header -->
-  <div class="resolution-header">
-    <div class="refund-info">
-      <h4 class="refund-number">
-        <%= link_to refund.refund_number, refund_path(refund), class: "refund-link" %>
-      </h4>
-      <p class="customer-name"><%= refund.customer_name %> • $<%= number_with_precision(refund.refund_amount, precision: 2) %></p>
-      <p class="order-reference">Order: <%= refund.order.order_number %> • <%= refund.refund_reason.humanize %></p>
+<div class="resolution-item amazing" 
+     id="refund_<%= refund.id %>"
+     data-stage="<%= refund.resolution_stage %>"
+     data-priority="<%= refund.priority || 'standard' %>"
+     data-age="<%= (Time.current - refund.created_at).to_i / 3600 %>">
+  
+  <!-- Smart Header with Context -->
+  <div class="resolution-header-amazing">
+    <div class="primary-info">
+      <div class="refund-identity">
+        <h3 class="refund-number">
+          <%= link_to refund.refund_number, refund_path(refund), class: "refund-link" %>
+          <span class="urgency-indicator urgency-<%= refund.priority || 'standard' %>">
+            <% case refund.priority || 'standard' %>
+            <% when 'urgent' %>
+              <i class="fas fa-bolt"></i>
+            <% when 'high' %>
+              <i class="fas fa-exclamation-triangle"></i>
+            <% else %>
+              <i class="fas fa-circle"></i>
+            <% end %>
+          </span>
+        </h3>
+        <div class="financial-impact">
+          <span class="amount">$<%= number_with_precision(refund.refund_amount, precision: 2) %></span>
+          <span class="customer-name"><%= refund.customer_name %></span>
+        </div>
+      </div>
+      
+      <!-- Smart Contextual Info -->
+      <div class="context-panel">
+        <div class="context-item">
+          <i class="fas fa-shopping-cart"></i>
+          <span>Order <%= refund.order.order_number %></span>
+        </div>
+        <div class="context-item">
+          <i class="fas fa-tag"></i>
+          <span><%= refund.refund_reason.humanize %></span>
+        </div>
+        <% if refund.order.dispatch&.cancelled? %>
+          <div class="context-item trigger-info">
+            <i class="fas fa-truck"></i>
+            <span>Triggered by dispatch cancellation</span>
+          </div>
+        <% end %>
+        <div class="context-item timing">
+          <i class="fas fa-clock"></i>
+          <span><%= time_ago_in_words(refund.created_at) %> ago</span>
+          <% if (Time.current - refund.created_at) > 24.hours %>
+            <span class="overdue-tag">OVERDUE</span>
+          <% end %>
+        </div>
+      </div>
     </div>
     
-    <!-- Simple Status Progress -->
-    <div class="resolution-progress">
-      <div class="progress-steps">
-        <div class="step <%= 'active' if refund.resolution_stage == 'pending_customer_clarification' %>">
-          <span class="step-number">1</span>
-          <span class="step-label">Agent</span>
-        </div>
-        <div class="step <%= 'active' if refund.resolution_stage == 'pending_dispatch_decision' %>">
-          <span class="step-number">2</span>
-          <span class="step-label">Dispatcher</span>
-        </div>
-        <div class="step <%= 'active' if refund.resolution_stage == 'pending_customer_approval' %>">
-          <span class="step-number">3</span>
-          <span class="step-label">Customer</span>
-        </div>
-        <div class="step <%= 'active' if refund.resolution_stage == 'resolution_completed' %>">
-          <span class="step-number">✓</span>
-          <span class="step-label">Done</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Current Status Banner -->
-  <div class="status-banner status-<%= refund.resolution_stage %>">
-    <div class="status-content">
-      <% case refund.resolution_stage %>
-      <% when 'pending_customer_clarification' %>
-        <strong>👤 Agent Action Needed:</strong> Contact customer to verify details
-      <% when 'pending_dispatch_decision' %>
-        <strong>📦 Dispatcher Review:</strong> Check part availability and decide next steps
-      <% when 'pending_customer_approval' %>
-        <strong>☎️ Customer Decision:</strong> Waiting for customer approval on alternative part
-      <% when 'resolution_completed' %>
-        <strong>✅ Resolution Complete:</strong> Case has been resolved
-      <% end %>
-    </div>
-  </div>
-
-  <!-- Unified Communication Panel -->
-  <div class="communication-panel">
-    <div class="communication-grid">
-      <!-- Agent Column -->
-      <div class="comm-column agent-column">
-        <div class="column-header">
-          <i class="fas fa-user"></i>
-          <span>Agent Notes</span>
-        </div>
-        <%= form_with model: refund, url: update_resolution_notes_path(refund), 
-                      method: :patch, local: false, class: "quick-form" do |f| %>
-          <%= f.text_area :agent_notes, 
-                          placeholder: "Customer call notes, responses, updated details, etc...",
-                          class: "comm-input",
-                          rows: 3,
-                          value: refund.agent_notes %>
-          <%= f.submit "Update", class: "btn btn-sm btn-outline-primary" %>
-        <% end %>
-      </div>
-
-      <!-- Dispatcher Column -->
-      <div class="comm-column dispatcher-column">
-        <div class="column-header">
-          <i class="fas fa-cog"></i>
-          <span>Dispatcher Notes</span>
-        </div>
-        <%= form_with model: refund, url: update_resolution_notes_path(refund), 
-                      method: :patch, local: false, class: "quick-form" do |f| %>
-          <%= f.text_area :dispatcher_notes, 
-                          placeholder: "Part research, supplier notes, etc...",
-                          class: "comm-input",
-                          rows: 3,
-                          value: refund.dispatcher_notes %>
-          <%= f.submit "Update", class: "btn btn-sm btn-outline-info" %>
+    <!-- Intelligent Progress Tracker -->
+    <div class="progress-tracker-amazing">
+      <div class="progress-line">
+        <% stages = [
+          { key: 'pending_customer_clarification', label: 'Agent', icon: 'phone', color: '#f59e0b' },
+          { key: 'pending_dispatch_decision', label: 'Dispatch', icon: 'search', color: '#3b82f6' },
+          { key: 'pending_customer_approval', label: 'Customer', icon: 'clock', color: '#8b5cf6' },
+          { key: 'resolution_completed', label: 'Complete', icon: 'check', color: '#10b981' }
+        ] %>
+        
+        <% stages.each_with_index do |stage, index| %>
+          <% 
+            current_stage_index = stages.find_index { |s| s[:key] == refund.resolution_stage }
+            is_completed = index < current_stage_index
+            is_current = index == current_stage_index
+            is_future = index > current_stage_index
+          %>
+          
+          <div class="progress-step <%= 'completed' if is_completed %> <%= 'current' if is_current %> <%= 'future' if is_future %>">
+            <div class="step-connector"></div>
+            <div class="step-circle" style="--step-color: <%= stage[:color] %>">
+              <i class="fas fa-<%= stage[:icon] %>"></i>
+            </div>
+            <div class="step-info">
+              <span class="step-label"><%= stage[:label] %></span>
+              <% if is_current %>
+                <span class="step-status">Active</span>
+              <% elsif is_completed %>
+                <span class="step-status">Done</span>
+              <% else %>
+                <span class="step-status">Pending</span>
+              <% end %>
+            </div>
+          </div>
         <% end %>
       </div>
     </div>
   </div>
 
-  <!-- Simple Action Buttons -->
-  <div class="action-buttons">
+  <!-- Intelligent Action Center -->
+  <div class="action-center-amazing">
     <% case refund.resolution_stage %>
     <% when 'pending_customer_clarification' %>
-      <!-- Agent Actions -->
-      <%= button_to "Customer Contacted → Send to Dispatcher", 
-                    update_resolution_stage_path(refund),
-                    method: :patch,
-                    params: { refund: { resolution_stage: 'pending_dispatch_decision' } },
-                    class: "btn btn-success",
-                    form: { data: { turbo: true } } %>
-
+      <div class="action-card agent-action">
+        <div class="action-header">
+          <div class="action-icon">
+            <i class="fas fa-phone"></i>
+          </div>
+          <div class="action-title">
+            <h4>Contact Customer</h4>
+            <p>Verify details and understand the issue</p>
+          </div>
+          <div class="action-urgency">
+            <span class="urgency-badge urgency-high">High Priority</span>
+          </div>
+        </div>
+        
+        <div class="action-details">
+          <div class="customer-contact-card">
+            <div class="contact-info">
+              <strong><%= refund.order.customer_name %></strong>
+              <div class="contact-methods">
+                <a href="tel:<%= refund.order.customer_phone %>" class="contact-method phone">
+                  <i class="fas fa-phone"></i>
+                  <%= refund.order.customer_phone %>
+                </a>
+                <% if refund.order.customer_email.present? %>
+                  <a href="mailto:<%= refund.order.customer_email %>" class="contact-method email">
+                    <i class="fas fa-envelope"></i>
+                    <%= refund.order.customer_email %>
+                  </a>
+                <% end %>
+              </div>
+            </div>
+            <div class="suggested-questions">
+              <h6>Suggested Questions:</h6>
+              <ul>
+                <li>Can you confirm your shipping address?</li>
+                <li>What specific issue occurred with the part?</li>
+                <li>Do you have photos of the problem?</li>
+                <li>When did you first notice the issue?</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        <div class="action-controls">
+          <button class="action-btn primary" onclick="openResolutionHub(<%= refund.id %>, '<%= refund.resolution_stage %>')">
+            <i class="fas fa-comments"></i>
+            Start Communication
+          </button>
+          <%= button_to "Mark as Contacted", 
+                        update_resolution_stage_path(refund),
+                        method: :patch,
+                        params: { refund: { resolution_stage: 'pending_dispatch_decision' } },
+                        class: "action-btn success",
+                        form: { data: { turbo: true } } %>
+        </div>
+      </div>
+      
     <% when 'pending_dispatch_decision' %>
-      <!-- Dispatcher Actions -->
-      <div class="dispatcher-actions">
-        <%= button_to "✓ Retry Dispatch", 
-                      update_resolution_stage_path(refund),
-                      method: :patch,
-                      params: { refund: { resolution_stage: 'resolution_completed' } },
-                      class: "btn btn-success",
-                      form: { data: { turbo: true } } %>
+      <div class="action-card dispatcher-action">
+        <div class="action-header">
+          <div class="action-icon">
+            <i class="fas fa-search"></i>
+          </div>
+          <div class="action-title">
+            <h4>Research & Decide</h4>
+            <p>Check part availability and determine next steps</p>
+          </div>
+          <div class="action-urgency">
+            <span class="urgency-badge urgency-medium">Medium Priority</span>
+          </div>
+        </div>
         
-        <%= button_to "💰 Found Alternative → Ask Customer", 
-                      update_resolution_stage_path(refund),
-                      method: :patch,
-                      params: { refund: { resolution_stage: 'pending_customer_approval' } },
-                      class: "btn btn-warning",
-                      form: { data: { turbo: true } } %>
+        <div class="action-details">
+          <div class="research-panel">
+            <div class="product-info">
+              <strong>Product:</strong> <%= refund.order.product_name %>
+              <% if refund.order.vehicle_info.present? %>
+                <br><strong>Vehicle:</strong> <%= refund.order.vehicle_info %>
+              <% end %>
+            </div>
+            <div class="agent-findings">
+              <% if refund.agent_notes.present? %>
+                <h6>Agent Notes:</h6>
+                <div class="notes-summary"><%= simple_format(refund.agent_notes) %></div>
+              <% end %>
+            </div>
+          </div>
+        </div>
         
-        <%= button_to "❌ No Part Found → Refund", 
-                      update_resolution_stage_path(refund),
-                      method: :patch,
-                      params: { refund: { resolution_stage: 'resolution_completed' } },
-                      class: "btn btn-danger",
-                      form: { data: { turbo: true } } %>
+        <div class="action-controls decision-matrix">
+          <div class="decision-option retry">
+            <%= button_to update_resolution_stage_path(refund),
+                          method: :patch,
+                          params: { refund: { resolution_stage: 'resolution_completed' } },
+                          class: "decision-btn success",
+                          form: { data: { turbo: true } } do %>
+              <i class="fas fa-redo"></i>
+              <span class="decision-title">Retry Dispatch</span>
+              <span class="decision-desc">Part available, try again</span>
+            <% end %>
+          </div>
+          <div class="decision-option alternative">
+            <%= button_to update_resolution_stage_path(refund),
+                          method: :patch,
+                          params: { refund: { resolution_stage: 'pending_customer_approval' } },
+                          class: "decision-btn warning",
+                          form: { data: { turbo: true } } do %>
+              <i class="fas fa-exchange-alt"></i>
+              <span class="decision-title">Alternative Part</span>
+              <span class="decision-desc">Found substitute part</span>
+            <% end %>
+          </div>
+          <div class="decision-option refund">
+            <%= button_to update_resolution_stage_path(refund),
+                          method: :patch,
+                          params: { refund: { resolution_stage: 'resolution_completed' } },
+                          class: "decision-btn danger",
+                          form: { data: { turbo: true } } do %>
+              <i class="fas fa-dollar-sign"></i>
+              <span class="decision-title">Process Refund</span>
+              <span class="decision-desc">No solution available</span>
+            <% end %>
+          </div>
+        </div>
       </div>
-
+      
     <% when 'pending_customer_approval' %>
-      <!-- Customer Decision Actions -->
-      <div class="customer-actions">
-        <%= button_to "✓ Customer Approved", 
-                      update_resolution_stage_path(refund),
-                      method: :patch,
-                      params: { refund: { resolution_stage: 'resolution_completed' } },
-                      class: "btn btn-success",
-                      form: { data: { turbo: true } } %>
+      <div class="action-card customer-action">
+        <div class="action-header">
+          <div class="action-icon">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div class="action-title">
+            <h4>Awaiting Customer Decision</h4>
+            <p>Customer needs to approve alternative part</p>
+          </div>
+          <div class="action-urgency">
+            <span class="urgency-badge urgency-low">Follow Up Needed</span>
+          </div>
+        </div>
         
-        <%= button_to "✗ Customer Declined → Refund", 
-                      update_resolution_stage_path(refund),
-                      method: :patch,
-                      params: { refund: { resolution_stage: 'resolution_completed' } },
-                      class: "btn btn-danger",
-                      form: { data: { turbo: true } } %>
+        <div class="action-details">
+          <div class="alternative-comparison">
+            <% if refund.alternative_part_name.present? %>
+              <div class="comparison-cards">
+                <div class="part-card original">
+                  <h6>Original Part</h6>
+                  <p><%= refund.order.product_name %></p>
+                  <span class="price">$<%= refund.order.product_price %></span>
+                </div>
+                <div class="comparison-arrow">
+                  <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="part-card alternative">
+                  <h6>Alternative Part</h6>
+                  <p><%= refund.alternative_part_name %></p>
+                  <span class="price">$<%= refund.alternative_part_price %></span>
+                  <% if refund.price_difference != 0 %>
+                    <span class="price-diff <%= refund.price_difference > 0 ? 'increase' : 'decrease' %>">
+                      <%= refund.price_difference > 0 ? '+' : '' %>$<%= refund.price_difference %>
+                    </span>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
         
-        <%= button_to "🔄 Different Part → New Order", 
-                      resolution_create_replacement_path(refund),
-                      method: :post,
-                      class: "btn btn-info",
-                      form: { data: { turbo: true } } %>
+        <div class="action-controls">
+          <a href="tel:<%= refund.order.customer_phone %>" class="action-btn secondary">
+            <i class="fas fa-phone"></i>
+            Follow Up Call
+          </a>
+          <%= button_to "Customer Approved", 
+                        update_resolution_stage_path(refund),
+                        method: :patch,
+                        params: { refund: { resolution_stage: 'resolution_completed' } },
+                        class: "action-btn success",
+                        form: { data: { turbo: true } } %>
+          <%= button_to "Customer Declined", 
+                        update_resolution_stage_path(refund),
+                        method: :patch,
+                        params: { refund: { resolution_stage: 'resolution_completed' } },
+                        class: "action-btn danger",
+                        form: { data: { turbo: true } } %>
+        </div>
       </div>
-
+      
     <% when 'resolution_completed' %>
-      <!-- Completed State -->
-      <div class="completed-actions">
-        <span class="completion-badge">
-          <i class="fas fa-check-circle"></i>
-          Resolution Complete
-        </span>
-        <small class="text-muted">
-          Completed <%= time_ago_in_words(refund.updated_at) %> ago
-        </small>
+      <div class="action-card completed-action">
+        <div class="action-header">
+          <div class="action-icon success">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div class="action-title">
+            <h4>Resolution Complete</h4>
+            <p>Case has been successfully resolved</p>
+          </div>
+          <div class="completion-time">
+            <span class="time-badge">
+              Completed <%= time_ago_in_words(refund.updated_at) %> ago
+            </span>
+          </div>
+        </div>
+        
+        <div class="action-details">
+          <div class="resolution-summary">
+            <% if refund.replacement_order_number.present? %>
+              <div class="outcome-card">
+                <i class="fas fa-box"></i>
+                <span>Replacement order created: <%= refund.replacement_order_number %></span>
+              </div>
+            <% elsif refund.alternative_part_name.present? %>
+              <div class="outcome-card">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Alternative part approved: <%= refund.alternative_part_name %></span>
+              </div>
+            <% else %>
+              <div class="outcome-card">
+                <i class="fas fa-dollar-sign"></i>
+                <span>Refund processed: $<%= refund.refund_amount %></span>
+              </div>
+            <% end %>
+          </div>
+        </div>
       </div>
     <% end %>
   </div>
 
-  <!-- Quick Links -->
-  <div class="quick-links">
-    <%= link_to "View Refund", refund_path(refund), class: "link-btn" %>
-    <%= link_to "View Order", order_path(refund.order), class: "link-btn" %>
-    <% if refund.replacement_order_number.present? %>
-      <%= link_to "View Replacement", order_path(refund.replacement_order), class: "link-btn replacement" %>
-    <% end %>
-    
-    <!-- Communication Hub Trigger -->
-    <a href="#" 
-       class="link-btn communication-trigger"
-       data-refund-id="<%= refund.id %>"
-       data-stage="<%= refund.resolution_stage %>"
-       onclick="event.preventDefault(); openResolutionHub(<%= refund.id %>, '<%= refund.resolution_stage %>'); return false;">
-      <i class="fas fa-comments me-1"></i>
-      Communication Hub
-      <% if refund.needs_resolution_action? %>
-        <span class="notification-dot"></span>
+  <!-- Smart Footer with Insights -->
+  <div class="resolution-footer-amazing">
+    <div class="footer-insights">
+      <div class="insight-item">
+        <i class="fas fa-history"></i>
+        <span class="insight-label">Created:</span>
+        <span class="insight-value"><%= refund.created_at.strftime("%b %d, %I:%M %p") %></span>
+      </div>
+      <% if refund.agent_notes.present? || refund.dispatcher_notes.present? %>
+        <div class="insight-item">
+          <i class="fas fa-sticky-note"></i>
+          <span class="insight-label">Notes:</span>
+          <span class="insight-value">
+            <%= (refund.agent_notes.present? ? 1 : 0) + (refund.dispatcher_notes.present? ? 1 : 0) %> entries
+          </span>
+        </div>
       <% end %>
-    </a>
+      <% if refund.replacement_order_number.present? %>
+        <div class="insight-item">
+          <i class="fas fa-link"></i>
+          <span class="insight-label">Replacement:</span>
+          <span class="insight-value"><%= refund.replacement_order_number %></span>
+        </div>
+      <% end %>
+    </div>
+    
+    <div class="footer-actions">
+      <button class="footer-btn" onclick="openResolutionHub(<%= refund.id %>, '<%= refund.resolution_stage %>')">
+        <i class="fas fa-comments"></i>
+        Open Chat
+      </button>
+      <%= link_to refund_path(refund), class: "footer-btn secondary" do %>
+        <i class="fas fa-external-link-alt"></i>
+        Full Details
+      <% end %>
+    </div>
   </div>
 </div>
