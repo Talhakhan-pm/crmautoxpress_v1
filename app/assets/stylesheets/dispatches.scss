@@ -2498,3 +2498,275 @@
     justify-content: center;
   }
 }
+
+// ============================================
+// RETURN MANAGEMENT STYLES
+// ============================================
+
+.return-status-badge {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  
+  &.status-return_requested {
+    background: #fef3c7;
+    color: #d97706;
+    border: 1px solid #f59e0b;
+  }
+  
+  &.status-return_authorized {
+    background: #dbeafe;
+    color: #2563eb;
+    border: 1px solid #3b82f6;
+  }
+  
+  &.status-return_label_sent {
+    background: #e0e7ff;
+    color: #4f46e5;
+    border: 1px solid #6366f1;
+  }
+  
+  &.status-return_shipped,
+  &.status-return_in_transit,
+  &.status-return_delivered {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #ef4444;
+  }
+  
+  &.status-return_received,
+  &.status-return_inspected {
+    background: #f0fdf4;
+    color: #16a34a;
+    border: 1px solid #22c55e;
+  }
+}
+
+.return-timeline-wrapper {
+  margin: 20px 0;
+  padding: 20px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.return-timeline {
+  .timeline-track {
+    position: relative;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      left: 20px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #e5e7eb;
+    }
+  }
+  
+  .timeline-item {
+    position: relative;
+    padding-left: 60px;
+    margin-bottom: 24px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    &.completed {
+      .timeline-marker {
+        background: #16a34a;
+        color: white;
+        border-color: #16a34a;
+      }
+      
+      .timeline-content {
+        opacity: 1;
+      }
+    }
+    
+    .timeline-marker {
+      position: absolute;
+      left: 8px;
+      top: 4px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #f3f4f6;
+      border: 2px solid #d1d5db;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: #6b7280;
+      z-index: 1;
+    }
+    
+    .timeline-content {
+      opacity: 0.6;
+      transition: opacity 0.2s ease;
+      
+      .timeline-title {
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 4px;
+      }
+      
+      .timeline-date {
+        font-size: 12px;
+        color: #6b7280;
+      }
+    }
+  }
+}
+
+.return-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.return-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  
+  &.primary {
+    background: #dc2626;
+    color: white;
+    border-color: #b91c1c;
+    
+    &:hover {
+      background: #b91c1c;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+      color: white;
+      text-decoration: none;
+    }
+  }
+  
+  &.secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border-color: #d1d5db;
+    
+    &:hover {
+      background: #e5e7eb;
+      color: #1f2937;
+      text-decoration: none;
+    }
+  }
+  
+  &.success {
+    background: #16a34a;
+    color: white;
+    border-color: #15803d;
+    
+    &:hover {
+      background: #15803d;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+      color: white;
+      text-decoration: none;
+    }
+  }
+  
+  &.info {
+    background: #2563eb;
+    color: white;
+    border-color: #1d4ed8;
+    
+    &:hover {
+      background: #1d4ed8;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+      color: white;
+      text-decoration: none;
+    }
+  }
+}
+
+// Return indicators for flow cards
+.return-indicator {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  z-index: 2;
+  
+  &.return-return_requested {
+    background: #fef3c7;
+    border-color: #fcd34d;
+  }
+  
+  &.return-return_authorized {
+    background: #dbeafe;
+    border-color: #93c5fd;
+  }
+  
+  &.return-return_label_sent {
+    background: #e0e7ff;
+    border-color: #c7d2fe;
+  }
+  
+  &.return-return_received,
+  &.return-return_inspected {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+  }
+}
+
+// Return status badges for dispatch cards
+.status-badge.return-return_requested {
+  background: #fef3c7;
+  color: #d97706;
+  border: 1px solid #f59e0b;
+}
+
+.status-badge.return-return_authorized {
+  background: #dbeafe;
+  color: #2563eb;
+  border: 1px solid #3b82f6;
+}
+
+.status-badge.return-return_label_sent {
+  background: #e0e7ff;
+  color: #4f46e5;
+  border: 1px solid #6366f1;
+}
+
+.status-badge.return-return_shipped,
+.status-badge.return-return_in_transit,
+.status-badge.return-return_delivered {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #ef4444;
+}
+
+.status-badge.return-return_received,
+.status-badge.return-return_inspected {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #22c55e;
+}

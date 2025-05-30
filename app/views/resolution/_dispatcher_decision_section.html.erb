@@ -78,41 +78,89 @@
     <div class="dispatcher-decisions">
       <h7>Business Decision (Dispatcher):</h7>
       
-      <div class="decision-grid">
-        <button class="decision-btn accept-delay" 
-                onclick="openDelayModal(<%= refund.id %>)"
-                data-refund-id="<%= refund.id %>">
-          <i class="fas fa-clock"></i>
-          <span class="btn-title">Accept Delay</span>
-          <span class="btn-desc">Part available, tell customer about timing</span>
-        </button>
-        
-        <button class="decision-btn price-increase"
-                onclick="openPriceModal(<%= refund.id %>)"
-                data-refund-id="<%= refund.id %>">
-          <i class="fas fa-dollar-sign"></i>
-          <span class="btn-title">Request Price Increase</span>
-          <span class="btn-desc">Part costs more than customer paid</span>
-        </button>
-        
-        <button class="decision-btn compatible-alternative"
-                onclick="openAlternativeModal(<%= refund.id %>)"
-                data-refund-id="<%= refund.id %>">
-          <i class="fas fa-exchange-alt"></i>
-          <span class="btn-title">Send Compatible Alternative</span>
-          <span class="btn-desc">Found substitute part, create replacement</span>
-        </button>
-        
-        <%= button_to resolution_dispatcher_refund_path(refund),
-                      method: :patch,
-                      params: { refund_reason: 'Not economical to source' },
-                      class: "decision-btn refund-option",
-                      confirm: "Process refund? This cannot be undone.",
-                      form: { data: { turbo: true } } do %>
-          <i class="fas fa-money-bill-wave"></i>
-          <span class="btn-title">Issue Refund</span>
-          <span class="btn-desc">No profitable sourcing options</span>
-        <% end %>
+      <!-- Sourcing Decisions -->
+      <div class="decision-category">
+        <div class="category-header">
+          <i class="fas fa-industry"></i>
+          <span>Part Sourcing Options</span>
+        </div>
+        <div class="decision-grid">
+          <button class="decision-btn accept-delay" 
+                  onclick="openDelayModal(<%= refund.id %>)"
+                  data-refund-id="<%= refund.id %>">
+            <i class="fas fa-clock"></i>
+            <span class="btn-title">Accept Delay</span>
+            <span class="btn-desc">Part available, tell customer about timing</span>
+          </button>
+          
+          <button class="decision-btn price-increase"
+                  onclick="openPriceModal(<%= refund.id %>)"
+                  data-refund-id="<%= refund.id %>">
+            <i class="fas fa-dollar-sign"></i>
+            <span class="btn-title">Request Price Increase</span>
+            <span class="btn-desc">Part costs more than customer paid</span>
+          </button>
+          
+          <button class="decision-btn compatible-alternative"
+                  onclick="openAlternativeModal(<%= refund.id %>)"
+                  data-refund-id="<%= refund.id %>">
+            <i class="fas fa-exchange-alt"></i>
+            <span class="btn-title">Send Compatible Alternative</span>
+            <span class="btn-desc">Found substitute part, create replacement</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Return Management Options -->
+      <% if refund.refund_reason.in?(['wrong_product', 'defective_product', 'quality_issues', 'customer_changed_mind']) %>
+        <div class="decision-category return-category">
+          <div class="category-header">
+            <i class="fas fa-undo"></i>
+            <span>Return Management Options</span>
+            <small class="category-desc">Customer needs to return the product first</small>
+          </div>
+          <div class="decision-grid">
+            <%= button_to resolution_authorize_return_and_refund_path(refund),
+                          method: :patch,
+                          class: "decision-btn return-refund-option",
+                          confirm: "Authorize return and full refund? Customer must return product first.",
+                          form: { data: { turbo: true } } do %>
+              <i class="fas fa-undo"></i>
+              <span class="btn-title">Authorize Return + Refund</span>
+              <span class="btn-desc">Customer returns product, gets full refund</span>
+            <% end %>
+            
+            <%= button_to resolution_authorize_return_and_replacement_path(refund),
+                          method: :patch,
+                          class: "decision-btn return-replacement-option",
+                          confirm: "Authorize return and replacement? Will ship new item after return received.",
+                          form: { data: { turbo: true } } do %>
+              <i class="fas fa-sync-alt"></i>
+              <span class="btn-title">Authorize Return + Replacement</span>
+              <span class="btn-desc">Customer returns product, gets replacement</span>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+      
+      <!-- Final Options -->
+      <div class="decision-category final-category">
+        <div class="category-header">
+          <i class="fas fa-times-circle"></i>
+          <span>Resolution Options</span>
+        </div>
+        <div class="decision-grid">
+          <%= button_to resolution_dispatcher_refund_path(refund),
+                        method: :patch,
+                        params: { refund_reason: 'Not economical to source' },
+                        class: "decision-btn refund-option",
+                        confirm: "Process immediate refund? This cannot be undone.",
+                        form: { data: { turbo: true } } do %>
+            <i class="fas fa-money-bill-wave"></i>
+            <span class="btn-title">Issue Immediate Refund</span>
+            <span class="btn-desc">No profitable sourcing options</span>
+          <% end %>
+        </div>
       </div>
     </div>
 

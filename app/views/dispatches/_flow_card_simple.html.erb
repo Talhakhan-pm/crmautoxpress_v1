@@ -16,6 +16,23 @@
     <% when 'completed' %>
       <span class="completed-badge">✅</span>
     <% end %>
+    <% if dispatch.order.refund.present? && !dispatch.order.refund.no_return_required? %>
+      <span class="return-indicator return-<%= dispatch.order.refund.return_status %>">
+        <% if dispatch.order.refund.return_status == 'return_requested' %>
+          ↩️
+        <% elsif dispatch.order.refund.return_status == 'return_authorized' %>
+          ✅
+        <% elsif dispatch.order.refund.return_status == 'return_label_sent' %>
+          📮
+        <% elsif dispatch.order.refund.return_shipped? || dispatch.order.refund.return_in_transit? %>
+          🔄
+        <% elsif dispatch.order.refund.return_is_complete? %>
+          ✅
+        <% else %>
+          ↩️
+        <% end %>
+      </span>
+    <% end %>
   </div>
   <div class="flow-card-body">
     <div class="customer"><%= dispatch.customer_name %></div>

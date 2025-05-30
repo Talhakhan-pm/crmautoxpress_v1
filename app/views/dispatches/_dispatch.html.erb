@@ -53,6 +53,32 @@
             <%= dispatch.shipment_status.humanize.gsub('_', ' ') %>
           </span>
         </div>
+        <% if dispatch.order.refund.present? && !dispatch.order.refund.no_return_required? %>
+          <div class="status-item">
+            <span class="status-label">Return</span>
+            <span class="status-badge return-<%= dispatch.order.refund.return_status %>">
+              <% if dispatch.order.refund.return_status == 'return_requested' %>
+                📋 Requested
+              <% elsif dispatch.order.refund.return_status == 'return_authorized' %>
+                ✅ Authorized
+              <% elsif dispatch.order.refund.return_status == 'return_label_sent' %>
+                📮 Label Sent
+              <% elsif dispatch.order.refund.return_status == 'return_shipped' %>
+                📦 Shipped Back
+              <% elsif dispatch.order.refund.return_status == 'return_in_transit' %>
+                🚚 In Transit
+              <% elsif dispatch.order.refund.return_status == 'return_delivered' %>
+                📥 Delivered
+              <% elsif dispatch.order.refund.return_status == 'return_received' %>
+                ✅ Received
+              <% elsif dispatch.order.refund.return_status == 'return_inspected' %>
+                🔍 Inspected
+              <% else %>
+                <%= dispatch.order.refund.return_status.humanize %>
+              <% end %>
+            </span>
+          </div>
+        <% end %>
       </div>
     </div>
 

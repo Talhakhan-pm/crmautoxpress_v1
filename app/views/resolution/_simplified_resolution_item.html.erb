@@ -216,41 +216,84 @@
         
         <div class="action-controls dispatcher-decisions">
           <div class="decision-title">Dispatcher Decision:</div>
-          <div class="decision-grid">
-            <button class="decision-btn accept-delay" 
-                    onclick="openDelayModal(<%= refund.id %>)"
-                    data-refund-id="<%= refund.id %>">
-              <i class="fas fa-clock"></i>
-              <span class="btn-title">Source with Delay</span>
-              <span class="btn-desc">Part available but requires extra time</span>
-            </button>
-            
-            <button class="decision-btn price-increase"
-                    onclick="openPriceModal(<%= refund.id %>)"
-                    data-refund-id="<%= refund.id %>">
-              <i class="fas fa-dollar-sign"></i>
-              <span class="btn-title">Source at Higher Cost</span>
-              <span class="btn-desc">Part available but costs more than original</span>
-            </button>
-            
-            <button class="decision-btn compatible-alternative"
-                    onclick="openAlternativeModal(<%= refund.id %>)"
-                    data-refund-id="<%= refund.id %>">
-              <i class="fas fa-exchange-alt"></i>
-              <span class="btn-title">Use Compatible Alternative</span>
-              <span class="btn-desc">Found substitute part that works</span>
-            </button>
-            
-            <%= button_to resolution_dispatcher_refund_path(refund),
-                          method: :patch,
-                          params: { refund_reason: 'Not economical to source' },
-                          class: "decision-btn refund-option",
-                          confirm: "Process refund? This cannot be undone.",
-                          form: { data: { turbo: true } } do %>
-              <i class="fas fa-money-bill-wave"></i>
-              <span class="btn-title">Not Viable to Source</span>
-              <span class="btn-desc">Cannot source part economically</span>
-            <% end %>
+          
+          <!-- Sourcing Options -->
+          <div class="decision-section">
+            <div class="section-label">Part Sourcing Options</div>
+            <div class="decision-grid">
+              <button class="decision-btn accept-delay" 
+                      onclick="openDelayModal(<%= refund.id %>)"
+                      data-refund-id="<%= refund.id %>">
+                <i class="fas fa-clock"></i>
+                <span class="btn-title">Source with Delay</span>
+                <span class="btn-desc">Part available but requires extra time</span>
+              </button>
+              
+              <button class="decision-btn price-increase"
+                      onclick="openPriceModal(<%= refund.id %>)"
+                      data-refund-id="<%= refund.id %>">
+                <i class="fas fa-dollar-sign"></i>
+                <span class="btn-title">Source at Higher Cost</span>
+                <span class="btn-desc">Part available but costs more than original</span>
+              </button>
+              
+              <button class="decision-btn compatible-alternative"
+                      onclick="openAlternativeModal(<%= refund.id %>)"
+                      data-refund-id="<%= refund.id %>">
+                <i class="fas fa-exchange-alt"></i>
+                <span class="btn-title">Use Compatible Alternative</span>
+                <span class="btn-desc">Found substitute part that works</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Return Management Options -->
+          <% if refund.refund_reason.in?(['wrong_product', 'defective_product', 'quality_issues', 'customer_changed_mind']) %>
+            <div class="decision-section return-section">
+              <div class="section-label">
+                <i class="fas fa-undo"></i>
+                Return Management Options
+                <small>Customer needs to return product first</small>
+              </div>
+              <div class="decision-grid">
+                <%= button_to resolution_authorize_return_and_refund_path(refund),
+                              method: :patch,
+                              class: "decision-btn return-refund-option",
+                              confirm: "Authorize return and full refund? Customer must return product first.",
+                              form: { data: { turbo: true } } do %>
+                  <i class="fas fa-undo"></i>
+                  <span class="btn-title">Return + Refund</span>
+                  <span class="btn-desc">Customer returns, gets full refund</span>
+                <% end %>
+                
+                <%= button_to resolution_authorize_return_and_replacement_path(refund),
+                              method: :patch,
+                              class: "decision-btn return-replacement-option",
+                              confirm: "Authorize return and replacement? Will ship new item after return received.",
+                              form: { data: { turbo: true } } do %>
+                  <i class="fas fa-sync-alt"></i>
+                  <span class="btn-title">Return + Replace</span>
+                  <span class="btn-desc">Customer returns, gets replacement</span>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+          
+          <!-- Final Resolution -->
+          <div class="decision-section final-section">
+            <div class="section-label">Final Resolution</div>
+            <div class="decision-grid">
+              <%= button_to resolution_dispatcher_refund_path(refund),
+                            method: :patch,
+                            params: { refund_reason: 'Not economical to source' },
+                            class: "decision-btn refund-option",
+                            confirm: "Process immediate refund? This cannot be undone.",
+                            form: { data: { turbo: true } } do %>
+                <i class="fas fa-money-bill-wave"></i>
+                <span class="btn-title">Immediate Refund</span>
+                <span class="btn-desc">Cannot source part economically</span>
+              <% end %>
+            </div>
           </div>
         </div>
       </div>
@@ -307,6 +350,30 @@
               <h6>Compatible Alternative Found:</h6>
               <p><strong><%= refund.alternative_part_name %></strong> - Upgrade/substitute part, same price</p>
             </div>
+          <% when 'authorize_return_and_refund' %>
+            <div class="decision-context return-context">
+              <h6>Return and Refund Authorized:</h6>
+              <p><strong>Customer must return product first</strong> - Full refund processed after return received</p>
+              <% if refund.return_status.present? %>
+                <div class="return-status-display">
+                  <span class="return-status-badge status-<%= refund.return_status %>">
+                    <%= refund.return_status.humanize.gsub('_', ' ') %>
+                  </span>
+                </div>
+              <% end %>
+            </div>
+          <% when 'authorize_return_and_replacement' %>
+            <div class="decision-context return-context">
+              <h6>Return and Replacement Authorized:</h6>
+              <p><strong>Customer returns defective product</strong> - New replacement shipped after return received</p>
+              <% if refund.return_status.present? %>
+                <div class="return-status-display">
+                  <span class="return-status-badge status-<%= refund.return_status %>">
+                    <%= refund.return_status.humanize.gsub('_', ' ') %>
+                  </span>
+                </div>
+              <% end %>
+            </div>
           <% end %>
         </div>
         
@@ -355,6 +422,36 @@
                             class: "action-btn success",
                             form: { data: { turbo: true } } %>
               <div class="helper-text">Customer automatically gets upgraded part</div>
+            <% when 'authorize_return_and_refund', 'authorize_return_and_replacement' %>
+              <div class="return-management-actions">
+                <% if refund.return_status == 'return_requested' %>
+                  <%= button_to "Generate Return Label", 
+                                resolution_generate_return_label_path(refund),
+                                method: :patch,
+                                class: "action-btn primary",
+                                params: { carrier: "FedEx", label_url: "https://example.com/label" },
+                                form: { data: { turbo: true } } %>
+                <% elsif refund.return_status == 'return_label_sent' %>
+                  <%= button_to "Customer Shipped Return", 
+                                resolution_mark_return_shipped_path(refund),
+                                method: :patch,
+                                class: "action-btn warning",
+                                params: { tracking_number: "" },
+                                form: { data: { turbo: true } } %>
+                <% elsif refund.return_shipped? || refund.return_in_transit? || refund.return_delivered? %>
+                  <%= button_to "Return Received & Inspected", 
+                                resolution_mark_return_received_path(refund),
+                                method: :patch,
+                                class: "action-btn success",
+                                params: { condition_notes: "Product received in good condition" },
+                                form: { data: { turbo: true } } %>
+                <% elsif refund.return_received? || refund.return_inspected? %>
+                  <div class="completion-message">
+                    <i class="fas fa-check-circle"></i>
+                    Return process completed. Refund will be processed automatically.
+                  </div>
+                <% end %>
+              </div>
             <% else %>
               <%= button_to "Customer Approved", 
                             resolution_customer_approved_path(refund),

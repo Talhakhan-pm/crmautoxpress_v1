@@ -322,6 +322,155 @@
                   <% end %>
                 </div>
 
+                <!-- Return Management Section -->
+                <% if @dispatch.order.refund.present? && !@dispatch.order.refund.no_return_required? %>
+                  <div class="unified-form-section">
+                    <div class="unified-section-header">
+                      <h3 class="section-title">
+                        <i class="fas fa-undo"></i>
+                        Return Management
+                      </h3>
+                      <div class="section-actions">
+                        <span class="return-status-badge status-<%= @dispatch.order.refund.return_status %>">
+                          <%= @dispatch.order.refund.return_status.humanize.gsub('_', ' ') %>
+                        </span>
+                        <%= link_to resolution_path, class: "section-action btn-link", 
+                            data: { turbo_frame: "main_content" }, title: "Resolution Center" do %>
+                          <i class="fas fa-external-link-alt"></i> Resolution Center
+                        <% end %>
+                      </div>
+                    </div>
+                    
+                    <!-- Return Timeline -->
+                    <div class="return-timeline-wrapper">
+                      <div class="return-timeline">
+                        <div class="timeline-track">
+                          <% @dispatch.order.refund.return_timeline_events.each_with_index do |event, index| %>
+                            <div class="timeline-item <%= 'completed' if event[:date].present? %>">
+                              <div class="timeline-marker">
+                                <% if event[:status] == 'return_requested' %>
+                                  <i class="fas fa-clipboard-list"></i>
+                                <% elsif event[:status] == 'return_authorized' %>
+                                  <i class="fas fa-check-circle"></i>
+                                <% elsif event[:status] == 'return_label_sent' %>
+                                  <i class="fas fa-shipping-fast"></i>
+                                <% elsif event[:status] == 'return_shipped' %>
+                                  <i class="fas fa-box"></i>
+                                <% elsif event[:status] == 'return_received' %>
+                                  <i class="fas fa-inbox"></i>
+                                <% else %>
+                                  <i class="fas fa-circle"></i>
+                                <% end %>
+                              </div>
+                              <div class="timeline-content">
+                                <div class="timeline-title"><%= event[:description] %></div>
+                                <div class="timeline-date">
+                                  <%= event[:date].present? ? event[:date].strftime('%m/%d/%Y %I:%M %p') : 'Pending' %>
+                                </div>
+                              </div>
+                            </div>
+                          <% end %>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- Return Details Grid -->
+                    <div class="info-grid">
+                      <% if @dispatch.order.refund.return_tracking_number.present? %>
+                        <div class="info-item">
+                          <div class="info-label">Return Tracking</div>
+                          <div class="info-value" style="text-align: left;">
+                            <span class="tracking-number"><%= @dispatch.order.refund.return_tracking_number %></span>
+                          </div>
+                        </div>
+                      <% end %>
+                      <% if @dispatch.order.refund.return_carrier.present? %>
+                        <div class="info-item">
+                          <div class="info-label">Return Carrier</div>
+                          <div class="info-value" style="text-align: left;"><%= @dispatch.order.refund.return_carrier %></div>
+                        </div>
+                      <% end %>
+                      <% if @dispatch.order.refund.return_deadline.present? %>
+                        <div class="info-item">
+                          <div class="info-label">Return Deadline</div>
+                          <div class="info-value" style="text-align: left;">
+                            <%= @dispatch.order.refund.return_deadline.strftime('%m/%d/%Y') %>
+                            <% days_left = (@dispatch.order.refund.return_deadline.to_date - Date.current).to_i %>
+                            <% if days_left > 0 %>
+                              <small class="text-success">(<%= days_left %> days left)</small>
+                            <% elsif days_left == 0 %>
+                              <small class="text-warning">(Due today)</small>
+                            <% else %>
+                              <small class="text-danger">(<%= days_left.abs %> days overdue)</small>
+                            <% end %>
+                          </div>
+                        </div>
+                      <% end %>
+                      <div class="info-item">
+                        <div class="info-label">Return Reason</div>
+                        <div class="info-value" style="text-align: left;"><%= @dispatch.order.refund.refund_reason.humanize %></div>
+                      </div>
+                      <% if @dispatch.order.refund.return_notes.present? %>
+                        <div class="info-item full-width">
+                          <div class="info-label">Return Notes</div>
+                          <div class="info-value" style="text-align: left;"><%= @dispatch.order.refund.return_notes %></div>
+                        </div>
+                      <% end %>
+                    </div>
+                    
+                    <!-- Return Quick Actions -->
+                    <div class="return-actions-grid">
+                      <% if @dispatch.order.refund.can_generate_return_label? %>
+                        <%= link_to resolution_generate_return_label_path(@dispatch.order.refund), 
+                            method: :patch,
+                            class: "return-action-btn primary",
+                            data: { 
+                              turbo_method: :patch,
+                              confirm: "Generate return label for customer?" 
+                            } do %>
+                          <i class="fas fa-tag"></i>
+                          Generate Return Label
+                        <% end %>
+                      <% end %>
+                      
+                      <% if @dispatch.order.refund.return_label_sent? %>
+                        <%= link_to resolution_mark_return_shipped_path(@dispatch.order.refund), 
+                            method: :patch,
+                            class: "return-action-btn secondary",
+                            data: { 
+                              turbo_method: :patch,
+                              confirm: "Mark return as shipped by customer?" 
+                            } do %>
+                          <i class="fas fa-box"></i>
+                          Mark Return Shipped
+                        <% end %>
+                      <% end %>
+                      
+                      <% if @dispatch.order.refund.return_shipped? || @dispatch.order.refund.return_in_transit? || @dispatch.order.refund.return_delivered? %>
+                        <%= link_to resolution_mark_return_received_path(@dispatch.order.refund), 
+                            method: :patch,
+                            class: "return-action-btn success",
+                            data: { 
+                              turbo_method: :patch,
+                              confirm: "Mark return as received and inspected?" 
+                            } do %>
+                          <i class="fas fa-inbox"></i>
+                          Mark Return Received
+                        <% end %>
+                      <% end %>
+                      
+                      <% if @dispatch.order.refund.return_label_url.present? %>
+                        <%= link_to @dispatch.order.refund.return_label_url, 
+                            target: "_blank",
+                            class: "return-action-btn info" do %>
+                          <i class="fas fa-download"></i>
+                          Download Return Label
+                        <% end %>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+
                 <!-- Financial Overview Section -->
                 <div class="unified-form-section">
                   <div class="unified-section-header">
