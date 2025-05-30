@@ -116,10 +116,12 @@ class DispatchesController < ApplicationController
             )
           end
           
-          # Set supplier_id and remove supplier_name from params
+          # Set supplier_id
           order_attrs[:supplier_id] = supplier.id
-          order_attrs.delete(:supplier_name)
         end
+        
+        # Always remove supplier_name as it's not a database column
+        order_attrs.delete(:supplier_name)
         
         @dispatch.order.update!(order_attrs)
       end
@@ -131,8 +133,8 @@ class DispatchesController < ApplicationController
     respond_to do |format|
       format.html { redirect_to dispatches_path, notice: 'Dispatch was successfully updated.' }
       format.turbo_stream { 
-        load_dispatches_for_index
-        render :update 
+        flash[:notice] = 'Dispatch was successfully updated.'
+        redirect_to dispatches_path, status: :see_other
       }
     end
     
