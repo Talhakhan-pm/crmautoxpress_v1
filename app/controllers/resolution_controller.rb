@@ -244,6 +244,61 @@ class ResolutionController < ApplicationController
     render_quick_action_response
   end
 
+  # Return Resolution Actions
+  def authorize_return_and_refund
+    @refund = Refund.find(params[:id])
+    
+    if @refund.authorize_return_and_refund!
+      render_quick_action_response
+    else
+      render json: { errors: ['Cannot authorize return from current state'] }, status: :unprocessable_entity
+    end
+  end
+
+  def authorize_return_and_replacement
+    @refund = Refund.find(params[:id])
+    
+    if @refund.authorize_return_and_replacement!
+      render_quick_action_response
+    else
+      render json: { errors: ['Cannot authorize return and replacement from current state'] }, status: :unprocessable_entity
+    end
+  end
+
+  def generate_return_label
+    @refund = Refund.find(params[:id])
+    carrier = params[:carrier] || 'FedEx'
+    label_url = params[:label_url]
+    
+    if @refund.generate_return_label!(carrier: carrier, label_url: label_url)
+      render_quick_action_response
+    else
+      render json: { errors: ['Cannot generate return label from current state'] }, status: :unprocessable_entity
+    end
+  end
+
+  def mark_return_shipped
+    @refund = Refund.find(params[:id])
+    tracking_number = params[:tracking_number]
+    
+    if @refund.mark_return_shipped!(tracking_number: tracking_number)
+      render_quick_action_response
+    else
+      render json: { errors: ['Cannot mark return as shipped from current state'] }, status: :unprocessable_entity
+    end
+  end
+
+  def mark_return_received
+    @refund = Refund.find(params[:id])
+    condition_notes = params[:condition_notes]
+    
+    if @refund.mark_return_received!(condition_notes: condition_notes)
+      render_quick_action_response
+    else
+      render json: { errors: ['Cannot mark return as received from current state'] }, status: :unprocessable_entity
+    end
+  end
+
   # New Dispatcher Sourcing Actions
   def accept_delay
     @refund = Refund.find(params[:id])

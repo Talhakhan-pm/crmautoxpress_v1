@@ -55,6 +55,18 @@ class Refund < ApplicationRecord
     venmo: 5
   }
 
+  enum return_status: {
+    no_return_required: 0,
+    return_requested: 1,
+    return_authorized: 2,
+    return_label_sent: 3,
+    return_shipped: 4,
+    return_in_transit: 5,
+    return_delivered: 6,
+    return_received: 7,
+    return_inspected: 8
+  }
+
   # Validations
   validates :refund_number, presence: true, uniqueness: true
   validates :refund_date, presence: true
@@ -169,6 +181,72 @@ class Refund < ApplicationRecord
 
   def requires_return?
     pending_return? || returned?
+  end
+
+  # Return Status Methods
+  def return_status_color
+    case return_status
+    when 'no_return_required' then 'secondary'
+    when 'return_requested' then 'warning'
+    when 'return_authorized' then 'info'
+    when 'return_label_sent' then 'primary'
+    when 'return_shipped' then 'primary'
+    when 'return_in_transit' then 'primary'
+    when 'return_delivered' then 'success'
+    when 'return_received' then 'success'
+    when 'return_inspected' then 'success'
+    else 'secondary'
+    end
+  end
+
+  def return_requires_tracking?
+    return_shipped? || return_in_transit? || return_delivered? || return_received?
+  end
+
+  def return_is_complete?
+    return_received? || return_inspected?
+  end
+
+  def return_in_progress?
+    return_authorized? || return_label_sent? || return_shipped? || return_in_transit?
+  end
+
+  def can_authorize_return?
+    return_requested? && dispatcher_decision.present?
+  end
+
+  def can_generate_return_label?
+    return_authorized? && return_label_url.blank?
+  end
+
+  def return_timeline_events
+    events = []
+    
+    events << { status: 'return_requested', date: created_at, description: 'Return requested by customer' } if return_requested? || return_status_was_changed?
+    events << { status: 'return_authorized', date: return_authorized_at, description: 'Return authorized by dispatcher' } if return_authorized_at.present?
+    events << { status: 'return_label_sent', date: return_authorized_at, description: 'Return label generated and sent' } if return_label_sent? && return_label_url.present?
+    events << { status: 'return_shipped', date: return_shipped_at, description: 'Customer shipped return package' } if return_shipped_at.present?
+    events << { status: 'return_received', date: return_received_at, description: 'Return package received and inspected' } if return_received_at.present?
+    
+    events.compact.sort_by { |e| e[:date] || Time.current }
+  end
+
+  def days_since_return_requested
+    return 0 unless return_requested? || return_in_progress? || return_is_complete?
+    (Date.current - created_at.to_date).to_i
+  end
+
+  def return_sla_status
+    return 'not_applicable' if no_return_required?
+    return 'completed' if return_is_complete?
+    
+    days_elapsed = days_since_return_requested
+    
+    case days_elapsed
+    when 0..7 then 'on_track'
+    when 8..14 then 'at_risk'
+    else 'overdue'
+    end
   end
 
   def is_completed?
@@ -647,6 +725,102 @@ class Refund < ApplicationRecord
     )
     
     replacement
+  end
+
+  # Resolution Actions for Returns
+  def authorize_return_and_refund!
+    return false unless pending_resolution?
+    
+    transaction do
+      update!(
+        resolution_stage: 'resolution_completed',
+        dispatcher_decision: 'authorize_return_and_refund',
+        return_status: 'return_authorized',
+        return_authorized_at: Time.current,
+        refund_stage: 'pending_return'
+      )
+      
+      create_activity(
+        action: 'return_authorized',
+        details: "Return authorized for full refund - Customer to ship back #{order.product_name}",
+        user: Current.user
+      )
+    end
+  end
+
+  def authorize_return_and_replacement!
+    return false unless pending_resolution?
+    
+    transaction do
+      # Create replacement order first
+      replacement = create_replacement_order
+      
+      update!(
+        resolution_stage: 'resolution_completed',
+        dispatcher_decision: 'authorize_return_and_replacement',
+        return_status: 'return_authorized',
+        return_authorized_at: Time.current,
+        replacement_order_number: replacement.order_number
+      )
+      
+      create_activity(
+        action: 'return_and_replacement_authorized',
+        details: "Return authorized with replacement order #{replacement.order_number}",
+        user: Current.user
+      )
+      
+      replacement
+    end
+  end
+
+  def generate_return_label!(carrier: 'FedEx', label_url: nil)
+    return false unless can_generate_return_label?
+    
+    update!(
+      return_status: 'return_label_sent',
+      return_carrier: carrier,
+      return_label_url: label_url || "https://example.com/return-labels/#{id}",
+      return_deadline: 14.days.from_now
+    )
+    
+    create_activity(
+      action: 'return_label_generated',
+      details: "Return label generated via #{carrier} - Customer has 14 days to ship",
+      user: Current.user
+    )
+  end
+
+  def mark_return_shipped!(tracking_number: nil)
+    return false unless return_label_sent?
+    
+    update!(
+      return_status: 'return_shipped',
+      return_tracking_number: tracking_number || return_tracking_number,
+      return_shipped_at: Time.current
+    )
+    
+    create_activity(
+      action: 'return_shipped',
+      details: "Customer shipped return package - Tracking: #{return_tracking_number}",
+      user: Current.user
+    )
+  end
+
+  def mark_return_received!(condition_notes: nil)
+    return false unless return_shipped? || return_in_transit? || return_delivered?
+    
+    update!(
+      return_status: 'return_received',
+      return_received_at: Time.current,
+      return_notes: condition_notes || return_notes,
+      refund_stage: 'processing_refund'
+    )
+    
+    create_activity(
+      action: 'return_received',
+      details: "Return package received and inspected#{condition_notes.present? ? ' - ' + condition_notes : ''}",
+      user: Current.user
+    )
   end
 
 end

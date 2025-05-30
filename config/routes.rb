@@ -78,6 +78,13 @@ Rails.application.routes.draw do
   patch "resolution/:id/request_price_increase", to: "resolution#request_price_increase", as: :resolution_request_price_increase
   patch "resolution/:id/send_compatible_alternative", to: "resolution#send_compatible_alternative", as: :resolution_send_compatible_alternative
   patch "resolution/:id/dispatcher_refund", to: "resolution#dispatcher_refund", as: :resolution_dispatcher_refund
+  
+  # Return Resolution Actions
+  patch "resolution/:id/authorize_return_and_refund", to: "resolution#authorize_return_and_refund", as: :resolution_authorize_return_and_refund
+  patch "resolution/:id/authorize_return_and_replacement", to: "resolution#authorize_return_and_replacement", as: :resolution_authorize_return_and_replacement
+  patch "resolution/:id/generate_return_label", to: "resolution#generate_return_label", as: :resolution_generate_return_label
+  patch "resolution/:id/mark_return_shipped", to: "resolution#mark_return_shipped", as: :resolution_mark_return_shipped
+  patch "resolution/:id/mark_return_received", to: "resolution#mark_return_received", as: :resolution_mark_return_received
 
   # Callbacks routes  
   resources :callbacks
