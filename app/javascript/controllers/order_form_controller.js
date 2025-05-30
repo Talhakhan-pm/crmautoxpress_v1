@@ -40,7 +40,7 @@ export default class extends Controller {
     const type = event.currentTarget.dataset.type
     
     // Update toggle buttons
-    this.element.querySelectorAll('.toggle-btn').forEach(btn => {
+    this.element.querySelectorAll('.type-btn').forEach(btn => {
       btn.classList.remove('active')
     })
     event.currentTarget.classList.add('active')
@@ -62,7 +62,7 @@ export default class extends Controller {
     const callbackId = event.params.callbackId
     
     // Update UI
-    this.element.querySelectorAll('.callback-card').forEach(card => {
+    this.element.querySelectorAll('.callback-item').forEach(card => {
       card.classList.remove('selected')
     })
     event.currentTarget.classList.add('selected')
@@ -93,11 +93,11 @@ export default class extends Controller {
     if (!query) return
     
     // Simple client-side search
-    const cards = this.element.querySelectorAll('.callback-card')
+    const cards = this.element.querySelectorAll('.callback-item')
     cards.forEach(card => {
       const text = card.textContent.toLowerCase()
       const matches = text.includes(query.toLowerCase())
-      card.style.display = matches ? 'block' : 'none'
+      card.style.display = matches ? 'flex' : 'none'
     })
   }
 

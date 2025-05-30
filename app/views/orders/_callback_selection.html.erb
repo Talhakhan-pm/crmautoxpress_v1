@@ -1,35 +1,37 @@
-<div id="callback-selection" class="form-section callback-section" style="display: none;">
-  <div class="section-header">
-    <h4 class="section-title">
+<!-- Callback Selection Section -->
+<div id="callback-selection" class="callback-selection-section" style="display: none;">
+  <div class="info-card callback-selector-card">
+    <div class="card-header">
       <i class="fas fa-search"></i>
-      Select Callback to Convert
-    </h4>
-  </div>
-  
-  <div class="callback-selector">
-    <input type="text" 
-           id="callback-search" 
-           placeholder="Search by customer name, phone, or product..." 
-           class="search-input" 
-           data-action="input->order-form#searchCallbacks">
-    
-    <div id="callbacks-list" class="callbacks-grid">
-      <% AgentCallback.where(status: ['pending', 'follow_up']).recent.limit(10).each do |callback| %>
-        <div class="callback-card" 
-             data-callback-id="<%= callback.id %>" 
-             data-action="click->order-form#selectCallback"
-             data-order-form-callback-id-param="<%= callback.id %>">
-          <div class="callback-header">
-            <span class="customer-name"><%= callback.customer_name %></span>
-            <span class="status-badge status-<%= callback.status %>"><%= callback.status.humanize %></span>
+      <h3>Select Callback to Convert</h3>
+    </div>
+    <div class="card-body">
+      <div class="callback-search-wrapper">
+        <input type="text" 
+               id="callback-search" 
+               placeholder="Search by customer name, phone, or product..." 
+               class="input-field callback-search-input" 
+               data-action="input->order-form#searchCallbacks">
+      </div>
+      
+      <div id="callbacks-list" class="callbacks-grid">
+        <% AgentCallback.where(status: ['pending', 'follow_up']).recent.limit(10).each do |callback| %>
+          <div class="callback-item" 
+               data-callback-id="<%= callback.id %>" 
+               data-action="click->order-form#selectCallback"
+               data-order-form-callback-id-param="<%= callback.id %>">
+            <div class="callback-item-header">
+              <span class="callback-customer-name"><%= callback.customer_name %></span>
+              <span class="callback-status-badge status-<%= callback.status %>"><%= callback.status.humanize %></span>
+            </div>
+            <div class="callback-item-body">
+              <div class="callback-detail"><i class="fas fa-phone"></i> <%= callback.phone_number %></div>
+              <div class="callback-detail"><i class="fas fa-cog"></i> <%= callback.product %></div>
+              <div class="callback-detail"><i class="fas fa-clock"></i> <%= callback.created_at.strftime("%m/%d/%Y") %></div>
+            </div>
           </div>
-          <div class="callback-body">
-            <div class="phone"><i class="fas fa-phone"></i> <%= callback.phone_number %></div>
-            <div class="product"><i class="fas fa-cog"></i> <%= callback.product %></div>
-            <div class="date"><i class="fas fa-clock"></i> <%= callback.created_at.strftime("%m/%d/%Y") %></div>
-          </div>
-        </div>
-      <% end %>
+        <% end %>
+      </div>
     </div>
   </div>
 </div>
