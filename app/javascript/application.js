@@ -47,10 +47,10 @@ if (window.location.pathname.includes('/dispatches')) {
   if (typeof window.setView === 'undefined') {
     window.setView = function(view) {
       const url = new URL(window.location);
-      if (view === 'list') {
-        url.searchParams.set('view', 'list');
+      if (view === 'flow') {
+        url.searchParams.delete('view'); // Default flow view
       } else {
-        url.searchParams.delete('view');
+        url.searchParams.set('view', view); // Set specific view (list, returns, replacements)
       }
       
       Turbo.visit(url.toString(), { frame: "main_content" });
