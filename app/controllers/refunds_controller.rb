@@ -63,7 +63,15 @@ class RefundsController < ApplicationController
   end
 
   def create
-    @refund = Refund.new(refund_params)
+    # Handle both nested and direct parameter formats
+    if params[:refund].present?
+      # Traditional form submission with nested params
+      @refund = Refund.new(refund_params)
+    else
+      # Direct parameters from button_to forms (return dropdown)
+      @refund = Refund.new(direct_refund_params)
+    end
+    
     @refund.processing_agent = current_user unless @refund.processing_agent_id.present?
     @refund.last_modified_by = current_user.email
 
@@ -237,6 +245,18 @@ class RefundsController < ApplicationController
     params.require(:refund).permit(
       :order_id, :customer_name, :customer_email, :original_charge_amount,
       :refund_amount, :refund_stage, :refund_reason, :priority,
+      :notes, :internal_notes, :payment_processor, :transaction_id,
+      :refund_method, :bank_details, :estimated_processing_days,
+      :processing_agent_id, :replacement_order_number, :return_tracking_number,
+      :return_deadline
+    )
+  end
+
+  def direct_refund_params
+    # For button_to forms, DON'T permit refund_stage - let set_defaults handle stage routing
+    params.permit(
+      :order_id, :customer_name, :customer_email, :original_charge_amount,
+      :refund_amount, :refund_reason, :priority,
       :notes, :internal_notes, :payment_processor, :transaction_id,
       :refund_method, :bank_details, :estimated_processing_days,
       :processing_agent_id, :replacement_order_number, :return_tracking_number,

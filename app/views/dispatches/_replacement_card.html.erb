@@ -1,0 +1,129 @@
+<div class="replacement-flow-card" 
+     onclick="showReplacementDetails(<%= replacement.id %>)"
+     data-order-id="<%= replacement.id %>"
+     data-status="<%= replacement.dispatch&.dispatch_status %>">
+  
+  <div class="replacement-card-header">
+    <div class="replacement-number">
+      <i class="fas fa-exchange-alt"></i>
+      <%= replacement.order_number %>
+    </div>
+    <div class="replacement-amount">
+      $<%= number_with_precision(replacement.total_amount, precision: 2) %>
+    </div>
+  </div>
+
+  <div class="replacement-card-body">
+    <div class="customer-info">
+      <strong><%= replacement.customer_name %></strong>
+      <% if replacement.comments.present? && replacement.comments.include?('Replacement order for') %>
+        <div class="original-order">
+          <i class="fas fa-link"></i>
+          <%= replacement.comments.match(/Replacement order for (\w+)/)[1] rescue 'Original order' %>
+        </div>
+      <% end %>
+    </div>
+    
+    <div class="product-info">
+      <%= replacement.product_name %>
+      <% if replacement.vehicle_info.present? %>
+        <div class="vehicle-info">
+          <i class="fas fa-car"></i>
+          <%= replacement.vehicle_info %>
+        </div>
+      <% end %>
+    </div>
+    
+    <div class="replacement-priority">
+      <span class="priority-badge priority-<%= replacement.priority_color %>">
+        <i class="fas fa-flag"></i>
+        <%= replacement.priority.humanize %> Priority
+      </span>
+    </div>
+  </div>
+
+  <div class="replacement-card-footer">
+    <div class="dispatch-status">
+      <% if replacement.dispatch.present? %>
+        <span class="status-badge status-<%= replacement.dispatch.status_color %>">
+          <%= replacement.dispatch.dispatch_status.humanize %>
+        </span>
+      <% else %>
+        <span class="status-badge status-secondary">
+          No Dispatch
+        </span>
+      <% end %>
+    </div>
+    
+    <div class="replacement-dates">
+      <% if replacement.dispatch&.tracking_number.present? %>
+        <div class="tracking-info">
+          <i class="fas fa-barcode"></i>
+          <%= replacement.dispatch.tracking_number %>
+        </div>
+      <% end %>
+      
+      <div class="days-elapsed">
+        <%= time_ago_in_words(replacement.created_at) %> ago
+      </div>
+    </div>
+  </div>
+
+  <!-- Action indicators based on dispatch status -->
+  <div class="replacement-actions">
+    <% if replacement.dispatch.present? %>
+      <% case replacement.dispatch.dispatch_status %>
+      <% when 'pending', 'assigned' %>
+        <button class="quick-action-btn start-processing" 
+                onclick="event.stopPropagation(); startReplacementProcessing(<%= replacement.dispatch.id %>)">
+          <i class="fas fa-play"></i>
+          Start Processing
+        </button>
+      <% when 'processing' %>
+        <button class="quick-action-btn ship" 
+                onclick="event.stopPropagation(); shipReplacement(<%= replacement.dispatch.id %>)">
+          <i class="fas fa-truck"></i>
+          Ship
+        </button>
+      <% when 'shipped' %>
+        <button class="quick-action-btn track" 
+                onclick="event.stopPropagation(); trackReplacement('<%= replacement.dispatch.tracking_number %>')">
+          <i class="fas fa-map-marker-alt"></i>
+          Track
+        </button>
+      <% when 'completed' %>
+        <div class="completed-indicator">
+          <i class="fas fa-check-circle"></i>
+          Delivered
+        </div>
+      <% end %>
+    <% else %>
+      <button class="quick-action-btn create-dispatch" 
+              onclick="event.stopPropagation(); createReplacementDispatch(<%= replacement.id %>)">
+        <i class="fas fa-plus"></i>
+        Create Dispatch
+      </button>
+    <% end %>
+  </div>
+
+  <!-- Performance indicator -->
+  <div class="replacement-performance">
+    <% days_since_created = (Date.current - replacement.created_at.to_date).to_i %>
+    <% if days_since_created <= 1 %>
+      <span class="performance-indicator excellent">
+        <i class="fas fa-rocket"></i>
+        Fast Track
+      </span>
+    <% elsif days_since_created <= 3 %>
+      <span class="performance-indicator good">
+        <i class="fas fa-clock"></i>
+        On Time
+      </span>
+    <% else %>
+      <span class="performance-indicator warning">
+        <i class="fas fa-exclamation-triangle"></i>
+        Delayed
+      </span>
+    <% end %>
+  </div>
+</div>

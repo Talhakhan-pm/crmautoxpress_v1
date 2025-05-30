@@ -30,6 +30,15 @@ class DispatchesController < ApplicationController
     @payment_statuses = Dispatch.payment_statuses.keys
     @shipment_statuses = Dispatch.shipment_statuses.keys
     @suppliers = Supplier.joins(:orders).distinct.pluck(:name).compact.sort
+    
+    # Return and replacement tracking data
+    @returns = Refund.includes(:order, :processing_agent)
+                    .where(return_status: ['return_requested', 'return_authorized', 'return_label_sent', 'return_shipped', 'return_in_transit', 'return_delivered', 'return_received'])
+                    .recent
+    
+    @replacements = Order.includes(:dispatch, :agent, :processing_agent)
+                         .where(source_channel: 'replacement')
+                         .recent
 
     respond_to do |format|
       format.html

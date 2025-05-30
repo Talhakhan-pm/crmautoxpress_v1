@@ -1,0 +1,120 @@
+<div class="replacements-tracking-view">
+  <!-- Replacements Flow Streams -->
+  <div class="flow-streams replacements-flow">
+    <!-- Pending Replacements Stream -->
+    <div class="flow-stream" data-status="pending">
+      <div class="stream-header">
+        <div class="stream-title">
+          <i class="fas fa-clock"></i>
+          Pending Replacements
+        </div>
+        <div class="stream-count"><%= @replacements.joins(:dispatch).where(dispatches: { dispatch_status: ['pending', 'assigned'] }).count %></div>
+      </div>
+      <div class="stream-flow" id="replacement-pending">
+        <% @replacements.joins(:dispatch).where(dispatches: { dispatch_status: ['pending', 'assigned'] }).each do |replacement| %>
+          <%= render 'replacement_card', replacement: replacement %>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Processing Replacements Stream -->
+    <div class="flow-stream" data-status="processing">
+      <div class="stream-header">
+        <div class="stream-title">
+          <i class="fas fa-cogs"></i>
+          Processing Replacements
+        </div>
+        <div class="stream-count"><%= @replacements.joins(:dispatch).where(dispatches: { dispatch_status: 'processing' }).count %></div>
+      </div>
+      <div class="stream-flow" id="replacement-processing">
+        <% @replacements.joins(:dispatch).where(dispatches: { dispatch_status: 'processing' }).each do |replacement| %>
+          <%= render 'replacement_card', replacement: replacement %>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Shipped Replacements Stream -->
+    <div class="flow-stream" data-status="shipped">
+      <div class="stream-header">
+        <div class="stream-title">
+          <i class="fas fa-shipping-fast"></i>
+          Shipped Replacements
+        </div>
+        <div class="stream-count"><%= @replacements.joins(:dispatch).where(dispatches: { dispatch_status: 'shipped' }).count %></div>
+      </div>
+      <div class="stream-flow" id="replacement-shipped">
+        <% @replacements.joins(:dispatch).where(dispatches: { dispatch_status: 'shipped' }).each do |replacement| %>
+          <%= render 'replacement_card', replacement: replacement %>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Completed Replacements Stream -->
+    <div class="flow-stream" data-status="completed">
+      <div class="stream-header">
+        <div class="stream-title">
+          <i class="fas fa-check-circle"></i>
+          Delivered Replacements
+        </div>
+        <div class="stream-count"><%= @replacements.joins(:dispatch).where(dispatches: { dispatch_status: 'completed' }).count %></div>
+      </div>
+      <div class="stream-flow" id="replacement-completed">
+        <% @replacements.joins(:dispatch).where(dispatches: { dispatch_status: 'completed' }).limit(10).each do |replacement| %>
+          <%= render 'replacement_card', replacement: replacement %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Replacements Metrics -->
+  <div class="flow-metrics replacements-metrics">
+    <div class="metric-flow">
+      <div class="metric-title">Replacement Processing Performance</div>
+      <div class="flow-bars">
+        <div class="flow-bar">
+          <span class="bar-label">Created Today</span>
+          <div class="bar-fill" style="width: 80%"></div>
+          <span class="bar-value"><%= @replacements.where(created_at: Date.current.beginning_of_day..Date.current.end_of_day).count %></span>
+        </div>
+        <div class="flow-bar">
+          <span class="bar-label">Shipped</span>
+          <div class="bar-fill shipped" style="width: 60%"></div>
+          <span class="bar-value"><%= @replacements.joins(:dispatch).where(dispatches: { dispatch_status: 'shipped' }).count %></span>
+        </div>
+        <div class="flow-bar">
+          <span class="bar-label">Delivered</span>
+          <div class="bar-fill completed" style="width: 45%"></div>
+          <span class="bar-value"><%= @replacements.joins(:dispatch).where(dispatches: { dispatch_status: 'completed' }).count %></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Replacement Performance Stats -->
+  <div class="replacement-stats">
+    <div class="stat-grid">
+      <div class="stat-item">
+        <div class="stat-number"><%= @replacements.count %></div>
+        <div class="stat-label">Total Replacements</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">
+          <%= @replacements.joins(:dispatch).where(dispatches: { dispatch_status: ['shipped', 'completed'] }).count %>
+        </div>
+        <div class="stat-label">Successfully Shipped</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">
+          <%= (@replacements.joins(:dispatch).where(dispatches: { dispatch_status: ['shipped', 'completed'] }).count.to_f / @replacements.count * 100).round(1) rescue 0 %>%
+        </div>
+        <div class="stat-label">Success Rate</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">
+          $<%= number_with_delimiter(@replacements.sum(:total_amount).to_i) %>
+        </div>
+        <div class="stat-label">Total Value</div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,94 @@
+<div class="return-flow-card" 
+     onclick="showReturnDetails(<%= refund.id %>)"
+     data-refund-id="<%= refund.id %>"
+     data-status="<%= refund.return_status %>">
+  
+  <div class="return-card-header">
+    <div class="return-number">
+      <i class="fas fa-undo"></i>
+      <%= refund.refund_number %>
+    </div>
+    <div class="return-amount">
+      $<%= number_with_precision(refund.refund_amount, precision: 2) %>
+    </div>
+  </div>
+
+  <div class="return-card-body">
+    <div class="customer-info">
+      <strong><%= refund.customer_name %></strong>
+      <div class="order-ref">Order: <%= refund.order.order_number %></div>
+    </div>
+    
+    <div class="product-info">
+      <%= refund.order.product_name %>
+      <% if refund.order.vehicle_info.present? %>
+        <div class="vehicle-info">
+          <i class="fas fa-car"></i>
+          <%= refund.order.vehicle_info %>
+        </div>
+      <% end %>
+    </div>
+    
+    <div class="return-reason">
+      <span class="reason-badge reason-<%= refund.reason_color %>">
+        <%= refund.refund_reason.humanize %>
+      </span>
+    </div>
+  </div>
+
+  <div class="return-card-footer">
+    <div class="return-status">
+      <span class="status-badge status-<%= refund.return_status_color %>">
+        <%= refund.return_status.humanize.gsub('_', ' ') %>
+      </span>
+    </div>
+    
+    <div class="return-dates">
+      <% if refund.return_tracking_number.present? %>
+        <div class="tracking-info">
+          <i class="fas fa-barcode"></i>
+          <%= refund.return_tracking_number %>
+        </div>
+      <% end %>
+      
+      <div class="days-elapsed">
+        <%= refund.days_since_return_requested %> days
+      </div>
+    </div>
+  </div>
+
+  <!-- Action indicators based on status -->
+  <div class="return-actions">
+    <% case refund.return_status %>
+    <% when 'return_requested' %>
+      <button class="quick-action-btn authorize" 
+              onclick="event.stopPropagation(); authorizeReturn(<%= refund.id %>)">
+        <i class="fas fa-check"></i>
+        Authorize
+      </button>
+    <% when 'return_authorized' %>
+      <button class="quick-action-btn generate-label" 
+              onclick="event.stopPropagation(); generateReturnLabel(<%= refund.id %>)">
+        <i class="fas fa-tag"></i>
+        Generate Label
+      </button>
+    <% when 'return_label_sent' %>
+      <div class="waiting-customer">
+        <i class="fas fa-clock"></i>
+        Waiting for customer
+      </div>
+    <% when 'return_shipped', 'return_in_transit' %>
+      <button class="quick-action-btn track" 
+              onclick="event.stopPropagation(); trackReturn('<%= refund.return_tracking_number %>')">
+        <i class="fas fa-map-marker-alt"></i>
+        Track
+      </button>
+    <% when 'return_delivered' %>
+      <button class="quick-action-btn receive" 
+              onclick="event.stopPropagation(); markReturnReceived(<%= refund.id %>)">
+        <i class="fas fa-inbox"></i>
+        Mark Received
+      </button>
+    <% end %>
+  </div>
+</div>

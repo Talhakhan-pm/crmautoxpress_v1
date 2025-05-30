@@ -26,6 +26,10 @@
         <span class="stat-number"><%= @dispatches.where(dispatch_status: 'shipped').count %></span>
         <span class="stat-label">In Transit</span>
       </div>
+      <div class="stat-bubble returns">
+        <span class="stat-number"><%= @returns.count %></span>
+        <span class="stat-label">Returns</span>
+      </div>
       <div class="stat-bubble revenue">
         <span class="stat-number">$<%= @dispatches.sum(:total_cost).to_i.to_s.gsub(/\B(?=(\d{3})+(?!\d))/, ',') %></span>
         <span class="stat-label">Total Value</span>
@@ -58,9 +62,17 @@
         </div>
         
         <div class="view-controls">
-          <button type="button" class="view-toggle <%= 'active' unless params[:view] == 'list' %>" 
+          <button type="button" class="view-toggle <%= 'active' unless params[:view] == 'list' || params[:view] == 'returns' || params[:view] == 'replacements' %>" 
                   onclick="setView('flow')">
-            <i class="fas fa-project-diagram"></i> Flow View
+            <i class="fas fa-project-diagram"></i> Dispatches
+          </button>
+          <button type="button" class="view-toggle <%= 'active' if params[:view] == 'returns' %>" 
+                  onclick="setView('returns')">
+            <i class="fas fa-undo"></i> Returns
+          </button>
+          <button type="button" class="view-toggle <%= 'active' if params[:view] == 'replacements' %>" 
+                  onclick="setView('replacements')">
+            <i class="fas fa-exchange-alt"></i> Replacements
           </button>
           <button type="button" class="view-toggle <%= 'active' if params[:view] == 'list' %>" 
                   onclick="setView('list')">
@@ -73,7 +85,13 @@
 
   <!-- Main Content Area -->
   <div class="command-content">
-    <% if params[:view] == 'list' %>
+    <% if params[:view] == 'returns' %>
+      <!-- Returns Tracking View -->
+      <%= render 'returns_tracking' %>
+    <% elsif params[:view] == 'replacements' %>
+      <!-- Replacements Tracking View -->
+      <%= render 'replacements_tracking' %>
+    <% elsif params[:view] == 'list' %>
       <!-- Traditional List View -->
       <div class="dispatch-list-view">
         <div class="list-container" id="dispatches">

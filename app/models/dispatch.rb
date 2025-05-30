@@ -165,8 +165,9 @@ class Dispatch < ApplicationRecord
     return unless order.present?
     old_status = dispatch_status_was
     
-    # Don't sync order status if there's an active refund - let refund logic handle order status
-    return if order.refund.present?
+    # Don't sync order status if there's an active refund workflow - let refund logic handle order status
+    # But allow sync for completed/cancelled refunds and return tracking
+    return if order.refund.present? && order.refund.refund_stage.in?(['pending_refund', 'processing_refund'])
     
     # Update order status based on dispatch status
     case dispatch_status
@@ -175,7 +176,10 @@ class Dispatch < ApplicationRecord
     when 'shipped'
       order.update!(order_status: 'shipped', tracking_number: tracking_number)
     when 'completed'
-      order.update!(order_status: 'delivered') if order.shipped?
+      # Allow direct transition from processing or shipped to delivered
+      if order.processing? || order.shipped?
+        order.update!(order_status: 'delivered')
+      end
     when 'cancelled'
       # Order status update only - refund creation handled by controller for custom amounts/reasons
       order.update!(order_status: 'processing')

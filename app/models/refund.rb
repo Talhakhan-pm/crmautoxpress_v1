@@ -682,6 +682,14 @@ class Refund < ApplicationRecord
       )
       
       Rails.logger.info "DEBUG: Order #{order.id} status after cancellation: #{order.reload.order_status}"
+    when 'pending_resolution'
+      # For pending_resolution stage, DO NOT cancel the order
+      # Just create activity to track the resolution request
+      order.create_activity(
+        action: 'resolution_requested',
+        details: "Resolution requested for #{refund_reason.humanize} - #{refund_number}",
+        user: Current.user || processing_agent
+      )
     end
     
     # Broadcast updates when stage changes

@@ -1,0 +1,108 @@
+<div class="returns-tracking-view">
+  <!-- Returns Flow Streams -->
+  <div class="flow-streams returns-flow">
+    <!-- Return Requested Stream -->
+    <div class="flow-stream" data-status="return_requested">
+      <div class="stream-header">
+        <div class="stream-title">
+          <i class="fas fa-exclamation-circle"></i>
+          Return Requested
+        </div>
+        <div class="stream-count"><%= @returns.where(return_status: 'return_requested').count %></div>
+      </div>
+      <div class="stream-flow" id="return-requested">
+        <% @returns.where(return_status: 'return_requested').each do |refund| %>
+          <%= render 'return_card', refund: refund %>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Return Authorized Stream -->
+    <div class="flow-stream" data-status="return_authorized">
+      <div class="stream-header">
+        <div class="stream-title">
+          <i class="fas fa-check-circle"></i>
+          Return Authorized
+        </div>
+        <div class="stream-count"><%= @returns.where(return_status: 'return_authorized').count %></div>
+      </div>
+      <div class="stream-flow" id="return-authorized">
+        <% @returns.where(return_status: 'return_authorized').each do |refund| %>
+          <%= render 'return_card', refund: refund %>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Label Sent Stream -->
+    <div class="flow-stream" data-status="return_label_sent">
+      <div class="stream-header">
+        <div class="stream-title">
+          <i class="fas fa-shipping-fast"></i>
+          Label Sent
+        </div>
+        <div class="stream-count"><%= @returns.where(return_status: 'return_label_sent').count %></div>
+      </div>
+      <div class="stream-flow" id="return-label-sent">
+        <% @returns.where(return_status: 'return_label_sent').each do |refund| %>
+          <%= render 'return_card', refund: refund %>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- In Transit Stream -->
+    <div class="flow-stream" data-status="return_shipped">
+      <div class="stream-header">
+        <div class="stream-title">
+          <i class="fas fa-truck"></i>
+          In Transit
+        </div>
+        <div class="stream-count"><%= @returns.where(return_status: ['return_shipped', 'return_in_transit']).count %></div>
+      </div>
+      <div class="stream-flow" id="return-in-transit">
+        <% @returns.where(return_status: ['return_shipped', 'return_in_transit']).each do |refund| %>
+          <%= render 'return_card', refund: refund %>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Received/Completed Stream -->
+    <div class="flow-stream" data-status="return_received">
+      <div class="stream-header">
+        <div class="stream-title">
+          <i class="fas fa-home"></i>
+          Received
+        </div>
+        <div class="stream-count"><%= @returns.where(return_status: ['return_delivered', 'return_received']).count %></div>
+      </div>
+      <div class="stream-flow" id="return-received">
+        <% @returns.where(return_status: ['return_delivered', 'return_received']).limit(10).each do |refund| %>
+          <%= render 'return_card', refund: refund %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Returns Metrics -->
+  <div class="flow-metrics returns-metrics">
+    <div class="metric-flow">
+      <div class="metric-title">Return Processing Performance</div>
+      <div class="flow-bars">
+        <div class="flow-bar">
+          <span class="bar-label">Requested Today</span>
+          <div class="bar-fill" style="width: 70%"></div>
+          <span class="bar-value"><%= @returns.where(created_at: Date.current.beginning_of_day..Date.current.end_of_day).count %></span>
+        </div>
+        <div class="flow-bar">
+          <span class="bar-label">Authorized</span>
+          <div class="bar-fill shipped" style="width: 85%"></div>
+          <span class="bar-value"><%= @returns.where(return_status: 'return_authorized').count %></span>
+        </div>
+        <div class="flow-bar">
+          <span class="bar-label">Completed</span>
+          <div class="bar-fill completed" style="width: 60%"></div>
+          <span class="bar-value"><%= @returns.where(return_status: ['return_received', 'return_inspected']).count %></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
