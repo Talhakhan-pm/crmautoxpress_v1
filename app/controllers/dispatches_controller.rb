@@ -89,20 +89,58 @@ class DispatchesController < ApplicationController
       return
     end
     
-    if @dispatch.update(dispatch_params)
-      respond_to do |format|
-        format.html { redirect_to dispatches_path, notice: 'Dispatch was successfully updated.' }
-        format.turbo_stream { 
-          load_dispatches_for_index
-          render :update 
-        }
+    # Update both dispatch and order in a transaction
+    ActiveRecord::Base.transaction do
+      # Update order attributes if provided
+      if params[:order].present?
+        order_attrs = order_params
+        
+        # Handle supplier creation if supplier_name is provided but no supplier_id
+        if order_attrs[:supplier_name].present? && order_attrs[:supplier_id].blank?
+          # Try to find existing supplier by name
+          supplier = Supplier.find_by(name: order_attrs[:supplier_name].strip)
+          
+          # Create supplier if not found
+          unless supplier
+            supplier = Supplier.create!(
+              name: order_attrs[:supplier_name].strip,
+              source: 'dispatch',
+              supplier_notes: "Auto-created from dispatch form"
+            )
+            
+            # Track supplier creation
+            supplier.create_activity(
+              action: 'supplier_auto_created',
+              details: "Supplier auto-created from dispatch ##{@dispatch.id}",
+              user: current_user
+            )
+          end
+          
+          # Set supplier_id and remove supplier_name from params
+          order_attrs[:supplier_id] = supplier.id
+          order_attrs.delete(:supplier_name)
+        end
+        
+        @dispatch.order.update!(order_attrs)
       end
-    else
-      load_form_data
-      respond_to do |format|
-        format.html { render :edit, status: :unprocessable_entity }
-        format.turbo_stream { render :edit, status: :unprocessable_entity }
-      end
+      
+      # Update dispatch attributes
+      @dispatch.update!(dispatch_params)
+    end
+    
+    respond_to do |format|
+      format.html { redirect_to dispatches_path, notice: 'Dispatch was successfully updated.' }
+      format.turbo_stream { 
+        load_dispatches_for_index
+        render :update 
+      }
+    end
+    
+  rescue ActiveRecord::RecordInvalid => e
+    load_form_data
+    respond_to do |format|
+      format.html { render :edit, status: :unprocessable_entity }
+      format.turbo_stream { render :edit, status: :unprocessable_entity }
     end
   end
 
@@ -534,10 +572,17 @@ class DispatchesController < ApplicationController
     )
   end
 
+  def order_params
+    params.require(:order).permit(
+      :supplier_id, :supplier_name, :supplier_order_number, :supplier_cost,
+      :supplier_shipping_cost, :supplier_shipment_proof
+    )
+  end
+
   def load_form_data
     @orders = Order.includes(:customer).order(created_at: :desc).limit(100)
     @agents = User.order(:email)
-    @suppliers = Supplier.joins(:orders).distinct.pluck(:name).compact.sort
+    @suppliers = Supplier.order(:name)
   end
 
   def populate_from_order(order)

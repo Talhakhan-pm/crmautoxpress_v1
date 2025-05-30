@@ -7,7 +7,9 @@ export default class extends Controller {
     "productName", "carDetails", "productCost", "productCostDisplay", "taxAmount", "shippingCost", 
     "totalCost", "totalDisplay", "customerTotal", "supplierName", "supplierOrderNumber", 
     "supplierCost", "supplierCostDisplay", "profitDisplay", "profitMargin",
-    "trackingSection", "dispatchStatus", "trackingNumber", "trackingLink"
+    "trackingSection", "dispatchStatus", "trackingNumber", "trackingLink",
+    "supplierAutocomplete", "supplierIdField", "autocompleteDropdown", "autocompleteResults", 
+    "autocompleteCreate", "newSupplierName"
   ]
   
   static values = { 
@@ -25,6 +27,9 @@ export default class extends Controller {
     
     // Set up real-time listeners
     this.setupRealTimeListeners()
+    
+    // Initialize supplier autocomplete
+    this.initializeSupplierAutocomplete()
   }
 
   disconnect() {
@@ -559,6 +564,178 @@ export default class extends Controller {
         console.error('Auto-save failed:', error)
       })
     }
+  }
+
+  // Supplier Autocomplete Functionality
+  initializeSupplierAutocomplete() {
+    if (this.hasSupplierAutocompleteTarget) {
+      this.suppliers = JSON.parse(this.supplierAutocompleteTarget.dataset.suppliers || '[]')
+      this.hideTimeout = null
+      console.log('Initialized autocomplete with suppliers:', this.suppliers)
+    }
+  }
+
+  supplierAutocomplete(event) {
+    const query = event.target.value.trim()
+    console.log('Autocomplete query:', query)
+    
+    if (query.length < 1) {
+      this.hideAutocomplete()
+      return
+    }
+
+    this.filterAndShowSuppliers(query)
+  }
+
+  filterAndShowSuppliers(query) {
+    const lowerQuery = query.toLowerCase()
+    const matchingSuppliers = this.suppliers.filter(([name, id]) => 
+      name.toLowerCase().includes(lowerQuery)
+    )
+
+    this.showAutocompleteResults(matchingSuppliers, query)
+  }
+
+  showAutocompleteResults(suppliers, query) {
+    if (!this.hasAutocompleteDropdownTarget || !this.hasAutocompleteResultsTarget) return
+
+    const resultsHtml = suppliers.map(([name, id]) => `
+      <div class="autocomplete-result" data-supplier-id="${id}" data-supplier-name="${name}" 
+           data-action="click->dispatch-form#selectSupplier">
+        <i class="fas fa-building"></i>
+        <span>${this.highlightMatch(name, query)}</span>
+      </div>
+    `).join('')
+
+    this.autocompleteResultsTarget.innerHTML = resultsHtml
+
+    // Show "Create new supplier" option if no exact match
+    const exactMatch = suppliers.find(([name, id]) => name.toLowerCase() === query.toLowerCase())
+    if (!exactMatch && query.length > 0) {
+      this.showCreateOption(query)
+    } else {
+      this.hideCreateOption()
+    }
+
+    this.showAutocomplete()
+  }
+
+  showCreateOption(query) {
+    if (this.hasAutocompleteCreateTarget && this.hasNewSupplierNameTarget) {
+      this.newSupplierNameTarget.textContent = query
+      this.autocompleteCreateTarget.style.display = 'block'
+    }
+  }
+
+  hideCreateOption() {
+    if (this.hasAutocompleteCreateTarget) {
+      this.autocompleteCreateTarget.style.display = 'none'
+    }
+  }
+
+  highlightMatch(text, query) {
+    const regex = new RegExp(`(${query})`, 'gi')
+    return text.replace(regex, '<strong>$1</strong>')
+  }
+
+  selectSupplier(event) {
+    const supplierId = event.currentTarget.dataset.supplierId
+    const supplierName = event.currentTarget.dataset.supplierName
+    
+    console.log('Selected supplier:', { supplierId, supplierName })
+    
+    if (this.hasSupplierAutocompleteTarget) {
+      this.supplierAutocompleteTarget.value = supplierName
+    }
+    
+    if (this.hasSupplierIdFieldTarget) {
+      this.supplierIdFieldTarget.value = supplierId
+    }
+    
+    this.hideAutocomplete()
+    
+    // Trigger any additional logic when supplier is selected
+    this.onSupplierSelected(supplierId, supplierName)
+  }
+
+  createNewSupplier(event) {
+    const newSupplierName = this.supplierAutocompleteTarget.value.trim()
+    
+    console.log('Creating new supplier:', newSupplierName)
+    
+    if (newSupplierName) {
+      // Clear supplier_id to indicate this is a new supplier
+      if (this.hasSupplierIdFieldTarget) {
+        this.supplierIdFieldTarget.value = ''
+      }
+      
+      // Keep the name in the input
+      if (this.hasSupplierAutocompleteTarget) {
+        this.supplierAutocompleteTarget.value = newSupplierName
+      }
+      
+      this.hideAutocomplete()
+      
+      // Show success message
+      this.showSuccess(`New supplier "${newSupplierName}" will be created when form is saved`)
+    }
+  }
+
+  onSupplierSelected(supplierId, supplierName) {
+    // This method can be extended to load supplier-specific data
+    console.log('Supplier selected callback:', { supplierId, supplierName })
+    
+    // Could fetch supplier details, default costs, etc.
+    // For now, just show a subtle confirmation
+    const input = this.supplierAutocompleteTarget
+    if (input) {
+      input.style.borderColor = '#28a745'
+      setTimeout(() => {
+        input.style.borderColor = ''
+      }, 2000)
+    }
+  }
+
+  showSuggestions(event) {
+    // Clear any pending hide timeout
+    if (this.hideTimeout) {
+      clearTimeout(this.hideTimeout)
+      this.hideTimeout = null
+    }
+    
+    const query = event.target.value.trim()
+    if (query.length >= 1) {
+      this.filterAndShowSuppliers(query)
+    }
+  }
+
+  hideSuggestions(event) {
+    // Delay hiding to allow for clicks on dropdown items
+    this.hideTimeout = setTimeout(() => {
+      this.hideAutocomplete()
+    }, 200)
+  }
+
+  showAutocomplete() {
+    if (this.hasAutocompleteDropdownTarget) {
+      this.autocompleteDropdownTarget.style.display = 'block'
+      this.autocompleteDropdownTarget.style.visibility = 'visible'
+      this.autocompleteDropdownTarget.style.opacity = '1'
+      console.log('Showing autocomplete dropdown')
+    }
+  }
+
+  hideAutocomplete() {
+    if (this.hasAutocompleteDropdownTarget) {
+      this.autocompleteDropdownTarget.style.display = 'none'
+    }
+  }
+
+  // Enhanced supplier change handler
+  supplierChanged(event) {
+    // This method is called when supplier dropdown changes (if using select)
+    // Now mainly used for validation and styling
+    this.calculateProfit()
   }
 }
 

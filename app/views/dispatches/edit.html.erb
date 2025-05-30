@@ -114,41 +114,118 @@
                       <i class="fas fa-truck"></i>
                       Supplier Management
                     </h3>
-                    <button type="button" class="section-action">Find Supplier</button>
+                    <div class="section-actions">
+                      <%= link_to suppliers_path, class: "section-action btn-link", 
+                          data: { turbo_frame: "main_content" }, title: "View All Suppliers" do %>
+                        <i class="fas fa-external-link-alt"></i> View Suppliers
+                      <% end %>
+                    </div>
                   </div>
                   
-                  <div class="unified-form-grid">
-                    <div class="unified-form-group">
-                      <%= f.label :supplier_name, class: "form-label required" %>
-                      <%= f.text_field :supplier_name, class: "form-input", placeholder: "Enter supplier name", 
-                          data: { dispatch_form_target: "supplierName" } %>
+                  <% if @dispatch.order.supplier.present? %>
+                    <!-- Current Supplier Display -->
+                    <div class="current-supplier-info">
+                      <div class="supplier-card">
+                        <div class="supplier-header">
+                          <div class="supplier-name">
+                            <i class="fas fa-building"></i>
+                            <strong><%= @dispatch.order.supplier.name %></strong>
+                          </div>
+                          <%= link_to supplier_path(@dispatch.order.supplier), 
+                              class: "view-supplier-link", 
+                              data: { turbo_frame: "main_content" } do %>
+                            <i class="fas fa-eye"></i> View Details
+                          <% end %>
+                        </div>
+                        <% if @dispatch.order.supplier.supplier_notes.present? %>
+                          <div class="supplier-notes">
+                            <small class="text-muted"><%= truncate(@dispatch.order.supplier.supplier_notes, length: 80) %></small>
+                          </div>
+                        <% end %>
+                      </div>
                     </div>
-                    <div class="unified-form-group">
-                      <%= f.label :supplier_order_number, "Supplier Order #", class: "form-label" %>
-                      <%= f.text_field :supplier_order_number, class: "form-input", placeholder: "Supplier's order number",
-                          data: { dispatch_form_target: "supplierOrderNumber" } %>
+                  <% end %>
+                  
+                  <%= fields_for @dispatch.order, namespace: :order do |order_form| %>
+                    <div class="unified-form-grid">
+                      <div class="unified-form-group">
+                        <%= order_form.label :supplier_name, "Supplier Name", class: "form-label required" %>
+                        <%= order_form.text_field :supplier_name, 
+                            class: "form-input supplier-autocomplete", 
+                            placeholder: "Type supplier name...",
+                            value: @dispatch.order.supplier&.name,
+                            autocomplete: "off",
+                            data: { 
+                              dispatch_form_target: "supplierAutocomplete",
+                              action: "input->dispatch-form#supplierAutocomplete focus->dispatch-form#showSuggestions blur->dispatch-form#hideSuggestions",
+                              suppliers: Supplier.order(:name).pluck(:name, :id).to_json
+                            } %>
+                        <%= order_form.hidden_field :supplier_id, 
+                            value: @dispatch.order.supplier_id,
+                            data: { dispatch_form_target: "supplierIdField" } %>
+                        
+                        <!-- Autocomplete dropdown -->
+                        <div class="autocomplete-dropdown" data-dispatch-form-target="autocompleteDropdown" style="display: none;">
+                          <div class="autocomplete-results" data-dispatch-form-target="autocompleteResults">
+                            <!-- Results populated by JavaScript -->
+                          </div>
+                          <div class="autocomplete-create" data-dispatch-form-target="autocompleteCreate" style="display: none;">
+                            <div class="create-supplier-option" data-action="click->dispatch-form#createNewSupplier">
+                              <i class="fas fa-plus-circle"></i>
+                              <span>Create new supplier: "<span data-dispatch-form-target="newSupplierName"></span>"</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div class="unified-form-group">
+                        <%= order_form.label :supplier_order_number, "Supplier Order #", class: "form-label" %>
+                        <%= order_form.text_field :supplier_order_number, 
+                            class: "form-input", 
+                            placeholder: "Supplier's order number",
+                            value: @dispatch.order.supplier_order_number,
+                            data: { dispatch_form_target: "supplierOrderNumber" } %>
+                      </div>
+                      
+                      <div class="unified-form-group">
+                        <%= order_form.label :supplier_cost, "Supplier Cost", class: "form-label required" %>
+                        <%= order_form.number_field :supplier_cost, 
+                            step: 0.01, 
+                            class: "form-input", 
+                            value: @dispatch.order.supplier_cost,
+                            data: { 
+                              dispatch_form_target: "supplierCost", 
+                              action: "input->dispatch-form#supplierCostChanged keyup->dispatch-form#supplierCostChanged" 
+                            } %>
+                      </div>
+                      
+                      <div class="unified-form-group">
+                        <%= f.label :condition, class: "form-label" %>
+                        <%= f.select :condition, options_for_select([
+                          ['New', 'new'],
+                          ['Used', 'used'],
+                          ['Refurbished', 'refurbished']
+                        ], @dispatch.condition), { prompt: 'Select condition' }, { class: "form-select" } %>
+                      </div>
+                      
+                      <div class="unified-form-group">
+                        <%= order_form.label :supplier_shipping_cost, "Supplier Shipping", class: "form-label" %>
+                        <%= order_form.number_field :supplier_shipping_cost, 
+                            step: 0.01, 
+                            class: "form-input", 
+                            placeholder: "0.00",
+                            value: @dispatch.order.supplier_shipping_cost %>
+                      </div>
+                      
+                      <div class="unified-form-group">
+                        <%= order_form.label :supplier_shipment_proof, "Shipment Proof URL", class: "form-label" %>
+                        <%= order_form.url_field :supplier_shipment_proof, 
+                            class: "form-input", 
+                            placeholder: "Link to tracking or shipment confirmation",
+                            value: @dispatch.order.supplier_shipment_proof %>
+                      </div>
                     </div>
-                    <div class="unified-form-group">
-                      <%= f.label :supplier_cost, class: "form-label required" %>
-                      <%= f.number_field :supplier_cost, step: 0.01, class: "form-input", 
-                          data: { 
-                            dispatch_form_target: "supplierCost", 
-                            action: "input->dispatch-form#supplierCostChanged keyup->dispatch-form#supplierCostChanged" 
-                          } %>
-                    </div>
-                    <div class="unified-form-group">
-                      <%= f.label :condition, class: "form-label" %>
-                      <%= f.select :condition, options_for_select([
-                        ['New', 'new'],
-                        ['Used', 'used'],
-                        ['Refurbished', 'refurbished']
-                      ], @dispatch.condition), { prompt: 'Select condition' }, { class: "form-select" } %>
-                    </div>
-                    <div class="unified-form-group">
-                      <%= f.label :supplier_shipment_proof, "Shipment Proof URL", class: "form-label" %>
-                      <%= f.url_field :supplier_shipment_proof, class: "form-input", placeholder: "Link to tracking or shipment confirmation" %>
-                    </div>
-                  </div>
+                  <% end %>
                 </div>
 
                 <!-- Status Management Section -->
