@@ -703,11 +703,11 @@ class Refund < ApplicationRecord
     self.estimated_processing_days ||= 7
     
     # Set initial stage based on refund reason (override enum default)
-    # ALL return reasons start with agent clarification to gather details
+    # Dropdown reasons go straight to dispatch decision since reason is already provided
     if ['wrong_product', 'defective_product', 'quality_issues', 'customer_changed_mind'].include?(self.refund_reason)
-      # All return/refund requests start with agent review to gather customer details
+      # Dropdown selections go to dispatcher with reason already provided
       self.refund_stage = 'pending_resolution'
-      self.resolution_stage = 'pending_customer_clarification'
+      self.resolution_stage = 'pending_dispatch_decision'
       self.return_status = 'return_requested'
     else
       # Other reasons (like system-created refunds) go straight to pending refund

@@ -515,7 +515,7 @@ class ResolutionController < ApplicationController
           turbo_stream.update("resolution-stats-container", partial: "stats", locals: { stats: calculate_resolution_stats })
         ]
       end
-      format.json { render json: { status: 'success' } }
+      format.json { render json: { success: true } }
     end
   end
 end

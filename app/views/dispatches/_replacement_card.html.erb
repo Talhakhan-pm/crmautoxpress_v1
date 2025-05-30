@@ -1,6 +1,8 @@
 <div class="replacement-flow-card" 
-     onclick="showReplacementDetails(<%= replacement.id %>)"
-     data-order-id="<%= replacement.id %>"
+     data-controller="dispatch-actions"
+     data-dispatch-actions-replacement-id-value="<%= replacement.id %>"
+     data-dispatch-actions-dispatch-id-value="<%= replacement.dispatch&.id %>"
+     data-action="click->dispatch-actions#showReplacementDetails"
      data-status="<%= replacement.dispatch&.dispatch_status %>">
   
   <div class="replacement-card-header">
@@ -75,19 +77,20 @@
       <% case replacement.dispatch.dispatch_status %>
       <% when 'pending', 'assigned' %>
         <button class="quick-action-btn start-processing" 
-                onclick="event.stopPropagation(); startReplacementProcessing(<%= replacement.dispatch.id %>)">
+                data-action="click->dispatch-actions#startReplacementProcessing">
           <i class="fas fa-play"></i>
           Start Processing
         </button>
       <% when 'processing' %>
         <button class="quick-action-btn ship" 
-                onclick="event.stopPropagation(); shipReplacement(<%= replacement.dispatch.id %>)">
+                data-action="click->dispatch-actions#shipReplacement">
           <i class="fas fa-truck"></i>
           Ship
         </button>
       <% when 'shipped' %>
         <button class="quick-action-btn track" 
-                onclick="event.stopPropagation(); trackReplacement('<%= replacement.dispatch.tracking_number %>')">
+                data-action="click->dispatch-actions#trackReplacement"
+                data-tracking-number="<%= replacement.dispatch.tracking_number %>">
           <i class="fas fa-map-marker-alt"></i>
           Track
         </button>
@@ -99,7 +102,7 @@
       <% end %>
     <% else %>
       <button class="quick-action-btn create-dispatch" 
-              onclick="event.stopPropagation(); createReplacementDispatch(<%= replacement.id %>)">
+              data-action="click->dispatch-actions#createReplacementDispatch">
         <i class="fas fa-plus"></i>
         Create Dispatch
       </button>

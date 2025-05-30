@@ -1,4 +1,8 @@
-<div class="resolution-communication-system">
+<div class="resolution-communication-system" 
+     data-controller="unified-resolution"
+     data-unified-resolution-refund-id-value="<%= refund.id %>"
+     data-unified-resolution-current-stage-value="<%= refund.resolution_stage %>"
+     data-unified-resolution-user-id-value="<%= current_user&.id %>">
 
   <!-- Communication Hub Toggle Button -->
   <div class="communication-hub-trigger">

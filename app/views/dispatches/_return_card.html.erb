@@ -1,6 +1,7 @@
 <div class="return-flow-card" 
-     onclick="showReturnDetails(<%= refund.id %>)"
-     data-refund-id="<%= refund.id %>"
+     data-controller="dispatch-actions"
+     data-dispatch-actions-refund-id-value="<%= refund.id %>"
+     data-action="click->dispatch-actions#showReturnDetails"
      data-status="<%= refund.return_status %>">
   
   <div class="return-card-header">
@@ -62,13 +63,13 @@
     <% case refund.return_status %>
     <% when 'return_requested' %>
       <button class="quick-action-btn authorize" 
-              onclick="event.stopPropagation(); authorizeReturn(<%= refund.id %>)">
+              data-action="click->dispatch-actions#authorizeReturn">
         <i class="fas fa-check"></i>
         Authorize
       </button>
     <% when 'return_authorized' %>
       <button class="quick-action-btn generate-label" 
-              onclick="event.stopPropagation(); generateReturnLabel(<%= refund.id %>)">
+              data-action="click->dispatch-actions#generateReturnLabel">
         <i class="fas fa-tag"></i>
         Generate Label
       </button>
@@ -79,13 +80,14 @@
       </div>
     <% when 'return_shipped', 'return_in_transit' %>
       <button class="quick-action-btn track" 
-              onclick="event.stopPropagation(); trackReturn('<%= refund.return_tracking_number %>')">
+              data-action="click->dispatch-actions#trackReturn"
+              data-tracking-number="<%= refund.return_tracking_number %>">
         <i class="fas fa-map-marker-alt"></i>
         Track
       </button>
     <% when 'return_delivered' %>
       <button class="quick-action-btn receive" 
-              onclick="event.stopPropagation(); markReturnReceived(<%= refund.id %>)">
+              data-action="click->dispatch-actions#markReturnReceived">
         <i class="fas fa-inbox"></i>
         Mark Received
       </button>
