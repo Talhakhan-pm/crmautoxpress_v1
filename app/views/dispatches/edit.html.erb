@@ -90,21 +90,115 @@
                   <div class="info-grid">
                     <div class="info-item">
                       <div class="info-label">Delivery Address</div>
-                      <div class="info-value"><%= @dispatch.customer_address %></div>
+                      <div class="info-value" style="text-align: left;"><%= @dispatch.customer_address %></div>
                     </div>
                     <div class="info-item">
                       <div class="info-label">Customer</div>
-                      <div class="info-value"><%= @dispatch.customer_name %></div>
+                      <div class="info-value" style="text-align: left;"><%= @dispatch.customer_name %></div>
                     </div>
                     <div class="info-item">
                       <div class="info-label">Product</div>
-                      <div class="info-value"><%= @dispatch.product_name %></div>
+                      <div class="info-value" style="text-align: left;"><%= @dispatch.product_name %></div>
                     </div>
                     <div class="info-item">
                       <div class="info-label">Vehicle</div>
-                      <div class="info-value"><%= @dispatch.car_details %></div>
+                      <div class="info-value" style="text-align: left;"><%= @dispatch.car_details %></div>
                     </div>
                   </div>
+                </div>
+
+                <!-- Status Management Section -->
+                <div class="unified-form-section">
+                  <div class="unified-section-header">
+                    <h3 class="section-title">
+                      <i class="fas fa-clipboard-check"></i>
+                      Status Management
+                    </h3>
+                    <div class="status-indicator">
+                      <span class="current-status-badge status-<%= @dispatch.dispatch_status %>">
+                        <%= @dispatch.dispatch_status.humanize %>
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div class="unified-form-grid">
+                    <!-- Dispatch Status -->
+                    <div class="unified-form-group">
+                      <%= f.label :dispatch_status, "Dispatch Status", class: "form-label required" %>
+                      <% has_pending_resolution = @dispatch.order.refund.present? && @dispatch.order.refund.refund_stage == 'pending_resolution' %>
+                      <% if has_pending_resolution %>
+                        <div class="alert alert-warning mt-2 mb-3">
+                          <i class="fas fa-exclamation-triangle me-2"></i>
+                          <strong>Status Locked:</strong> This dispatch cannot be modified until the refund resolution is completed.
+                          <a href="<%= refunds_path %>" class="alert-link">Go to Refunds</a> to resolve.
+                        </div>
+                        <%= f.select :dispatch_status, 
+                            options_for_select([
+                              ['❌ Cancelled (Resolution Required)', 'cancelled']
+                            ], @dispatch.dispatch_status), 
+                            {}, 
+                            { 
+                              class: "form-select status-select status-#{@dispatch.dispatch_status}",
+                              disabled: true,
+                              data: { 
+                                dispatch_form_target: "dispatchStatus",
+                                dispatch_cancellation_target: "statusSelect"
+                              }
+                            } %>
+                      <% else %>
+                        <%= f.select :dispatch_status, 
+                            options_for_select([
+                              ['⏳ Pending Processing', 'pending'],
+                              ['📋 Assigned to Agent', 'assigned'],
+                              ['⚙️ Processing Order', 'processing'],
+                              ['🚚 Shipped to Customer', 'shipped'],
+                              ['✅ Completed & Delivered', 'completed'],
+                              ['❌ Cancelled', 'cancelled']
+                            ], @dispatch.dispatch_status), 
+                            { prompt: 'Select dispatch status' }, 
+                            { 
+                              class: "form-select status-select status-#{@dispatch.dispatch_status}",
+                              data: { 
+                                dispatch_form_target: "dispatchStatus",
+                                dispatch_cancellation_target: "statusSelect",
+                                action: "change->dispatch-form#updateStatusFields change->dispatch-cancellation#statusChanged"
+                              }
+                            } %>
+                      <% end %>
+                    </div>
+                  </div>
+
+                  <!-- Tracking Information (Conditional) -->
+                  <div class="tracking-section" 
+                       data-dispatch-form-target="trackingSection"
+                       style="<%= @dispatch.dispatch_status.in?(['shipped', 'completed']) ? 'display: block;' : 'display: none;' %>">
+                    <div class="section-divider">
+                      <div class="divider-line"></div>
+                      <span class="divider-text">
+                        <i class="fas fa-map-marker-alt"></i>
+                        Tracking Information
+                      </span>
+                      <div class="divider-line"></div>
+                    </div>
+                    
+                    <div class="unified-form-grid">
+                      <div class="unified-form-group">
+                        <%= f.label :tracking_number, "Tracking Number", class: "form-label" %>
+                        <%= f.text_field :tracking_number, 
+                            class: "form-input tracking-input", 
+                            placeholder: "Enter tracking number",
+                            data: { dispatch_form_target: "trackingNumber" } %>
+                      </div>
+                      <div class="unified-form-group">
+                        <%= f.label :tracking_link, "Tracking URL", class: "form-label" %>
+                        <%= f.url_field :tracking_link, 
+                            class: "form-input", 
+                            placeholder: "https://tracking.example.com/...",
+                            data: { dispatch_form_target: "trackingLink" } %>
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
 
                 <!-- Supplier Management Section -->
@@ -228,101 +322,46 @@
                   <% end %>
                 </div>
 
-                <!-- Status Management Section -->
+                <!-- Financial Overview Section -->
                 <div class="unified-form-section">
                   <div class="unified-section-header">
                     <h3 class="section-title">
-                      <i class="fas fa-clipboard-check"></i>
-                      Status Management
+                      <i class="fas fa-dollar-sign"></i>
+                      Financial Overview
                     </h3>
-                    <div class="status-indicator">
-                      <span class="current-status-badge status-<%= @dispatch.dispatch_status %>">
-                        <%= @dispatch.dispatch_status.humanize %>
-                      </span>
-                    </div>
                   </div>
                   
-                  <div class="unified-form-grid">
-                    <!-- Dispatch Status -->
-                    <div class="unified-form-group">
-                      <%= f.label :dispatch_status, "Dispatch Status", class: "form-label required" %>
-                      <% has_pending_resolution = @dispatch.order.refund.present? && @dispatch.order.refund.refund_stage == 'pending_resolution' %>
-                      <% if has_pending_resolution %>
-                        <div class="alert alert-warning mt-2 mb-3">
-                          <i class="fas fa-exclamation-triangle me-2"></i>
-                          <strong>Status Locked:</strong> This dispatch cannot be modified until the refund resolution is completed.
-                          <a href="<%= refunds_path %>" class="alert-link">Go to Refunds</a> to resolve.
-                        </div>
-                        <%= f.select :dispatch_status, 
-                            options_for_select([
-                              ['❌ Cancelled (Resolution Required)', 'cancelled']
-                            ], @dispatch.dispatch_status), 
-                            {}, 
-                            { 
-                              class: "form-select status-select status-#{@dispatch.dispatch_status}",
-                              disabled: true,
-                              data: { 
-                                dispatch_form_target: "dispatchStatus",
-                                dispatch_cancellation_target: "statusSelect"
-                              }
-                            } %>
-                      <% else %>
-                        <%= f.select :dispatch_status, 
-                            options_for_select([
-                              ['⏳ Pending Processing', 'pending'],
-                              ['📋 Assigned to Agent', 'assigned'],
-                              ['⚙️ Processing Order', 'processing'],
-                              ['🚚 Shipped to Customer', 'shipped'],
-                              ['✅ Completed & Delivered', 'completed'],
-                              ['❌ Cancelled', 'cancelled']
-                            ], @dispatch.dispatch_status), 
-                            { prompt: 'Select dispatch status' }, 
-                            { 
-                              class: "form-select status-select status-#{@dispatch.dispatch_status}",
-                              data: { 
-                                dispatch_form_target: "dispatchStatus",
-                                dispatch_cancellation_target: "statusSelect",
-                                action: "change->dispatch-form#updateStatusFields change->dispatch-cancellation#statusChanged"
-                              }
-                            } %>
-                      <% end %>
+                  <div class="info-grid">
+                    <div class="info-item">
+                      <div class="info-label">Customer Total</div>
+                      <div class="info-value cost-highlight" style="text-align: left;" data-dispatch-form-target="customerTotal"><%= number_to_currency(@dispatch.total_cost || 0) %></div>
                     </div>
-                  </div>
-
-                  <!-- Tracking Information (Conditional) -->
-                  <div class="tracking-section" 
-                       data-dispatch-form-target="trackingSection"
-                       style="<%= @dispatch.dispatch_status.in?(['shipped', 'completed']) ? 'display: block;' : 'display: none;' %>">
-                    <div class="section-divider">
-                      <div class="divider-line"></div>
-                      <span class="divider-text">
-                        <i class="fas fa-map-marker-alt"></i>
-                        Tracking Information
-                      </span>
-                      <div class="divider-line"></div>
+                    <div class="info-item">
+                      <div class="info-label">Tax & Shipping</div>
+                      <div class="info-value" style="text-align: left;"><%= number_to_currency((@dispatch.tax_amount || 0) + (@dispatch.shipping_cost || 0)) %></div>
                     </div>
-                    
-                    <div class="unified-form-grid">
-                      <div class="unified-form-group">
-                        <%= f.label :tracking_number, "Tracking Number", class: "form-label" %>
-                        <%= f.text_field :tracking_number, 
-                            class: "form-input tracking-input", 
-                            placeholder: "Enter tracking number",
-                            data: { dispatch_form_target: "trackingNumber" } %>
+                    <div class="info-item">
+                      <div class="info-label">Supplier Cost</div>
+                      <div class="info-value" style="text-align: left;" data-dispatch-form-target="supplierCostDisplay">
+                        <%= number_to_currency(@dispatch.order.supplier_cost || 0) %>
                       </div>
-                      <div class="unified-form-group">
-                        <%= f.label :tracking_link, "Tracking URL", class: "form-label" %>
-                        <%= f.url_field :tracking_link, 
-                            class: "form-input", 
-                            placeholder: "https://tracking.example.com/...",
-                            data: { dispatch_form_target: "trackingLink" } %>
+                    </div>
+                    <div class="info-item profit-item">
+                      <div class="info-label">Profit</div>
+                      <div class="info-value profit-positive" style="text-align: left;" data-dispatch-form-target="profitDisplay">
+                        <%= number_to_currency(@dispatch.profit_margin || 0) %>
+                      </div>
+                    </div>
+                    <div class="info-item">
+                      <div class="info-label">Margin</div>
+                      <div class="info-value profit-positive" style="text-align: left;" data-dispatch-form-target="profitMargin">
+                        <%= @dispatch.profit_percentage || 0 %>%
                       </div>
                     </div>
                   </div>
-
                 </div>
 
-                <!-- Communication Section -->
+                <!-- Communication & Notes Section -->
                 <div class="unified-form-section">
                   <div class="unified-section-header">
                     <h3 class="section-title">
@@ -347,64 +386,6 @@
                           class: "form-input", 
                           placeholder: "Internal notes, supplier communications, special instructions..." %>
                       <small class="form-help">Private notes visible only to your team.</small>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Financial Overview Section -->
-                <div class="unified-form-section">
-                  <div class="unified-section-header">
-                    <h3 class="section-title">
-                      <i class="fas fa-dollar-sign"></i>
-                      Financial Overview
-                    </h3>
-                  </div>
-                  
-                  <div class="info-grid">
-                    <div class="info-item">
-                      <div class="info-label">Customer Total</div>
-                      <div class="info-value cost-highlight" data-dispatch-form-target="customerTotal"><%= number_to_currency(@dispatch.total_cost || 0) %></div>
-                    </div>
-                    <div class="info-item">
-                      <div class="info-label">Tax & Shipping</div>
-                      <div class="info-value"><%= number_to_currency((@dispatch.tax_amount || 0) + (@dispatch.shipping_cost || 0)) %></div>
-                    </div>
-                    <div class="info-item">
-                      <div class="info-label">Supplier Cost</div>
-                      <div class="info-value" data-dispatch-form-target="supplierCostDisplay"><%= number_to_currency(@dispatch.order.supplier_cost || 0) %></div>
-                    </div>
-                    <div class="info-item">
-                      <div class="info-label">Estimated Profit</div>
-                      <div class="info-value profit-positive" data-dispatch-form-target="profitDisplay"><%
-                        profit = (@dispatch.total_cost || 0) - (@dispatch.order.supplier_cost || 0)
-                        if profit > 0
-                          "+#{number_to_currency(profit)}"
-                        elsif profit < 0
-                          number_to_currency(profit)
-                        else
-                          "$0.00"
-                        end
-                      %></div>
-                    </div>
-                    <div class="info-item">
-                      <div class="info-label">Profit Margin</div>
-                      <div class="info-value <%
-                        profit = (@dispatch.total_cost || 0) - (@dispatch.order.supplier_cost || 0)
-                        if profit > 0
-                          'profit-positive'
-                        elsif profit < 0
-                          'profit-negative'
-                        else
-                          'profit-zero'
-                        end
-                      %>" data-dispatch-form-target="profitMargin"><%
-                        if (@dispatch.total_cost || 0) > 0 && (@dispatch.order.supplier_cost || 0) > 0
-                          margin = (((@dispatch.total_cost || 0) - (@dispatch.order.supplier_cost || 0)) / (@dispatch.total_cost || 0) * 100).round(2)
-                          "#{margin}%"
-                        else
-                          "0.00%"
-                        end
-                      %></div>
                     </div>
                   </div>
                 </div>
