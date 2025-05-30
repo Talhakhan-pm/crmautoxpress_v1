@@ -602,8 +602,7 @@ export default class extends Controller {
     const resultsHtml = suppliers.map(([name, id]) => `
       <div class="autocomplete-result" data-supplier-id="${id}" data-supplier-name="${name}" 
            data-action="click->dispatch-form#selectSupplier">
-        <i class="fas fa-building"></i>
-        <span>${this.highlightMatch(name, query)}</span>
+        ${this.highlightMatch(name, query)}
       </div>
     `).join('')
 

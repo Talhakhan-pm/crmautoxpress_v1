@@ -65,27 +65,26 @@
     left: 0;
     right: 0;
     background: #ffffff;
-    border: 1px solid #e1e5e9;
+    border: 1px solid #dee2e6;
     border-top: none;
-    border-radius: 0 0 8px 8px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     z-index: 9999 !important;
-    max-height: 200px;
+    max-height: 180px;
     overflow-y: auto;
 }
 
 .autocomplete-results {
-    max-height: 150px;
+    max-height: 140px;
     overflow-y: auto;
 }
 
 .autocomplete-result {
-    display: flex;
-    align-items: center;
-    padding: 12px 16px;
+    padding: 8px 12px;
     cursor: pointer;
-    border-bottom: 1px solid #f1f3f4;
-    transition: background-color 0.2s;
+    border-bottom: 1px solid #f8f9fa;
+    transition: background-color 0.15s;
+    font-size: 14px;
 }
 
 .autocomplete-result:hover {
@@ -96,44 +95,31 @@
     border-bottom: none;
 }
 
-.autocomplete-result i {
-    margin-right: 8px;
-    color: #6c757d;
-    width: 16px;
-}
-
-.autocomplete-result span {
-    flex: 1;
-    font-size: 14px;
-}
-
 .autocomplete-result strong {
-    color: #0d6efd;
-    font-weight: 600;
+    color: #495057;
+    font-weight: 500;
 }
 
 .autocomplete-create {
-    border-top: 1px solid #e1e5e9;
+    border-top: 1px solid #dee2e6;
     background-color: #f8f9fa;
 }
 
 .create-supplier-option {
-    display: flex;
-    align-items: center;
-    padding: 12px 16px;
+    padding: 8px 12px;
     cursor: pointer;
-    color: #198754;
-    font-weight: 500;
-    transition: background-color 0.2s;
+    color: #28a745;
+    font-size: 13px;
+    transition: background-color 0.15s;
 }
 
 .create-supplier-option:hover {
-    background-color: #e8f5e8;
+    background-color: #e9f7ef;
 }
 
 .create-supplier-option i {
-    margin-right: 8px;
-    color: #198754;
+    margin-right: 6px;
+    font-size: 12px;
 }
 
 .current-supplier-info {
