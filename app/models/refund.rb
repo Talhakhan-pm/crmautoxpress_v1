@@ -564,6 +564,102 @@ class Refund < ApplicationRecord
     breakdown
   end
 
+  # Resolution Actions for Returns
+  def authorize_return_and_refund!
+    return false unless pending_resolution?
+    
+    transaction do
+      update!(
+        resolution_stage: 'resolution_completed',
+        dispatcher_decision: 'authorize_return_and_refund',
+        return_status: 'return_authorized',
+        return_authorized_at: Time.current,
+        refund_stage: 'pending_return'
+      )
+      
+      create_activity(
+        action: 'return_authorized',
+        details: "Return authorized for full refund - Customer to ship back #{order.product_name}",
+        user: Current.user
+      )
+    end
+  end
+
+  def authorize_return_and_replacement!
+    return false unless pending_resolution?
+    
+    transaction do
+      # Create replacement order first
+      replacement = create_replacement_order
+      
+      update!(
+        resolution_stage: 'resolution_completed',
+        dispatcher_decision: 'authorize_return_and_replacement',
+        return_status: 'return_authorized',
+        return_authorized_at: Time.current,
+        replacement_order_number: replacement.order_number
+      )
+      
+      create_activity(
+        action: 'return_and_replacement_authorized',
+        details: "Return authorized with replacement order #{replacement.order_number}",
+        user: Current.user
+      )
+      
+      replacement
+    end
+  end
+
+  def generate_return_label!(carrier: 'FedEx', label_url: nil)
+    return false unless can_generate_return_label?
+    
+    update!(
+      return_status: 'return_label_sent',
+      return_carrier: carrier,
+      return_label_url: label_url || "https://example.com/return-labels/#{id}",
+      return_deadline: 14.days.from_now
+    )
+    
+    create_activity(
+      action: 'return_label_generated',
+      details: "Return label generated via #{carrier} - Customer has 14 days to ship",
+      user: Current.user
+    )
+  end
+
+  def mark_return_shipped!(tracking_number: nil)
+    return false unless return_label_sent?
+    
+    update!(
+      return_status: 'return_shipped',
+      return_tracking_number: tracking_number || return_tracking_number,
+      return_shipped_at: Time.current
+    )
+    
+    create_activity(
+      action: 'return_shipped',
+      details: "Customer shipped return package - Tracking: #{return_tracking_number}",
+      user: Current.user
+    )
+  end
+
+  def mark_return_received!(condition_notes: nil)
+    return false unless return_shipped? || return_in_transit? || return_delivered?
+    
+    update!(
+      return_status: 'return_received',
+      return_received_at: Time.current,
+      return_notes: condition_notes || return_notes,
+      refund_stage: 'processing_refund'
+    )
+    
+    create_activity(
+      action: 'return_received',
+      details: "Return package received and inspected#{condition_notes.present? ? ' - ' + condition_notes : ''}",
+      user: Current.user
+    )
+  end
+
   private
 
   def broadcast_refunds_update
@@ -586,13 +682,18 @@ class Refund < ApplicationRecord
     self.estimated_processing_days ||= 7
     
     # Set initial stage based on refund reason (override enum default)
-    if ['wrong_product', 'defective_product', 'quality_issues'].include?(self.refund_reason)
-      # Return-eligible reasons start in resolution workflow
+    if self.refund_reason == 'wrong_product'
+      # Wrong product needs dispatcher to source correct item
+      self.refund_stage = 'pending_resolution'
+      self.resolution_stage = 'pending_dispatch_decision'
+      self.return_status = 'return_requested'
+    elsif ['defective_product', 'quality_issues'].include?(self.refund_reason)
+      # Quality issues need agent to get return details from customer
       self.refund_stage = 'pending_resolution'
       self.resolution_stage = 'pending_customer_clarification'
       self.return_status = 'return_requested'
     elsif self.refund_reason == 'customer_changed_mind'
-      # Customer changed mind should also go to resolution for dispatcher decision
+      # Customer changed mind needs dispatcher decision on refund policy
       self.refund_stage = 'pending_resolution'
       self.resolution_stage = 'pending_dispatch_decision'
       self.return_status = 'no_return_required'
@@ -749,102 +850,6 @@ class Refund < ApplicationRecord
     )
     
     replacement
-  end
-
-  # Resolution Actions for Returns
-  def authorize_return_and_refund!
-    return false unless pending_resolution?
-    
-    transaction do
-      update!(
-        resolution_stage: 'resolution_completed',
-        dispatcher_decision: 'authorize_return_and_refund',
-        return_status: 'return_authorized',
-        return_authorized_at: Time.current,
-        refund_stage: 'pending_return'
-      )
-      
-      create_activity(
-        action: 'return_authorized',
-        details: "Return authorized for full refund - Customer to ship back #{order.product_name}",
-        user: Current.user
-      )
-    end
-  end
-
-  def authorize_return_and_replacement!
-    return false unless pending_resolution?
-    
-    transaction do
-      # Create replacement order first
-      replacement = create_replacement_order
-      
-      update!(
-        resolution_stage: 'resolution_completed',
-        dispatcher_decision: 'authorize_return_and_replacement',
-        return_status: 'return_authorized',
-        return_authorized_at: Time.current,
-        replacement_order_number: replacement.order_number
-      )
-      
-      create_activity(
-        action: 'return_and_replacement_authorized',
-        details: "Return authorized with replacement order #{replacement.order_number}",
-        user: Current.user
-      )
-      
-      replacement
-    end
-  end
-
-  def generate_return_label!(carrier: 'FedEx', label_url: nil)
-    return false unless can_generate_return_label?
-    
-    update!(
-      return_status: 'return_label_sent',
-      return_carrier: carrier,
-      return_label_url: label_url || "https://example.com/return-labels/#{id}",
-      return_deadline: 14.days.from_now
-    )
-    
-    create_activity(
-      action: 'return_label_generated',
-      details: "Return label generated via #{carrier} - Customer has 14 days to ship",
-      user: Current.user
-    )
-  end
-
-  def mark_return_shipped!(tracking_number: nil)
-    return false unless return_label_sent?
-    
-    update!(
-      return_status: 'return_shipped',
-      return_tracking_number: tracking_number || return_tracking_number,
-      return_shipped_at: Time.current
-    )
-    
-    create_activity(
-      action: 'return_shipped',
-      details: "Customer shipped return package - Tracking: #{return_tracking_number}",
-      user: Current.user
-    )
-  end
-
-  def mark_return_received!(condition_notes: nil)
-    return false unless return_shipped? || return_in_transit? || return_delivered?
-    
-    update!(
-      return_status: 'return_received',
-      return_received_at: Time.current,
-      return_notes: condition_notes || return_notes,
-      refund_stage: 'processing_refund'
-    )
-    
-    create_activity(
-      action: 'return_received',
-      details: "Return package received and inspected#{condition_notes.present? ? ' - ' + condition_notes : ''}",
-      user: Current.user
-    )
   end
 
 end
