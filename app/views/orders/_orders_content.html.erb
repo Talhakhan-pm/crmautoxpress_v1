@@ -111,6 +111,83 @@ show_table = if defined?(view_type)
                       <i class="fas fa-edit"></i>
                       Edit
                     <% end %>
+                    <% if order.dispatch.present? && order.dispatch.shipped_or_completed? && order.refund.blank? %>
+                      <div class="action-dropdown table-dropdown">
+                        <button class="action-btn dropdown-toggle" 
+                                data-action="click->orders-filter#toggleReturnDropdown"
+                                data-order-id="<%= order.id %>">
+                          <i class="fas fa-undo"></i>
+                          Return
+                        </button>
+                        <div class="dropdown-menu" data-orders-filter-target="returnDropdown<%= order.id %>" style="display: none;">
+                          <div class="dropdown-header">Return & Refund Options</div>
+                          
+                          <%= button_to create_refund_refunds_path, 
+                              method: :post,
+                              params: { 
+                                order_id: order.id,
+                                refund_reason: 'wrong_product',
+                                refund_amount: order.total_amount,
+                                customer_name: order.customer_name,
+                                original_charge_amount: order.total_amount
+                              },
+                              class: "dropdown-item return-option",
+                              confirm: "Create return request for wrong product?",
+                              form: { data: { turbo: true } } do %>
+                            <i class="fas fa-exchange-alt"></i>
+                            Wrong Product
+                          <% end %>
+                          
+                          <%= button_to create_refund_refunds_path, 
+                              method: :post,
+                              params: { 
+                                order_id: order.id,
+                                refund_reason: 'defective_product',
+                                refund_amount: order.total_amount,
+                                customer_name: order.customer_name,
+                                original_charge_amount: order.total_amount
+                              },
+                              class: "dropdown-item return-option",
+                              confirm: "Create return request for defective product?",
+                              form: { data: { turbo: true } } do %>
+                            <i class="fas fa-tools"></i>
+                            Defective Product
+                          <% end %>
+                          
+                          <%= button_to create_refund_refunds_path, 
+                              method: :post,
+                              params: { 
+                                order_id: order.id,
+                                refund_reason: 'customer_changed_mind',
+                                refund_amount: order.total_amount,
+                                customer_name: order.customer_name,
+                                original_charge_amount: order.total_amount
+                              },
+                              class: "dropdown-item refund-option",
+                              confirm: "Create refund request for customer change of mind?",
+                              form: { data: { turbo: true } } do %>
+                            <i class="fas fa-heart-broken"></i>
+                            Changed Mind
+                          <% end %>
+                          
+                          <%= button_to create_refund_refunds_path, 
+                              method: :post,
+                              params: { 
+                                order_id: order.id,
+                                refund_reason: 'quality_issues',
+                                refund_amount: order.total_amount,
+                                customer_name: order.customer_name,
+                                original_charge_amount: order.total_amount
+                              },
+                              class: "dropdown-item return-option",
+                              confirm: "Create return request for quality issues?",
+                              form: { data: { turbo: true } } do %>
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Quality Issues
+                          <% end %>
+                        </div>
+                      </div>
+                    <% end %>
                   </div>
                 </td>
               </tr>
@@ -293,6 +370,92 @@ show_table = if defined?(view_type)
                           title="Resolve Issue">
                     <i class="fas fa-tools"></i>
                   </button>
+                <% end %>
+                
+                <!-- Return/Refund Actions Dropdown -->
+                <% if order.dispatch.present? && order.dispatch.shipped_or_completed? && order.refund.blank? %>
+                  <div class="action-dropdown">
+                    <button class="action-icon dropdown-toggle" 
+                            data-action="click->orders-filter#toggleReturnDropdown"
+                            data-order-id="<%= order.id %>"
+                            title="Return/Refund Options">
+                      <i class="fas fa-undo"></i>
+                    </button>
+                    <div class="dropdown-menu" data-orders-filter-target="returnDropdown<%= order.id %>" style="display: none;">
+                      <div class="dropdown-header">
+                        <i class="fas fa-undo"></i>
+                        Return & Refund Options
+                      </div>
+                      
+                      <%= button_to create_refund_refunds_path, 
+                          method: :post,
+                          params: { 
+                            order_id: order.id,
+                            refund_reason: 'wrong_product',
+                            refund_amount: order.total_amount,
+                            customer_name: order.customer_name,
+                            original_charge_amount: order.total_amount
+                          },
+                          class: "dropdown-item return-option",
+                          confirm: "Create return request for wrong product?",
+                          form: { data: { turbo: true } } do %>
+                        <i class="fas fa-exchange-alt"></i>
+                        <span class="item-title">Wrong Product</span>
+                        <span class="item-desc">Customer received incorrect item</span>
+                      <% end %>
+                      
+                      <%= button_to create_refund_refunds_path, 
+                          method: :post,
+                          params: { 
+                            order_id: order.id,
+                            refund_reason: 'defective_product',
+                            refund_amount: order.total_amount,
+                            customer_name: order.customer_name,
+                            original_charge_amount: order.total_amount
+                          },
+                          class: "dropdown-item return-option",
+                          confirm: "Create return request for defective product?",
+                          form: { data: { turbo: true } } do %>
+                        <i class="fas fa-tools"></i>
+                        <span class="item-title">Defective Product</span>
+                        <span class="item-desc">Product has quality issues</span>
+                      <% end %>
+                      
+                      <%= button_to create_refund_refunds_path, 
+                          method: :post,
+                          params: { 
+                            order_id: order.id,
+                            refund_reason: 'customer_changed_mind',
+                            refund_amount: order.total_amount,
+                            customer_name: order.customer_name,
+                            original_charge_amount: order.total_amount
+                          },
+                          class: "dropdown-item refund-option",
+                          confirm: "Create refund request for customer change of mind?",
+                          form: { data: { turbo: true } } do %>
+                        <i class="fas fa-heart-broken"></i>
+                        <span class="item-title">Customer Changed Mind</span>
+                        <span class="item-desc">Customer no longer wants item</span>
+                      <% end %>
+                      
+                      <%= button_to create_refund_refunds_path, 
+                          method: :post,
+                          params: { 
+                            order_id: order.id,
+                            refund_reason: 'quality_issues',
+                            refund_amount: order.total_amount,
+                            customer_name: order.customer_name,
+                            original_charge_amount: order.total_amount
+                          },
+                          class: "dropdown-item return-option",
+                          confirm: "Create return request for quality issues?",
+                          form: { data: { turbo: true } } do %>
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span class="item-title">Quality Issues</span>
+                        <span class="item-desc">Product doesn't meet standards</span>
+                      <% end %>
+                    </div>
+                  </div>
                 <% end %>
                 
                 <%= link_to order_path(order), class: "action-icon", title: "View Details" do %>

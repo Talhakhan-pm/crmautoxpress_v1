@@ -28,6 +28,7 @@ Rails.application.routes.draw do
   resources :refunds do
     collection do
       get :sla_analytics
+      post :create_refund, to: 'refunds#create'
     end
     member do
       patch :process_refund

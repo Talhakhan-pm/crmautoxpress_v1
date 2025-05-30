@@ -135,6 +135,10 @@ class Dispatch < ApplicationRecord
     tracking_number.present? || tracking_link.present?
   end
 
+  def shipped_or_completed?
+    shipped? || completed?
+  end
+
   def supplier_info
     return "No supplier assigned" unless order.supplier.present?
     return order.supplier.name if order.supplier_order_number.blank?

@@ -583,8 +583,21 @@ class Refund < ApplicationRecord
     self.refund_number ||= generate_refund_number
     self.refund_date ||= Time.current
     self.priority ||= 'standard'
-    self.refund_stage ||= 'pending_refund'
     self.estimated_processing_days ||= 7
+    
+    # Set initial stage based on refund reason
+    if self.refund_stage.blank?
+      if ['wrong_product', 'defective_product', 'quality_issues'].include?(self.refund_reason)
+        # Return-eligible reasons start in resolution workflow
+        self.refund_stage = 'pending_resolution'
+        self.resolution_stage = 'pending_customer_clarification'
+        self.return_status = 'return_requested'
+      else
+        # Non-return reasons go straight to pending refund
+        self.refund_stage = 'pending_refund'
+        self.return_status = 'no_return_required'
+      end
+    end
   end
 
   def generate_refund_number

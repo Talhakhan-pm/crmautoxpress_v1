@@ -76,4 +76,57 @@ export default class extends Controller {
     document.getElementById('advanced-filters').classList.remove('active')
     document.body.style.overflow = 'auto'
   }
+
+  // Toggle return dropdown for specific order
+  toggleReturnDropdown(event) {
+    event.stopPropagation()
+    
+    const button = event.currentTarget
+    const orderId = button.dataset.orderId
+    const targetName = `returnDropdown${orderId}`
+    
+    // Find the dropdown target for this specific order
+    const dropdown = this.element.querySelector(`[data-orders-filter-target="${targetName}"]`)
+    
+    if (!dropdown) return
+    
+    // Hide all other open dropdowns first
+    this.element.querySelectorAll('[data-orders-filter-target^="returnDropdown"]').forEach(otherDropdown => {
+      if (otherDropdown !== dropdown) {
+        otherDropdown.style.display = 'none'
+        // Remove active state from other buttons
+        const otherButton = otherDropdown.closest('.action-dropdown')?.querySelector('.dropdown-toggle')
+        if (otherButton) {
+          otherButton.classList.remove('active')
+        }
+      }
+    })
+    
+    // Toggle the current dropdown
+    const isVisible = dropdown.style.display !== 'none'
+    dropdown.style.display = isVisible ? 'none' : 'block'
+    
+    // Toggle active state on button
+    if (isVisible) {
+      button.classList.remove('active')
+    } else {
+      button.classList.add('active')
+    }
+    
+    // Close dropdown when clicking outside
+    if (!isVisible) {
+      const closeOnOutsideClick = (e) => {
+        if (!dropdown.contains(e.target) && !button.contains(e.target)) {
+          dropdown.style.display = 'none'
+          button.classList.remove('active')
+          document.removeEventListener('click', closeOnOutsideClick)
+        }
+      }
+      
+      // Add listener on next tick to avoid immediate closing
+      setTimeout(() => {
+        document.addEventListener('click', closeOnOutsideClick)
+      }, 10)
+    }
+  }
 }
