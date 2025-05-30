@@ -294,12 +294,12 @@
                     </div>
                     <div class="info-item">
                       <div class="info-label">Supplier Cost</div>
-                      <div class="info-value" data-dispatch-form-target="supplierCostDisplay"><%= number_to_currency(@dispatch.supplier_cost || 0) %></div>
+                      <div class="info-value" data-dispatch-form-target="supplierCostDisplay"><%= number_to_currency(@dispatch.order.supplier_cost || 0) %></div>
                     </div>
                     <div class="info-item">
                       <div class="info-label">Estimated Profit</div>
                       <div class="info-value profit-positive" data-dispatch-form-target="profitDisplay"><%
-                        profit = (@dispatch.total_cost || 0) - (@dispatch.supplier_cost || 0)
+                        profit = (@dispatch.total_cost || 0) - (@dispatch.order.supplier_cost || 0)
                         if profit > 0
                           "+#{number_to_currency(profit)}"
                         elsif profit < 0
@@ -312,7 +312,7 @@
                     <div class="info-item">
                       <div class="info-label">Profit Margin</div>
                       <div class="info-value <%
-                        profit = (@dispatch.total_cost || 0) - (@dispatch.supplier_cost || 0)
+                        profit = (@dispatch.total_cost || 0) - (@dispatch.order.supplier_cost || 0)
                         if profit > 0
                           'profit-positive'
                         elsif profit < 0
@@ -321,8 +321,8 @@
                           'profit-zero'
                         end
                       %>" data-dispatch-form-target="profitMargin"><%
-                        if (@dispatch.total_cost || 0) > 0 && (@dispatch.supplier_cost || 0) > 0
-                          margin = (((@dispatch.total_cost || 0) - (@dispatch.supplier_cost || 0)) / (@dispatch.total_cost || 0) * 100).round(2)
+                        if (@dispatch.total_cost || 0) > 0 && (@dispatch.order.supplier_cost || 0) > 0
+                          margin = (((@dispatch.total_cost || 0) - (@dispatch.order.supplier_cost || 0)) / (@dispatch.total_cost || 0) * 100).round(2)
                           "#{margin}%"
                         else
                           "0.00%"

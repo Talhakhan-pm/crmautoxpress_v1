@@ -56,13 +56,13 @@
       </div>
     </div>
 
-    <% if dispatch.supplier_name.present? %>
+    <% if dispatch.order.supplier&.name.present? %>
       <div class="supplier-section">
         <div class="supplier-info">
           <i class="fas fa-industry"></i>
-          <span class="supplier-name"><%= dispatch.supplier_name %></span>
-          <% if dispatch.supplier_order_number.present? %>
-            <span class="supplier-order">Order: <%= dispatch.supplier_order_number %></span>
+          <span class="supplier-name"><%= dispatch.order.supplier&.name %></span>
+          <% if dispatch.order.supplier_order_number.present? %>
+            <span class="supplier-order">Order: <%= dispatch.order.supplier_order_number %></span>
           <% end %>
         </div>
         <% if dispatch.has_tracking? %>
@@ -83,8 +83,8 @@
     <div class="cost-section">
       <div class="cost-breakdown">
         <span class="product-cost">Product: $<%= number_with_delimiter(dispatch.product_cost || 0) %></span>
-        <% if dispatch.supplier_cost.present? && dispatch.supplier_cost > 0 %>
-          <span class="supplier-cost">Cost: $<%= number_with_delimiter(dispatch.supplier_cost) %></span>
+        <% if dispatch.order.supplier_cost.present? && dispatch.order.supplier_cost > 0 %>
+          <span class="supplier-cost">Cost: $<%= number_with_delimiter(dispatch.order.supplier_cost) %></span>
         <% end %>
       </div>
       <div class="total-cost">$<%= number_with_delimiter(dispatch.total_cost) %></div>

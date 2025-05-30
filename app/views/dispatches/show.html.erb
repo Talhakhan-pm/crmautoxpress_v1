@@ -34,7 +34,7 @@
             <div class="metric-value">$<%= number_with_delimiter(@dispatch.total_cost) %></div>
             <div class="metric-label">Total Value</div>
           </div>
-          <% if @dispatch.supplier_cost.present? && @dispatch.profit_margin > 0 %>
+          <% if @dispatch.order.supplier_cost.present? && @dispatch.profit_margin > 0 %>
             <div class="metric-item">
               <div class="metric-value profit-positive">+$<%= number_with_delimiter(@dispatch.profit_margin) %></div>
               <div class="metric-label">Profit</div>
@@ -105,7 +105,7 @@
               <span class="stat-value">$<%= number_with_delimiter(@dispatch.total_cost) %></span>
               <span class="stat-label">Total Value</span>
             </div>
-            <% if @dispatch.supplier_cost.present? && @dispatch.profit_margin > 0 %>
+            <% if @dispatch.order.supplier_cost.present? && @dispatch.profit_margin > 0 %>
               <div class="hero-stat">
                 <span class="stat-value profit-positive">+$<%= number_with_delimiter(@dispatch.profit_margin) %></span>
                 <span class="stat-label">Profit</span>
@@ -377,7 +377,7 @@
       </div>
 
       <!-- Supplier Information -->
-      <% if @dispatch.supplier_name.present? %>
+      <% if @dispatch.order.supplier&.name.present? %>
         <div class="info-card supplier-card">
           <div class="card-header">
             <h3>
@@ -388,29 +388,29 @@
           <div class="card-content">
             <div class="info-row">
               <span class="info-label">Supplier</span>
-              <span class="info-value"><%= @dispatch.supplier_name %></span>
+              <span class="info-value"><%= @dispatch.order.supplier&.name %></span>
             </div>
-            <% if @dispatch.supplier_order_number.present? %>
+            <% if @dispatch.order.supplier_order_number.present? %>
               <div class="info-row">
                 <span class="info-label">Order Number</span>
                 <span class="info-value">
-                  <span class="order-number"><%= @dispatch.supplier_order_number %></span>
+                  <span class="order-number"><%= @dispatch.order.supplier_order_number %></span>
                 </span>
               </div>
             <% end %>
-            <% if @dispatch.supplier_cost.present? %>
+            <% if @dispatch.order.supplier_cost.present? %>
               <div class="info-row">
                 <span class="info-label">Supplier Cost</span>
                 <span class="info-value cost-value">
-                  $<%= number_with_delimiter(@dispatch.supplier_cost) %>
+                  $<%= number_with_delimiter(@dispatch.order.supplier_cost) %>
                 </span>
               </div>
             <% end %>
-            <% if @dispatch.supplier_shipment_proof.present? %>
+            <% if @dispatch.order.supplier_shipment_proof.present? %>
               <div class="info-row">
                 <span class="info-label">Shipment Proof</span>
                 <span class="info-value">
-                  <%= link_to "View Proof", @dispatch.supplier_shipment_proof, 
+                  <%= link_to "View Proof", @dispatch.order.supplier_shipment_proof, 
                       target: "_blank", class: "proof-link" %>
                 </span>
               </div>
@@ -449,7 +449,7 @@
               <span class="financial-label">Total</span>
               <span class="financial-value">$<%= number_with_delimiter(@dispatch.total_cost) %></span>
             </div>
-            <% if @dispatch.supplier_cost.present? && @dispatch.profit_margin > 0 %>
+            <% if @dispatch.order.supplier_cost.present? && @dispatch.profit_margin > 0 %>
               <div class="financial-item profit">
                 <span class="financial-label">Profit</span>
                 <span class="financial-value profit-positive">

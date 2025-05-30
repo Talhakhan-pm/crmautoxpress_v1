@@ -7,7 +7,7 @@
     <% when 'processing' %>
       <div class="status-indicators">
         <span class="indicator payment-<%= dispatch.payment_status %>">💳</span>
-        <span class="indicator supplier-<%= dispatch.supplier_name.present? ? 'assigned' : 'pending' %>">🏭</span>
+        <span class="indicator supplier-<%= dispatch.order.supplier&.name.present? ? 'assigned' : 'pending' %>">🏭</span>
       </div>
     <% when 'shipped' %>
       <% if dispatch.has_tracking? %>
@@ -22,8 +22,8 @@
     <div class="product"><%= dispatch.product_name %></div>
     <% case dispatch.dispatch_status %>
     <% when 'processing' %>
-      <% if dispatch.supplier_name.present? %>
-        <div class="supplier">📦 <%= dispatch.supplier_name %></div>
+      <% if dispatch.order.supplier&.name.present? %>
+        <div class="supplier">📦 <%= dispatch.order.supplier&.name %></div>
       <% end %>
     <% when 'shipped' %>
       <% if dispatch.tracking_number.present? %>

@@ -3,7 +3,7 @@ class DispatchesController < ApplicationController
   before_action :set_dispatch, only: [:show, :edit, :update, :destroy, :retry_dispatch, :create_replacement_order, :process_full_refund, :cancel_with_reason, :contact_customer_delay, :contact_customer_price_increase]
 
   def index
-    @dispatches = Dispatch.includes(:order, :processing_agent)
+    @dispatches = Dispatch.includes(order: [:supplier], processing_agent: [])
                           .recent
     
     # Apply filters
@@ -16,8 +16,8 @@ class DispatchesController < ApplicationController
     # Search functionality
     if params[:search].present?
       search_term = "%#{params[:search].downcase}%"
-      @dispatches = @dispatches.joins(:order).where(
-        "LOWER(dispatches.order_number) LIKE ? OR LOWER(dispatches.customer_name) LIKE ? OR LOWER(dispatches.product_name) LIKE ? OR LOWER(dispatches.supplier_name) LIKE ? OR LOWER(dispatches.tracking_number) LIKE ?",
+      @dispatches = @dispatches.joins(order: :supplier).where(
+        "LOWER(dispatches.order_number) LIKE ? OR LOWER(dispatches.customer_name) LIKE ? OR LOWER(dispatches.product_name) LIKE ? OR LOWER(suppliers.name) LIKE ? OR LOWER(dispatches.tracking_number) LIKE ?",
         search_term, search_term, search_term, search_term, search_term
       )
     end
@@ -29,7 +29,7 @@ class DispatchesController < ApplicationController
     @statuses = Dispatch.dispatch_statuses.keys
     @payment_statuses = Dispatch.payment_statuses.keys
     @shipment_statuses = Dispatch.shipment_statuses.keys
-    @suppliers = Dispatch.distinct.pluck(:supplier_name).compact.sort
+    @suppliers = Supplier.joins(:orders).distinct.pluck(:name).compact.sort
 
     respond_to do |format|
       format.html
@@ -126,9 +126,14 @@ class DispatchesController < ApplicationController
       # Reset dispatch to pending for retry
       @dispatch.update!(
         dispatch_status: 'pending',
-        supplier_name: nil,
-        supplier_order_number: nil,
         comments: "#{@dispatch.comments}\n\nRetry attempt - #{Time.current}"
+      )
+      
+      # Clear supplier info from order for retry
+      @dispatch.order.update!(
+        supplier_id: nil,
+        supplier_order_number: nil,
+        supplier_cost: nil
       )
       
       # Create activity
@@ -321,9 +326,14 @@ class DispatchesController < ApplicationController
       # Reset dispatch to allow retry
       @dispatch.update!(
         dispatch_status: 'pending',
-        supplier_name: nil,
-        supplier_cost: nil,
         internal_notes: (@dispatch.internal_notes || "") + " | Retrying dispatch with different supplier"
+      )
+      
+      # Clear supplier info from order for retry
+      @dispatch.order.update!(
+        supplier_id: nil,
+        supplier_order_number: nil,
+        supplier_cost: nil
       )
       
       refund.create_activity(
@@ -359,12 +369,16 @@ class DispatchesController < ApplicationController
       # Reset dispatch for fresh start
       @dispatch.update!(
         dispatch_status: 'pending',
-        supplier_name: nil,
-        supplier_cost: nil,
-        supplier_order_number: nil,
         tracking_number: nil,
         tracking_link: nil,
         internal_notes: (@dispatch.internal_notes || "") + " | Reset for replacement order"
+      )
+      
+      # Clear supplier info from order for replacement
+      @dispatch.order.update!(
+        supplier_id: nil,
+        supplier_order_number: nil,
+        supplier_cost: nil
       )
       
       refund.create_activity(
@@ -480,7 +494,7 @@ class DispatchesController < ApplicationController
   end
   
   def load_dispatches_for_index
-    @dispatches = Dispatch.includes(:order, :processing_agent)
+    @dispatches = Dispatch.includes(order: [:supplier], processing_agent: [])
                           .recent
     
     # Apply filters
@@ -493,8 +507,8 @@ class DispatchesController < ApplicationController
     # Search functionality
     if params[:search].present?
       search_term = "%#{params[:search].downcase}%"
-      @dispatches = @dispatches.joins(:order).where(
-        "LOWER(dispatches.order_number) LIKE ? OR LOWER(dispatches.customer_name) LIKE ? OR LOWER(dispatches.product_name) LIKE ? OR LOWER(dispatches.supplier_name) LIKE ? OR LOWER(dispatches.tracking_number) LIKE ?",
+      @dispatches = @dispatches.joins(order: :supplier).where(
+        "LOWER(dispatches.order_number) LIKE ? OR LOWER(dispatches.customer_name) LIKE ? OR LOWER(dispatches.product_name) LIKE ? OR LOWER(suppliers.name) LIKE ? OR LOWER(dispatches.tracking_number) LIKE ?",
         search_term, search_term, search_term, search_term, search_term
       )
     end
@@ -506,15 +520,14 @@ class DispatchesController < ApplicationController
     @statuses = Dispatch.dispatch_statuses.keys
     @payment_statuses = Dispatch.payment_statuses.keys
     @shipment_statuses = Dispatch.shipment_statuses.keys
-    @suppliers = Dispatch.distinct.pluck(:supplier_name).compact.sort
+    @suppliers = Supplier.joins(:orders).distinct.pluck(:name).compact.sort
   end
 
   def dispatch_params
     params.require(:dispatch).permit(
       :order_id, :order_number, :customer_name, :customer_address,
       :product_name, :car_details, :condition, :payment_processor,
-      :payment_status, :processing_agent_id, :supplier_name,
-      :supplier_order_number, :supplier_cost, :supplier_shipment_proof,
+      :payment_status, :processing_agent_id,
       :product_cost, :tax_amount, :shipping_cost, :total_cost,
       :tracking_number, :tracking_link, :shipment_status,
       :dispatch_status, :comments, :internal_notes
@@ -524,7 +537,7 @@ class DispatchesController < ApplicationController
   def load_form_data
     @orders = Order.includes(:customer).order(created_at: :desc).limit(100)
     @agents = User.order(:email)
-    @suppliers = Dispatch.distinct.pluck(:supplier_name).compact.sort
+    @suppliers = Supplier.joins(:orders).distinct.pluck(:name).compact.sort
   end
 
   def populate_from_order(order)
