@@ -8,6 +8,10 @@ class Order < ApplicationRecord
   has_one :dispatch, dependent: :destroy
   has_one :refund, dependent: :destroy
   has_many :activities, as: :trackable, dependent: :destroy
+  
+  # Replacement order relationships
+  belongs_to :original_order, class_name: 'Order', optional: true
+  has_one :replacement_order, class_name: 'Order', foreign_key: 'original_order_id', dependent: :destroy
 
   enum order_status: {
     pending: 0,
@@ -272,6 +276,25 @@ class Order < ApplicationRecord
       "Pending refund"
     elsif refund.completed?
       "Refunded: $#{refund.refund_amount}"
+    end
+  end
+
+  # Replacement order methods
+  def is_replacement_order?
+    original_order_id.present?
+  end
+
+  def has_replacement_order?
+    replacement_order_id.present?
+  end
+
+  def replacement_chain_info
+    if is_replacement_order?
+      "Replacement for Order ##{original_order.order_number} (#{replacement_reason&.humanize})"
+    elsif has_replacement_order?
+      "Replaced by Order ##{replacement_order.order_number}"
+    else
+      nil
     end
   end
 

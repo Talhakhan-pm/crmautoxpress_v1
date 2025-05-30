@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_05_30_030426) do
+ActiveRecord::Schema[7.1].define(version: 2025_05_30_130339) do
   create_table "activities", force: :cascade do |t|
     t.string "trackable_type", null: false
     t.integer "trackable_id", null: false
@@ -138,14 +138,19 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_30_030426) do
     t.decimal "part_price", precision: 10, scale: 2
     t.decimal "supplier_shipping_cost", precision: 8, scale: 2
     t.decimal "supplier_tax", precision: 8, scale: 2
+    t.integer "original_order_id"
+    t.integer "replacement_order_id"
+    t.string "replacement_reason"
     t.index ["agent_callback_id"], name: "index_orders_on_agent_callback_id"
     t.index ["agent_id"], name: "index_orders_on_agent_id"
     t.index ["customer_id"], name: "index_orders_on_customer_id"
     t.index ["order_date"], name: "index_orders_on_order_date"
     t.index ["order_number"], name: "index_orders_on_order_number", unique: true
     t.index ["order_status"], name: "index_orders_on_order_status"
+    t.index ["original_order_id"], name: "index_orders_on_original_order_id"
     t.index ["priority"], name: "index_orders_on_priority"
     t.index ["product_id"], name: "index_orders_on_product_id"
+    t.index ["replacement_order_id"], name: "index_orders_on_replacement_order_id"
     t.index ["supplier_id"], name: "index_orders_on_supplier_id"
   end
 

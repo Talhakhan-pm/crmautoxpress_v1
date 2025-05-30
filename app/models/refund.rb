@@ -577,6 +577,14 @@ class Refund < ApplicationRecord
         refund_stage: 'pending_return'
       )
       
+      # Update dispatch status when return is authorized
+      if order.dispatch.present?
+        order.dispatch.update!(
+          dispatch_status: 'cancelled',
+          comments: "#{order.dispatch.comments}\n\nReturn authorized: #{refund_reason.humanize} - Awaiting customer return shipment"
+        )
+      end
+      
       create_activity(
         action: 'return_authorized',
         details: "Return authorized for full refund - Customer to ship back #{order.product_name}",
@@ -599,6 +607,14 @@ class Refund < ApplicationRecord
         return_authorized_at: Time.current,
         replacement_order_number: replacement.order_number
       )
+      
+      # Update dispatch status when return and replacement is authorized
+      if order.dispatch.present?
+        order.dispatch.update!(
+          dispatch_status: 'cancelled',
+          comments: "#{order.dispatch.comments}\n\nReturn authorized: #{refund_reason.humanize} - Replacement order #{replacement.order_number} created"
+        )
+      end
       
       create_activity(
         action: 'return_and_replacement_authorized',
@@ -636,6 +652,9 @@ class Refund < ApplicationRecord
       return_shipped_at: Time.current
     )
     
+    # Update order status when customer ships return
+    order.update!(order_status: 'returned') unless order.returned?
+    
     create_activity(
       action: 'return_shipped',
       details: "Customer shipped return package - Tracking: #{return_tracking_number}",
@@ -652,6 +671,8 @@ class Refund < ApplicationRecord
       return_notes: condition_notes || return_notes,
       refund_stage: 'processing_refund'
     )
+    
+    # Order status will be updated when refund is completed (via sync_order_status 'processing_refund' case)
     
     create_activity(
       action: 'return_received',
@@ -682,21 +703,12 @@ class Refund < ApplicationRecord
     self.estimated_processing_days ||= 7
     
     # Set initial stage based on refund reason (override enum default)
-    if self.refund_reason == 'wrong_product'
-      # Wrong product needs dispatcher to source correct item
-      self.refund_stage = 'pending_resolution'
-      self.resolution_stage = 'pending_dispatch_decision'
-      self.return_status = 'return_requested'
-    elsif ['defective_product', 'quality_issues'].include?(self.refund_reason)
-      # Quality issues need agent to get return details from customer
+    # ALL return reasons start with agent clarification to gather details
+    if ['wrong_product', 'defective_product', 'quality_issues', 'customer_changed_mind'].include?(self.refund_reason)
+      # All return/refund requests start with agent review to gather customer details
       self.refund_stage = 'pending_resolution'
       self.resolution_stage = 'pending_customer_clarification'
       self.return_status = 'return_requested'
-    elsif self.refund_reason == 'customer_changed_mind'
-      # Customer changed mind needs dispatcher decision on refund policy
-      self.refund_stage = 'pending_resolution'
-      self.resolution_stage = 'pending_dispatch_decision'
-      self.return_status = 'no_return_required'
     else
       # Other reasons (like system-created refunds) go straight to pending refund
       self.refund_stage = 'pending_refund'
@@ -747,7 +759,13 @@ class Refund < ApplicationRecord
       )
       
     when 'pending_return'
-      order.update!(order_status: 'returned') unless order.returned?
+      # Don't change order status yet - customer still has the item
+      # Order status will update when return is actually shipped/received
+      create_activity(
+        action: 'return_authorized',
+        details: "Return authorized - Customer to ship back item",
+        user: Current.user
+      )
     when 'processing_refund'
       # Create activity for processing
       create_activity(
@@ -830,22 +848,25 @@ class Refund < ApplicationRecord
       priority: 'high', # Replacements should be high priority
       source_channel: 'replacement',
       order_status: 'confirmed',
+      original_order_id: order.id, # Link back to original
+      replacement_reason: refund_reason,
       comments: "Replacement order for #{order.order_number} (Refund: #{refund_number})"
     )
     
-    # Link the replacement
+    # Link the replacement bidirectionally
     update!(replacement_order_number: replacement.order_number)
+    order.update!(replacement_order_id: replacement.id)
     
     # Create activities
     create_activity(
       action: 'replacement_created',
-      details: "Replacement order #{replacement.order_number} created",
+      details: "Replacement order #{replacement.order_number} created for #{refund_reason.humanize}",
       user: Current.user
     )
     
     replacement.create_activity(
       action: 'created_as_replacement',
-      details: "Created as replacement for order #{order.order_number}",
+      details: "Created as replacement for order #{order.order_number} - Reason: #{refund_reason.humanize}",
       user: Current.user
     )
     
