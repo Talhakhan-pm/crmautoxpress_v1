@@ -1,0 +1,83 @@
+<tr id="<%= dom_id(supplier) %>">
+  <td>
+    <div class="supplier-info">
+      <strong><%= supplier.name %></strong>
+      <% if supplier.supplier_notes.present? %>
+        <br><small class="text-muted"><%= truncate(supplier.supplier_notes, length: 50) %></small>
+      <% end %>
+    </div>
+  </td>
+  <td>
+    <% if supplier.products.any? %>
+      <div class="products-info">
+        <div class="products-summary">
+          <% supplier.supplier_products.includes(:product).order(:supplier_cost).limit(2).each do |sp| %>
+            <div class="product-item">
+              <strong><%= truncate(sp.product.name, length: 25) %></strong>
+              <% if sp.supplier_cost.present? %>
+                <span class="cost">$<%= number_with_precision(sp.supplier_cost, precision: 2) %></span>
+              <% end %>
+              <% if sp.preferred_supplier %>
+                <i class="fas fa-star text-warning" title="Preferred"></i>
+              <% end %>
+            </div>
+          <% end %>
+          <% if supplier.products.count > 2 %>
+            <small class="text-muted">+<%= supplier.products.count - 2 %> more parts</small>
+          <% end %>
+        </div>
+      </div>
+    <% else %>
+      <span class="text-muted">No products</span>
+    <% end %>
+  </td>
+  <td>
+    <span class="total-orders">
+      <%= supplier.total_orders %>
+      <% if supplier.orders.any? %>
+        <br><small class="text-muted">Active: <%= supplier.orders.count %></small>
+      <% end %>
+    </span>
+  </td>
+  <td>
+    <% avg_rating = supplier.average_quality_rating %>
+    <% if avg_rating > 0 %>
+      <div class="quality-rating">
+        <span class="rating-stars">
+          <% 5.times do |i| %>
+            <i class="fas fa-star <%= 'active' if i < avg_rating %>"></i>
+          <% end %>
+        </span>
+        <br><small class="text-muted"><%= avg_rating %>/5.0</small>
+      </div>
+    <% else %>
+      <span class="text-muted">No ratings</span>
+    <% end %>
+  </td>
+  <td>
+    <% delivery_rate = supplier.on_time_delivery_rate %>
+    <% if delivery_rate > 0 %>
+      <span class="delivery-rate <%= delivery_rate >= 90 ? 'excellent' : delivery_rate >= 70 ? 'good' : 'poor' %>">
+        <%= delivery_rate %>%
+      </span>
+    <% else %>
+      <span class="text-muted">No data</span>
+    <% end %>
+  </td>
+  <td>
+    <span class="badge badge-<%= supplier.source %>">
+      <%= supplier.source&.humanize || 'Unknown' %>
+    </span>
+    <br><small class="text-muted"><%= time_ago_in_words(supplier.created_at) %> ago</small>
+  </td>
+  <td>
+    <div class="action-buttons">
+      <%= link_to supplier_path(supplier), class: "btn btn-sm btn-outline-primary", data: { turbo_frame: "main_content" } do %>
+        <i class="fas fa-eye"></i> View
+      <% end %>
+      <%= link_to edit_supplier_path(supplier), class: "btn btn-sm btn-outline-secondary", data: { turbo_frame: "main_content" } do %>
+        <i class="fas fa-edit"></i> Edit
+      <% end %>
+    </div>
+  </td>
+</tr>

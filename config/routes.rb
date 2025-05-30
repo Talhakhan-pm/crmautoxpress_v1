@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  # Suppliers routes (view-only catalog, auto-created from orders)
+  resources :suppliers, only: [:index, :show, :edit, :update]
   # Orders routes
   resources :orders do
     member do

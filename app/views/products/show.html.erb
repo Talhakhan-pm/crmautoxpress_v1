@@ -113,6 +113,107 @@
         </div>
       <% end %>
 
+      <!-- Available Suppliers -->
+      <div class="content-card">
+        <h3>
+          <i class="fas fa-truck"></i> 
+          Available Suppliers
+          <span class="count-badge"><%= @product_suppliers.count %></span>
+        </h3>
+        
+        <% if @product_suppliers.any? %>
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Supplier</th>
+                  <th>Part Number</th>
+                  <th>Cost</th>
+                  <th>vs Product Cost</th>
+                  <th>Lead Time</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @product_suppliers.order(:supplier_cost).each do |ps| %>
+                  <tr>
+                    <td>
+                      <div class="supplier-info">
+                        <strong><%= link_to ps.supplier.name, supplier_path(ps.supplier), data: { turbo_frame: "main_content" } %></strong>
+                        <% if ps.supplier.supplier_notes.present? %>
+                          <br><small class="text-muted"><%= truncate(ps.supplier.supplier_notes, length: 30) %></small>
+                        <% end %>
+                      </div>
+                    </td>
+                    <td>
+                      <% if ps.supplier_part_number.present? %>
+                        <span class="supplier-part"><%= ps.supplier_part_number %></span>
+                      <% else %>
+                        <span class="text-muted">-</span>
+                      <% end %>
+                    </td>
+                    <td>
+                      <% if ps.supplier_cost.present? %>
+                        <span class="supplier-cost">$<%= number_with_precision(ps.supplier_cost, precision: 2) %></span>
+                      <% else %>
+                        <span class="text-muted">Not quoted</span>
+                      <% end %>
+                    </td>
+                    <td>
+                      <% if ps.supplier_cost.present? && @product.vendor_cost.present? %>
+                        <% diff = ps.cost_difference_vs_product %>
+                        <span class="cost-comparison <%= diff < 0 ? 'better' : diff > 0 ? 'worse' : 'same' %>">
+                          <%= diff > 0 ? '+' : '' %>$<%= number_with_precision(diff, precision: 2) %>
+                          <% if diff < 0 %>
+                            <i class="fas fa-arrow-down text-success"></i>
+                          <% elsif diff > 0 %>
+                            <i class="fas fa-arrow-up text-danger"></i>
+                          <% end %>
+                        </span>
+                      <% else %>
+                        <span class="text-muted">-</span>
+                      <% end %>
+                    </td>
+                    <td>
+                      <% if ps.lead_time_days.present? %>
+                        <span class="lead-time"><%= ps.lead_time_days %> days</span>
+                      <% else %>
+                        <span class="text-muted">Unknown</span>
+                      <% end %>
+                    </td>
+                    <td>
+                      <div class="status-badges">
+                        <% if ps.preferred_supplier %>
+                          <span class="badge badge-warning">
+                            <i class="fas fa-star"></i> Preferred
+                          </span>
+                        <% end %>
+                        <% if ps.is_better_deal? %>
+                          <span class="badge badge-success">
+                            <i class="fas fa-dollar-sign"></i> Best Price
+                          </span>
+                        <% end %>
+                        <% if ps.last_quoted_date.present? %>
+                          <br><small class="text-muted">
+                            Quoted <%= time_ago_in_words(ps.last_quoted_date) %> ago
+                          </small>
+                        <% end %>
+                      </div>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% else %>
+          <div class="empty-state">
+            <i class="fas fa-truck fa-2x text-muted"></i>
+            <p>No suppliers found for this product</p>
+            <small class="text-muted">Suppliers will be linked when they provide quotes for this part</small>
+          </div>
+        <% end %>
+      </div>
+
       <!-- Related Callbacks -->
       <div class="content-card">
         <h3>

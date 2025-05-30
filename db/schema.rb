@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_05_29_204020) do
+ActiveRecord::Schema[7.1].define(version: 2025_05_29_235718) do
   create_table "activities", force: :cascade do |t|
     t.string "trackable_type", null: false
     t.integer "trackable_id", null: false
@@ -72,10 +72,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_29_204020) do
     t.string "payment_processor"
     t.integer "payment_status", default: 0
     t.integer "processing_agent_id"
-    t.string "supplier_name"
-    t.string "supplier_order_number"
-    t.decimal "supplier_cost", precision: 10, scale: 2
-    t.string "supplier_shipment_proof"
     t.decimal "product_cost", precision: 10, scale: 2
     t.decimal "tax_amount", precision: 8, scale: 2
     t.decimal "shipping_cost", precision: 8, scale: 2
@@ -95,7 +91,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_29_204020) do
     t.index ["payment_status"], name: "index_dispatches_on_payment_status"
     t.index ["processing_agent_id"], name: "index_dispatches_on_processing_agent_id"
     t.index ["shipment_status"], name: "index_dispatches_on_shipment_status"
-    t.index ["supplier_name"], name: "index_dispatches_on_supplier_name"
   end
 
   create_table "orders", force: :cascade do |t|
@@ -132,6 +127,17 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_29_204020) do
     t.decimal "commission_amount", precision: 8, scale: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "supplier_id"
+    t.string "supplier_order_number"
+    t.decimal "supplier_cost", precision: 10, scale: 2
+    t.string "supplier_shipment_proof"
+    t.date "estimated_delivery_date"
+    t.date "actual_delivery_date"
+    t.integer "quality_rating"
+    t.string "part_link"
+    t.decimal "part_price", precision: 10, scale: 2
+    t.decimal "supplier_shipping_cost", precision: 8, scale: 2
+    t.decimal "supplier_tax", precision: 8, scale: 2
     t.index ["agent_callback_id"], name: "index_orders_on_agent_callback_id"
     t.index ["agent_id"], name: "index_orders_on_agent_id"
     t.index ["customer_id"], name: "index_orders_on_customer_id"
@@ -140,6 +146,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_29_204020) do
     t.index ["order_status"], name: "index_orders_on_order_status"
     t.index ["priority"], name: "index_orders_on_priority"
     t.index ["product_id"], name: "index_orders_on_product_id"
+    t.index ["supplier_id"], name: "index_orders_on_supplier_id"
   end
 
   create_table "products", force: :cascade do |t|
@@ -216,6 +223,30 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_29_204020) do
     t.index ["resolution_stage"], name: "index_refunds_on_resolution_stage"
   end
 
+  create_table "supplier_products", force: :cascade do |t|
+    t.integer "supplier_id", null: false
+    t.integer "product_id", null: false
+    t.decimal "supplier_cost", precision: 10, scale: 2
+    t.string "supplier_part_number"
+    t.integer "lead_time_days"
+    t.boolean "preferred_supplier", default: false
+    t.date "last_quoted_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_id"], name: "index_supplier_products_on_product_id"
+    t.index ["supplier_id", "product_id"], name: "index_supplier_products_on_supplier_id_and_product_id", unique: true
+    t.index ["supplier_id"], name: "index_supplier_products_on_supplier_id"
+  end
+
+  create_table "suppliers", force: :cascade do |t|
+    t.string "name"
+    t.text "supplier_notes"
+    t.integer "total_orders"
+    t.string "source"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -230,6 +261,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_29_204020) do
 
   add_foreign_key "activities", "users"
   add_foreign_key "agent_callbacks", "users"
+  add_foreign_key "orders", "suppliers"
   add_foreign_key "refunds", "orders"
   add_foreign_key "refunds", "users", column: "processing_agent_id"
+  add_foreign_key "supplier_products", "products"
+  add_foreign_key "supplier_products", "suppliers"
 end

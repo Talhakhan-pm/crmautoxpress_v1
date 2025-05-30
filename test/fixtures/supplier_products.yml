@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  supplier: one
+  product: one
+  supplier_cost: 9.99
+  supplier_part_number: MyString
+  lead_time_days: 1
+  preferred_supplier: false
+  stock_level: 1
+  last_quoted_date: 2025-05-29
+
+two:
+  supplier: two
+  product: two
+  supplier_cost: 9.99
+  supplier_part_number: MyString
+  lead_time_days: 1
+  preferred_supplier: false
+  stock_level: 1
+  last_quoted_date: 2025-05-29

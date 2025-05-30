@@ -1,0 +1,114 @@
+<main class="main-content">
+  <%= turbo_frame_tag "main_content" do %>
+    <header class="main-header">
+      <div class="header-title">
+        <h1><i class="fas fa-edit"></i> Edit Supplier</h1>
+        <p class="header-subtitle">Update supplier information</p>
+      </div>
+      
+      <div class="header-actions">
+        <%= link_to @supplier, class: "btn btn-secondary", data: { turbo_frame: "main_content" } do %>
+          <i class="fas fa-arrow-left"></i> Back to Supplier
+        <% end %>
+      </div>
+    </header>
+
+    <div class="content-card">
+      <% if @supplier.errors.any? %>
+        <div class="alert alert-danger">
+          <h4><%= pluralize(@supplier.errors.count, "error") %> prohibited this supplier from being saved:</h4>
+          <ul>
+            <% @supplier.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <%= form_with model: @supplier, local: true, class: "supplier-form" do |form| %>
+        <div class="form-section">
+          <h3><i class="fas fa-info-circle"></i> Supplier Information</h3>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <%= form.label :name, class: "form-label" %>
+              <%= form.text_field :name, class: "form-control", required: true %>
+            </div>
+            
+            <div class="form-group">
+              <%= form.label :source, class: "form-label" %>
+              <%= form.select :source, 
+                  options_for_select([
+                    ['Order Created', 'order'],
+                    ['Dispatch Created', 'dispatch'],
+                    ['Manual Entry', 'manual']
+                  ], @supplier.source), 
+                  {},
+                  { class: "form-select" } %>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <%= form.label :supplier_notes, "Notes", class: "form-label" %>
+            <%= form.text_area :supplier_notes, class: "form-control", rows: 4, placeholder: "Add notes about this supplier..." %>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3><i class="fas fa-chart-line"></i> Performance Tracking</h3>
+          
+          <div class="form-group">
+            <%= form.label :total_orders, "Total Orders", class: "form-label" %>
+            <%= form.number_field :total_orders, class: "form-control", min: 0, readonly: true %>
+            <small class="form-text text-muted">This field is automatically updated when orders are processed</small>
+          </div>
+          
+          <div class="performance-info">
+            <div class="info-card">
+              <div class="info-label">Current Quality Rating</div>
+              <div class="info-value">
+                <% avg_rating = @supplier.average_quality_rating %>
+                <% if avg_rating > 0 %>
+                  <span class="rating-stars">
+                    <% 5.times do |i| %>
+                      <i class="fas fa-star <%= 'active' if i < avg_rating %>"></i>
+                    <% end %>
+                  </span>
+                  <span class="rating-number"><%= avg_rating %>/5.0</span>
+                <% else %>
+                  <span class="text-muted">No ratings yet</span>
+                <% end %>
+              </div>
+            </div>
+            
+            <div class="info-card">
+              <div class="info-label">On-Time Delivery Rate</div>
+              <div class="info-value">
+                <% delivery_rate = @supplier.on_time_delivery_rate %>
+                <% if delivery_rate > 0 %>
+                  <span class="delivery-rate <%= delivery_rate >= 90 ? 'excellent' : delivery_rate >= 70 ? 'good' : 'poor' %>">
+                    <%= delivery_rate %>%
+                  </span>
+                <% else %>
+                  <span class="text-muted">No delivery data</span>
+                <% end %>
+              </div>
+            </div>
+            
+            <div class="info-card">
+              <div class="info-label">Active Orders</div>
+              <div class="info-value">
+                <%= @supplier.orders.count %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <%= link_to "Cancel", @supplier, class: "btn btn-secondary", data: { turbo_frame: "main_content" } %>
+          <%= form.submit "Update Supplier", class: "btn btn-primary" %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</main>

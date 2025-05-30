@@ -3,6 +3,10 @@ class Product < ApplicationRecord
   
   has_many :activities, as: :trackable, dependent: :destroy
   
+  # Many-to-many relationship with suppliers
+  has_many :supplier_products, dependent: :destroy
+  has_many :suppliers, through: :supplier_products
+  
   enum status: {
     active: 0,
     discontinued: 1,

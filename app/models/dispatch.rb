@@ -40,7 +40,6 @@ class Dispatch < ApplicationRecord
   validates :shipment_status, presence: true
   validates :condition, presence: true, inclusion: { in: %w[new used refurbished] }
   validates :total_cost, presence: true, numericality: { greater_than_or_equal_to: 0 }
-  validates :supplier_cost, numericality: { greater_than: 0 }, allow_blank: true
   validates :product_cost, numericality: { greater_than: 0 }, allow_blank: true
 
   # Callbacks
@@ -61,7 +60,7 @@ class Dispatch < ApplicationRecord
   scope :by_payment_status, ->(status) { where(payment_status: status) }
   scope :by_shipment_status, ->(status) { where(shipment_status: status) }
   scope :by_agent, ->(agent_id) { where(processing_agent_id: agent_id) }
-  scope :by_supplier, ->(supplier) { where(supplier_name: supplier) }
+  scope :by_supplier, ->(supplier) { joins(order: :supplier).where(suppliers: { name: supplier }) }
   scope :today, -> { where(created_at: Date.current.beginning_of_day..Date.current.end_of_day) }
   scope :pending_payment, -> { where(payment_status: :payment_pending) }
   scope :ready_to_ship, -> { where(dispatch_status: :processing, payment_status: :paid) }
@@ -111,17 +110,17 @@ class Dispatch < ApplicationRecord
   end
 
   def profit_margin
-    return 0 if product_cost.blank? || supplier_cost.blank?
-    product_cost - supplier_cost
+    return 0 if product_cost.blank? || order.supplier_cost.blank?
+    product_cost - order.supplier_cost
   end
 
   def profit_percentage
-    return 0 if product_cost.blank? || supplier_cost.blank? || supplier_cost.zero?
-    ((product_cost - supplier_cost) / supplier_cost * 100).round(2)
+    return 0 if product_cost.blank? || order.supplier_cost.blank? || order.supplier_cost.zero?
+    ((product_cost - order.supplier_cost) / order.supplier_cost * 100).round(2)
   end
 
   def can_be_shipped?
-    processing? && paid? && supplier_order_number.present?
+    processing? && paid? && order.supplier_order_number.present?
   end
 
   def can_be_cancelled?
@@ -137,9 +136,9 @@ class Dispatch < ApplicationRecord
   end
 
   def supplier_info
-    return "No supplier assigned" if supplier_name.blank?
-    return supplier_name if supplier_order_number.blank?
-    "#{supplier_name} (Order: #{supplier_order_number})"
+    return "No supplier assigned" unless order.supplier.present?
+    return order.supplier.name if order.supplier_order_number.blank?
+    "#{order.supplier.name} (Order: #{order.supplier_order_number})"
   end
 
   private

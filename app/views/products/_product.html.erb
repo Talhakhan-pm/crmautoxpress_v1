@@ -16,13 +16,25 @@
     </span>
   </td>
   <td>
-    <% if product.vendor_name.present? %>
-      <%= product.vendor_name %>
-      <% if product.lead_time_days.present? %>
-        <br><small class="text-muted"><%= product.lead_time_days %> days</small>
-      <% end %>
+    <% if product.suppliers.any? %>
+      <div class="suppliers-list">
+        <% product.supplier_products.includes(:supplier).order(:supplier_cost).limit(3).each do |sp| %>
+          <div class="supplier-item">
+            <strong><%= sp.supplier.name %></strong>
+            <% if sp.supplier_cost.present? %>
+              <span class="supplier-cost">$<%= number_with_precision(sp.supplier_cost, precision: 2) %></span>
+            <% end %>
+            <% if sp.preferred_supplier %>
+              <i class="fas fa-star text-warning" title="Preferred"></i>
+            <% end %>
+          </div>
+        <% end %>
+        <% if product.suppliers.count > 3 %>
+          <small class="text-muted">+<%= product.suppliers.count - 3 %> more</small>
+        <% end %>
+      </div>
     <% else %>
-      <span class="text-muted">-</span>
+      <span class="text-muted">No suppliers</span>
     <% end %>
   </td>
   <td>

@@ -1,0 +1,94 @@
+<%= turbo_frame_tag "main_content", data: { turbo_action: "advance" } do %>
+<main class="main-content">
+    <%= turbo_stream_from "suppliers" %>
+    
+    <header class="main-header">
+      <div class="header-title">
+        <h1><i class="fas fa-truck"></i> Suppliers</h1>
+        <p class="header-subtitle">Parts suppliers management</p>
+      </div>
+      
+      <div class="header-actions">
+        <div class="search-filters">
+          <%= form_with url: suppliers_path, method: :get, local: true, data: { turbo_frame: "main_content" }, class: "search-form" do |form| %>
+            <div class="search-group">
+              <%= form.text_field :search, placeholder: "Search suppliers...", value: params[:search], class: "form-control" %>
+              <%= form.select :source, options_for_select([
+                ['All Sources', ''],
+                ['Order Created', 'order'],
+                ['Dispatch Created', 'dispatch'],
+                ['Manual Entry', 'manual']
+              ], params[:source]), {}, { class: "form-select" } %>
+              <%= form.submit "Filter", class: "btn btn-secondary" %>
+            </div>
+          <% end %>
+        </div>
+        
+        <div class="header-info">
+          <span class="text-muted">
+            <i class="fas fa-info-circle"></i>
+            Suppliers auto-created from orders
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Source Filter Tabs -->
+    <div class="source-filter-tabs">
+      <%= link_to suppliers_path, 
+          class: "filter-tab #{'active' if params[:source].blank? && params[:with_orders].blank?}", 
+          data: { turbo_frame: "main_content" } do %>
+        <i class="fas fa-list"></i>
+        All Suppliers
+        <span class="count-badge"><%= Supplier.count %></span>
+      <% end %>
+      
+      <%= link_to suppliers_path(with_orders: 'true'), 
+          class: "filter-tab #{'active' if params[:with_orders] == 'true'}", 
+          data: { turbo_frame: "main_content" } do %>
+        <i class="fas fa-shopping-cart"></i>
+        With Orders
+        <span class="count-badge"><%= Supplier.with_orders.count %></span>
+      <% end %>
+      
+      <%= link_to suppliers_path(source: 'order'), 
+          class: "filter-tab #{'active' if params[:source] == 'order'}", 
+          data: { turbo_frame: "main_content" } do %>
+        <i class="fas fa-plus-circle"></i>
+        Auto-Created
+        <span class="count-badge"><%= Supplier.by_source('order').count %></span>
+      <% end %>
+    </div>
+
+    <div class="content-card">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Supplier</th>
+              <th>Products</th>
+              <th>Orders</th>
+              <th>Avg Quality</th>
+              <th>On-Time Rate</th>
+              <th>Source</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="suppliers">
+            <% @suppliers.each do |supplier| %>
+              <%= render "supplier", supplier: supplier %>
+            <% end %>
+          </tbody>
+        </table>
+        
+        <% if @suppliers.empty? %>
+          <div class="empty-state">
+            <i class="fas fa-truck fa-3x text-muted"></i>
+            <h3>No suppliers found</h3>
+            <p>Suppliers will be automatically created when orders are processed with supplier information.</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+</main>
+<% end %>

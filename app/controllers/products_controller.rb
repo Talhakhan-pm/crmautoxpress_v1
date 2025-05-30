@@ -3,7 +3,7 @@ class ProductsController < ApplicationController
   before_action :set_product, only: [:show, :edit, :update]
 
   def index
-    @products = Product.includes(:activities)
+    @products = Product.includes(:activities, supplier_products: [:supplier])
                       .order(created_at: :desc)
     
     # Filter by search
@@ -34,6 +34,7 @@ class ProductsController < ApplicationController
     @product.track_view
     @recent_activities = @product.activities.includes(:user).recent.limit(10)
     @related_callbacks = AgentCallback.where("product LIKE ?", "%#{@product.name}%").limit(10)
+    @product_suppliers = @product.supplier_products.includes(:supplier).order(:created_at)
   end
 
   def edit

@@ -4,6 +4,7 @@ class Order < ApplicationRecord
   belongs_to :agent, class_name: 'User'
   belongs_to :processing_agent, class_name: 'User', optional: true
   belongs_to :agent_callback, optional: true
+  belongs_to :supplier, optional: true
   has_one :dispatch, dependent: :destroy
   has_one :refund, dependent: :destroy
   has_many :activities, as: :trackable, dependent: :destroy
@@ -50,9 +51,11 @@ class Order < ApplicationRecord
   before_save :calculate_total_amount
   after_create :find_or_create_customer
   after_create :find_or_create_product
+  after_create :find_or_create_supplier
   after_create :create_dispatch_record
   after_create :create_auto_callback
   after_update :sync_with_dispatch
+  after_update :update_supplier_total_orders
   
   include Trackable
 
@@ -398,6 +401,17 @@ class Order < ApplicationRecord
   rescue => e
     Rails.logger.error "Product auto-creation failed: #{e.message}"
     Rails.logger.error e.backtrace.join("\n")
+  end
+
+  def find_or_create_supplier
+    # This method will be called when supplier data is available
+    # For now, suppliers will be created manually or via dispatch updates
+    # We'll implement auto-creation when we add supplier creation workflow
+  end
+  
+  def update_supplier_total_orders
+    return unless supplier.present?
+    supplier.update_total_orders!
   end
 
   def create_auto_callback

@@ -1,0 +1,307 @@
+<main class="main-content">
+  <%= turbo_frame_tag "main_content" do %>
+    <%= turbo_stream_from "suppliers" %>
+    <%= turbo_stream_from "supplier_#{@supplier.id}_activities" %>
+    
+    <header class="main-header">
+      <div class="header-title">
+        <h1>
+          <i class="fas fa-truck"></i> 
+          <%= @supplier.name %>
+          <span class="badge badge-<%= @supplier.source %>"><%= @supplier.source&.humanize %></span>
+        </h1>
+        <p class="header-subtitle">
+          <%= @performance_stats[:total_products] %> products • 
+          <%= @performance_stats[:total_orders] %> orders • 
+          <%= @performance_stats[:avg_quality_rating] %>/5.0 rating • 
+          <%= @performance_stats[:on_time_delivery_rate] %>% on-time
+        </p>
+      </div>
+      
+      <div class="header-actions">
+        <%= link_to suppliers_path, class: "btn btn-secondary", data: { turbo_frame: "main_content" } do %>
+          <i class="fas fa-arrow-left"></i> Back to Suppliers
+        <% end %>
+        <%= link_to edit_supplier_path(@supplier), class: "btn btn-primary", data: { turbo_frame: "main_content" } do %>
+          <i class="fas fa-edit"></i> Edit Supplier
+        <% end %>
+      </div>
+    </header>
+
+    <div class="supplier-details-grid">
+      <!-- Supplier Information -->
+      <div class="content-card">
+        <h3><i class="fas fa-info-circle"></i> Supplier Details</h3>
+        <div class="supplier-info-section">
+          <div class="info-row">
+            <label>Name:</label>
+            <span><%= @supplier.name %></span>
+          </div>
+          
+          <div class="info-row">
+            <label>Total Orders:</label>
+            <span class="total-orders"><%= @supplier.total_orders %></span>
+          </div>
+          
+          <div class="info-row">
+            <label>Source:</label>
+            <span class="badge badge-<%= @supplier.source %>">
+              <%= @supplier.source&.humanize || 'Unknown' %>
+            </span>
+          </div>
+          
+          <% if @supplier.supplier_notes.present? %>
+            <div class="info-row">
+              <label>Notes:</label>
+              <span><%= simple_format(@supplier.supplier_notes) %></span>
+            </div>
+          <% end %>
+          
+          <div class="info-row">
+            <label>Created:</label>
+            <span><%= @supplier.created_at.strftime("%B %d, %Y") %></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Performance Metrics -->
+      <div class="content-card">
+        <h3><i class="fas fa-chart-line"></i> Performance Metrics</h3>
+        <div class="performance-section">
+          <div class="metric-row">
+            <label>Average Quality Rating:</label>
+            <div class="quality-rating">
+              <% avg_rating = @performance_stats[:avg_quality_rating] %>
+              <% if avg_rating > 0 %>
+                <span class="rating-stars">
+                  <% 5.times do |i| %>
+                    <i class="fas fa-star <%= 'active' if i < avg_rating %>"></i>
+                  <% end %>
+                </span>
+                <span class="rating-number"><%= avg_rating %>/5.0</span>
+              <% else %>
+                <span class="text-muted">No ratings yet</span>
+              <% end %>
+            </div>
+          </div>
+          
+          <div class="metric-row">
+            <label>On-Time Delivery Rate:</label>
+            <% delivery_rate = @performance_stats[:on_time_delivery_rate] %>
+            <% if delivery_rate > 0 %>
+              <span class="delivery-rate <%= delivery_rate >= 90 ? 'excellent' : delivery_rate >= 70 ? 'good' : 'poor' %>">
+                <%= delivery_rate %>%
+              </span>
+            <% else %>
+              <span class="text-muted">No delivery data</span>
+            <% end %>
+          </div>
+          
+          <div class="metric-row">
+            <label>Total Orders Processed:</label>
+            <span class="orders-count"><%= @performance_stats[:total_orders] %></span>
+          </div>
+          
+          <div class="metric-row">
+            <label>Products Available:</label>
+            <span class="products-count"><%= @performance_stats[:total_products] %></span>
+          </div>
+          
+          <% if @performance_stats[:preferred_products_count] > 0 %>
+            <div class="metric-row">
+              <label>Preferred Products:</label>
+              <span class="preferred-count">
+                <i class="fas fa-star text-warning"></i>
+                <%= @performance_stats[:preferred_products_count] %>
+              </span>
+            </div>
+          <% end %>
+          
+          <% if @performance_stats[:best_deals_count] > 0 %>
+            <div class="metric-row">
+              <label>Best Price Deals:</label>
+              <span class="deals-count">
+                <i class="fas fa-dollar-sign text-success"></i>
+                <%= @performance_stats[:best_deals_count] %>
+              </span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Supplier Products -->
+      <div class="content-card">
+        <h3>
+          <i class="fas fa-boxes"></i> 
+          Available Products
+          <span class="count-badge"><%= @supplier_products.count %></span>
+        </h3>
+        
+        <% if @supplier_products.any? %>
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Supplier Part #</th>
+                  <th>Cost</th>
+                  <th>Lead Time</th>
+                  <th>vs Product Cost</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @supplier_products.each do |sp| %>
+                  <tr>
+                    <td>
+                      <div class="product-info">
+                        <strong><%= link_to sp.product.name, product_path(sp.product), data: { turbo_frame: "main_content" } %></strong>
+                        <br><small class="text-muted"><%= sp.product.part_number %></small>
+                      </div>
+                    </td>
+                    <td>
+                      <% if sp.supplier_part_number.present? %>
+                        <span class="supplier-part"><%= sp.supplier_part_number %></span>
+                      <% else %>
+                        <span class="text-muted">-</span>
+                      <% end %>
+                    </td>
+                    <td>
+                      <% if sp.supplier_cost.present? %>
+                        <span class="supplier-cost">$<%= number_with_precision(sp.supplier_cost, precision: 2) %></span>
+                      <% else %>
+                        <span class="text-muted">Not quoted</span>
+                      <% end %>
+                    </td>
+                    <td>
+                      <% if sp.lead_time_days.present? %>
+                        <span class="lead-time"><%= sp.lead_time_days %> days</span>
+                      <% else %>
+                        <span class="text-muted">Unknown</span>
+                      <% end %>
+                    </td>
+                    <td>
+                      <% if sp.supplier_cost.present? && sp.product.vendor_cost.present? %>
+                        <% diff = sp.cost_difference_vs_product %>
+                        <span class="cost-comparison <%= diff < 0 ? 'better' : diff > 0 ? 'worse' : 'same' %>">
+                          <%= diff > 0 ? '+' : '' %>$<%= number_with_precision(diff, precision: 2) %>
+                        </span>
+                      <% else %>
+                        <span class="text-muted">-</span>
+                      <% end %>
+                    </td>
+                    <td>
+                      <div class="status-badges">
+                        <% if sp.preferred_supplier %>
+                          <span class="badge badge-warning">
+                            <i class="fas fa-star"></i> Preferred
+                          </span>
+                        <% end %>
+                        <% if sp.is_better_deal? %>
+                          <span class="badge badge-success">
+                            <i class="fas fa-dollar-sign"></i> Best Price
+                          </span>
+                        <% end %>
+                        <% if sp.last_quoted_date.present? %>
+                          <br><small class="text-muted">
+                            Quoted <%= time_ago_in_words(sp.last_quoted_date) %> ago
+                          </small>
+                        <% end %>
+                      </div>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% else %>
+          <div class="empty-state">
+            <i class="fas fa-boxes fa-2x text-muted"></i>
+            <p>No products linked to this supplier yet</p>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Related Orders -->
+      <div class="content-card">
+        <h3>
+          <i class="fas fa-shopping-cart"></i> 
+          Recent Orders
+          <span class="count-badge"><%= @related_orders.count %></span>
+        </h3>
+        
+        <% if @related_orders.any? %>
+          <div class="orders-list">
+            <% @related_orders.each do |order| %>
+              <div class="order-item">
+                <div class="order-header">
+                  <div class="order-info">
+                    <strong><%= order.order_number %></strong>
+                    <span class="badge badge-<%= order.order_status %>">
+                      <%= order.display_status %>
+                    </span>
+                  </div>
+                  <div class="order-meta">
+                    <small class="text-muted">
+                      <%= time_ago_in_words(order.created_at) %> ago
+                    </small>
+                  </div>
+                </div>
+                
+                <div class="order-details">
+                  <div class="detail-item">
+                    <i class="fas fa-user"></i>
+                    <%= order.customer_name %>
+                  </div>
+                  <div class="detail-item">
+                    <i class="fas fa-box"></i>
+                    <%= order.product_name %>
+                  </div>
+                  <% if order.supplier_cost.present? %>
+                    <div class="detail-item">
+                      <i class="fas fa-dollar-sign"></i>
+                      $<%= number_with_precision(order.supplier_cost, precision: 2) %>
+                    </div>
+                  <% end %>
+                  <% if order.quality_rating.present? %>
+                    <div class="detail-item">
+                      <i class="fas fa-star"></i>
+                      <%= order.quality_rating %>/5 rating
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="empty-state">
+            <i class="fas fa-shopping-cart fa-2x text-muted"></i>
+            <p>No orders found</p>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="content-card">
+        <h3>
+          <i class="fas fa-history"></i> 
+          Recent Activity
+          <span id="activity-count"><%= @recent_activities.count %></span>
+        </h3>
+        
+        <div id="activity-list" class="activity-feed">
+          <% if @recent_activities.any? %>
+            <% @recent_activities.each do |activity| %>
+              <%= render "activities/activity", activity: activity %>
+            <% end %>
+          <% else %>
+            <div class="empty-state">
+              <i class="fas fa-history fa-2x text-muted"></i>
+              <p>No activity yet</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</main>
