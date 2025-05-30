@@ -85,9 +85,9 @@ class Refund < ApplicationRecord
   include Trackable
 
   # Turbo Stream broadcasts
-  after_create_commit { broadcast_refunds_update unless Rails.env.test? || defined?(Rails::Console) }
+  after_create_commit { broadcast_unified_updates unless Rails.env.test? || defined?(Rails::Console) }
   after_update_commit { broadcast_refunds_update unless Rails.env.test? || defined?(Rails::Console) }
-  after_destroy_commit { broadcast_refunds_update unless Rails.env.test? || defined?(Rails::Console) }
+  after_destroy_commit { broadcast_unified_updates unless Rails.env.test? || defined?(Rails::Console) }
 
   # Scopes
   scope :recent, -> { order(created_at: :desc) }
@@ -585,18 +585,21 @@ class Refund < ApplicationRecord
     self.priority ||= 'standard'
     self.estimated_processing_days ||= 7
     
-    # Set initial stage based on refund reason
-    if self.refund_stage.blank?
-      if ['wrong_product', 'defective_product', 'quality_issues'].include?(self.refund_reason)
-        # Return-eligible reasons start in resolution workflow
-        self.refund_stage = 'pending_resolution'
-        self.resolution_stage = 'pending_customer_clarification'
-        self.return_status = 'return_requested'
-      else
-        # Non-return reasons go straight to pending refund
-        self.refund_stage = 'pending_refund'
-        self.return_status = 'no_return_required'
-      end
+    # Set initial stage based on refund reason (override enum default)
+    if ['wrong_product', 'defective_product', 'quality_issues'].include?(self.refund_reason)
+      # Return-eligible reasons start in resolution workflow
+      self.refund_stage = 'pending_resolution'
+      self.resolution_stage = 'pending_customer_clarification'
+      self.return_status = 'return_requested'
+    elsif self.refund_reason == 'customer_changed_mind'
+      # Customer changed mind should also go to resolution for dispatcher decision
+      self.refund_stage = 'pending_resolution'
+      self.resolution_stage = 'pending_dispatch_decision'
+      self.return_status = 'no_return_required'
+    else
+      # Other reasons (like system-created refunds) go straight to pending refund
+      self.refund_stage = 'pending_refund'
+      self.return_status = 'no_return_required'
     end
   end
 

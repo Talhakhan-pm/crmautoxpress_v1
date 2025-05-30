@@ -11,6 +11,7 @@ if Rails.env.development?
   Dispatch.destroy_all
   Order.destroy_all
   Product.destroy_all
+  Supplier.destroy_all
   Customer.destroy_all
   AgentCallback.destroy_all
   User.destroy_all
@@ -253,6 +254,38 @@ products = Product.create!([
 ])
 
 puts "✅ Created #{products.count} products"
+
+# Create Suppliers
+puts "🏭 Creating suppliers..."
+suppliers = Supplier.create!([
+  {
+    name: "MountTech Solutions",
+    supplier_notes: "Specializes in engine components and motor mounts. Contact: David Chen (555) 123-4567",
+    source: "catalog"
+  },
+  {
+    name: "AutoLock Distributors", 
+    supplier_notes: "Door components and actuators specialist. Contact: Sarah Williams (555) 234-5678",
+    source: "catalog"
+  },
+  {
+    name: "BrakePro Industries",
+    supplier_notes: "Premium brake components supplier. Contact: Michael Rodriguez (555) 345-6789",
+    source: "catalog"
+  },
+  {
+    name: "ElectroAuto Parts",
+    supplier_notes: "Electrical components and sensors. Contact: Jennifer Kim (555) 456-7890",
+    source: "catalog"
+  },
+  {
+    name: "Suspension Masters",
+    supplier_notes: "Suspension and steering components. Contact: Robert Johnson (555) 567-8901",
+    source: "catalog"
+  }
+])
+
+puts "✅ Created #{suppliers.count} suppliers"
 
 # Create Agent Callbacks
 puts "📞 Creating agent callbacks..."
@@ -573,14 +606,23 @@ dispatches_count = 0
 orders.select { |o| %w[shipped delivered].include?(o.order_status) }.each do |order|
   if order.dispatch.present?
     dispatch = order.dispatch
+    
+    # Get a random supplier for this product (or use first if available)
+    product_supplier = order.product.suppliers.first || suppliers.sample
+    
+    # Update order with supplier information
+    order.update!(
+      supplier_id: product_supplier&.id,
+      supplier_order_number: "SUP-#{rand(100000..999999)}",
+      supplier_cost: (order.product.vendor_cost * 0.9),
+      supplier_shipment_proof: "https://supplier.com/proof/#{rand(1000..9999)}.pdf"
+    )
+    
+    # Update dispatch with shipping and status information
     dispatch.update!(
       condition: ["new", "refurbished"].sample,
       payment_processor: ["stripe", "paypal", "square"].sample,
       payment_status: "paid",
-      supplier_name: order.product.vendor_name,
-      supplier_order_number: "SUP-#{rand(100000..999999)}",
-      supplier_cost: order.product.vendor_cost,
-      supplier_shipment_proof: "https://supplier.com/proof/#{rand(1000..9999)}.pdf",
       tracking_link: order.tracking_number ? "https://ups.com/track/#{order.tracking_number}" : nil,
       shipment_status: order.order_status == "delivered" ? "delivered" : "in_transit",
       dispatch_status: order.order_status == "delivered" ? "completed" : "shipped",
