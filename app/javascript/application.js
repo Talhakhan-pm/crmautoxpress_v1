@@ -2,7 +2,6 @@
 import "@hotwired/turbo-rails"
 import "@rails/actioncable"
 import "controllers"
-import "./callbacks"
 import "./google_ads"
 
 // Simple test to verify Turbo is loaded

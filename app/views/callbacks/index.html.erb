@@ -1,4 +1,4 @@
-<%= turbo_frame_tag "main_content", data: { turbo_action: "advance" } do %>
+<%= turbo_frame_tag "main_content", data: { turbo_action: "advance", controller: "callback-form" } do %>
 <!-- Main Content -->
 <main class="main-content">
         <%= turbo_stream_from "callbacks" %>
@@ -25,16 +25,16 @@
         <div class="toolbar-left">
             <div class="search-box">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search callbacks, customers, products...">
+                <input type="text" placeholder="Search callbacks, customers, products..." data-action="input->callback-form#searchCallbacks">
             </div>
             <div class="filter-group">
-                <button class="filter-btn active" data-status="all">All</button>
-                <button class="filter-btn" data-status="pending">Pending</button>
-                <button class="filter-btn" data-status="not_interested">Not Interested</button>
-                <button class="filter-btn" data-status="already_purchased">Already Purchased</button>
-                <button class="filter-btn" data-status="sale">Sale</button>
-                <button class="filter-btn" data-status="payment_link">Payment Link</button>
-                <button class="filter-btn" data-status="follow_up">Follow Up</button>
+                <button class="filter-btn active" data-status="all" data-action="click->callback-form#filterByStatus">All</button>
+                <button class="filter-btn" data-status="pending" data-action="click->callback-form#filterByStatus">Pending</button>
+                <button class="filter-btn" data-status="not_interested" data-action="click->callback-form#filterByStatus">Not Interested</button>
+                <button class="filter-btn" data-status="already_purchased" data-action="click->callback-form#filterByStatus">Already Purchased</button>
+                <button class="filter-btn" data-status="sale" data-action="click->callback-form#filterByStatus">Sale</button>
+                <button class="filter-btn" data-status="payment_link" data-action="click->callback-form#filterByStatus">Payment Link</button>
+                <button class="filter-btn" data-status="follow_up" data-action="click->callback-form#filterByStatus">Follow Up</button>
             </div>
         </div>
         <div class="toolbar-right">
@@ -120,87 +120,5 @@
 </main>
 <% end %>
 
-<!-- Add Callback Modal -->
-<div class="modal-overlay" id="addCallbackModal">
-    <div class="modal">
-        <div class="modal-header">
-            <h2 class="modal-title">Add New Callback</h2>
-            <button class="close-btn" onclick="closeModal()">&times;</button>
-        </div>
-        <%= form_with model: AgentCallback.new, url: callbacks_path, local: true, id: "callback-form" do |form| %>
-            <div class="modal-body">
-                <div class="form-row">
-                    <div class="form-group">
-                        <%= form.label :customer_name, "Customer Name", class: "form-label" %>
-                        <%= form.text_field :customer_name, class: "form-input", placeholder: "Enter customer name" %>
-                    </div>
-                    <div class="form-group">
-                        <%= form.label :phone_number, "Phone Number", class: "form-label" %>
-                        <%= form.telephone_field :phone_number, class: "form-input", placeholder: "(xxx) xxx-xxxx" %>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <%= form.label :car_make_model, "Car Make & Model", class: "form-label" %>
-                        <%= form.text_field :car_make_model, class: "form-input", placeholder: "e.g., Ford Fusion" %>
-                    </div>
-                    <div class="form-group">
-                        <%= form.label :year, "Year", class: "form-label" %>
-                        <%= form.number_field :year, class: "form-input", placeholder: "2023" %>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <%= form.label :product, "Product", class: "form-label" %>
-                    <%= form.text_field :product, class: "form-input", placeholder: "Enter product name" %>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <%= form.label :zip_code, "ZIP Code", class: "form-label" %>
-                        <%= form.text_field :zip_code, class: "form-input", placeholder: "12345" %>
-                    </div>
-                    <div class="form-group">
-                        <%= form.label :status, "Status", class: "form-label" %>
-                        <%= form.select :status, options_for_select([
-                            ['Pending', 'pending'],
-                            ['Not Interested', 'not_interested'],
-                            ['Already Purchased', 'already_purchased'],
-                            ['Sale', 'sale'],
-                            ['Payment Link', 'payment_link'],
-                            ['Follow Up', 'follow_up']
-                        ]), {}, { class: "form-select" } %>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <%= form.label :follow_up_date, "Follow-up Date", class: "form-label" %>
-                        <%= form.date_field :follow_up_date, class: "form-input" %>
-                    </div>
-                    <div class="form-group">
-                        <%= form.label :agent, "Assigned Agent", class: "form-label" %>
-                        <%= form.hidden_field :agent, value: current_user.email %>
-                        <div class="form-input-readonly">
-                            <i class="fas fa-user"></i>
-                            <%= current_user.email %>
-                        </div>
-                        <small class="text-muted">Callbacks are automatically assigned to you</small>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <%= form.label :notes, "Notes", class: "form-label" %>
-                    <%= form.text_area :notes, class: "form-textarea", placeholder: "Add any additional notes about this callback..." %>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                <%= form.submit "Create Callback", class: "btn btn-primary" %>
-            </div>
-        <% end %>
-    </div>
-</div>
 
 

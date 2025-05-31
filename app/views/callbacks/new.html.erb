@@ -1,17 +1,16 @@
-<!-- Main Content with Turbo Frame -->
-<main class="main-content">
-    <%= turbo_frame_tag "main_content" do %>
-        <!-- Smart Callback Creation Modal -->
-        <div id="callback-modal" 
-             class="callback-modal active" 
-             data-controller="callback-form modal"
-             data-modal-close-url-value="<%= callbacks_path %>"
-             data-action="click->modal#closeModal">
-          
-          <div class="modal-overlay" 
-               title="Click to close"></div>
-          
-          <div class="callback-modal-content" data-callback-form-target="modal" data-action="click->modal#stopPropagation">
+<%= turbo_frame_tag "main_content" do %>
+    <!-- Smart Callback Creation Modal -->
+    <div id="callback-modal" 
+         class="callback-modal active" 
+         data-controller="callback-form modal"
+         data-callback-form-close-url-value="<%= callbacks_path %>"
+         data-modal-close-url-value="<%= callbacks_path %>"
+         data-action="click->modal#closeModal">
+      
+      <div class="modal-overlay" 
+           title="Click to close"></div>
+      
+      <div class="callback-modal-content" data-callback-form-target="modal" data-action="click->modal#stopPropagation">
             <!-- Modal Header -->
             <div class="modal-header">
               <div class="header-content">
@@ -43,10 +42,12 @@
 
               <%= form_with model: @callback, 
                             url: callbacks_path, 
-                            local: true, 
+                            local: false, 
                             class: "callback-form", 
                             data: { 
-                              turbo_frame: "main_content"
+                              callback_form_target: "form",
+                              turbo_frame: "main_content",
+                              action: "turbo:submit-start->callback-form#handleSubmit turbo:submit-end->callback-form#handleSuccess"
                             } do |form| %>
                 
                 <!-- Customer Information Section -->
@@ -72,7 +73,8 @@
                       <%= form.telephone_field :phone_number, 
                                                class: "form-input", 
                                                placeholder: "(555) 123-4567", 
-                                               required: true %>
+                                               required: true,
+                                               data: { callback_form_target: "phoneNumber" } %>
                     </div>
                     
                     <div class="form-group">
@@ -201,12 +203,12 @@
                   <%= link_to "Cancel", callbacks_path, class: "btn btn-secondary", data: { turbo_frame: "main_content" } %>
                   
                   <div class="primary-actions">
-                    <%= form.submit "Create Callback", class: "btn btn-primary" %>
+                    <%= form.submit "Create Callback", class: "btn btn-primary", data: { callback_form_target: "submitBtn" } %>
                   </div>
                 </div>
               <% end %>
             </div>
           </div>
         </div>
-    <% end %>
-</main>
+    </div>
+<% end %>

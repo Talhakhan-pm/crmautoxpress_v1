@@ -1,4 +1,4 @@
-<%= turbo_frame_tag "main_content" do %>
+<%= turbo_frame_tag "main_content", data: { controller: "callback-form" } do %>
     <%= turbo_stream_from "callback_#{@callback.id}_activities" %>
     <!-- Header -->
     <header class="main-header">
@@ -29,8 +29,8 @@
             <div class="callback-content">
                 <div class="tab-container">
                     <div class="tab-list">
-                        <div class="tab-item active">Details</div>
-                        <div class="tab-item">Performance</div>
+                        <div class="tab-item active" data-action="click->callback-form#switchTab">Details</div>
+                        <div class="tab-item" data-action="click->callback-form#switchTab">Performance</div>
                     </div>
                 </div>
 
@@ -144,10 +144,10 @@
             </div>
 
             <div class="activity-filters">
-                <div class="filter-chip active" data-filter="all">All</div>
-                <div class="filter-chip" data-filter="viewed">Views</div>
-                <div class="filter-chip" data-filter="updated">Edits</div>
-                <div class="filter-chip" data-filter="created">Created</div>
+                <div class="filter-chip active" data-filter="all" data-action="click->callback-form#filterActivities">All</div>
+                <div class="filter-chip" data-filter="viewed" data-action="click->callback-form#filterActivities">Views</div>
+                <div class="filter-chip" data-filter="updated" data-action="click->callback-form#filterActivities">Edits</div>
+                <div class="filter-chip" data-filter="created" data-action="click->callback-form#filterActivities">Created</div>
             </div>
 
             <div class="timeline-container" id="activity-list">
@@ -158,54 +158,4 @@
         </div>
     </div>
 </main>
-
-<script>
-    // Tab switching functionality
-    document.querySelectorAll('.tab-item').forEach(tab => {
-        tab.addEventListener('click', function() {
-            // Remove active class from all tabs
-            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
-            
-            // Add active class to clicked tab
-            this.classList.add('active');
-            
-            // Show corresponding content
-            const index = Array.from(this.parentNode.children).indexOf(this);
-            document.querySelectorAll('.tab-content')[index].style.display = 'block';
-        });
-    });
-
-    // Filter functionality
-    function applyActivityFilter() {
-        const activeFilter = document.querySelector('.filter-chip.active');
-        if (!activeFilter) return;
-        
-        const filter = activeFilter.dataset.filter;
-        const activityItems = document.querySelectorAll('.timeline-item');
-        
-        activityItems.forEach(item => {
-            if (filter === 'all' || item.dataset.action === filter) {
-                item.style.display = 'block';
-            } else {
-                item.style.display = 'none';
-            }
-        });
-    }
-    
-    document.querySelectorAll('.filter-chip').forEach(chip => {
-        chip.addEventListener('click', function() {
-            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-            this.classList.add('active');
-            applyActivityFilter();
-        });
-    });
-    
-    // Apply filter to new items when they're added via turbo streams
-    document.addEventListener('turbo:before-stream-render', function(event) {
-        setTimeout(() => {
-            applyActivityFilter();
-        }, 10);
-    });
-</script>
 <% end %>
