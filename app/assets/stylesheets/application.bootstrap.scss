@@ -722,8 +722,8 @@ body {
     color: #be185d;
 }
 
-/* Action buttons */
-.action-btn {
+/* Generic table action buttons */
+.table-action-btn {
     padding: 6px 8px;
     background: none;
     border: none;
@@ -733,7 +733,7 @@ body {
     transition: all 0.2s;
 }
 
-.action-btn:hover {
+.table-action-btn:hover {
     background: #f3f4f6;
     color: #374151;
 }

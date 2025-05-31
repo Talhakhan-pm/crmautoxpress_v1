@@ -401,7 +401,7 @@
   gap: 12px;
 }
 
-.action-btn {
+.order-action-btn {
   padding: 12px 20px;
   border-radius: 10px;
   font-size: 14px;
@@ -417,41 +417,41 @@
   justify-content: center;
 }
 
-.action-btn.secondary {
+.order-action-btn.secondary {
   background: #f1f5f9;
   color: #64748b;
   border: 2px solid #e2e8f0;
 }
 
-.action-btn.secondary:hover {
+.order-action-btn.secondary:hover {
   background: #e2e8f0;
   color: #475569;
 }
 
-.action-btn.draft {
+.order-action-btn.draft {
   background: #f8fafc;
   color: #374151;
   border: 2px solid #d1d5db;
 }
 
-.action-btn.draft:hover {
+.order-action-btn.draft:hover {
   background: #e5e7eb;
   border-color: #9ca3af;
 }
 
-.action-btn.primary {
+.order-action-btn.primary {
   background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
   color: white;
   border: 2px solid transparent;
   box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
 }
 
-.action-btn.primary:hover {
+.order-action-btn.primary:hover {
   transform: translateY(-1px);
   box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
 }
 
-.action-btn:active {
+.order-action-btn:active {
   transform: translateY(0);
 }
 
@@ -739,7 +739,7 @@
       display: flex;
       gap: 0.75rem;
       
-      .action-btn {
+      .order-resolution-btn {
         flex: 1;
         padding: 0.75rem 1rem;
         border-radius: 8px;
@@ -2684,7 +2684,7 @@
   gap: 4px;
 }
 
-.action-btn {
+.order-dropdown-btn {
   padding: 8px 12px;
   background: none;
   border: none;
@@ -2699,7 +2699,7 @@
   gap: 8px;
 }
 
-.action-btn:hover {
+.order-dropdown-btn:hover {
   background: #f3f4f6;
   color: #dc2626;
 }

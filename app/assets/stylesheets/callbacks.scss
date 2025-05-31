@@ -84,3 +84,17 @@
     width: 180px;
     min-width: 180px;
 }
+
+/* Force callbacks action buttons to stay small and override conflicts */
+.data-table .action-btn {
+    width: 32px !important;
+    height: 32px !important;
+    padding: 0 !important;
+    min-width: auto !important;
+    max-width: 32px !important;
+    font-size: 14px !important;
+}
+
+.data-table .action-group {
+    gap: 8px !important;
+}
