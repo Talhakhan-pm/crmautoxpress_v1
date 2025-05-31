@@ -1,0 +1,371 @@
+/* 
+ * AutoXpress CRM Button Components
+ * ===================================
+ * 
+ * This file contains all button component styles used throughout the AutoXpress CRM.
+ * This replaces scattered button definitions and provides a consistent button system.
+ * 
+ * Button Types:
+ * - Primary buttons (.ax-btn--primary)
+ * - Secondary buttons (.ax-btn--secondary) 
+ * - Action buttons (.ax-action-btn) - small icon buttons
+ * - Ghost buttons (.ax-btn--ghost)
+ * - Danger buttons (.ax-btn--danger)
+ * 
+ * Usage: <button class="ax-btn ax-btn--primary">Text</button>
+ */
+
+/* === BASE BUTTON === */
+.ax-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--button-padding-y) var(--button-padding-x);
+  border: 1px solid transparent;
+  border-radius: var(--radius-button);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-in-out);
+  min-height: var(--button-height-md);
+  
+  &:focus {
+    outline: 2px solid var(--color-brand-red);
+    outline-offset: 2px;
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+  
+  /* Icon handling */
+  i {
+    font-size: inherit;
+  }
+}
+
+/* === BUTTON SIZES === */
+.ax-btn--sm {
+  padding: calc(var(--button-padding-y) * 0.75) calc(var(--button-padding-x) * 0.75);
+  font-size: var(--text-xs);
+  min-height: var(--button-height-sm);
+}
+
+.ax-btn--lg {
+  padding: calc(var(--button-padding-y) * 1.25) calc(var(--button-padding-x) * 1.25);
+  font-size: var(--text-base);
+  min-height: var(--button-height-lg);
+}
+
+/* === BUTTON VARIANTS === */
+
+/* Primary Button */
+.ax-btn--primary {
+  background: linear-gradient(135deg, var(--color-brand-red) 0%, var(--color-brand-red-dark) 100%);
+  color: white;
+  box-shadow: var(--shadow-brand);
+  
+  &:hover {
+    background: linear-gradient(135deg, var(--color-brand-red-dark) 0%, var(--color-brand-red-800) 100%);
+    box-shadow: var(--shadow-brand-lg);
+    transform: translateY(-1px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+/* Secondary Button */
+.ax-btn--secondary {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+  
+  &:hover {
+    background: var(--color-gray-50);
+    border-color: var(--color-gray-300);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+/* Ghost Button */
+.ax-btn--ghost {
+  background: transparent;
+  color: var(--color-text-secondary);
+  border-color: transparent;
+  
+  &:hover {
+    background: var(--color-gray-50);
+    color: var(--color-text-primary);
+  }
+}
+
+/* Danger Button */
+.ax-btn--danger {
+  background: var(--color-danger);
+  color: white;
+  
+  &:hover {
+    background: var(--color-brand-red-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-brand);
+  }
+}
+
+/* Success Button */
+.ax-btn--success {
+  background: var(--color-success);
+  color: white;
+  
+  &:hover {
+    background: var(--color-success-700);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-success);
+  }
+}
+
+/* Warning Button */
+.ax-btn--warning {
+  background: var(--color-warning);
+  color: white;
+  
+  &:hover {
+    background: var(--color-warning-600);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-warning);
+  }
+}
+
+/* Info Button */
+.ax-btn--info {
+  background: var(--color-info);
+  color: white;
+  
+  &:hover {
+    background: var(--color-info-700);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-info);
+  }
+}
+
+/* === ACTION BUTTONS === */
+/* Small icon-only buttons for tables and inline actions */
+
+.ax-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--action-button-size);
+  height: var(--action-button-size);
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: all var(--duration-normal) var(--ease-in-out);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  
+  &:hover {
+    background: var(--color-gray-50);
+    color: var(--color-text-primary);
+    border-color: var(--color-gray-300);
+    transform: translateY(-1px);
+  }
+  
+  &:focus {
+    outline: 2px solid var(--color-brand-red);
+    outline-offset: 2px;
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+/* Action Button Variants */
+.ax-action-btn--primary {
+  background: var(--color-brand-red);
+  color: white;
+  border-color: var(--color-brand-red);
+  
+  &:hover {
+    background: var(--color-brand-red-dark);
+    border-color: var(--color-brand-red-dark);
+  }
+}
+
+.ax-action-btn--success {
+  background: var(--color-success-100);
+  color: var(--color-success-700);
+  border-color: var(--color-success-200);
+  
+  &:hover {
+    background: var(--color-success-200);
+    border-color: var(--color-success-300);
+  }
+}
+
+.ax-action-btn--warning {
+  background: var(--color-warning-100);
+  color: var(--color-warning-700);
+  border-color: var(--color-warning-200);
+  
+  &:hover {
+    background: var(--color-warning-200);
+    border-color: var(--color-warning-300);
+  }
+}
+
+.ax-action-btn--danger {
+  background: var(--color-brand-red-100);
+  color: var(--color-brand-red-700);
+  border-color: var(--color-brand-red-200);
+  
+  &:hover {
+    background: var(--color-brand-red-200);
+    border-color: var(--color-brand-red-300);
+  }
+}
+
+.ax-action-btn--disabled {
+  background: var(--color-gray-100);
+  color: var(--color-gray-400);
+  border-color: var(--color-gray-200);
+  cursor: not-allowed;
+  opacity: 0.6;
+  
+  &:hover {
+    background: var(--color-gray-100);
+    color: var(--color-gray-400);
+    border-color: var(--color-gray-200);
+    transform: none;
+  }
+}
+
+/* === ACTION BUTTON GROUP === */
+.ax-action-group {
+  display: flex;
+  gap: var(--action-button-gap);
+  align-items: center;
+}
+
+/* === BUTTON GROUPS === */
+.ax-btn-group {
+  display: flex;
+  align-items: center;
+  
+  .ax-btn {
+    border-radius: 0;
+    
+    &:first-child {
+      border-top-left-radius: var(--radius-button);
+      border-bottom-left-radius: var(--radius-button);
+    }
+    
+    &:last-child {
+      border-top-right-radius: var(--radius-button);
+      border-bottom-right-radius: var(--radius-button);
+    }
+    
+    &:not(:first-child) {
+      margin-left: -1px;
+    }
+    
+    &:hover {
+      z-index: 1;
+    }
+  }
+}
+
+/* === LOADING STATES === */
+.ax-btn--loading {
+  position: relative;
+  color: transparent !important;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-right-color: currentColor;
+    border-radius: 50%;
+    animation: ax-spin 1s linear infinite;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+  &.ax-btn--primary::after {
+    border-top-color: white;
+    border-right-color: white;
+  }
+}
+
+/* === RESPONSIVE BEHAVIOR === */
+@media (max-width: 768px) {
+  .ax-btn {
+    min-height: var(--button-height-lg);
+    padding: var(--space-sm) var(--space-md);
+  }
+  
+  .ax-action-btn {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .ax-action-group {
+    gap: var(--space-md);
+  }
+}
+
+/* === ACCESSIBILITY === */
+@media (prefers-reduced-motion: reduce) {
+  .ax-btn,
+  .ax-action-btn {
+    transition: none;
+    
+    &:hover {
+      transform: none;
+    }
+  }
+}
+
+/* === LEGACY COMPATIBILITY === */
+/* These classes map to the new system for backward compatibility */
+.action-btn {
+  @extend .ax-action-btn;
+}
+
+.action-group {
+  @extend .ax-action-group;
+}
+
+/* Legacy button variants for existing code */
+.action-btn.order-btn {
+  @extend .ax-action-btn--success;
+}
+
+.action-btn.edit-btn {
+  @extend .ax-action-btn--warning;
+}
+
+.action-btn.delete-btn {
+  @extend .ax-action-btn--danger;
+}
+
+.action-btn.disabled {
+  @extend .ax-action-btn--disabled;
+}

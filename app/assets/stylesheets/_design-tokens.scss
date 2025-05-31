@@ -1,0 +1,279 @@
+/* 
+ * AutoXpress CRM Design Tokens
+ * =================================
+ * 
+ * This file contains all design tokens (CSS custom properties) used throughout
+ * the AutoXpress CRM application. This is the single source of truth for:
+ * - Colors (brand, semantic, neutral)
+ * - Spacing scale
+ * - Typography scale  
+ * - Border radius
+ * - Shadows
+ * - Z-index layers
+ * - Animation timing
+ * 
+ * Usage: Use var(--token-name) throughout the application
+ * Example: color: var(--color-brand-red);
+ */
+
+:root {
+  /* === BRAND COLORS === */
+  --color-brand-red: #dc2626;
+  --color-brand-red-50: #fef2f2;
+  --color-brand-red-100: #fee2e2;
+  --color-brand-red-200: #fecaca;
+  --color-brand-red-300: #fca5a5;
+  --color-brand-red-400: #f87171;
+  --color-brand-red-500: #ef4444;
+  --color-brand-red-600: #dc2626;
+  --color-brand-red-700: #b91c1c;
+  --color-brand-red-800: #991b1b;
+  --color-brand-red-900: #7f1d1d;
+  
+  /* Brand Red Aliases */
+  --color-brand-red-light: var(--color-brand-red-500);
+  --color-brand-red-dark: var(--color-brand-red-700);
+  
+  /* === SEMANTIC COLORS === */
+  /* Success Colors */
+  --color-success: #059669;
+  --color-success-50: #ecfdf5;
+  --color-success-100: #d1fae5;
+  --color-success-200: #a7f3d0;
+  --color-success-300: #6ee7b7;
+  --color-success-400: #34d399;
+  --color-success-500: #10b981;
+  --color-success-600: #059669;
+  --color-success-700: #047857;
+  --color-success-800: #065f46;
+  --color-success-900: #064e3b;
+  --color-success-light: var(--color-success-500);
+  
+  /* Warning Colors */
+  --color-warning: #f59e0b;
+  --color-warning-50: #fffbeb;
+  --color-warning-100: #fef3c7;
+  --color-warning-200: #fde68a;
+  --color-warning-300: #fcd34d;
+  --color-warning-400: #fbbf24;
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #d97706;
+  --color-warning-700: #b45309;
+  --color-warning-800: #92400e;
+  --color-warning-900: #78350f;
+  --color-warning-light: var(--color-warning-400);
+  
+  /* Danger Colors */
+  --color-danger: var(--color-brand-red);
+  --color-danger-light: var(--color-brand-red-light);
+  --color-danger-dark: var(--color-brand-red-dark);
+  
+  /* Info Colors */
+  --color-info: #3b82f6;
+  --color-info-50: #eff6ff;
+  --color-info-100: #dbeafe;
+  --color-info-200: #bfdbfe;
+  --color-info-300: #93c5fd;
+  --color-info-400: #60a5fa;
+  --color-info-500: #3b82f6;
+  --color-info-600: #2563eb;
+  --color-info-700: #1d4ed8;
+  --color-info-800: #1e40af;
+  --color-info-900: #1e3a8a;
+  --color-info-light: var(--color-info-400);
+  
+  /* === NEUTRAL GRAYS === */
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+  
+  /* Gray Aliases */
+  --color-text-primary: var(--color-gray-900);
+  --color-text-secondary: var(--color-gray-600);
+  --color-text-muted: var(--color-gray-500);
+  --color-border: var(--color-gray-200);
+  --color-border-light: var(--color-gray-100);
+  --color-background: var(--color-gray-50);
+  --color-surface: #ffffff;
+  
+  /* === STATUS COLORS === */
+  /* Order Status Colors */
+  --color-status-pending: var(--color-warning-100);
+  --color-status-pending-text: var(--color-warning-800);
+  --color-status-completed: var(--color-success-100);
+  --color-status-completed-text: var(--color-success-800);
+  --color-status-cancelled: var(--color-brand-red-100);
+  --color-status-cancelled-text: var(--color-brand-red-800);
+  --color-status-in-progress: var(--color-info-100);
+  --color-status-in-progress-text: var(--color-info-800);
+  
+  /* Callback Status Colors */
+  --color-status-not-interested: var(--color-brand-red-100);
+  --color-status-not-interested-text: var(--color-brand-red-700);
+  --color-status-already-purchased: #f3e8ff;
+  --color-status-already-purchased-text: #7c3aed;
+  --color-status-sale: var(--color-success-100);
+  --color-status-sale-text: var(--color-success-800);
+  --color-status-payment-link: var(--color-info-100);
+  --color-status-payment-link-text: var(--color-info-800);
+  --color-status-follow-up: #fce7f3;
+  --color-status-follow-up-text: #be185d;
+  
+  /* === SPACING SCALE === */
+  --space-xs: 0.25rem;    /* 4px */
+  --space-sm: 0.5rem;     /* 8px */
+  --space-md: 1rem;       /* 16px */
+  --space-lg: 1.5rem;     /* 24px */
+  --space-xl: 2rem;       /* 32px */
+  --space-2xl: 3rem;      /* 48px */
+  --space-3xl: 4rem;      /* 64px */
+  --space-4xl: 5rem;      /* 80px */
+  --space-5xl: 6rem;      /* 96px */
+  
+  /* Spacing Aliases */
+  --space-card-padding: var(--space-lg);
+  --space-section-gap: var(--space-xl);
+  --space-component-gap: var(--space-md);
+  --space-element-gap: var(--space-sm);
+  
+  /* === TYPOGRAPHY SCALE === */
+  --text-xs: 0.75rem;     /* 12px */
+  --text-sm: 0.875rem;    /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg: 1.125rem;    /* 18px */
+  --text-xl: 1.25rem;     /* 20px */
+  --text-2xl: 1.5rem;     /* 24px */
+  --text-3xl: 1.875rem;   /* 30px */
+  --text-4xl: 2.25rem;    /* 36px */
+  --text-5xl: 3rem;       /* 48px */
+  
+  /* Typography Weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  /* Typography Line Heights */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+  
+  /* === BORDER RADIUS === */
+  --radius-none: 0;
+  --radius-sm: 0.375rem;  /* 6px */
+  --radius-md: 0.5rem;    /* 8px */
+  --radius-lg: 0.75rem;   /* 12px */
+  --radius-xl: 1rem;      /* 16px */
+  --radius-2xl: 1.5rem;   /* 24px */
+  --radius-3xl: 2rem;     /* 32px */
+  --radius-full: 9999px;  /* Fully rounded */
+  
+  /* Radius Aliases */
+  --radius-button: var(--radius-md);
+  --radius-card: var(--radius-lg);
+  --radius-modal: var(--radius-xl);
+  --radius-badge: var(--radius-full);
+  
+  /* === SHADOWS === */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  
+  /* Colored Shadows */
+  --shadow-brand: 0 4px 12px rgba(220, 38, 38, 0.15);
+  --shadow-brand-lg: 0 8px 25px rgba(220, 38, 38, 0.2);
+  --shadow-success: 0 4px 12px rgba(5, 150, 105, 0.15);
+  --shadow-warning: 0 4px 12px rgba(245, 158, 11, 0.15);
+  --shadow-info: 0 4px 12px rgba(59, 130, 246, 0.15);
+  
+  /* === Z-INDEX LAYERS === */
+  --z-base: 1;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-fixed: 300;
+  --z-overlay: 400;
+  --z-modal-backdrop: 1050;
+  --z-modal-content: 1051;
+  --z-popover: 1100;
+  --z-toast: 1200;
+  --z-tooltip: 1300;
+  
+  /* === ANIMATION TIMING === */
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --duration-slower: 500ms;
+  
+  /* Easing Functions */
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  
+  /* === COMPONENT SPECIFIC TOKENS === */
+  /* Buttons */
+  --button-height-sm: 2rem;     /* 32px */
+  --button-height-md: 2.5rem;   /* 40px */
+  --button-height-lg: 3rem;     /* 48px */
+  --button-padding-x: var(--space-md);
+  --button-padding-y: var(--space-sm);
+  
+  /* Action Buttons (small) */
+  --action-button-size: 2rem;   /* 32px */
+  --action-button-gap: var(--space-sm);
+  
+  /* Status Badges */
+  --badge-height: 1.5rem;       /* 24px */
+  --badge-padding-x: var(--space-sm);
+  --badge-padding-y: var(--space-xs);
+  --badge-font-size: var(--text-xs);
+  
+  /* Cards */
+  --card-padding: var(--space-lg);
+  --card-border-width: 1px;
+  --card-border-color: var(--color-border);
+  
+  /* Tables */
+  --table-row-height: 3.5rem;   /* 56px */
+  --table-cell-padding-x: var(--space-md);
+  --table-cell-padding-y: var(--space-sm);
+  
+  /* Modals */
+  --modal-backdrop: rgba(0, 0, 0, 0.5);
+  --modal-max-width: 32rem;     /* 512px */
+  --modal-padding: var(--space-2xl);
+  
+  /* === RESPONSIVE BREAKPOINTS === */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+}
+
+/* === DARK MODE OVERRIDES === */
+/* 
+ * Note: Dark mode tokens to be implemented in future phase
+ * When dark mode is added, these tokens will be overridden
+ * in a @media (prefers-color-scheme: dark) block
+ */
+
+/* === PRINT OVERRIDES === */
+@media print {
+  :root {
+    --shadow-sm: none;
+    --shadow-md: none;
+    --shadow-lg: none;
+    --shadow-xl: none;
+    --shadow-2xl: none;
+  }
+}

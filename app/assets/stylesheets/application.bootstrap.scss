@@ -1,10 +1,20 @@
+// AutoXpress CRM Design System Foundation
+@use 'design-tokens';
+@use 'animations';
+
+// Bootstrap Integration  
 @use 'bootstrap/scss/bootstrap' as bootstrap;
 @use 'bootstrap-icons/font/bootstrap-icons' as bootstrap-icons;
+
+// Component Library
+@use 'components/buttons';
+@use 'components/badges';
+@use 'components/cards';
 
 // Import unified modal system first to prevent conflicts
 @use 'unified_modals';
 
-// Import dashboard styles
+// View-Specific Styles
 @use 'dashboard';
 @use 'customers';
 @use 'callbacks';
