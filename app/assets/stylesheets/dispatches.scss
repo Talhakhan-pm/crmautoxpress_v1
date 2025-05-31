@@ -2148,7 +2148,7 @@
   position: relative;
 }
 
-.timeline-track {
+.dispatch-timeline-track {
   display: flex;
   justify-content: space-between;
   position: relative;
@@ -2664,12 +2664,12 @@
   margin: 0;
 }
 
-// Activity Timeline
-.activity-section {
+// Dispatch-specific Activity Timeline
+.dispatch-activity-section {
   margin-bottom: 40px;
 }
 
-.activity-timeline {
+.dispatch-activity-timeline {
   background: white;
   border-radius: 16px;
   padding: 24px;
@@ -2677,7 +2677,7 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.no-activities {
+.dispatch-no-activities {
   text-align: center;
   padding: 40px 20px;
   color: #6b7280;
@@ -2910,7 +2910,7 @@
 }
 
 .return-timeline {
-  .timeline-track {
+  .dispatch-timeline-track {
     position: relative;
     
     &::before {

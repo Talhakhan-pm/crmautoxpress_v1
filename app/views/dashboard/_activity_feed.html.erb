@@ -1,7 +1,7 @@
-<div style="display: flex; flex-direction: column; gap: 1rem; max-height: 450px; overflow-y: auto; padding-right: 0.5rem; width: 100%;">
+<div class="dashboard-activity-feed">
   <% activities.each do |activity| %>
-    <div class="activity-item">
-      <div class="activity-avatar">
+    <div class="dashboard-activity-item">
+      <div class="dashboard-activity-avatar">
         <% case activity.action %>
         <% when 'created' %>
           <i class="fas fa-plus activity-icon-create"></i>
@@ -11,7 +11,7 @@
           <i class="fas fa-eye activity-icon-view"></i>
         <% end %>
       </div>
-      <div class="activity-content">
+      <div class="dashboard-activity-content">
         <p class="activity-text">
           <strong><%= activity.user.email.split('@').first.humanize %></strong>
           

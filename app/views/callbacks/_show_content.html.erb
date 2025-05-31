@@ -10,7 +10,7 @@
             Call Customer
         </button>
         <%= link_to edit_callback_path(callback), class: "btn btn-primary", 
-            data: { turbo_frame: turbo_frame_request? ? "main_content" : "_top" } do %>
+            data: { turbo_frame: "main_content" } do %>
             <i class="fas fa-edit"></i>
             Edit Callback
         <% end %>

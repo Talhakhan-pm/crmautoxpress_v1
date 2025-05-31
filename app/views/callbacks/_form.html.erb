@@ -5,7 +5,7 @@
               class: "callback-form", 
               data: { 
                 callback_form_target: "form",
-                turbo_frame: turbo_frame_request? ? "main_content" : "_top",
+                turbo_frame: "main_content",
                 action: "turbo:submit-start->callback-form#handleSubmit turbo:submit-end->callback-form#handleSuccess"
               } do |form| %>
   

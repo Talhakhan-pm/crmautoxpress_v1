@@ -554,8 +554,8 @@
   }
 }
 
-/* Activity Feed - Always maintain layout */
-.activity-feed {
+/* Dashboard Activity Feed - Specific to dashboard only */
+.dashboard-activity-feed {
   display: flex !important;
   flex-direction: column !important;
   gap: 1rem !important;
@@ -583,7 +583,7 @@
   }
 }
 
-.activity-item {
+.dashboard-activity-item {
   display: flex !important;
   gap: 1rem !important;
   padding: 1rem !important;
@@ -597,7 +597,7 @@
     transform: translateX(4px) !important;
   }
   
-  .activity-avatar {
+  .dashboard-activity-avatar {
     width: 40px !important;
     height: 40px !important;
     border-radius: 50% !important;
@@ -632,7 +632,7 @@
     }
   }
   
-  .activity-content {
+  .dashboard-activity-content {
     flex: 1 !important;
     min-width: 0 !important;
     

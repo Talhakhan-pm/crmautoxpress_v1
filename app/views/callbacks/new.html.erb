@@ -1,38 +1,36 @@
-<!-- Main Content with Turbo Frame -->
-<main class="main-content">
-    <%= turbo_frame_tag "main_content" do %>
-        <!-- Smart Callback Creation Modal -->
-        <div id="callback-modal" 
-             class="callback-modal active" 
-             data-controller="callback-form modal"
-             data-modal-close-url-value="<%= callbacks_path %>"
-             data-action="click->modal#closeModal">
-          
-          <div class="modal-overlay" 
-               title="Click to close"></div>
-          
-          <div class="callback-modal-content" data-callback-form-target="modal" data-action="click->modal#stopPropagation">
-            <!-- Modal Header -->
-            <div class="modal-header">
-              <div class="header-content">
-                <div class="modal-title-section">
-                  <h2 class="modal-title">
-                    <i class="fas fa-phone-alt modal-icon"></i>
-                    Create New Callback
-                  </h2>
-                  <p class="modal-subtitle">Capture lead information and schedule follow-ups</p>
-                </div>
-                <button type="button" data-action="click->modal#closeModal" class="close-btn">
-                  <i class="fas fa-times"></i>
-                </button>
-              </div>
+<%= turbo_frame_tag "main_content", data: { turbo_action: "advance", controller: "callback-form modal" } do %>
+  <main class="main-content">
+    <!-- Smart Callback Creation Modal -->
+    <div id="callback-modal" 
+         class="callback-modal active" 
+         data-modal-close-url-value="<%= callbacks_path %>"
+         data-action="click->modal#closeModal">
+      
+      <div class="modal-overlay" 
+           title="Click to close"></div>
+      
+      <div class="callback-modal-content" data-callback-form-target="modal" data-action="click->modal#stopPropagation">
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <div class="header-content">
+            <div class="modal-title-section">
+              <h2 class="modal-title">
+                <i class="fas fa-phone-alt modal-icon"></i>
+                Create New Callback
+              </h2>
+              <p class="modal-subtitle">Capture lead information and schedule follow-ups</p>
             </div>
-
-            <!-- Modal Body -->
-            <div class="modal-body">
-              <%= render 'form', callback: @callback %>
-            </div>
+            <button type="button" data-action="click->modal#closeModal" class="close-btn">
+              <i class="fas fa-times"></i>
+            </button>
           </div>
         </div>
-    <% end %>
-</main>
+
+        <!-- Modal Body -->
+        <div class="modal-body">
+          <%= render 'form', callback: @callback %>
+        </div>
+      </div>
+    </div>
+  </main>
+<% end %>

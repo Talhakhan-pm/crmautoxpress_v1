@@ -2,25 +2,12 @@
 
 <%= turbo_stream_from "callback_#{@callback.id}_activities" %>
 
-<% if turbo_frame_request? %>
-  <%= turbo_frame_tag "main_content", data: { controller: "callback-form" } do %>
+<%= turbo_frame_tag "main_content", data: { turbo_action: "advance", controller: "callback-form" } do %>
+  <main class="main-content">
     <header class="main-header">
       <div class="header-left">
         <h1>Edit Callback #CB-<%= Date.current.year %>-<%= @callback.id.to_s.rjust(4, '0') %></h1>
-        <div class="breadcrumb">CRM › Callbacks › <%= link_to "Callback Details", callback_path(@callback), style: "color: #dc2626; text-decoration: none;" %> › Edit</div>
-      </div>
-    </header>
-
-    <div class="content-card">
-      <%= render 'form', callback: @callback %>
-    </div>
-  <% end %>
-<% else %>
-  <main class="main-content" data-controller="callback-form">
-    <header class="main-header">
-      <div class="header-left">
-        <h1>Edit Callback #CB-<%= Date.current.year %>-<%= @callback.id.to_s.rjust(4, '0') %></h1>
-        <div class="breadcrumb">CRM › Callbacks › <%= link_to "Callback Details", callback_path(@callback) %> › Edit</div>
+        <div class="breadcrumb">CRM › Callbacks › <%= link_to "Callback Details", callback_path(@callback), style: "color: #dc2626; text-decoration: none;", data: { turbo_frame: "main_content" } %> › Edit</div>
       </div>
     </header>
 
