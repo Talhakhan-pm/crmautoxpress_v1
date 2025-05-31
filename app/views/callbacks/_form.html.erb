@@ -1,0 +1,187 @@
+<%= form_with model: callback, 
+              url: callback.persisted? ? callback_path(callback) : callbacks_path,
+              method: callback.persisted? ? :patch : :post,
+              local: false, 
+              class: "callback-form", 
+              data: { 
+                callback_form_target: "form",
+                turbo_frame: turbo_frame_request? ? "main_content" : "_top",
+                action: "turbo:submit-start->callback-form#handleSubmit turbo:submit-end->callback-form#handleSuccess"
+              } do |form| %>
+  
+  <!-- Error Messages -->
+  <% if callback.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(callback.errors.count, "error") %> prohibited this callback from being saved:</h4>
+      <ul>
+        <% callback.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <!-- Customer Information Section -->
+  <div class="form-section">
+    <div class="section-header">
+      <h4 class="section-title">
+        <i class="fas fa-user"></i>
+        Customer Information
+      </h4>
+    </div>
+    
+    <div class="form-grid">
+      <div class="form-group">
+        <%= form.label :customer_name, "Customer Name *", class: "form-label" %>
+        <%= form.text_field :customer_name, 
+                            class: "form-input", 
+                            placeholder: "Full customer name", 
+                            required: true %>
+      </div>
+      
+      <div class="form-group">
+        <%= form.label :phone_number, "Phone Number *", class: "form-label" %>
+        <%= form.telephone_field :phone_number, 
+                                 class: "form-input", 
+                                 placeholder: "(555) 123-4567", 
+                                 required: true,
+                                 data: { callback_form_target: "phoneNumber" } %>
+      </div>
+      
+      <div class="form-group">
+        <%= form.label :zip_code, "ZIP Code", class: "form-label" %>
+        <%= form.text_field :zip_code, 
+                            class: "form-input", 
+                            placeholder: "12345" %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vehicle Information Section -->
+  <div class="form-section">
+    <div class="section-header">
+      <h4 class="section-title">
+        <i class="fas fa-car"></i>
+        Vehicle Information
+      </h4>
+    </div>
+    
+    <div class="form-grid">
+      <div class="form-group">
+        <%= form.label :car_make_model, "Car Make & Model *", class: "form-label" %>
+        <%= form.text_field :car_make_model, 
+                            class: "form-input", 
+                            placeholder: "e.g., Ford Fusion", 
+                            required: true %>
+      </div>
+      
+      <div class="form-group">
+        <%= form.label :year, "Year", class: "form-label" %>
+        <%= form.number_field :year, 
+                              class: "form-input", 
+                              placeholder: "2023",
+                              min: 1990,
+                              max: 2030 %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Information Section -->
+  <div class="form-section">
+    <div class="section-header">
+      <h4 class="section-title">
+        <i class="fas fa-cog"></i>
+        Product Information
+      </h4>
+    </div>
+    
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <%= form.label :product, "Product *", class: "form-label" %>
+        <%= form.text_area :product, 
+                           class: "form-input", 
+                           rows: 3, 
+                           placeholder: "Enter product name or description", 
+                           required: true %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Callback Management Section -->
+  <div class="form-section">
+    <div class="section-header">
+      <h4 class="section-title">
+        <i class="fas fa-tasks"></i>
+        Callback Management
+      </h4>
+    </div>
+    
+    <div class="form-grid">
+      <div class="form-group">
+        <%= form.label :status, "Status", class: "form-label" %>
+        <%= form.select :status, options_for_select([
+            ['Pending', 'pending'],
+            ['Not Interested', 'not_interested'],
+            ['Already Purchased', 'already_purchased'],
+            ['Sale', 'sale'],
+            ['Payment Link', 'payment_link'],
+            ['Follow Up', 'follow_up']
+        ], callback.status || 'pending'), {}, { class: "form-select" } %>
+      </div>
+      
+      <div class="form-group">
+        <%= form.label :follow_up_date, "Follow-up Date", class: "form-label" %>
+        <%= form.date_field :follow_up_date, 
+                            class: "form-input",
+                            value: callback.follow_up_date || (Date.current + 1.day) %>
+      </div>
+      
+      <div class="form-group full-width">
+        <%= form.label :agent, "Assigned Agent", class: "form-label" %>
+        <% if callback.persisted? %>
+          <%= form.select :agent, options_from_collection_for_select(User.all, :email, :email, callback.agent), 
+              { prompt: 'Select agent' }, { class: "form-select" } %>
+        <% else %>
+          <%= form.hidden_field :agent, value: current_user.email %>
+          <div class="form-input-readonly">
+            <i class="fas fa-user"></i>
+            <%= current_user.email %>
+          </div>
+          <small class="text-muted">Callbacks are automatically assigned to you</small>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notes Section -->
+  <div class="form-section">
+    <div class="section-header">
+      <h4 class="section-title">
+        <i class="fas fa-sticky-note"></i>
+        Additional Notes
+      </h4>
+    </div>
+    
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <%= form.label :notes, "Notes", class: "form-label" %>
+        <%= form.text_area :notes, 
+                           class: "form-input", 
+                           rows: 4, 
+                           placeholder: "Add any additional notes about this callback..." %>
+        <small class="text-muted">Include any relevant information about customer preferences, call history, or special requirements.</small>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Form Actions -->
+  <div class="form-actions">
+    <%= link_to "Cancel", callbacks_path, class: "btn btn-secondary", 
+        data: { turbo_frame: turbo_frame_request? ? "main_content" : "_top" } %>
+    
+    <div class="primary-actions">
+      <%= form.submit callback.persisted? ? "Update Callback" : "Create Callback", 
+          class: "btn btn-primary", data: { callback_form_target: "submitBtn" } %>
+    </div>
+  </div>
+<% end %>

@@ -40,14 +40,17 @@ class CallbacksController < ApplicationController
       }
     end
     
-    respond_to do |format|
-      if @callback.save
+    if @callback.save
+      flash[:notice] = 'Callback was successfully created.'
+      respond_to do |format|
         format.html { redirect_to callbacks_path }
         format.turbo_stream { 
           @callbacks = AgentCallback.all.order(created_at: :desc)
-          render :create 
+          render 'index'
         }
-      else
+      end
+    else
+      respond_to do |format|
         format.html { render :new, status: :unprocessable_entity }
         format.turbo_stream { render :new, status: :unprocessable_entity }
       end
@@ -58,14 +61,17 @@ class CallbacksController < ApplicationController
   end
 
   def update
-    respond_to do |format|
-      if @callback.update(callback_params)
-        format.html { redirect_to callbacks_path }
+    if @callback.update(callback_params)
+      flash[:notice] = 'Callback was successfully updated.'
+      respond_to do |format|
+        format.html { redirect_to callback_path(@callback) }
         format.turbo_stream { 
           @callbacks = AgentCallback.all.order(created_at: :desc)
-          render :update 
+          render 'index'
         }
-      else
+      end
+    else
+      respond_to do |format|
         format.html { render :edit, status: :unprocessable_entity }
         format.turbo_stream { render :edit, status: :unprocessable_entity }
       end
