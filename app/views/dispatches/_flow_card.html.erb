@@ -56,30 +56,30 @@
       <% case dispatch.dispatch_status %>
       <% when 'pending', 'assigned' %>
         <%= link_to "Start Processing", edit_dispatch_path(dispatch), 
-            class: "flow-action-btn start", 
+            class: "ax-btn ax-btn--primary", 
             data: { turbo_frame: "main_content" },
             onclick: "event.stopPropagation();" %>
       <% when 'processing' %>
         <% if dispatch.can_be_shipped? %>
           <%= link_to "Ready to Ship", edit_dispatch_path(dispatch), 
-              class: "flow-action-btn ship", 
+              class: "ax-btn ax-btn--warning", 
               data: { turbo_frame: "main_content" },
               onclick: "event.stopPropagation();" %>
         <% else %>
           <%= link_to "Update", edit_dispatch_path(dispatch), 
-              class: "flow-action-btn update", 
+              class: "ax-btn ax-btn--secondary", 
               data: { turbo_frame: "main_content" },
               onclick: "event.stopPropagation();" %>
         <% end %>
       <% when 'shipped' %>
         <% if dispatch.has_tracking? %>
           <%= link_to "Track", dispatch.tracking_link.present? ? dispatch.tracking_link : "#", 
-              class: "flow-action-btn track", 
+              class: "ax-btn ax-btn--info", 
               target: "_blank",
               onclick: "event.stopPropagation();" %>
         <% end %>
         <%= link_to "Mark Delivered", edit_dispatch_path(dispatch), 
-            class: "flow-action-btn deliver", 
+            class: "ax-btn ax-btn--success", 
             data: { turbo_frame: "main_content" },
             onclick: "event.stopPropagation();" %>
       <% end %>

@@ -176,12 +176,12 @@
   
   <!-- Form Actions -->
   <div class="form-actions">
-    <%= link_to "Cancel", callbacks_path, class: "btn btn-secondary", 
+    <%= link_to "Cancel", callbacks_path, class: "ax-btn ax-btn--secondary", 
         data: { turbo_frame: turbo_frame_request? ? "main_content" : "_top" } %>
     
     <div class="primary-actions">
       <%= form.submit callback.persisted? ? "Update Callback" : "Create Callback", 
-          class: "btn btn-primary", data: { callback_form_target: "submitBtn" } %>
+          class: "ax-btn ax-btn--primary", data: { callback_form_target: "submitBtn" } %>
     </div>
   </div>
 <% end %>

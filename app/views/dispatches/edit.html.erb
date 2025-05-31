@@ -423,7 +423,7 @@
                       <% if @dispatch.order.refund.can_generate_return_label? %>
                         <%= link_to resolution_generate_return_label_path(@dispatch.order.refund), 
                             method: :patch,
-                            class: "return-action-btn primary",
+                            class: "ax-btn ax-btn--primary",
                             data: { 
                               turbo_method: :patch,
                               confirm: "Generate return label for customer?" 
@@ -436,7 +436,7 @@
                       <% if @dispatch.order.refund.return_label_sent? %>
                         <%= link_to resolution_mark_return_shipped_path(@dispatch.order.refund), 
                             method: :patch,
-                            class: "return-action-btn secondary",
+                            class: "ax-btn ax-btn--secondary",
                             data: { 
                               turbo_method: :patch,
                               confirm: "Mark return as shipped by customer?" 
@@ -449,7 +449,7 @@
                       <% if @dispatch.order.refund.return_shipped? || @dispatch.order.refund.return_in_transit? || @dispatch.order.refund.return_delivered? %>
                         <%= link_to resolution_mark_return_received_path(@dispatch.order.refund), 
                             method: :patch,
-                            class: "return-action-btn success",
+                            class: "ax-btn ax-btn--success",
                             data: { 
                               turbo_method: :patch,
                               confirm: "Mark return as received and inspected?" 
@@ -462,7 +462,7 @@
                       <% if @dispatch.order.refund.return_label_url.present? %>
                         <%= link_to @dispatch.order.refund.return_label_url, 
                             target: "_blank",
-                            class: "return-action-btn info" do %>
+                            class: "ax-btn ax-btn--info" do %>
                           <i class="fas fa-download"></i>
                           Download Return Label
                         <% end %>
