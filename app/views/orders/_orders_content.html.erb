@@ -199,7 +199,7 @@ show_table = if defined?(view_type)
                   <i class="fas fa-shopping-cart empty-icon"></i>
                   <h3 class="empty-title">No Orders Found</h3>
                   <p class="empty-message">Start by creating your first order or adjust your search filters.</p>
-                  <%= link_to "Create Order", new_order_path, class: "btn btn-primary" %>
+                  <%= link_to "Create Order", new_order_path, class: "ax-btn ax-btn--primary" %>
                 </div>
               </td>
             </tr>
@@ -502,7 +502,7 @@ show_table = if defined?(view_type)
             You haven't created any orders yet. Start by creating your first order from a customer callback or manually.
           <% end %>
         </p>
-        <%= link_to "Create New Order", new_order_path, class: "btn btn-primary" %>
+        <%= link_to "Create New Order", new_order_path, class: "ax-btn ax-btn--primary" %>
       </div>
     <% end %>
   </div>
