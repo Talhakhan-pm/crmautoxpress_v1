@@ -103,17 +103,17 @@ show_table = if defined?(view_type)
                 </td>
                 <td onclick="event.stopPropagation();">
                   <div class="action-menu">
-                    <%= link_to order_path(order), class: "action-btn" do %>
+                    <%= link_to order_path(order), class: "ax-btn ax-btn--ghost ax-btn--sm" do %>
                       <i class="fas fa-eye"></i>
                       View
                     <% end %>
-                    <%= link_to edit_order_path(order), class: "action-btn" do %>
+                    <%= link_to edit_order_path(order), class: "ax-btn ax-btn--ghost ax-btn--sm" do %>
                       <i class="fas fa-edit"></i>
                       Edit
                     <% end %>
                     <% if order.dispatch.present? && order.dispatch.shipped_or_completed? && order.refund.blank? %>
                       <div class="action-dropdown table-dropdown">
-                        <button class="action-btn dropdown-toggle" 
+                        <button class="ax-btn ax-btn--ghost ax-btn--sm dropdown-toggle" 
                                 data-action="click->orders-filter#toggleReturnDropdown"
                                 data-order-id="<%= order.id %>">
                           <i class="fas fa-undo"></i>
