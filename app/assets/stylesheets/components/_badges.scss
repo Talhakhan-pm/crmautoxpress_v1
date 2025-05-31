@@ -82,6 +82,36 @@
   border-color: var(--color-info-200);
 }
 
+.ax-badge--status-draft {
+  background: var(--color-gray-100);
+  color: var(--color-gray-700);
+  border-color: var(--color-gray-200);
+}
+
+.ax-badge--status-processing {
+  background: var(--color-info-100);
+  color: var(--color-info-800);
+  border-color: var(--color-info-200);
+}
+
+.ax-badge--status-review {
+  background: var(--color-warning-100);
+  color: var(--color-warning-800);
+  border-color: var(--color-warning-200);
+}
+
+.ax-badge--status-approved {
+  background: var(--color-success-100);
+  color: var(--color-success-800);
+  border-color: var(--color-success-200);
+}
+
+.ax-badge--status-rejected {
+  background: var(--color-brand-red-100);
+  color: var(--color-brand-red-800);
+  border-color: var(--color-brand-red-200);
+}
+
 /* Callback-Specific Status Badges */
 .ax-badge--status-not-interested {
   background: var(--color-status-not-interested);
@@ -111,6 +141,204 @@
   background: var(--color-status-follow-up);
   color: var(--color-status-follow-up-text);
   border-color: #f9a8d4;
+}
+
+/* === PAYMENT STATUS BADGES === */
+.ax-badge--payment-pending {
+  background: var(--color-warning-100);
+  color: var(--color-warning-800);
+  border-color: var(--color-warning-200);
+}
+
+.ax-badge--payment-paid {
+  background: var(--color-success-100);
+  color: var(--color-success-800);
+  border-color: var(--color-success-200);
+}
+
+.ax-badge--payment-failed {
+  background: var(--color-brand-red-100);
+  color: var(--color-brand-red-800);
+  border-color: var(--color-brand-red-200);
+}
+
+.ax-badge--payment-refunded {
+  background: var(--color-info-100);
+  color: var(--color-info-800);
+  border-color: var(--color-info-200);
+}
+
+.ax-badge--payment-processing {
+  background: var(--color-warning-100);
+  color: var(--color-warning-800);
+  border-color: var(--color-warning-200);
+}
+
+/* === SHIPMENT STATUS BADGES === */
+.ax-badge--shipment-pending {
+  background: var(--color-gray-100);
+  color: var(--color-gray-700);
+  border-color: var(--color-gray-200);
+}
+
+.ax-badge--shipment-processing {
+  background: var(--color-info-100);
+  color: var(--color-info-800);
+  border-color: var(--color-info-200);
+}
+
+.ax-badge--shipment-shipped {
+  background: var(--color-warning-100);
+  color: var(--color-warning-800);
+  border-color: var(--color-warning-200);
+}
+
+.ax-badge--shipment-delivered {
+  background: var(--color-success-100);
+  color: var(--color-success-800);
+  border-color: var(--color-success-200);
+}
+
+.ax-badge--shipment-failed {
+  background: var(--color-brand-red-100);
+  color: var(--color-brand-red-800);
+  border-color: var(--color-brand-red-200);
+}
+
+/* === DISPATCH STATUS BADGES === */
+.ax-badge--dispatch-pending {
+  background: var(--color-warning-100);
+  color: var(--color-warning-800);
+  border-color: var(--color-warning-200);
+}
+
+.ax-badge--dispatch-assigned {
+  background: var(--color-info-100);
+  color: var(--color-info-800);
+  border-color: var(--color-info-200);
+}
+
+.ax-badge--dispatch-in-transit {
+  background: #fef3c7;
+  color: #d97706;
+  border-color: #fed7aa;
+}
+
+.ax-badge--dispatch-completed {
+  background: var(--color-success-100);
+  color: var(--color-success-800);
+  border-color: var(--color-success-200);
+}
+
+.ax-badge--dispatch-cancelled {
+  background: var(--color-brand-red-100);
+  color: var(--color-brand-red-800);
+  border-color: var(--color-brand-red-200);
+}
+
+/* === RETURN STATUS BADGES === */
+.ax-badge--return-not-requested {
+  background: var(--color-gray-100);
+  color: var(--color-gray-700);
+  border-color: var(--color-gray-200);
+}
+
+.ax-badge--return-return-requested {
+  background: var(--color-warning-100);
+  color: var(--color-warning-800);
+  border-color: var(--color-warning-200);
+}
+
+.ax-badge--return-return-authorized {
+  background: var(--color-info-100);
+  color: var(--color-info-800);
+  border-color: var(--color-info-200);
+}
+
+.ax-badge--return-item-shipped {
+  background: #fef3c7;
+  color: #d97706;
+  border-color: #fed7aa;
+}
+
+.ax-badge--return-return-received {
+  background: var(--color-success-100);
+  color: var(--color-success-800);
+  border-color: var(--color-success-200);
+}
+
+.ax-badge--return-refund-processed {
+  background: var(--color-success-100);
+  color: var(--color-success-800);
+  border-color: var(--color-success-200);
+}
+
+.ax-badge--return-return-rejected {
+  background: var(--color-brand-red-100);
+  color: var(--color-brand-red-800);
+  border-color: var(--color-brand-red-200);
+}
+
+/* === REFUND STATUS BADGES === */
+.ax-badge--refund-pending {
+  background: var(--color-warning-100);
+  color: var(--color-warning-800);
+  border-color: var(--color-warning-200);
+}
+
+.ax-badge--refund-processing {
+  background: var(--color-info-100);
+  color: var(--color-info-800);
+  border-color: var(--color-info-200);
+}
+
+.ax-badge--refund-approved {
+  background: var(--color-success-100);
+  color: var(--color-success-800);
+  border-color: var(--color-success-200);
+}
+
+.ax-badge--refund-rejected {
+  background: var(--color-brand-red-100);
+  color: var(--color-brand-red-800);
+  border-color: var(--color-brand-red-200);
+}
+
+.ax-badge--refund-completed {
+  background: var(--color-success-100);
+  color: var(--color-success-800);
+  border-color: var(--color-success-200);
+}
+
+.ax-badge--refund-cancelled {
+  background: var(--color-gray-100);
+  color: var(--color-gray-700);
+  border-color: var(--color-gray-200);
+}
+
+/* === RESOLUTION STATUS BADGES === */
+.ax-badge--resolution-pending {
+  background: var(--color-warning-100);
+  color: var(--color-warning-800);
+  border-color: var(--color-warning-200);
+}
+
+.ax-badge--resolution-in-progress {
+  background: var(--color-info-100);
+  color: var(--color-info-800);
+  border-color: var(--color-info-200);
+}
+
+.ax-badge--resolution-resolved {
+  background: var(--color-success-100);
+  color: var(--color-success-800);
+  border-color: var(--color-success-200);
+}
+
+.ax-badge--resolution-escalated {
+  background: var(--color-brand-red-100);
+  color: var(--color-brand-red-800);
+  border-color: var(--color-brand-red-200);
 }
 
 /* === SEMANTIC BADGES === */
@@ -309,6 +537,164 @@
   
   &.status-follow_up {
     @extend .ax-badge--status-follow-up;
+  }
+  
+  &.status-draft {
+    @extend .ax-badge--status-draft;
+  }
+  
+  &.status-processing {
+    @extend .ax-badge--status-processing;
+  }
+  
+  &.status-review {
+    @extend .ax-badge--status-review;
+  }
+  
+  &.status-approved {
+    @extend .ax-badge--status-approved;
+  }
+  
+  &.status-rejected {
+    @extend .ax-badge--status-rejected;
+  }
+  
+  &.status-in-progress {
+    @extend .ax-badge--status-in-progress;
+  }
+  
+  /* Payment status legacy mappings */
+  &.payment-pending {
+    @extend .ax-badge--payment-pending;
+  }
+  
+  &.payment-paid {
+    @extend .ax-badge--payment-paid;
+  }
+  
+  &.payment-failed {
+    @extend .ax-badge--payment-failed;
+  }
+  
+  &.payment-refunded {
+    @extend .ax-badge--payment-refunded;
+  }
+  
+  &.payment-processing {
+    @extend .ax-badge--payment-processing;
+  }
+  
+  /* Shipment status legacy mappings */
+  &.shipment-pending {
+    @extend .ax-badge--shipment-pending;
+  }
+  
+  &.shipment-processing {
+    @extend .ax-badge--shipment-processing;
+  }
+  
+  &.shipment-shipped {
+    @extend .ax-badge--shipment-shipped;
+  }
+  
+  &.shipment-delivered {
+    @extend .ax-badge--shipment-delivered;
+  }
+  
+  &.shipment-failed {
+    @extend .ax-badge--shipment-failed;
+  }
+  
+  /* Dispatch status legacy mappings */
+  &.dispatch-pending {
+    @extend .ax-badge--dispatch-pending;
+  }
+  
+  &.dispatch-assigned {
+    @extend .ax-badge--dispatch-assigned;
+  }
+  
+  &.dispatch-in-transit {
+    @extend .ax-badge--dispatch-in-transit;
+  }
+  
+  &.dispatch-completed {
+    @extend .ax-badge--dispatch-completed;
+  }
+  
+  &.dispatch-cancelled {
+    @extend .ax-badge--dispatch-cancelled;
+  }
+  
+  /* Return status legacy mappings */
+  &.return-not-requested {
+    @extend .ax-badge--return-not-requested;
+  }
+  
+  &.return-return-requested {
+    @extend .ax-badge--return-return-requested;
+  }
+  
+  &.return-return-authorized {
+    @extend .ax-badge--return-return-authorized;
+  }
+  
+  &.return-item-shipped {
+    @extend .ax-badge--return-item-shipped;
+  }
+  
+  &.return-return-received {
+    @extend .ax-badge--return-return-received;
+  }
+  
+  &.return-refund-processed {
+    @extend .ax-badge--return-refund-processed;
+  }
+  
+  &.return-return-rejected {
+    @extend .ax-badge--return-return-rejected;
+  }
+  
+  /* Refund status legacy mappings */
+  &.refund-pending {
+    @extend .ax-badge--refund-pending;
+  }
+  
+  &.refund-processing {
+    @extend .ax-badge--refund-processing;
+  }
+  
+  &.refund-approved {
+    @extend .ax-badge--refund-approved;
+  }
+  
+  &.refund-rejected {
+    @extend .ax-badge--refund-rejected;
+  }
+  
+  &.refund-completed {
+    @extend .ax-badge--refund-completed;
+  }
+  
+  &.refund-cancelled {
+    @extend .ax-badge--refund-cancelled;
+  }
+  
+  /* Resolution status legacy mappings */
+  &.resolution-pending {
+    @extend .ax-badge--resolution-pending;
+  }
+  
+  &.resolution-in-progress {
+    @extend .ax-badge--resolution-in-progress;
+  }
+  
+  &.resolution-resolved {
+    @extend .ax-badge--resolution-resolved;
+  }
+  
+  &.resolution-escalated {
+    @extend .ax-badge--resolution-escalated;
   }
 }
 

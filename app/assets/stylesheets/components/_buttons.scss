@@ -353,7 +353,106 @@
   @extend .ax-action-group;
 }
 
-/* Legacy button variants for existing code */
+/* === ADDITIONAL ACTION BUTTON VARIANTS === */
+/* Found in dispatches, orders, and other model views */
+
+/* Tertiary action button (from dispatches) */
+.ax-action-btn--tertiary {
+  background: var(--color-gray-50);
+  color: var(--color-text-secondary);
+  border-color: var(--color-gray-300);
+  
+  &:hover {
+    background: var(--color-gray-100);
+    border-color: var(--color-gray-400);
+    color: var(--color-text-primary);
+  }
+}
+
+/* Neutral action button variant */
+.ax-action-btn--neutral {
+  background: var(--color-gray-100);
+  color: var(--color-gray-600);
+  border-color: var(--color-gray-200);
+  
+  &:hover {
+    background: var(--color-gray-200);
+    border-color: var(--color-gray-300);
+    color: var(--color-gray-700);
+  }
+}
+
+/* Action button for dropdowns/menus */
+.ax-action-btn--menu {
+  background: transparent;
+  color: var(--color-text-secondary);
+  border-color: transparent;
+  border-radius: var(--radius-md);
+  text-align: left;
+  justify-content: flex-start;
+  width: auto;
+  min-width: 120px;
+  padding: var(--space-sm) var(--space-md);
+  
+  &:hover {
+    background: var(--color-gray-50);
+    color: var(--color-text-primary);
+  }
+}
+
+/* Icon-only action buttons with different sizes */
+.ax-action-btn--icon-sm {
+  width: 28px;
+  height: 28px;
+  font-size: var(--text-xs);
+}
+
+.ax-action-btn--icon-lg {
+  width: 40px;
+  height: 40px;
+  font-size: var(--text-base);
+}
+
+/* Special action button for resolution/workflow */
+.ax-action-btn--resolution {
+  background: var(--color-info-100);
+  color: var(--color-info-700);
+  border-color: var(--color-info-200);
+  
+  &:hover {
+    background: var(--color-info-200);
+    border-color: var(--color-info-300);
+    color: var(--color-info-800);
+  }
+}
+
+/* Action button for urgent/priority actions */
+.ax-action-btn--urgent {
+  background: var(--color-brand-red);
+  color: white;
+  border-color: var(--color-brand-red);
+  animation: ax-pulse-danger 2s infinite;
+  
+  &:hover {
+    background: var(--color-brand-red-dark);
+    border-color: var(--color-brand-red-dark);
+    animation: none;
+  }
+}
+
+/* === LEGACY COMPATIBILITY === */
+/* 
+ * Handle the dual usage of .action-btn:
+ * 1. Small icon buttons (table actions) -> use .ax-action-btn
+ * 2. Full-size form buttons -> use .ax-btn
+ */
+
+/* Base action-btn - defaults to small icon button */
+.action-btn {
+  @extend .ax-action-btn;
+}
+
+/* Small icon action buttons (table usage) */
 .action-btn.order-btn {
   @extend .ax-action-btn--success;
 }
@@ -368,4 +467,95 @@
 
 .action-btn.disabled {
   @extend .ax-action-btn--disabled;
+}
+
+.action-btn.neutral {
+  @extend .ax-action-btn--neutral;
+}
+
+.action-btn.menu {
+  @extend .ax-action-btn--menu;
+}
+
+.action-btn.resolution {
+  @extend .ax-action-btn--resolution;
+}
+
+.action-btn.urgent {
+  @extend .ax-action-btn--urgent;
+}
+
+/* === FULL-SIZE FORM BUTTONS === */
+/* Override for buttons that contain text/spans - make them full-size */
+.action-btn.primary,
+.action-btn.secondary,
+.action-btn.tertiary,
+.action-btn.draft {
+  /* Reset small action button styles */
+  width: auto;
+  height: auto;
+  min-height: var(--button-height-md);
+  padding: var(--button-padding-y) var(--button-padding-x);
+  gap: var(--space-sm);
+  text-align: center;
+  justify-content: center;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  
+  /* Icon handling for full buttons */
+  i {
+    font-size: inherit;
+  }
+}
+
+/* Default red primary buttons (most action-btn.primary) */
+.action-btn.primary {
+  background: linear-gradient(135deg, var(--color-brand-red) 0%, var(--color-brand-red-dark) 100%);
+  color: white;
+  border-color: var(--color-brand-red);
+  box-shadow: var(--shadow-brand);
+  
+  &:hover {
+    background: linear-gradient(135deg, var(--color-brand-red-dark) 0%, var(--color-brand-red-800) 100%);
+    box-shadow: var(--shadow-brand-lg);
+    transform: translateY(-1px);
+  }
+}
+
+
+.action-btn.secondary {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+  
+  &:hover {
+    background: var(--color-gray-50);
+    border-color: var(--color-gray-300);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+.action-btn.tertiary {
+  background: transparent;
+  color: var(--color-text-secondary);
+  border-color: transparent;
+  
+  &:hover {
+    background: var(--color-gray-50);
+    color: var(--color-text-primary);
+  }
+}
+
+.action-btn.draft {
+  background: var(--color-gray-100);
+  color: var(--color-text-secondary);
+  border-color: var(--color-border);
+  
+  &:hover {
+    background: var(--color-gray-200);
+    color: var(--color-text-primary);
+    border-color: var(--color-gray-300);
+    transform: translateY(-1px);
+  }
 }

@@ -2310,8 +2310,11 @@
   }
 }
 
-// Enhanced progress bar with gradient
+// Legacy compatibility for workflow timeline
 .timeline-track {
+  @extend .dispatch-timeline-track;
+  
+  // Enhanced progress bar with gradient
   &::after {
     background: linear-gradient(90deg, #dc2626 0%, #ef4444 50%, #f87171 100%);
     box-shadow: 0 1px 3px rgba(220, 38, 38, 0.3);
@@ -2922,6 +2925,11 @@
       width: 2px;
       background: #e5e7eb;
     }
+  }
+  
+  // Legacy compatibility mapping
+  .timeline-track {
+    @extend .dispatch-timeline-track;
   }
   
   .timeline-item {
