@@ -2,12 +2,8 @@
 
 <%= turbo_stream_from "callback_#{@callback.id}_activities" %>
 
-<% if turbo_frame_request? %>
-  <%= turbo_frame_tag "main_content", data: { controller: "callback-form" } do %>
-    <%= render 'show_content', callback: @callback %>
-  <% end %>
-<% else %>
-  <main class="main-content" data-controller="callback-form">
+<%= turbo_frame_tag "main_content", data: { controller: "callback-form" } do %>
+  <main class="main-content">
     <%= render 'show_content', callback: @callback %>
   </main>
 <% end %>

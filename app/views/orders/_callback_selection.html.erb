@@ -25,9 +25,9 @@
               <span class="callback-status-badge status-<%= callback.status %>"><%= callback.status.humanize %></span>
             </div>
             <div class="callback-item-body">
-              <div class="callback-detail"><i class="fas fa-phone"></i> <%= callback.phone_number %></div>
-              <div class="callback-detail"><i class="fas fa-cog"></i> <%= callback.product %></div>
-              <div class="callback-detail"><i class="fas fa-clock"></i> <%= callback.created_at.strftime("%m/%d/%Y") %></div>
+              <div class="order-callback-detail"><i class="fas fa-phone"></i> <%= callback.phone_number %></div>
+              <div class="order-callback-detail"><i class="fas fa-cog"></i> <%= callback.product %></div>
+              <div class="order-callback-detail"><i class="fas fa-clock"></i> <%= callback.created_at.strftime("%m/%d/%Y") %></div>
             </div>
           </div>
         <% end %>
