@@ -7,7 +7,7 @@
     
     <div class="row g-2">
       <div class="col-4">
-        <%= button_to retry_dispatch_dispatch_path(refund.order.dispatch), 
+        <%= button_to retry_dispatch_from_resolution_dispatch_path(refund.order.dispatch), 
                       method: :patch, 
                       class: "btn btn-outline-primary btn-sm w-100 resolution-btn",
                       confirm: "Retry dispatch with a different supplier?",
@@ -19,7 +19,7 @@
       </div>
       
       <div class="col-4">
-        <%= button_to create_replacement_order_dispatch_path(refund.order.dispatch), 
+        <%= button_to create_replacement_order_from_resolution_dispatch_path(refund.order.dispatch), 
                       method: :post, 
                       class: "btn btn-outline-info btn-sm w-100 resolution-btn",
                       confirm: "Create a replacement order?",
@@ -31,7 +31,7 @@
       </div>
       
       <div class="col-4">
-        <%= button_to process_full_refund_dispatch_path(refund.order.dispatch), 
+        <%= button_to process_full_refund_from_resolution_dispatch_path(refund.order.dispatch), 
                       method: :patch, 
                       class: "btn btn-outline-success btn-sm w-100 resolution-btn",
                       confirm: "Process full refund and cancel order?",

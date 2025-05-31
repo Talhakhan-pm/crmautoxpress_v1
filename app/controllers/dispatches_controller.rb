@@ -364,7 +364,7 @@ class DispatchesController < ApplicationController
   end
 
   # Resolution actions for cancelled dispatches
-  def retry_dispatch
+  def retry_dispatch_from_resolution
     # Find the related refund
     refund = @dispatch.order.refund
     
@@ -401,7 +401,7 @@ class DispatchesController < ApplicationController
     end
   end
 
-  def create_replacement_order
+  def create_replacement_order_from_resolution
     # Find the related refund
     refund = @dispatch.order.refund
     
@@ -446,7 +446,7 @@ class DispatchesController < ApplicationController
     end
   end
 
-  def process_full_refund
+  def process_full_refund_from_resolution
     # Find the related refund
     refund = @dispatch.order.refund
     

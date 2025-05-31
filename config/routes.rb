@@ -21,6 +21,10 @@ Rails.application.routes.draw do
       patch :cancel_with_reason
       patch :contact_customer_delay
       patch :contact_customer_price_increase
+      # Resolution-specific variants
+      patch :retry_dispatch_from_resolution
+      post :create_replacement_order_from_resolution
+      patch :process_full_refund_from_resolution
     end
   end
   

@@ -244,7 +244,7 @@ export default class extends Controller {
     }
 
     try {
-      const response = await fetch(`/dispatches/${dispatchId}/create_replacement_order`, {
+      const response = await fetch(`/dispatches/${dispatchId}/create_replacement_order_from_resolution`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

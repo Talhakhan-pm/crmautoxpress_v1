@@ -149,7 +149,7 @@ export default class extends Controller {
         return
       }
 
-      const response = await fetch(`/dispatches/${dispatchId}/create_replacement_order`, {
+      const response = await fetch(`/dispatches/${dispatchId}/create_replacement_order_from_resolution`, {
         method: 'POST',
         headers: {
           'X-CSRF-Token': this.getCSRFToken(),
@@ -186,7 +186,7 @@ export default class extends Controller {
         return
       }
 
-      const response = await fetch(`/dispatches/${dispatchId}/process_full_refund`, {
+      const response = await fetch(`/dispatches/${dispatchId}/process_full_refund_from_resolution`, {
         method: 'PATCH',
         headers: {
           'X-CSRF-Token': this.getCSRFToken(),
