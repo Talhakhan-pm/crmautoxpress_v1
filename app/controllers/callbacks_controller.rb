@@ -41,12 +41,15 @@ class CallbacksController < ApplicationController
     end
     
     if @callback.save
-      flash[:notice] = 'Callback was successfully created.'
       respond_to do |format|
-        format.html { redirect_to callbacks_path }
+        format.html { 
+          flash[:notice] = 'Callback was successfully created.'
+          redirect_to callbacks_path 
+        }
         format.turbo_stream { 
+          flash.now[:notice] = 'Callback was successfully created.'
           @callbacks = AgentCallback.all.order(created_at: :desc)
-          render 'index'
+          redirect_to callbacks_path, status: :see_other
         }
       end
     else
@@ -62,12 +65,14 @@ class CallbacksController < ApplicationController
 
   def update
     if @callback.update(callback_params)
-      flash[:notice] = 'Callback was successfully updated.'
       respond_to do |format|
-        format.html { redirect_to callback_path(@callback) }
+        format.html { 
+          flash[:notice] = 'Callback was successfully updated.'
+          redirect_to callback_path(@callback) 
+        }
         format.turbo_stream { 
-          @callbacks = AgentCallback.all.order(created_at: :desc)
-          render 'index'
+          flash.now[:notice] = 'Callback was successfully updated.'
+          redirect_to callback_path(@callback), status: :see_other
         }
       end
     else
