@@ -42,7 +42,7 @@ class CallbacksController < ApplicationController
     
     respond_to do |format|
       if @callback.save
-        format.html { redirect_to callbacks_path, notice: 'Callback was successfully created.' }
+        format.html { redirect_to callbacks_path }
         format.turbo_stream { 
           @callbacks = AgentCallback.all.order(created_at: :desc)
           render :create 
@@ -60,7 +60,7 @@ class CallbacksController < ApplicationController
   def update
     respond_to do |format|
       if @callback.update(callback_params)
-        format.html { redirect_to callbacks_path, notice: 'Callback was successfully updated.' }
+        format.html { redirect_to callbacks_path }
         format.turbo_stream { 
           @callbacks = AgentCallback.all.order(created_at: :desc)
           render :update 
@@ -75,7 +75,7 @@ class CallbacksController < ApplicationController
   def destroy
     @callback.destroy
     respond_to do |format|
-      format.html { redirect_to callbacks_path, notice: 'Callback was successfully deleted.' }
+      format.html { redirect_to callbacks_path }
       format.turbo_stream { head :ok }
     end
   end
