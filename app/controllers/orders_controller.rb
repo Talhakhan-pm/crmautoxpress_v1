@@ -200,9 +200,11 @@ class OrdersController < ApplicationController
     # Search functionality
     if params[:search].present?
       search_term = "%#{params[:search]}%"
-      @orders = @orders.joins(:customer)
-                       .where("orders.order_number LIKE ? OR customers.name LIKE ? OR orders.product_name LIKE ?", 
-                              search_term, search_term, search_term)
+      @orders = @orders.joins(:customer).where(
+        Order.arel_table[:order_number].matches(search_term)
+          .or(Customer.arel_table[:name].matches(search_term))
+          .or(Order.arel_table[:product_name].matches(search_term))
+      )
     end
 
     @orders = @orders.page(params[:page]).per(25) if defined?(Kaminari)
@@ -244,7 +246,7 @@ class OrdersController < ApplicationController
     
     # Try to match existing product
     if callback.product.present?
-      product = Product.where("name LIKE ?", "%#{callback.product}%").first
+      product = Product.where(Product.arel_table[:name].matches("%#{callback.product}%")).first
       @order.product_id = product&.id
       @order.product_price = product&.selling_price
     end

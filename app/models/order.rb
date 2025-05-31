@@ -331,7 +331,7 @@ class Order < ApplicationRecord
   def generate_order_number
     prefix = "AX"
     timestamp = Time.current.strftime("%Y%m%d")
-    sequence = Order.where("order_number LIKE ?", "#{prefix}#{timestamp}%").count + 1
+    sequence = Order.where(Order.arel_table[:order_number].matches("#{prefix}#{timestamp}%")).count + 1
     "#{prefix}#{timestamp}#{sequence.to_s.rjust(3, '0')}"
   end
 
@@ -396,7 +396,7 @@ class Order < ApplicationRecord
     Rails.logger.info "Product: #{product_name}"
     
     # Check if product already exists (by name similarity)
-    existing_product = Product.where("name LIKE ?", "%#{product_name.strip}%").first
+    existing_product = Product.where(Product.arel_table[:name].matches("%#{product_name.strip}%")).first
     
     unless existing_product
       # Generate a simple part number from the product name

@@ -31,7 +31,14 @@ class Product < ApplicationRecord
   scope :by_category, ->(category) { where(category: category) }
   scope :by_source, ->(source) { where(source: source) }
   scope :in_stock, -> { where.not(status: ['discontinued', 'out_of_stock']) }
-  scope :search, ->(term) { where("name LIKE ? OR part_number LIKE ? OR description LIKE ?", "%#{term}%", "%#{term}%", "%#{term}%") }
+  scope :search, ->(term) { 
+    search_term = "%#{term}%"
+    where(
+      Product.arel_table[:name].matches(search_term)
+        .or(Product.arel_table[:part_number].matches(search_term))
+        .or(Product.arel_table[:description].matches(search_term))
+    )
+  }
   
   def vehicle_compatibility_list
     return [] if vehicle_compatibility.blank?

@@ -19,10 +19,12 @@ class RefundsController < ApplicationController
     
     # Search functionality
     if params[:search].present?
-      search_term = "%#{params[:search].downcase}%"
+      search_term = "%#{params[:search]}%"
       @refunds = @refunds.joins(:order).where(
-        "LOWER(refunds.refund_number) LIKE ? OR LOWER(refunds.customer_name) LIKE ? OR LOWER(orders.order_number) LIKE ? OR LOWER(refunds.transaction_id) LIKE ?",
-        search_term, search_term, search_term, search_term
+        Refund.arel_table[:refund_number].lower.matches(search_term.downcase)
+          .or(Refund.arel_table[:customer_name].lower.matches(search_term.downcase))
+          .or(Order.arel_table[:order_number].lower.matches(search_term.downcase))
+          .or(Refund.arel_table[:transaction_id].lower.matches(search_term.downcase))
       )
     end
 
@@ -281,10 +283,12 @@ class RefundsController < ApplicationController
     
     # Search functionality
     if params[:search].present?
-      search_term = "%#{params[:search].downcase}%"
+      search_term = "%#{params[:search]}%"
       @refunds = @refunds.joins(:order).where(
-        "LOWER(refunds.refund_number) LIKE ? OR LOWER(refunds.customer_name) LIKE ? OR LOWER(orders.order_number) LIKE ? OR LOWER(refunds.transaction_id) LIKE ?",
-        search_term, search_term, search_term, search_term
+        Refund.arel_table[:refund_number].lower.matches(search_term.downcase)
+          .or(Refund.arel_table[:customer_name].lower.matches(search_term.downcase))
+          .or(Order.arel_table[:order_number].lower.matches(search_term.downcase))
+          .or(Refund.arel_table[:transaction_id].lower.matches(search_term.downcase))
       )
     end
 

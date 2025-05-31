@@ -719,7 +719,7 @@ class Refund < ApplicationRecord
   def generate_refund_number
     prefix = "RF"
     timestamp = Time.current.strftime("%Y%m%d")
-    sequence = Refund.where("refund_number LIKE ?", "#{prefix}#{timestamp}%").count + 1
+    sequence = Refund.where(Refund.arel_table[:refund_number].matches("#{prefix}#{timestamp}%")).count + 1
     "#{prefix}#{timestamp}#{sequence.to_s.rjust(3, '0')}"
   end
 

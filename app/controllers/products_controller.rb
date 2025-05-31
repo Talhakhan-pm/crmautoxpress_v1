@@ -33,7 +33,7 @@ class ProductsController < ApplicationController
   def show
     @product.track_view
     @recent_activities = @product.activities.includes(:user).recent.limit(10)
-    @related_callbacks = AgentCallback.where("product LIKE ?", "%#{@product.name}%").limit(10)
+    @related_callbacks = AgentCallback.where(AgentCallback.arel_table[:product].matches("%#{@product.name}%")).limit(10)
     @product_suppliers = @product.supplier_products.includes(:supplier).order(:created_at)
   end
 

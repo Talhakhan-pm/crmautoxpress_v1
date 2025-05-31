@@ -15,10 +15,13 @@ class DispatchesController < ApplicationController
     
     # Search functionality
     if params[:search].present?
-      search_term = "%#{params[:search].downcase}%"
+      search_term = "%#{params[:search]}%"
       @dispatches = @dispatches.joins(order: :supplier).where(
-        "LOWER(dispatches.order_number) LIKE ? OR LOWER(dispatches.customer_name) LIKE ? OR LOWER(dispatches.product_name) LIKE ? OR LOWER(suppliers.name) LIKE ? OR LOWER(dispatches.tracking_number) LIKE ?",
-        search_term, search_term, search_term, search_term, search_term
+        Dispatch.arel_table[:order_number].lower.matches(search_term.downcase)
+          .or(Dispatch.arel_table[:customer_name].lower.matches(search_term.downcase))
+          .or(Dispatch.arel_table[:product_name].lower.matches(search_term.downcase))
+          .or(Supplier.arel_table[:name].lower.matches(search_term.downcase))
+          .or(Dispatch.arel_table[:tracking_number].lower.matches(search_term.downcase))
       )
     end
 
@@ -555,10 +558,13 @@ class DispatchesController < ApplicationController
     
     # Search functionality
     if params[:search].present?
-      search_term = "%#{params[:search].downcase}%"
+      search_term = "%#{params[:search]}%"
       @dispatches = @dispatches.joins(order: :supplier).where(
-        "LOWER(dispatches.order_number) LIKE ? OR LOWER(dispatches.customer_name) LIKE ? OR LOWER(dispatches.product_name) LIKE ? OR LOWER(suppliers.name) LIKE ? OR LOWER(dispatches.tracking_number) LIKE ?",
-        search_term, search_term, search_term, search_term, search_term
+        Dispatch.arel_table[:order_number].lower.matches(search_term.downcase)
+          .or(Dispatch.arel_table[:customer_name].lower.matches(search_term.downcase))
+          .or(Dispatch.arel_table[:product_name].lower.matches(search_term.downcase))
+          .or(Supplier.arel_table[:name].lower.matches(search_term.downcase))
+          .or(Dispatch.arel_table[:tracking_number].lower.matches(search_term.downcase))
       )
     end
 

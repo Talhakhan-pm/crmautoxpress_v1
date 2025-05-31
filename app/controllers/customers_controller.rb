@@ -8,9 +8,11 @@ class CustomersController < ApplicationController
     
     # Filter by search
     if params[:search].present?
+      search_term = "%#{params[:search]}%"
       @customers = @customers.where(
-        "name LIKE ? OR phone_number LIKE ? OR email LIKE ?", 
-        "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%"
+        Customer.arel_table[:name].matches(search_term)
+          .or(Customer.arel_table[:phone_number].matches(search_term))
+          .or(Customer.arel_table[:email].matches(search_term))
       )
     end
     
@@ -70,9 +72,11 @@ class CustomersController < ApplicationController
     
     # Filter by search
     if params[:search].present?
+      search_term = "%#{params[:search]}%"
       @customers = @customers.where(
-        "name LIKE ? OR phone_number LIKE ? OR email LIKE ?", 
-        "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%"
+        Customer.arel_table[:name].matches(search_term)
+          .or(Customer.arel_table[:phone_number].matches(search_term))
+          .or(Customer.arel_table[:email].matches(search_term))
       )
     end
     

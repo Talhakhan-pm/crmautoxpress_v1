@@ -108,7 +108,7 @@ class AgentCallback < ApplicationRecord
     product_name = product.strip
     
     # Check if product already exists (by name similarity)
-    existing_product = Product.where("name LIKE ?", "%#{product_name}%").first
+    existing_product = Product.where(Product.arel_table[:name].matches("%#{product_name}%")).first
     
     unless existing_product
       # Generate a simple part number from the product name

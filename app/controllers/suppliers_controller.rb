@@ -9,7 +9,7 @@ class SuppliersController < ApplicationController
     # Filter by search
     if params[:search].present?
       search_term = "%#{params[:search]}%"
-      @suppliers = @suppliers.where("name LIKE ?", search_term)
+      @suppliers = @suppliers.where(Supplier.arel_table[:name].matches(search_term))
     end
     
     # Filter by source
