@@ -828,9 +828,14 @@ class Refund < ApplicationRecord
 
   def create_replacement_order
     return nil unless order.present?
-    return replacement_order if replacement_order_number.present?
     
-    # Create new order as replacement
+    # Use database lock to prevent race conditions across multiple calls
+    with_lock do
+      # Reload and double-check after acquiring lock
+      reload
+      return replacement_order if replacement_order_number.present?
+      
+      # Create new order as replacement
     replacement = Order.create!(
       customer_name: order.customer_name,
       customer_address: order.customer_address,
@@ -871,6 +876,7 @@ class Refund < ApplicationRecord
     )
     
     replacement
+    end
   end
 
 end
