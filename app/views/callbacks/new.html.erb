@@ -1,8 +1,9 @@
-<%= turbo_frame_tag "main_content", data: { turbo_action: "advance", controller: "callback-form modal" } do %>
+<%= turbo_frame_tag "main_content", data: { turbo_action: "advance" } do %>
   <main class="main-content">
     <!-- Smart Callback Creation Modal -->
     <div id="callback-modal" 
          class="callback-modal active" 
+         data-controller="modal callback-form"
          data-modal-close-url-value="<%= callbacks_path %>"
          data-action="click->modal#closeModal">
       
