@@ -11,6 +11,7 @@ import OrderResolutionController from "./order_resolution_controller"
 import OrderTimelineController from "./order_timeline_controller"
 import UnifiedResolutionController from "./unified_resolution_controller"
 import DispatchActionsController from "./dispatch_actions_controller"
+import NavigationController from "./navigation_controller"
 
 application.register("hello", HelloController)
 application.register("order-form", OrderFormController)
@@ -23,5 +24,6 @@ application.register("order-resolution", OrderResolutionController)
 application.register("order-timeline", OrderTimelineController)
 application.register("unified-resolution", UnifiedResolutionController)
 application.register("dispatch-actions", DispatchActionsController)
+application.register("navigation", NavigationController)
 
-console.log("Controllers registered: hello, order-form, dispatch-form, modal, refund-form, dispatch-cancellation, orders-filter, order-resolution, order-timeline, unified-resolution, dispatch-actions")
+console.log("Controllers registered: hello, order-form, dispatch-form, modal, refund-form, dispatch-cancellation, orders-filter, order-resolution, order-timeline, unified-resolution, dispatch-actions, navigation")
