@@ -148,6 +148,9 @@ class DispatchesController < ApplicationController
       
       # Update dispatch attributes
       @dispatch.update!(dispatch_params)
+      
+      # Update product pricing with real supplier cost data
+      update_product_pricing_from_real_cost
     end
     
     respond_to do |format|
@@ -678,5 +681,53 @@ class DispatchesController < ApplicationController
     else
       'Other - See notes'
     end
+  end
+
+  def update_product_pricing_from_real_cost
+    # Only update if we have real supplier cost and a linked product
+    return unless @dispatch.order.supplier_cost.present? && @dispatch.order.product.present?
+    
+    product = @dispatch.order.product
+    supplier_cost = @dispatch.order.supplier_cost
+    supplier_id = @dispatch.order.supplier_id
+    
+    # Update product with real market data instead of placeholder/estimate
+    update_attributes = { 
+      vendor_cost: supplier_cost, 
+      updated_at: Time.current 
+    }
+    
+    # Also update selling_price if it's still a placeholder (from callback creation)
+    if product.selling_price <= 0.01
+      update_attributes[:selling_price] = @dispatch.order.product_price
+      Rails.logger.info "Also updating selling_price from #{product.selling_price} to #{@dispatch.order.product_price}"
+    end
+    
+    # Update supplier name if we have supplier info
+    if @dispatch.order.supplier.present?
+      update_attributes[:vendor_name] = @dispatch.order.supplier.name
+      Rails.logger.info "Also updating vendor_name to #{@dispatch.order.supplier.name}"
+    end
+    
+    product.update!(update_attributes)
+    
+    # Log the pricing update
+    Rails.logger.info "=== PRODUCT PRICING UPDATED ==="
+    Rails.logger.info "Product: #{product.name} (ID: #{product.id})"
+    Rails.logger.info "Updated vendor_cost from #{product.vendor_cost_was} to #{supplier_cost}"
+    Rails.logger.info "Supplier: #{@dispatch.order.supplier&.name || 'N/A'} (ID: #{supplier_id})"
+    Rails.logger.info "Order: #{@dispatch.order.order_number}"
+    
+    # Create activity to track the pricing update
+    product.create_activity(
+      action: 'pricing_updated_from_dispatch',
+      details: "Product pricing updated with real supplier cost: $#{supplier_cost} (was: $#{product.vendor_cost_was || 'N/A'}) from dispatch #{@dispatch.id}",
+      user: current_user
+    ) if product.respond_to?(:create_activity)
+    
+  rescue => e
+    Rails.logger.error "Failed to update product pricing: #{e.message}"
+    Rails.logger.error e.backtrace.join("\n")
+    # Don't fail the dispatch update if product pricing fails
   end
 end

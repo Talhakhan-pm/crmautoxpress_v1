@@ -417,30 +417,34 @@ class Order < ApplicationRecord
     Rails.logger.info "=== AUTO-CREATING PRODUCT FROM ORDER ==="
     Rails.logger.info "Product: #{product_name}"
     
-    # Check if product already exists (by name similarity)
-    existing_product = Product.where(Product.arel_table[:name].matches("%#{product_name.strip}%")).first
+    # Check if product already exists (by name similarity) - Using existing search scope
+    existing_product = Product.search(product_name.strip).first
     
-    unless existing_product
+    if existing_product
+      # Link to existing product
+      update_column(:product_id, existing_product.id)
+      Rails.logger.info "Linked to existing product: #{existing_product.name} (ID: #{existing_product.id})"
+    else
       # Generate a simple part number from the product name
       part_number = generate_product_part_number(product_name)
       
       # Try to guess category from product name
       category = guess_product_category(product_name)
       
-      Product.create!(
+      new_product = Product.create!(
         name: product_name.strip,
         part_number: part_number,
         category: category,
         description: "Auto-created from Order ##{order_number}",
-        vendor_cost: product_price * 0.7, # Estimate 70% cost ratio
+        vendor_cost: 0.01, # Placeholder until real supplier cost
         selling_price: product_price,
         source: 'order',
         status: 'active'
       )
       
-      Rails.logger.info "Created new product: #{product_name} from order"
-    else
-      Rails.logger.info "Product already exists: #{existing_product.name}"
+      # Link to newly created product
+      update_column(:product_id, new_product.id)
+      Rails.logger.info "Created and linked new product: #{product_name} (ID: #{new_product.id})"
     end
     
   rescue => e
