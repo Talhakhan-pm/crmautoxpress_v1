@@ -16,9 +16,10 @@ app/views/orders/
 └── update.turbo_stream.erb # Turbo stream updates
 ```
 
-### Supporting Partials (6 files)
+### Supporting Partials (7 files)
 ```
 app/views/orders/
+├── _order.html.erb               # Individual order card partial (DRY principle)
 ├── _orders_content.html.erb      # Master content partial (table + cards)
 ├── _timeline_panel.html.erb      # Order timeline display
 ├── _resolution_panel.html.erb    # Resolution workflow panel
@@ -35,8 +36,9 @@ app/views/orders/
 ```
 index.html.erb
 └── _orders_content.html.erb
-    ├── _timeline_panel.html.erb
-    └── _resolution_panel.html.erb
+    └── _order.html.erb (rendered for each order)
+        ├── _timeline_panel.html.erb
+        └── _resolution_panel.html.erb
 ```
 
 ### Modal Views (Using Unified Modal System)
@@ -81,21 +83,30 @@ show.html.erb
 
 ## Consolidation Results
 
-### Files Removed (4 total)
+### Recent Architecture Updates (2024)
+```
+✅ _order.html.erb         # Created to eliminate redundant code
+✅ DRY Principle Applied   # Removed 280+ lines of duplicated HTML
+✅ Turbo Streams Fixed     # Single partial used for both index and streams
+✅ Commission Calculation  # Automatic 3% calculation on profit margin
+```
+
+### Files Previously Removed (3 total)
 ```
 ❌ create.html.erb        # Legacy placeholder
 ❌ destroy.html.erb       # Legacy placeholder  
 ❌ update.html.erb        # Legacy placeholder
-❌ _order.html.erb        # Redundant partial (functionality moved to _orders_content.html.erb)
 ```
 
 ### Benefits Achieved
-- ✅ **26% file reduction** (15 → 11 files)
+- ✅ **Optimized file structure** (added 1 strategic partial)
+- ✅ **280+ lines of code eliminated** (DRY principle applied)
 - ✅ **Zero functionality loss**
 - ✅ **Better Turbo Streams integration**
 - ✅ **Unified modal system adoption**
 - ✅ **Improved maintainability**
 - ✅ **Enhanced responsive design**
+- ✅ **Single source of truth for order cards**
 
 ## Integration Points
 
@@ -177,17 +188,24 @@ Order
 ## Maintenance Guidelines
 
 ### When Adding New Features
-1. **Use existing partials** when possible
+1. **Use existing partials** when possible, especially `_order.html.erb`
 2. **Follow unified modal patterns** for new modals
 3. **Maintain Turbo compatibility** in all changes
 4. **Test both card and table views** in _orders_content.html.erb
 5. **Preserve dispatch integration points**
+6. **Update `_order.html.erb`** for order card changes (single source of truth)
 
 ### Code Quality Standards
-- **DRY Principle**: Avoid duplicating functionality found in _orders_content.html.erb
+- **DRY Principle**: Order card HTML only exists in `_order.html.erb`
+- **Turbo Streams**: Use `_order.html.erb` partial for consistent rendering
 - **Responsive Design**: All components must work on mobile
 - **Accessibility**: Maintain ARIA attributes and semantic HTML
 - **Performance**: Minimize additional CSS/JS dependencies
+
+### Critical Architecture Rules
+- ⚠️ **Never duplicate order card HTML** - Always use `_order.html.erb` partial
+- ⚠️ **Turbo stream consistency** - Both index and streams must use same partial
+- ⚠️ **Commission calculation** - Automatically calculated in model when supplier costs present
 
 ---
 
