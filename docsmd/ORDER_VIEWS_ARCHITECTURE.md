@@ -2,7 +2,22 @@
 
 ## Overview
 
-This document outlines the consolidated order views architecture after the successful consolidation effort that reduced file count by 26% while maintaining full functionality and improving performance through the unified modal system.
+This document outlines the consolidated order views architecture after implementing the DRY principle, which eliminated 280+ lines of duplicated code while maintaining full functionality and improving performance through the unified modal system.
+
+## 🎨 Quick Guide for Designers
+
+**Need to change how orders look? Here's what each file controls:**
+
+| What You Want to Change | Edit This File |
+|------------------------|----------------|
+| 📱 Order cards (main view) | `_order.html.erb` |
+| 📊 Orders dashboard layout | `index.html.erb` |
+| 🔍 Order details popup | `show.html.erb` |
+| ➕ Create order form | `new.html.erb` |
+| ✏️ Edit order form | `edit.html.erb` |
+| 🎨 All visual styling | `orders.scss` + `_unified_modals.scss` |
+
+**⚠️ IMPORTANT**: Never edit `_orders_content.html.erb` for card styling - it just displays the cards from `_order.html.erb`
 
 ## File Structure
 
@@ -16,7 +31,7 @@ app/views/orders/
 └── update.turbo_stream.erb # Turbo stream updates
 ```
 
-### Supporting Partials (7 files)
+### Supporting Partials (9 files)
 ```
 app/views/orders/
 ├── _order.html.erb               # Individual order card partial (DRY principle)
@@ -30,34 +45,206 @@ app/views/orders/
 └── _vehicle_information.html.erb # Vehicle info form
 ```
 
-## Architecture Flow
+## UI Structure & Rendering Flow
 
-### Index Page Dependency Chain
+### 📱 Index Page (Orders Dashboard)
 ```
-index.html.erb
-└── _orders_content.html.erb
-    └── _order.html.erb (rendered for each order)
-        ├── _timeline_panel.html.erb
-        └── _resolution_panel.html.erb
+┌─ index.html.erb ─────────────────────────────────┐
+│ ┌─ Hero Section ────────────────────────────────┐ │
+│ │ • Order Statistics (Total, Active, Revenue)  │ │
+│ │ • "New Order" Button                         │ │
+│ └───────────────────────────────────────────────┘ │
+│ ┌─ Smart Filters ──────────────────────────────┐ │
+│ │ • Search Bar                                 │ │
+│ │ • Status/Priority Dropdowns                  │ │
+│ │ • Card/Table View Toggle                     │ │
+│ └───────────────────────────────────────────────┘ │
+│ ┌─ _orders_content.html.erb ──────────────────┐ │
+│ │ IF Card View:                                │ │
+│ │   └─ _order.html.erb (for each order) ──────┤ │
+│ │     ├─ Order Header (ID, Status, Priority)  │ │
+│ │     ├─ Customer & Product Info              │ │
+│ │     ├─ Progress Bar                         │ │
+│ │     ├─ Financial Summary                    │ │
+│ │     ├─ Action Buttons                       │ │
+│ │     ├─ _timeline_panel.html.erb (expandable)│ │
+│ │     └─ _resolution_panel.html.erb (if needed)│ │
+│ │ IF Table View:                               │ │
+│ │   └─ Traditional table rows with same data  │ │
+│ └─────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────┘
 ```
 
-### Modal Views (Using Unified Modal System)
+### 🔍 Order Details Modal (show.html.erb)
 ```
-show.html.erb    → Uses unified-modal theme-red
-new.html.erb     → Uses unified-modal theme-red + form partials
-edit.html.erb    → Uses unified-modal theme-red + form partials
+┌─ Unified Modal (theme-red) ─────────────────────┐
+│ ┌─ Modal Header ──────────────────────────────┐ │
+│ │ • Order Title & Number                      │ │
+│ │ • Status Timeline Progress Bar              │ │
+│ │ • Close Button                              │ │
+│ └─────────────────────────────────────────────┘ │
+│ ┌─ Modal Body (Two Columns) ─────────────────┐ │
+│ │ LEFT COLUMN:                                │ │
+│ │ • Action Buttons                            │ │
+│ │ • Customer Information                      │ │
+│ │ • Product Details                           │ │
+│ │ • Financial Summary                         │ │
+│ │ • Additional Notes                          │ │
+│ │                                             │ │
+│ │ RIGHT COLUMN:                               │ │
+│ │ • Activity Timeline                         │ │
+│ │ • Timeline Stats                            │ │
+│ │ • Activity Items List                       │ │
+│ └─────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────┘
 ```
 
-### Form Partials Usage
+### ➕ Create Order Modal (new.html.erb)
 ```
-new.html.erb
-├── _callback_selection.html.erb
-├── _customer_information.html.erb (implied)
-├── _product_pricing.html.erb (implied)
-└── _vehicle_information.html.erb (implied)
+┌─ Custom Modal (autoxpress-modal) ──────────────┐
+│ ┌─ Header ────────────────────────────────────┐ │
+│ │ • "Create New Order" Title                  │ │
+│ │ • Order Type Switcher (Direct/Convert)     │ │
+│ │ • Close Button                              │ │
+│ └─────────────────────────────────────────────┘ │
+│ ┌─ Callback Selection (if converting) ───────┐ │
+│ │ └─ _callback_selection.html.erb             │ │
+│ └─────────────────────────────────────────────┘ │
+│ ┌─ Two-Column Form Layout ───────────────────┐ │
+│ │ LEFT COLUMN:                                │ │
+│ │ ├─ Customer Info Card                       │ │
+│ │ │  └─ Name, Phone, Email, Address           │ │
+│ │ └─ Vehicle Info Card                        │ │
+│ │    └─ Year, Make/Model                      │ │
+│ │                                             │ │
+│ │ RIGHT COLUMN:                               │ │
+│ │ ├─ Product & Pricing Card                   │ │
+│ │ │  └─ Name, Price, Tax, Shipping, Total     │ │
+│ │ └─ Order Settings Card                      │ │
+│ │    └─ Priority, Source, Warranty, Notes    │ │
+│ └─────────────────────────────────────────────┘ │
+│ ┌─ Action Bar ────────────────────────────────┐ │
+│ │ • Cancel Button                             │ │
+│ │ • Save Draft Button                         │ │
+│ │ • Create Order Button                       │ │
+│ └─────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────┘
+```
 
-show.html.erb
-└── _order_details.html.erb
+### ✏️ Edit Order Modal (edit.html.erb)
+```
+┌─ Unified Modal (theme-blue) ───────────────────┐
+│ ┌─ Modal Header ──────────────────────────────┐ │
+│ │ • "Edit Order #XXX" Title                   │ │
+│ │ • Close Button                              │ │
+│ └─────────────────────────────────────────────┘ │
+│ ┌─ Form Sections ─────────────────────────────┐ │
+│ │ • Customer Information                      │ │
+│ │ • Product Details                           │ │
+│ │ • Pricing Information                       │ │
+│ │ • Order Status                              │ │
+│ │ • Additional Information                    │ │
+│ └─────────────────────────────────────────────┘ │
+│ ┌─ Form Actions ──────────────────────────────┐ │
+│ │ • Cancel Button                             │ │
+│ │ • Update Order Button                       │ │
+│ └─────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────┘
+```
+
+### 🧩 Component Breakdown
+
+**Order Card Components (_order.html.erb)**
+```
+┌─ Order Card ───────────────────────────────────┐
+│ ┌─ Header ───────────────────────────────────┐ │
+│ │ • Order ID & Number                        │ │
+│ │ • Status Indicators                        │ │
+│ │ • Priority Badges                          │ │
+│ └────────────────────────────────────────────┘ │
+│ ┌─ Body ─────────────────────────────────────┐ │
+│ │ • Customer Name & Phone                    │ │
+│ │ • Product Name & Vehicle Info              │ │
+│ │ • Progress Bar with Status Steps           │ │
+│ └────────────────────────────────────────────┘ │
+│ ┌─ Footer ───────────────────────────────────┐ │
+│ │ • Financial Summary                        │ │
+│ │ • Action Buttons (View, Edit, Timeline)    │ │
+│ │ • Return/Refund Dropdown                   │ │
+│ └────────────────────────────────────────────┘ │
+│ ┌─ Expandable Panels (Hidden by Default) ───┐ │
+│ │ • Timeline Panel                           │ │
+│ │ • Resolution Panel                         │ │
+│ └────────────────────────────────────────────┘ │
+└────────────────────────────────────────────────┘
+```
+
+**Form Partials (Reusable Components)**
+```
+_callback_selection.html.erb     → Search & select customer callbacks
+_customer_information.html.erb   → Name, phone, email, address fields
+_order_details.html.erb         → Priority, source, warranty, notes
+_product_pricing.html.erb       → Product name, price, tax, shipping
+_vehicle_information.html.erb   → Year, make, model fields
+_timeline_panel.html.erb        → Order activity timeline
+_resolution_panel.html.erb      → Refund/return resolution workflow
+```
+
+**Modal Themes**
+```
+show.html.erb    → theme-red (Order viewing)
+new.html.erb     → autoxpress-modal (Order creation)
+edit.html.erb    → theme-blue (Order editing)
+```
+
+## 🔄 Data Flow & Interactions
+
+### User Journey: Viewing Orders
+```
+1. User visits /orders
+   ↓
+2. index.html.erb loads
+   ↓
+3. _orders_content.html.erb renders
+   ↓
+4. For each order: _order.html.erb renders
+   ↓
+5. User clicks timeline button
+   ↓
+6. _timeline_panel.html.erb expands
+   ↓
+7. User clicks "View Details"
+   ↓
+8. show.html.erb modal opens
+```
+
+### User Journey: Creating Order
+```
+1. User clicks "New Order"
+   ↓
+2. new.html.erb modal opens
+   ↓
+3. User selects "Convert Lead"
+   ↓
+4. _callback_selection.html.erb shows
+   ↓
+5. User fills form sections
+   ↓
+6. User clicks "Create Order"
+   ↓
+7. Order created & added to index via Turbo Stream
+```
+
+### DRY Principle in Action
+```
+When order data changes:
+1. Update _order.html.erb (single file)
+   ↓
+2. Changes automatically appear in:
+   • Index page cards
+   • Turbo stream updates
+   • Search results
+   • Filter results
 ```
 
 ## Key Features
@@ -207,6 +394,44 @@ Order
 - ⚠️ **Turbo stream consistency** - Both index and streams must use same partial
 - ⚠️ **Commission calculation** - Automatically calculated in model when supplier costs present
 
+## 🛠️ Quick Edit Guide for Developers
+
+### Common Design Changes
+
+| Change Request | Files to Edit | Notes |
+|---------------|---------------|-------|
+| Order card colors/layout | `_order.html.erb` + `orders.scss` | DRY principle - edit once |
+| Dashboard header styling | `index.html.erb` + `orders.scss` | Hero section |
+| Modal appearance | `_unified_modals.scss` | Affects all modals |
+| Form field styling | Individual partials + SCSS | Reusable components |
+| Button styles | `_buttons.scss` | Global button system |
+| Add new order card info | `_order.html.erb` only | Single source of truth |
+| Change order creation flow | `new.html.erb` + partials | Form sections |
+| Timeline styling | `_timeline_panel.html.erb` + SCSS | Expandable component |
+
+### CSS Architecture Map
+```
+app/assets/stylesheets/
+├── orders.scss                 # Order-specific styles
+├── _unified_modals.scss        # All modal styling (1,468 lines)
+├── components/
+│   ├── _buttons.scss           # Button system
+│   ├── _cards.scss             # Card components
+│   └── _badges.scss            # Status indicators
+└── _design-tokens.scss         # Colors, spacing, fonts
+```
+
+### File Responsibility Matrix
+
+| File | Responsible For | Don't Edit For |
+|------|----------------|----------------|
+| `_order.html.erb` | Order card appearance | Table view styling |
+| `index.html.erb` | Dashboard layout | Individual order styling |
+| `_orders_content.html.erb` | View switching logic | Order card HTML |
+| `show.html.erb` | Order details modal | Order card styling |
+| `orders.scss` | Order page styling | Modal styling |
+| `_unified_modals.scss` | Modal system | Order-specific logic |
+
 ---
 
-*Generated after successful order views consolidation - reducing 15 files to 11 while maintaining full functionality and improving performance through unified modal system integration.*
+*Architecture documentation updated with UI structure diagrams and design team guidance. DRY principle implementation eliminated 280+ lines of duplicated code while maintaining full functionality.*
