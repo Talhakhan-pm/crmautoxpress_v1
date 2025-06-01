@@ -1,5 +1,5 @@
+<%= turbo_frame_tag "main_content", data: { turbo_action: "advance" } do %>
 <main class="main-content">
-  <%= turbo_frame_tag "main_content" do %>
     <%= turbo_stream_from "customers" %>
     <%= turbo_stream_from "customer_#{@customer.id}_activities" %>
     
@@ -148,5 +148,5 @@
         </div>
       </div>
     </div>
-  <% end %>
 </main>
+<% end %>
