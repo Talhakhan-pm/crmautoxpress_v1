@@ -383,6 +383,29 @@ class ResolutionController < ApplicationController
     render_quick_action_response
   end
 
+  # Complete refund processing - moves from processing_refund to refunded
+  def complete_refund
+    @refund = Refund.find(params[:id])
+    
+    if @refund.refund_stage == 'processing_refund'
+      @refund.update!(
+        refund_stage: 'refunded', 
+        completed_at: Time.current,
+        dispatcher_notes: "#{@refund.dispatcher_notes}\n\n#{Time.current.strftime('%m/%d %I:%M%p')}: Refund completed by dispatcher"
+      )
+      
+      @refund.create_activity(
+        action: 'refund_completed',
+        details: "Refund completed by dispatcher - $#{@refund.refund_amount}",
+        user: Current.user
+      )
+      
+      render_quick_action_response
+    else
+      render json: { errors: ['Cannot complete refund from current stage'] }, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def calculate_resolution_stats

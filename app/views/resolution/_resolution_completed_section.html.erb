@@ -60,6 +60,76 @@
         
       </div>
 
+      <!-- Return Management for Original Order -->
+      <% if refund.return_status.present? && !refund.return_status.in?(['no_return_required']) %>
+        <div class="return-workflow-section">
+          <div class="return-header">
+            <h7><i class="fas fa-undo"></i> Return Process for Original Order</h7>
+            <span class="return-status-badge status-<%= refund.return_status %>">
+              <%= refund.return_status.humanize.gsub('_', ' ') %>
+            </span>
+          </div>
+          
+          <div class="return-actions-flow">
+            <% if refund.return_status == 'return_authorized' %>
+              <%= button_to "Generate Return Label", 
+                            resolution_generate_return_label_path(refund),
+                            method: :patch,
+                            class: "btn btn-primary btn-sm",
+                            params: { carrier: "FedEx", label_url: "https://example.com/label" },
+                            form: { data: { turbo: true } } %>
+              <div class="helper-text">
+                <i class="fas fa-info-circle"></i>
+                Customer needs return label to ship back original product
+              </div>
+              
+            <% elsif refund.return_status == 'return_label_sent' %>
+              <%= button_to "Customer Shipped Return", 
+                            resolution_mark_return_shipped_path(refund),
+                            method: :patch,
+                            class: "btn btn-warning btn-sm",
+                            params: { tracking_number: "" },
+                            form: { data: { turbo: true } } %>
+              <div class="helper-text">
+                <i class="fas fa-shipping-fast"></i>
+                Mark when customer ships back the original product
+              </div>
+              
+            <% elsif refund.return_shipped? || refund.return_in_transit? || refund.return_delivered? %>
+              <%= button_to "Return Received & Inspected", 
+                            resolution_mark_return_received_path(refund),
+                            method: :patch,
+                            class: "btn btn-success btn-sm",
+                            params: { condition_notes: "Original product returned in good condition" },
+                            form: { data: { turbo: true } } %>
+              <div class="helper-text">
+                <i class="fas fa-search"></i>
+                Mark when original product is received and inspected
+              </div>
+              
+            <% elsif refund.return_received? || refund.return_inspected? %>
+              <% if refund.refund_stage == 'processing_refund' %>
+                <%= button_to "Complete Return Processing", 
+                              resolution_complete_refund_path(refund),
+                              method: :patch,
+                              class: "btn btn-success btn-sm pulse",
+                              confirm: "Complete return processing? This will finalize the return workflow.",
+                              form: { data: { turbo: true } } %>
+                <div class="helper-text success">
+                  <i class="fas fa-check-circle"></i>
+                  Original product returned. Ready to complete return processing.
+                </div>
+              <% else %>
+                <div class="completion-message">
+                  <i class="fas fa-check-double"></i>
+                  Return process completed for original order.
+                </div>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
       <!-- Completion Timestamp -->
       <div class="completion-timestamp">
         <small class="text-muted">

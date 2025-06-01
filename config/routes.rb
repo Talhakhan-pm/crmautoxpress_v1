@@ -90,6 +90,7 @@ Rails.application.routes.draw do
   patch "resolution/:id/generate_return_label", to: "resolution#generate_return_label", as: :resolution_generate_return_label
   patch "resolution/:id/mark_return_shipped", to: "resolution#mark_return_shipped", as: :resolution_mark_return_shipped
   patch "resolution/:id/mark_return_received", to: "resolution#mark_return_received", as: :resolution_mark_return_received
+  patch "resolution/:id/complete_refund", to: "resolution#complete_refund", as: :resolution_complete_refund
 
   # Callbacks routes  
   resources :callbacks

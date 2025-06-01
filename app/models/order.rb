@@ -120,6 +120,13 @@ class Order < ApplicationRecord
   
   def has_pending_refund_resolution?
     return false unless refund.present?
+    
+    # If resolution is completed and return process is active, show return status instead
+    if refund.resolution_stage == 'resolution_completed' && refund.return_status.present? && !refund.return_status.in?(['no_return_required'])
+      return false # Show actual order status (returned, etc.) instead of pending resolution
+    end
+    
+    # Otherwise check if refund stage is pending resolution
     ['pending_resolution', 'pending_retry', 'pending_replacement'].include?(refund.refund_stage)
   end
 

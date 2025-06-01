@@ -665,20 +665,37 @@ class Refund < ApplicationRecord
   def mark_return_received!(condition_notes: nil)
     return false unless return_shipped? || return_in_transit? || return_delivered?
     
-    update!(
-      return_status: 'return_received',
-      return_received_at: Time.current,
-      return_notes: condition_notes || return_notes,
-      refund_stage: 'processing_refund'
-    )
-    
-    # Order status will be updated when refund is completed (via sync_order_status 'processing_refund' case)
-    
-    create_activity(
-      action: 'return_received',
-      details: "Return package received and inspected#{condition_notes.present? ? ' - ' + condition_notes : ''}",
-      user: Current.user
-    )
+    transaction do
+      update!(
+        return_status: 'return_received',
+        return_received_at: Time.current,
+        return_notes: condition_notes || return_notes,
+        refund_stage: 'processing_refund'
+      )
+      
+      # Update original order status to 'returned' or 'cancelled' as fallback
+      if order.respond_to?(:returned!) && !order.returned?
+        order.update!(order_status: 'returned')
+        order.create_activity(
+          action: 'returned',
+          details: "Order marked as returned - item received back from customer#{condition_notes.present? ? ' - ' + condition_notes : ''}",
+          user: Current.user
+        )
+      elsif !order.cancelled?
+        order.update!(order_status: 'cancelled')
+        order.create_activity(
+          action: 'cancelled_by_return',
+          details: "Order cancelled due to return received#{condition_notes.present? ? ' - ' + condition_notes : ''}",
+          user: Current.user
+        )
+      end
+      
+      create_activity(
+        action: 'return_received',
+        details: "Return package received and inspected#{condition_notes.present? ? ' - ' + condition_notes : ''}",
+        user: Current.user
+      )
+    end
   end
 
   private
