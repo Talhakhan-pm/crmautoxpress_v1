@@ -77,6 +77,17 @@ export default class extends Controller {
     document.body.style.overflow = 'auto'
   }
 
+  // Navigate to order using turbo frames
+  navigateToOrder(event) {
+    event.preventDefault()
+    const orderUrl = event.currentTarget.dataset.orderUrl
+    const turboFrame = event.currentTarget.dataset.turboFrame
+    
+    if (orderUrl && turboFrame) {
+      window.Turbo.visit(orderUrl, { frame: turboFrame })
+    }
+  }
+
   // Toggle return dropdown for specific order
   toggleReturnDropdown(event) {
     event.stopPropagation()

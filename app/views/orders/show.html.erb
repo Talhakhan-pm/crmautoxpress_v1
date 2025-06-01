@@ -77,18 +77,18 @@
           <h3 class="section-title">Actions</h3>
         </div>
         <div class="action-buttons-grid" style="display: flex; gap: 12px;">
-          <%= link_to edit_order_path(@order), class: "btn btn-secondary" do %>
+          <%= link_to edit_order_path(@order), class: "btn btn-secondary", data: { turbo_frame: "main_content" } do %>
             <i class="fas fa-edit"></i>
             Edit Order
           <% end %>
           
           <% if @order.dispatch.present? %>
-            <%= link_to dispatch_path(@order.dispatch), class: "btn btn-primary" do %>
+            <%= link_to dispatch_path(@order.dispatch), class: "btn btn-primary", data: { turbo_frame: "main_content" } do %>
               <i class="fas fa-truck"></i>
               View Dispatch
             <% end %>
           <% else %>
-            <%= link_to new_dispatch_path(order_id: @order.id), class: "btn btn-primary" do %>
+            <%= link_to new_dispatch_path(order_id: @order.id), class: "btn btn-primary", data: { turbo_frame: "main_content" } do %>
               <i class="fas fa-plus"></i>
               Create Dispatch
             <% end %>
@@ -125,7 +125,7 @@
               Customer Information
             </h3>
             <% if @order.customer.present? %>
-              <%= link_to customer_path(@order.customer), class: "btn btn-sm btn-outline-primary" do %>
+              <%= link_to customer_path(@order.customer), class: "btn btn-sm btn-outline-primary", data: { turbo_frame: "main_content" } do %>
                 <i class="fas fa-external-link-alt"></i>
                 View Profile
               <% end %>
@@ -183,7 +183,7 @@
               Product Details
             </h3>
             <% if @order.product.present? %>
-              <%= link_to product_path(@order.product), class: "btn btn-sm btn-outline-primary" do %>
+              <%= link_to product_path(@order.product), class: "btn btn-sm btn-outline-primary", data: { turbo_frame: "main_content" } do %>
                 <i class="fas fa-external-link-alt"></i>
                 View Product
               <% end %>

@@ -20,6 +20,19 @@
   padding: 20px;
   box-sizing: border-box;
   backdrop-filter: blur(3px);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &.active {
+    opacity: 1;
+    visibility: visible;
+    
+    .autoxpress-modal-container {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+  }
 }
 
 .autoxpress-modal-container {
@@ -31,19 +44,12 @@
   max-height: 90vh;
   overflow: hidden;
   position: relative;
-  animation: modalSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(40px) scale(0.95);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes modalSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(40px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
+// Keyframes removed - using CSS transitions instead for smooth opening and closing
 
 /* ================================
    MODERN HEADER

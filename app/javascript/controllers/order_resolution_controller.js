@@ -249,10 +249,22 @@ export default class extends Controller {
   }
 
   refreshOrderCard() {
-    // Refresh the entire page to see updated order status
-    // In a more sophisticated setup, you'd use Turbo streams
-    setTimeout(() => {
-      window.location.reload()
-    }, 1000)
+    // Use turbo frames to refresh content instead of full page reload
+    const ordersFrame = document.querySelector('turbo-frame[id="orders-frame"]')
+    if (ordersFrame && ordersFrame.src) {
+      // Refresh the orders frame to show updated status
+      ordersFrame.reload()
+    } else {
+      // Fallback: refresh main content frame
+      const mainFrame = document.querySelector('turbo-frame[id="main_content"]')
+      if (mainFrame && mainFrame.src) {
+        mainFrame.reload()
+      } else {
+        // Last resort: use turbo visit to orders index
+        setTimeout(() => {
+          window.Turbo.visit('/orders', { frame: 'main_content' })
+        }, 1000)
+      }
+    }
   }
 }

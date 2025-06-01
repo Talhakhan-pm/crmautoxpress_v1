@@ -182,24 +182,11 @@ export default class extends Controller {
     this.calculateTotal()
   }
 
-  closeModal() {
-    this.modalTarget.classList.remove('active')
+  // Modal closing is now handled by the modal controller for consistency
+  // This method is called when form is successfully submitted
+  handleModalClose() {
     this.clearForm()
-    
-    // Check if we're inside a turbo frame
-    const frame = this.element.closest('turbo-frame')
-    
-    if (frame) {
-      // Stay within the frame - determine contextual navigation
-      const urlParams = new URLSearchParams(window.location.search)
-      const targetUrl = urlParams.get('callback_id') ? '/callbacks' : '/orders'
-      frame.src = targetUrl
-    } else {
-      // Only use full navigation if not in a frame
-      const urlParams = new URLSearchParams(window.location.search)
-      const targetUrl = urlParams.get('callback_id') ? '/callbacks' : '/orders'
-      window.Turbo.visit(targetUrl)
-    }
+    // Let the modal controller handle the actual closing and navigation
   }
 
   submitForm(event) {
@@ -242,9 +229,15 @@ export default class extends Controller {
     // Show success feedback
     this.showNotification('Order created successfully!', 'success')
     
-    // Close modal after a short delay - let Turbo Stream handle navigation
+    // Close modal after a short delay - let modal controller handle navigation
     setTimeout(() => {
-      this.closeModal()
+      this.handleModalClose()
+      // Trigger the modal controller's close method
+      const closeEvent = new Event('click', { bubbles: true })
+      const closeButton = this.element.querySelector('[data-action*="modal#closeModal"]')
+      if (closeButton) {
+        closeButton.dispatchEvent(closeEvent)
+      }
     }, 1500)
   }
 

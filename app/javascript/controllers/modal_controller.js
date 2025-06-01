@@ -38,21 +38,11 @@ export default class extends Controller {
     event.preventDefault()
     this.close()
     
-    // Check if we're inside a turbo frame
-    const frame = this.element.closest('turbo-frame')
-    
     // Determine target URL with callback context awareness
     let targetUrl = this.getContextualUrl()
     
-    if (frame) {
-      // Stay within the frame - use frame navigation
-      frame.src = targetUrl
-      // Also update the browser URL to ensure consistency
-      window.history.replaceState(null, '', targetUrl)
-    } else {
-      // Only use full navigation if not in a frame
-      window.Turbo.visit(targetUrl)
-    }
+    // Always use turbo frame navigation for consistent smooth behavior
+    window.Turbo.visit(targetUrl, { frame: 'main_content' })
   }
 
   // Get contextual URL based on current location and callback context

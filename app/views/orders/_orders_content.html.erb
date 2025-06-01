@@ -27,7 +27,7 @@ show_table = if defined?(view_type)
         <tbody>
           <% if orders.any? %>
             <% orders.each do |order| %>
-              <tr onclick="window.location.href='<%= order_path(order) %>'" style="cursor: pointer;">
+              <tr data-turbo-frame="main_content" data-action="click->orders-filter#navigateToOrder" data-order-url="<%= order_path(order) %>" style="cursor: pointer;">
                 <td>
                   <div class="order-number">
                     <span class="order-id"><%= order.order_number %></span>
@@ -103,11 +103,11 @@ show_table = if defined?(view_type)
                 </td>
                 <td onclick="event.stopPropagation();">
                   <div class="action-menu">
-                    <%= link_to order_path(order), class: "ax-btn ax-btn--ghost ax-btn--sm" do %>
+                    <%= link_to order_path(order), class: "ax-btn ax-btn--ghost ax-btn--sm", data: { turbo_frame: "main_content" } do %>
                       <i class="fas fa-eye"></i>
                       View
                     <% end %>
-                    <%= link_to edit_order_path(order), class: "ax-btn ax-btn--ghost ax-btn--sm" do %>
+                    <%= link_to edit_order_path(order), class: "ax-btn ax-btn--ghost ax-btn--sm", data: { turbo_frame: "main_content" } do %>
                       <i class="fas fa-edit"></i>
                       Edit
                     <% end %>
@@ -199,7 +199,7 @@ show_table = if defined?(view_type)
                   <i class="fas fa-shopping-cart empty-icon"></i>
                   <h3 class="empty-title">No Orders Found</h3>
                   <p class="empty-message">Start by creating your first order or adjust your search filters.</p>
-                  <%= link_to "Create Order", new_order_path, class: "ax-btn ax-btn--primary" %>
+                  <%= link_to "Create Order", new_order_path, class: "ax-btn ax-btn--primary", data: { turbo_frame: "main_content" } %>
                 </div>
               </td>
             </tr>
@@ -217,7 +217,7 @@ show_table = if defined?(view_type)
              data-controller="order-resolution order-timeline"
              data-order-timeline-expanded-value="false"
              id="<%= dom_id(order) %>">
-          <div class="card-clickable-area" onclick="window.location.href='<%= order_path(order) %>'" style="cursor: pointer;">
+          <div class="card-clickable-area" data-turbo-frame="main_content" data-action="click->orders-filter#navigateToOrder" data-order-url="<%= order_path(order) %>" style="cursor: pointer;">
           <!-- Card Header - Compact order identification -->
           <div class="card-header-modern">
             <div class="order-id-section">
@@ -458,18 +458,18 @@ show_table = if defined?(view_type)
                   </div>
                 <% end %>
                 
-                <%= link_to order_path(order), class: "action-icon", title: "View Details" do %>
+                <%= link_to order_path(order), class: "action-icon", title: "View Details", data: { turbo_frame: "main_content" } do %>
                   <i class="fas fa-eye"></i>
                 <% end %>
-                <%= link_to edit_order_path(order), class: "action-icon", title: "Edit Order" do %>
+                <%= link_to edit_order_path(order), class: "action-icon", title: "Edit Order", data: { turbo_frame: "main_content" } do %>
                   <i class="fas fa-edit"></i>
                 <% end %>
                 <% if order.dispatch.present? %>
-                  <%= link_to dispatch_path(order.dispatch), class: "action-icon dispatch-active", title: "View Dispatch" do %>
+                  <%= link_to dispatch_path(order.dispatch), class: "action-icon dispatch-active", title: "View Dispatch", data: { turbo_frame: "main_content" } do %>
                     <i class="fas fa-truck"></i>
                   <% end %>
                 <% else %>
-                  <%= link_to new_dispatch_path(order_id: order.id), class: "action-icon dispatch-create", title: "Create Dispatch" do %>
+                  <%= link_to new_dispatch_path(order_id: order.id), class: "action-icon dispatch-create", title: "Create Dispatch", data: { turbo_frame: "main_content" } do %>
                     <i class="fas fa-plus-circle"></i>
                   <% end %>
                 <% end %>
@@ -502,7 +502,7 @@ show_table = if defined?(view_type)
             You haven't created any orders yet. Start by creating your first order from a customer callback or manually.
           <% end %>
         </p>
-        <%= link_to "Create New Order", new_order_path, class: "ax-btn ax-btn--primary" %>
+        <%= link_to "Create New Order", new_order_path, class: "ax-btn ax-btn--primary", data: { turbo_frame: "main_content" } %>
       </div>
     <% end %>
   </div>
