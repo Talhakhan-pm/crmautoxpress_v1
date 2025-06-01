@@ -21,9 +21,6 @@
         <% product.supplier_products.includes(:supplier).order(:supplier_cost).limit(3).each do |sp| %>
           <div class="supplier-item">
             <strong><%= sp.supplier.name %></strong>
-            <% if sp.supplier_cost.present? %>
-              <span class="supplier-cost">$<%= number_with_precision(sp.supplier_cost, precision: 2) %></span>
-            <% end %>
             <% if sp.preferred_supplier %>
               <i class="fas fa-star text-warning" title="Preferred"></i>
             <% end %>

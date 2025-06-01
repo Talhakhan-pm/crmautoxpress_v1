@@ -707,6 +707,22 @@ class DispatchesController < ApplicationController
     if @dispatch.order.supplier.present?
       update_attributes[:vendor_name] = @dispatch.order.supplier.name
       Rails.logger.info "Also updating vendor_name to #{@dispatch.order.supplier.name}"
+      
+      # Also create/update the supplier-product relationship for UI display
+      supplier_product = product.supplier_products.find_by(supplier_id: supplier_id)
+      if supplier_product
+        # Update existing relationship
+        supplier_product.update!(supplier_cost: supplier_cost)
+        Rails.logger.info "Updated existing supplier-product relationship"
+      else
+        # Create new supplier-product relationship
+        product.supplier_products.create!(
+          supplier_id: supplier_id,
+          supplier_cost: supplier_cost,
+          preferred_supplier: true # Mark as preferred since it's the one being used
+        )
+        Rails.logger.info "Created new supplier-product relationship"
+      end
     end
     
     product.update!(update_attributes)
