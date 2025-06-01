@@ -203,9 +203,9 @@ export default class extends Controller {
         
         // Show success message and redirect
         if (result.redirect_url) {
-          window.location.href = result.redirect_url
+          window.Turbo.visit(result.redirect_url, { frame: 'main_content' })
         } else {
-          location.reload()
+          window.Turbo.visit('/dispatches', { frame: 'main_content' })
         }
       } else {
         alert(result.message || 'Failed to cancel dispatch')

@@ -52,8 +52,10 @@ class DispatchesController < ApplicationController
   def show
     @activities = @dispatch.activities.includes(:user).recent.limit(20)
     
-    # Don't render layout for AJAX requests (modal content)
-    render layout: false if request.xhr?
+    respond_to do |format|
+      format.html { render layout: !request.xhr? }
+      format.turbo_stream
+    end
   end
 
   def new
@@ -75,11 +77,17 @@ class DispatchesController < ApplicationController
     @dispatch.processing_agent = current_user unless @dispatch.processing_agent_id.present?
     @dispatch.last_modified_by = current_user.email
 
-    if @dispatch.save
-      redirect_to @dispatch, notice: 'Dispatch was successfully created.'
-    else
-      load_form_data
-      render :new, status: :unprocessable_entity
+    respond_to do |format|
+      if @dispatch.save
+        format.html { redirect_to @dispatch, notice: 'Dispatch was successfully created.' }
+        format.turbo_stream { 
+          render turbo_stream: turbo_stream.replace("main_content", partial: "dispatches/show", locals: { dispatch: @dispatch })
+        }
+      else
+        load_form_data
+        format.html { render :new, status: :unprocessable_entity }
+        format.turbo_stream { render :new, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -145,8 +153,10 @@ class DispatchesController < ApplicationController
     respond_to do |format|
       format.html { redirect_to dispatches_path, notice: 'Dispatch was successfully updated.' }
       format.turbo_stream { 
-        flash[:notice] = 'Dispatch was successfully updated.'
-        redirect_to dispatches_path, status: :see_other
+        render turbo_stream: [
+          turbo_stream.replace("flash-messages", partial: "shared/flash_messages", locals: { flash: { notice: 'Dispatch was successfully updated.' } }),
+          turbo_stream.replace("main_content", partial: "dispatches/index")
+        ]
       }
     end
     

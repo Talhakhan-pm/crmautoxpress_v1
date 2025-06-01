@@ -73,7 +73,7 @@ export default class extends Controller {
       this.modalTarget.style.transform = 'scale(0.95)'
       
       setTimeout(() => {
-        window.location.href = '/dispatches'
+        window.Turbo.visit('/dispatches', { frame: 'main_content' })
       }, 200)
     }
   }

@@ -186,8 +186,8 @@ export default class extends Controller {
     if (this.hasModalTarget && this.hasModalBodyTarget) {
       this.loadReturnDetails(refundId)
     } else {
-      // Fallback: open in new tab
-      window.open(`/refunds/${refundId}`, '_blank')
+      // Fallback: navigate using turbo
+      window.Turbo.visit(`/refunds/${refundId}`, { frame: 'main_content' })
     }
   }
 
@@ -225,8 +225,8 @@ export default class extends Controller {
       return
     }
     
-    // Navigate to replacement order details
-    window.open(`/orders/${replacementId}`, '_blank')
+    // Navigate to replacement order details using turbo
+    window.Turbo.visit(`/orders/${replacementId}`, { frame: 'main_content' })
   }
 
   async startReplacementProcessing(event) {
@@ -339,7 +339,7 @@ export default class extends Controller {
     }
 
     // Navigate to dispatch creation with pre-populated order
-    window.location.href = `/dispatches/new?order_id=${replacementId}`
+    window.Turbo.visit(`/dispatches/new?order_id=${replacementId}`, { frame: 'main_content' })
   }
 
   // Modal management
@@ -375,11 +375,12 @@ export default class extends Controller {
   }
 
   refreshView() {
-    // Use Turbo to refresh the current frame or page
+    // Use Turbo to refresh the current frame
     if (window.Turbo) {
       Turbo.visit(window.location.toString(), { frame: "main_content" })
     } else {
-      window.location.reload()
+      // Fallback for older browsers
+      window.Turbo.visit('/dispatches', { frame: 'main_content' })
     }
   }
 

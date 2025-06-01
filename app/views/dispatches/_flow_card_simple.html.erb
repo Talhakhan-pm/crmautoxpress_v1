@@ -1,4 +1,4 @@
-<div class="flow-card <%= dispatch.dispatch_status == 'assigned' ? 'pending' : dispatch.dispatch_status %>" onclick="showDispatchDetails(<%= dispatch.id %>)" data-dispatch-id="<%= dispatch.id %>">
+<div class="flow-card <%= dispatch.dispatch_status == 'assigned' ? 'pending' : dispatch.dispatch_status %>" data-controller="dispatch-navigation" data-dispatch-url="<%= dispatch_path(dispatch) %>" data-action="click->dispatch-navigation#navigateToDispatch" data-dispatch-id="<%= dispatch.id %>" style="cursor: pointer;">
   <div class="flow-card-header">
     <span class="order-ref">#<%= dispatch.order_number %></span>
     <% case dispatch.dispatch_status %>

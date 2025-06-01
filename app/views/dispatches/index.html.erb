@@ -46,38 +46,38 @@
               placeholder: "Search by order, customer, product, supplier, tracking...", 
               value: params[:search],
               class: "command-search",
-              onkeyup: "searchDispatches(this.value)" %>
+              data: { 
+                controller: "dispatch-filter",
+                action: "input->dispatch-filter#search",
+                dispatch_filter_target: "searchInput"
+              } %>
           <i class="fas fa-search search-icon"></i>
         </div>
         
         <div class="quick-filters">
-          <button type="button" class="filter-pill <%= 'active' unless params[:status].present? %>" 
-                  onclick="setFilter('status', '')">All</button>
+          <%= link_to dispatches_path, class: "filter-pill #{'active' unless params[:status].present?}", data: { turbo_frame: "main_content" } do %>
+            All
+          <% end %>
           <% @statuses.each do |status| %>
-            <button type="button" class="filter-pill status-<%= status %> <%= 'active' if params[:status] == status %>" 
-                    onclick="setFilter('status', '<%= status %>')">
+            <%= link_to dispatches_path(status: status), class: "filter-pill status-#{status} #{'active' if params[:status] == status}", data: { turbo_frame: "main_content" } do %>
               <%= status.humanize %>
-            </button>
+            <% end %>
           <% end %>
         </div>
         
         <div class="view-controls">
-          <button type="button" class="view-toggle <%= 'active' unless params[:view] == 'list' || params[:view] == 'returns' || params[:view] == 'replacements' %>" 
-                  onclick="setView('flow')">
+          <%= link_to dispatches_path, class: "view-toggle #{'active' unless params[:view] == 'list' || params[:view] == 'returns' || params[:view] == 'replacements'}", data: { turbo_frame: "main_content" } do %>
             <i class="fas fa-project-diagram"></i> Dispatches
-          </button>
-          <button type="button" class="view-toggle <%= 'active' if params[:view] == 'returns' %>" 
-                  onclick="setView('returns')">
+          <% end %>
+          <%= link_to dispatches_path(view: 'returns'), class: "view-toggle #{'active' if params[:view] == 'returns'}", data: { turbo_frame: "main_content" } do %>
             <i class="fas fa-undo"></i> Returns
-          </button>
-          <button type="button" class="view-toggle <%= 'active' if params[:view] == 'replacements' %>" 
-                  onclick="setView('replacements')">
+          <% end %>
+          <%= link_to dispatches_path(view: 'replacements'), class: "view-toggle #{'active' if params[:view] == 'replacements'}", data: { turbo_frame: "main_content" } do %>
             <i class="fas fa-exchange-alt"></i> Replacements
-          </button>
-          <button type="button" class="view-toggle <%= 'active' if params[:view] == 'list' %>" 
-                  onclick="setView('list')">
+          <% end %>
+          <%= link_to dispatches_path(view: 'list'), class: "view-toggle #{'active' if params[:view] == 'list'}", data: { turbo_frame: "main_content" } do %>
             <i class="fas fa-list"></i> List View
-          </button>
+          <% end %>
         </div>
       </div>
     <% end %>

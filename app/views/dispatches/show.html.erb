@@ -1,12 +1,8 @@
-<% unless request.xhr? %>
-  <div class="main-content">
-<% end %>
 <div class="dispatch-detail-container">
   <!-- Modern Dispatch Header -->
   <div class="dispatch-hero">
-    <!-- Detect if we're in modal context vs full page -->
     <% if request.xhr? %>
-      <!-- Compact Hero for Modal -->
+    <!-- Compact Dispatch Hero -->
       <div class="modal-hero-section">
         <div class="dispatch-title-section">
           <div class="dispatch-icon">
@@ -15,7 +11,7 @@
           <div class="dispatch-info">
             <h3>Dispatch <span class="dispatch-number">#DSP-<%= @dispatch.id.to_s.rjust(4, '0') %></span></h3>
             <div class="order-connection">
-              <%= link_to order_path(@dispatch.order), class: "order-link" do %>
+              <%= link_to order_path(@dispatch.order), class: "order-link", data: { turbo_frame: "main_content" } do %>
                 <i class="fas fa-shopping-cart"></i>
                 Order #<%= @dispatch.order_number %>
               <% end %>
@@ -57,7 +53,7 @@
           <% end %>
           
           <div class="modal-actions">
-            <%= link_to edit_dispatch_path(@dispatch), class: "btn btn-primary" do %>
+            <%= link_to edit_dispatch_path(@dispatch), class: "btn btn-primary", data: { turbo_frame: "main_content" } do %>
               <i class="fas fa-edit"></i>
               Update Dispatch
             <% end %>
@@ -83,7 +79,7 @@
               Dispatch #DSP-<%= @dispatch.id.to_s.rjust(4, '0') %>
             </h1>
             <div class="order-connection">
-              <%= link_to order_path(@dispatch.order), class: "order-link" do %>
+              <%= link_to order_path(@dispatch.order), class: "order-link", data: { turbo_frame: "main_content" } do %>
                 <i class="fas fa-shopping-cart"></i>
                 Order #<%= @dispatch.order_number %>
               <% end %>
@@ -129,12 +125,12 @@
           <% end %>
           
           <div class="action-buttons">
-            <%= link_to edit_dispatch_path(@dispatch), class: "btn btn-primary btn-hero" do %>
+            <%= link_to edit_dispatch_path(@dispatch), class: "btn btn-primary btn-hero", data: { turbo_frame: "main_content" } do %>
               <i class="fas fa-edit"></i>
               Edit
             <% end %>
             
-            <%= link_to dispatches_path, class: "btn btn-secondary btn-hero" do %>
+            <%= link_to dispatches_path, class: "btn btn-secondary btn-hero", data: { turbo_frame: "main_content" } do %>
               <i class="fas fa-arrow-left"></i>
               Back
             <% end %>
@@ -146,8 +142,7 @@
   </div>
 
   <div class="dispatch-content">
-    <% unless request.xhr? %>
-      <!-- Visual Workflow Timeline (Full Page Only) -->
+      <!-- Visual Workflow Timeline -->
       <div class="workflow-section">
         <h2 class="section-title">
           <i class="fas fa-route"></i>
@@ -243,7 +238,6 @@
         </div>
       </div>
     </div>
-    <% end %>
 
     <!-- Information Grid -->
     <div class="info-grid">
@@ -596,7 +590,7 @@
       
       <div class="actions-grid">
         <% if @dispatch.can_be_shipped? %>
-          <%= link_to edit_dispatch_path(@dispatch), class: "quick-action ship-action" do %>
+          <%= link_to edit_dispatch_path(@dispatch), class: "quick-action ship-action", data: { turbo_frame: "main_content" } do %>
             <div class="action-icon">
               <i class="fas fa-shipping-fast"></i>
             </div>
@@ -608,7 +602,7 @@
         <% end %>
         
         <% if @dispatch.ready_for_completion? %>
-          <%= link_to edit_dispatch_path(@dispatch), class: "quick-action complete-action" do %>
+          <%= link_to edit_dispatch_path(@dispatch), class: "quick-action complete-action", data: { turbo_frame: "main_content" } do %>
             <div class="action-icon">
               <i class="fas fa-check-circle"></i>
             </div>
@@ -619,7 +613,7 @@
           <% end %>
         <% end %>
         
-        <%= link_to order_path(@dispatch.order), class: "quick-action view-action" do %>
+        <%= link_to order_path(@dispatch.order), class: "quick-action view-action", data: { turbo_frame: "main_content" } do %>
           <div class="action-icon">
             <i class="fas fa-shopping-cart"></i>
           </div>
@@ -629,7 +623,7 @@
           </div>
         <% end %>
         
-        <%= link_to edit_dispatch_path(@dispatch), class: "quick-action edit-action" do %>
+        <%= link_to edit_dispatch_path(@dispatch), class: "quick-action edit-action", data: { turbo_frame: "main_content" } do %>
           <div class="action-icon">
             <i class="fas fa-edit"></i>
           </div>
@@ -642,6 +636,3 @@
     </div>
   </div>
 </div>
-<% unless request.xhr? %>
-  </div>
-<% end %>
