@@ -308,15 +308,24 @@
                             step: 0.01, 
                             class: "form-input", 
                             placeholder: "0.00",
-                            value: @dispatch.order.supplier_shipping_cost %>
+                            value: @dispatch.order.supplier_shipping_cost,
+                            data: { 
+                              dispatch_form_target: "supplierShipping", 
+                              action: "input->dispatch-form#supplierCostChanged keyup->dispatch-form#supplierCostChanged" 
+                            } %>
                       </div>
                       
                       <div class="unified-form-group">
-                        <%= order_form.label :supplier_shipment_proof, "Shipment Proof URL", class: "form-label" %>
-                        <%= order_form.url_field :supplier_shipment_proof, 
+                        <%= order_form.label :supplier_tax, "Supplier Tax", class: "form-label" %>
+                        <%= order_form.number_field :supplier_tax, 
+                            step: 0.01, 
                             class: "form-input", 
-                            placeholder: "Link to tracking or shipment confirmation",
-                            value: @dispatch.order.supplier_shipment_proof %>
+                            placeholder: "0.00",
+                            value: @dispatch.order.supplier_tax,
+                            data: { 
+                              dispatch_form_target: "supplierTax", 
+                              action: "input->dispatch-form#supplierCostChanged keyup->dispatch-form#supplierCostChanged" 
+                            } %>
                       </div>
                     </div>
                   <% end %>
@@ -486,25 +495,41 @@
                       <div class="info-value cost-highlight" style="text-align: left;" data-dispatch-form-target="customerTotal"><%= number_to_currency(@dispatch.total_cost || 0) %></div>
                     </div>
                     <div class="info-item">
-                      <div class="info-label">Tax & Shipping</div>
+                      <div class="info-label">Customer Tax & Shipping</div>
                       <div class="info-value" style="text-align: left;"><%= number_to_currency((@dispatch.tax_amount || 0) + (@dispatch.shipping_cost || 0)) %></div>
                     </div>
                     <div class="info-item">
-                      <div class="info-label">Supplier Cost</div>
+                      <div class="info-label">Supplier Product Cost</div>
                       <div class="info-value" style="text-align: left;" data-dispatch-form-target="supplierCostDisplay">
                         <%= number_to_currency(@dispatch.order.supplier_cost || 0) %>
+                      </div>
+                    </div>
+                    <div class="info-item">
+                      <div class="info-label">Supplier Total</div>
+                      <div class="info-value" style="text-align: left;" data-dispatch-form-target="supplierTotalDisplay">
+                        <% supplier_total = (@dispatch.order.supplier_cost || 0) + (@dispatch.order.supplier_shipping_cost || 0) + (@dispatch.order.supplier_tax || 0) %>
+                        <%= number_to_currency(supplier_total) %>
                       </div>
                     </div>
                     <div class="info-item profit-item">
                       <div class="info-label">Profit</div>
                       <div class="info-value profit-positive" style="text-align: left;" data-dispatch-form-target="profitDisplay">
-                        <%= number_to_currency(@dispatch.profit_margin || 0) %>
+                        <% profit = (@dispatch.total_cost || 0) - supplier_total %>
+                        <%= number_to_currency(profit) %>
+                      </div>
+                    </div>
+                    <div class="info-item">
+                      <div class="info-label">Agent Commission (3%)</div>
+                      <div class="info-value profit-positive" style="text-align: left;" data-dispatch-form-target="commissionDisplay">
+                        <% commission = profit * 0.03 %>
+                        <%= number_to_currency(commission) %>
                       </div>
                     </div>
                     <div class="info-item">
                       <div class="info-label">Margin</div>
                       <div class="info-value profit-positive" style="text-align: left;" data-dispatch-form-target="profitMargin">
-                        <%= @dispatch.profit_percentage || 0 %>%
+                        <% margin = (@dispatch.total_cost || 0) > 0 ? ((profit / @dispatch.total_cost) * 100) : 0 %>
+                        <%= margin.round(2) %>%
                       </div>
                     </div>
                   </div>

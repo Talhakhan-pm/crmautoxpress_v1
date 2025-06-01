@@ -53,6 +53,7 @@ class Order < ApplicationRecord
   # Callbacks
   before_validation :set_defaults, on: :create
   before_save :calculate_total_amount
+  before_save :calculate_commission_if_supplier_cost_present
   after_create :find_or_create_customer
   after_create :find_or_create_product
   after_create :find_or_create_supplier
@@ -347,6 +348,20 @@ class Order < ApplicationRecord
     tax = tax_amount || 0
     shipping = shipping_cost || 0
     self.total_amount = base_amount + tax + shipping
+  end
+
+  def calculate_commission_if_supplier_cost_present
+    # Only calculate commission if we have supplier cost information
+    if supplier_cost.present?
+      customer_total = total_amount || 0
+      supplier_total = (supplier_cost || 0) + (supplier_shipping_cost || 0) + (supplier_tax || 0)
+      profit = customer_total - supplier_total
+      
+      # 3% commission on profit
+      self.commission_amount = profit * 0.03
+      
+      Rails.logger.info "Commission calculated: Customer Total: #{customer_total}, Supplier Total: #{supplier_total}, Profit: #{profit}, Commission: #{commission_amount}"
+    end
   end
 
   def create_dispatch_record

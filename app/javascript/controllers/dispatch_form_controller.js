@@ -6,7 +6,8 @@ export default class extends Controller {
     "modal", "form", "orderSelect", "orderNumber", "customerName", 
     "productName", "carDetails", "productCost", "productCostDisplay", "taxAmount", "shippingCost", 
     "totalCost", "totalDisplay", "customerTotal", "supplierName", "supplierOrderNumber", 
-    "supplierCost", "supplierCostDisplay", "profitDisplay", "profitMargin",
+    "supplierCost", "supplierCostDisplay", "supplierShipping", "supplierTax", "supplierTotalDisplay",
+    "profitDisplay", "profitMargin", "commissionDisplay",
     "trackingSection", "dispatchStatus", "trackingNumber", "trackingLink",
     "supplierAutocomplete", "supplierIdField", "autocompleteDropdown", "autocompleteResults", 
     "autocompleteCreate", "newSupplierName"
@@ -155,16 +156,33 @@ export default class extends Controller {
       customerTotal = parseFloat(totalText) || 0
     }
     
-    const supplierCost = parseFloat(this.getTargetValue('supplierCost')) || 0
-    const profit = customerTotal - supplierCost
+    // Calculate total supplier cost (product + shipping + tax)
+    const supplierProductCost = parseFloat(this.getTargetValue('supplierCost')) || 0
+    const supplierShipping = parseFloat(this.getTargetValue('supplierShipping')) || 0
+    const supplierTax = parseFloat(this.getTargetValue('supplierTax')) || 0
+    const supplierTotal = supplierProductCost + supplierShipping + supplierTax
+    
+    // Calculate profit and commission
+    const profit = customerTotal - supplierTotal
+    const commission = profit * 0.03  // 3% commission on profit
     const profitMargin = customerTotal > 0 ? ((profit / customerTotal) * 100) : 0
     
-    console.log('Calculating profit:', { customerTotal, supplierCost, profit, profitMargin })
-    console.log('Applying styling for profit:', profit > 0 ? 'positive' : profit < 0 ? 'negative' : 'zero')
+    console.log('Calculating profit:', { 
+      customerTotal, 
+      supplierProductCost, 
+      supplierShipping, 
+      supplierTax, 
+      supplierTotal, 
+      profit, 
+      commission, 
+      profitMargin 
+    })
     
-    // Update profit displays
+    // Update all displays
     this.updateProfitDisplay(profit, profitMargin)
-    this.updateSupplierCostDisplay(supplierCost)
+    this.updateSupplierCostDisplay(supplierProductCost)
+    this.updateSupplierTotalDisplay(supplierTotal)
+    this.updateCommissionDisplay(commission)
     
     // Add visual feedback for profit/loss
     this.updateProfitStyling(profit)
@@ -189,6 +207,18 @@ export default class extends Controller {
   updateSupplierCostDisplay(cost) {
     if (this.hasSupplierCostDisplayTarget) {
       this.supplierCostDisplayTarget.textContent = this.formatCurrency(cost)
+    }
+  }
+
+  updateSupplierTotalDisplay(total) {
+    if (this.hasSupplierTotalDisplayTarget) {
+      this.supplierTotalDisplayTarget.textContent = this.formatCurrency(total)
+    }
+  }
+
+  updateCommissionDisplay(commission) {
+    if (this.hasCommissionDisplayTarget) {
+      this.commissionDisplayTarget.textContent = this.formatCurrency(commission)
     }
   }
 

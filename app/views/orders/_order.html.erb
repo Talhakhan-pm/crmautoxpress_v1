@@ -1,0 +1,277 @@
+<div class="modern-order-card <%= 'needs-attention' if order.has_pending_refund_resolution? %>" 
+     data-controller="order-resolution order-timeline"
+     data-order-timeline-expanded-value="false"
+     id="<%= dom_id(order) %>">
+  <div class="card-clickable-area" data-turbo-frame="main_content" data-action="click->orders-filter#navigateToOrder" data-order-url="<%= order_path(order) %>" style="cursor: pointer;">
+  <!-- Card Header - Compact order identification -->
+  <div class="card-header-modern">
+    <div class="order-id-section">
+      <span class="order-number">#<%= order.order_number %></span>
+      <div class="order-badges">
+        <% if order.agent_callback.present? %>
+          <span class="callback-badge" title="Created from callback">
+            <i class="fas fa-phone"></i>
+          </span>
+        <% end %>
+        <span class="priority-indicator priority-<%= order.priority %>" title="<%= order.priority.humanize %> Priority">
+          <% if order.priority == 'urgent' %>
+            <i class="fas fa-bolt"></i>
+          <% elsif order.priority == 'rush' %>
+            <i class="fas fa-tachometer-alt"></i>
+          <% elsif order.priority == 'high' %>
+            <i class="fas fa-arrow-up"></i>
+          <% else %>
+            <i class="fas fa-equals"></i>
+          <% end %>
+        </span>
+      </div>
+    </div>
+    <div class="status-indicator">
+      <% if order.has_pending_refund_resolution? %>
+        <span class="status-dot status-pending_resolution"></span>
+        <% refund = order.refund %>
+        <% case refund&.resolution_stage %>
+        <% when 'pending_customer_clarification' %>
+          <span class="attention-badge stage-agent">
+            <i class="fas fa-phone"></i>
+            Agent Review
+          </span>
+        <% when 'pending_dispatch_decision' %>
+          <span class="attention-badge stage-dispatcher">
+            <i class="fas fa-search"></i>
+            Dispatcher Review
+          </span>
+        <% when 'pending_customer_approval' %>
+          <span class="attention-badge stage-customer">
+            <i class="fas fa-clock"></i>
+            Customer Response
+          </span>
+        <% else %>
+          <span class="attention-badge">
+            <i class="fas fa-exclamation-triangle"></i>
+            Pending Resolution
+          </span>
+        <% end %>
+      <% else %>
+        <span class="status-dot status-<%= order.order_status %>"></span>
+        <span class="status-text"><%= order.display_status %></span>
+      <% end %>
+      
+      <!-- Escalation indicators -->
+      <% if order.refund.present? %>
+        <% if order.refund.needs_escalation? %>
+          <span class="escalation-badge overdue-indicator" title="Refund overdue: <%= order.refund.days_since_request %> days">
+            <i class="fas fa-exclamation-triangle"></i>
+            <%= order.refund.days_since_request %>d
+          </span>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Card Body - Dense information layout -->
+  <div class="card-body-modern">
+    <!-- Customer Info Row -->
+    <div class="info-row customer-row">
+      <div class="info-main">
+        <span class="customer-name"><%= order.customer_name %></span>
+        <span class="customer-phone"><%= order.customer_phone %></span>
+      </div>
+      <div class="info-meta">
+        <span class="order-date"><%= order.order_date.strftime("%m/%d") %></span>
+      </div>
+    </div>
+
+    <!-- Product Info Row -->
+    <div class="info-row product-row">
+      <div class="info-main">
+        <span class="product-name"><%= order.product_name %></span>
+        <% if order.vehicle_info.present? %>
+          <span class="vehicle-info"><%= order.vehicle_info %></span>
+        <% end %>
+      </div>
+      <div class="info-meta">
+        <span class="product-price">$<%= number_with_delimiter(order.product_price) %></span>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-section">
+      <div class="progress-bar">
+        <% 
+          progress_percentage = case order.order_status
+          when 'pending' then '0%'
+          when 'confirmed' then '25%'
+          when 'processing' then '50%'
+          when 'shipped' then '75%'
+          when 'delivered' then '100%'
+          else '0%'
+          end
+        %>
+        <div class="progress-fill" style="width: <%= progress_percentage %>"></div>
+        <div class="progress-steps">
+          <% ['pending', 'confirmed', 'processing', 'shipped', 'delivered'].each_with_index do |status, index| %>
+            <div class="progress-step <%= 'completed' if index < (['pending', 'confirmed', 'processing', 'shipped', 'delivered'].index(order.order_status) || 0) %> <%= 'active' if order.order_status == status %>">
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card Footer - Financial summary and actions -->
+  <div class="card-footer-modern">
+    <div class="financial-section">
+      <div class="total-amount">
+        <span class="amount-value">$<%= number_with_delimiter(order.total_amount) %></span>
+        <div class="amount-breakdown">
+          <% breakdown_parts = [] %>
+          <% breakdown_parts << "$#{number_with_delimiter(order.product_price)}" %>
+          <% if order.tax_amount.present? && order.tax_amount > 0 %>
+            <% breakdown_parts << "+$#{number_with_delimiter(order.tax_amount)}" %>
+          <% end %>
+          <% if order.shipping_cost.present? && order.shipping_cost > 0 %>
+            <% breakdown_parts << "+$#{number_with_delimiter(order.shipping_cost)}" %>
+          <% end %>
+          <%= breakdown_parts.join(' ') %>
+        </div>
+      </div>
+    </div>
+    
+    <div class="actions-section" onclick="event.stopPropagation();">
+      <div class="quick-actions">
+        <!-- Timeline Button (All Cards) -->
+        <button class="action-icon timeline-toggle" 
+                data-action="click->order-timeline#toggleTimeline"
+                data-order-timeline-target="toggleButton"
+                title="View Timeline">
+          <i class="fas fa-history"></i>
+        </button>
+        
+        <% if order.has_pending_refund_resolution? %>
+          <button class="action-icon resolution-toggle" 
+                  data-action="click->order-resolution#toggleResolution"
+                  data-order-resolution-expanded-value="false"
+                  title="Resolve Issue">
+            <i class="fas fa-tools"></i>
+          </button>
+        <% end %>
+        
+        <!-- Return/Refund Actions Dropdown -->
+        <% if order.dispatch.present? && order.dispatch.shipped_or_completed? && order.refund.blank? %>
+          <div class="action-dropdown">
+            <button class="action-icon dropdown-toggle" 
+                    data-action="click->orders-filter#toggleReturnDropdown"
+                    data-order-id="<%= order.id %>"
+                    title="Return/Refund Options">
+              <i class="fas fa-undo"></i>
+            </button>
+            <div class="dropdown-menu" data-orders-filter-target="returnDropdown<%= order.id %>" style="display: none;">
+              <div class="dropdown-header">
+                <i class="fas fa-undo"></i>
+                Return & Refund Options
+              </div>
+              
+              <%= button_to create_refund_refunds_path, 
+                  method: :post,
+                  params: { 
+                    order_id: order.id,
+                    refund_reason: 'wrong_product',
+                    refund_amount: order.total_amount,
+                    customer_name: order.customer_name,
+                    original_charge_amount: order.total_amount
+                  },
+                  class: "dropdown-item return-option",
+                  confirm: "Create return request for wrong product?",
+                  form: { data: { turbo: true } } do %>
+                <i class="fas fa-exchange-alt"></i>
+                <span class="item-title">Wrong Product</span>
+                <span class="item-desc">Customer received incorrect item</span>
+              <% end %>
+              
+              <%= button_to create_refund_refunds_path, 
+                  method: :post,
+                  params: { 
+                    order_id: order.id,
+                    refund_reason: 'defective_product',
+                    refund_amount: order.total_amount,
+                    customer_name: order.customer_name,
+                    original_charge_amount: order.total_amount
+                  },
+                  class: "dropdown-item return-option",
+                  confirm: "Create return request for defective product?",
+                  form: { data: { turbo: true } } do %>
+                <i class="fas fa-tools"></i>
+                <span class="item-title">Defective Product</span>
+                <span class="item-desc">Product has quality issues</span>
+              <% end %>
+              
+              <%= button_to create_refund_refunds_path, 
+                  method: :post,
+                  params: { 
+                    order_id: order.id,
+                    refund_reason: 'customer_changed_mind',
+                    refund_amount: order.total_amount,
+                    customer_name: order.customer_name,
+                    original_charge_amount: order.total_amount
+                  },
+                  class: "dropdown-item refund-option",
+                  confirm: "Create refund request for customer change of mind?",
+                  form: { data: { turbo: true } } do %>
+                <i class="fas fa-heart-broken"></i>
+                <span class="item-title">Customer Changed Mind</span>
+                <span class="item-desc">Customer no longer wants item</span>
+              <% end %>
+              
+              <%= button_to create_refund_refunds_path, 
+                  method: :post,
+                  params: { 
+                    order_id: order.id,
+                    refund_reason: 'quality_issues',
+                    refund_amount: order.total_amount,
+                    customer_name: order.customer_name,
+                    original_charge_amount: order.total_amount
+                  },
+                  class: "dropdown-item return-option",
+                  confirm: "Create return request for quality issues?",
+                  form: { data: { turbo: true } } do %>
+                <i class="fas fa-exclamation-triangle"></i>
+                <span class="item-title">Quality Issues</span>
+                <span class="item-desc">Product doesn't meet standards</span>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+        
+        <%= link_to order_path(order), class: "action-icon", title: "View Details", data: { turbo_frame: "main_content" } do %>
+          <i class="fas fa-eye"></i>
+        <% end %>
+        <%= link_to edit_order_path(order), class: "action-icon", title: "Edit Order", data: { turbo_frame: "main_content" } do %>
+          <i class="fas fa-edit"></i>
+        <% end %>
+        <% if order.dispatch.present? %>
+          <%= link_to dispatch_path(order.dispatch), class: "action-icon dispatch-active", title: "View Dispatch", data: { turbo_frame: "main_content" } do %>
+            <i class="fas fa-truck"></i>
+          <% end %>
+        <% else %>
+          <%= link_to new_dispatch_path(order_id: order.id), class: "action-icon dispatch-create", title: "Create Dispatch", data: { turbo_frame: "main_content" } do %>
+            <i class="fas fa-plus-circle"></i>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  <!-- Timeline Panel (hidden by default) -->
+  <div class="timeline-panel" data-order-timeline-target="panel" style="display: none;">
+    <%= render 'orders/timeline_panel', order: order %>
+  </div>
+  
+  <!-- Resolution Panel (hidden by default) -->
+  <% if order.has_pending_refund_resolution? %>
+    <div class="resolution-panel" data-order-resolution-target="panel" style="display: none;">
+      <%= render 'orders/resolution_panel', order: order %>
+    </div>
+  <% end %>
+</div>

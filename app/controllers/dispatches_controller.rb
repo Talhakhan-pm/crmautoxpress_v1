@@ -153,9 +153,10 @@ class DispatchesController < ApplicationController
     respond_to do |format|
       format.html { redirect_to dispatches_path, notice: 'Dispatch was successfully updated.' }
       format.turbo_stream { 
+        load_dispatches_for_index
         render turbo_stream: [
           turbo_stream.replace("flash-messages", partial: "shared/flash_messages", locals: { flash: { notice: 'Dispatch was successfully updated.' } }),
-          turbo_stream.replace("main_content", partial: "dispatches/index")
+          turbo_stream.replace("main_content", template: "dispatches/index")
         ]
       }
     end
@@ -213,9 +214,10 @@ class DispatchesController < ApplicationController
     respond_to do |format|
       format.html { redirect_to dispatches_path, notice: message }
       format.turbo_stream { 
+        load_dispatches_for_index
         render turbo_stream: [
           turbo_stream.replace("flash-messages", partial: "shared/flash_messages", locals: { flash: { notice: message } }),
-          turbo_stream.replace("main_content", partial: "dispatches/index")
+          turbo_stream.replace("main_content", template: "dispatches/index")
         ]
       }
       format.json { render json: { success: refund.present?, message: message } }
@@ -252,9 +254,10 @@ class DispatchesController < ApplicationController
     respond_to do |format|
       format.html { redirect_to dispatches_path, notice: message }
       format.turbo_stream { 
+        load_dispatches_for_index
         render turbo_stream: [
           turbo_stream.replace("flash-messages", partial: "shared/flash_messages", locals: { flash: { notice: message } }),
-          turbo_stream.replace("main_content", partial: "dispatches/index")
+          turbo_stream.replace("main_content", template: "dispatches/index")
         ]
       }
       format.json { render json: { success: refund.present?, message: message } }
@@ -586,6 +589,15 @@ class DispatchesController < ApplicationController
     @payment_statuses = Dispatch.payment_statuses.keys
     @shipment_statuses = Dispatch.shipment_statuses.keys
     @suppliers = Supplier.joins(:orders).distinct.pluck(:name).compact.sort
+    
+    # Return and replacement tracking data (needed for index template)
+    @returns = Refund.includes(:order, :processing_agent)
+                    .where(return_status: ['return_requested', 'return_authorized', 'return_label_sent', 'return_shipped', 'return_in_transit', 'return_delivered', 'return_received'])
+                    .recent
+    
+    @replacements = Order.includes(:dispatch, :agent, :processing_agent)
+                         .where(source_channel: 'replacement')
+                         .recent
   end
 
   def dispatch_params
@@ -602,7 +614,7 @@ class DispatchesController < ApplicationController
   def order_params
     params.require(:order).permit(
       :supplier_id, :supplier_name, :supplier_order_number, :supplier_cost,
-      :supplier_shipping_cost, :supplier_shipment_proof
+      :supplier_shipping_cost, :supplier_tax, :supplier_shipment_proof
     )
   end
 

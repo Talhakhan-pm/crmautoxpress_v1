@@ -223,7 +223,9 @@ class OrdersController < ApplicationController
       :product_link, :estimated_delivery, :comments,
       :customer_id, :product_id, :processing_agent_id, :agent_callback_id,
       :source_channel, :warranty_period_days, :warranty_terms,
-      :return_window_days, :commission_amount, :agent_id, :order_date
+      :return_window_days, :commission_amount, :agent_id, :order_date,
+      :supplier_id, :supplier_name, :supplier_order_number, :supplier_cost, 
+      :supplier_shipping_cost, :supplier_tax, :supplier_shipment_proof
     )
   end
 
