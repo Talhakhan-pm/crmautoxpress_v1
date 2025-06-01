@@ -49,30 +49,6 @@
                    data: { disable_with: "Updating..." } %>
     <% end %>
 
-    <!-- Sourcing Research Summary -->
-    <div class="sourcing-simulation">
-      <div class="sourcing-header">
-        <i class="fas fa-industry"></i>
-        <span>Supplier Research Results</span>
-      </div>
-      <div class="simulated-results">
-        <div class="supplier-option">
-          <div class="supplier-name">Primary Supplier</div>
-          <div class="supplier-details">$<%= (refund.order.total_amount * 0.6).round(2) %> • 2-3 days • ⭐⭐⭐⭐</div>
-          <div class="profit-calc">Profit: $<%= (refund.order.total_amount * 0.4).round(2) %></div>
-        </div>
-        <div class="supplier-option">
-          <div class="supplier-name">Secondary Supplier</div>
-          <div class="supplier-details">$<%= (refund.order.total_amount * 0.7).round(2) %> • 5-7 days • ⭐⭐⭐</div>
-          <div class="profit-calc">Profit: $<%= (refund.order.total_amount * 0.3).round(2) %></div>
-        </div>
-        <div class="supplier-option disabled">
-          <div class="supplier-name">Alternative Supplier</div>
-          <div class="supplier-details">$<%= (refund.order.total_amount * 1.2).round(2) %> • 3 days • ⭐⭐⭐⭐⭐</div>
-          <div class="profit-calc loss">Loss: $<%= (refund.order.total_amount * 0.2).round(2) %></div>
-        </div>
-      </div>
-    </div>
 
     <!-- Decision Actions -->
     <div class="dispatcher-decisions">

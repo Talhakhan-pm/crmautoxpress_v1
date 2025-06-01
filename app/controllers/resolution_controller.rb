@@ -73,7 +73,7 @@ class ResolutionController < ApplicationController
     @refund = Refund.find(params[:id])
     
     if @refund.update(
-      resolution_stage: 'pending_customer_approval',
+      resolution_stage: 'resolution_completed',
       alternative_part_name: params[:part_name],
       alternative_part_price: params[:part_price],
       price_difference: params[:price_difference],
@@ -212,7 +212,7 @@ class ResolutionController < ApplicationController
 
   def suggest_alternative
     @refund = Refund.find(params[:id])
-    @refund.update!(resolution_stage: 'pending_customer_approval')
+    @refund.update!(resolution_stage: 'resolution_completed')
     render_quick_action_response
   end
 
@@ -305,11 +305,10 @@ class ResolutionController < ApplicationController
     delay_days = params[:delay_days] || 3
     
     @refund.update!(
-      resolution_stage: 'pending_customer_approval',
-      dispatcher_notes: "#{@refund.dispatcher_notes}\n\n#{Time.current.strftime('%m/%d %I:%M%p')}: Sourcing complete - Part available with #{delay_days} day delay",
-      dispatcher_decision: 'delay_required',
-      delay_duration: delay_days,
-      agent_instructions: "Contact customer about #{delay_days}-day delivery delay. Customer can accept delay or request refund."
+      resolution_stage: 'resolution_completed',
+      dispatcher_notes: "#{@refund.dispatcher_notes}\n\n#{Time.current.strftime('%m/%d %I:%M%p')}: Sourcing complete - Approved #{delay_days} day delivery delay",
+      dispatcher_decision: 'delay_approved',
+      delay_duration: delay_days
     )
     
     @refund.create_activity(
@@ -326,11 +325,10 @@ class ResolutionController < ApplicationController
     additional_amount = params[:additional_amount]
     
     @refund.update!(
-      resolution_stage: 'pending_customer_approval',
-      dispatcher_notes: "#{@refund.dispatcher_notes}\n\n#{Time.current.strftime('%m/%d %I:%M%p')}: Sourcing complete - Part costs $#{additional_amount} more than customer paid",
-      dispatcher_decision: 'price_increase',
-      additional_cost: additional_amount,
-      agent_instructions: "Contact customer about $#{additional_amount} price increase. Customer can pay extra or request refund."
+      resolution_stage: 'resolution_completed',
+      dispatcher_notes: "#{@refund.dispatcher_notes}\n\n#{Time.current.strftime('%m/%d %I:%M%p')}: Sourcing complete - Approved $#{additional_amount} price increase",
+      dispatcher_decision: 'price_increase_approved',
+      additional_cost: additional_amount
     )
     
     @refund.create_activity(
@@ -347,11 +345,10 @@ class ResolutionController < ApplicationController
     alternative_part = params[:alternative_part_name]
     
     @refund.update!(
-      resolution_stage: 'pending_customer_approval',
-      dispatcher_notes: "#{@refund.dispatcher_notes}\n\n#{Time.current.strftime('%m/%d %I:%M%p')}: Found compatible alternative: #{alternative_part}",
-      dispatcher_decision: 'compatible_alternative',
-      alternative_part_name: alternative_part,
-      agent_instructions: "Alternative part sourced: #{alternative_part}. Customer gets upgraded part at same price. Create replacement order."
+      resolution_stage: 'resolution_completed',
+      dispatcher_notes: "#{@refund.dispatcher_notes}\n\n#{Time.current.strftime('%m/%d %I:%M%p')}: Compatible alternative approved: #{alternative_part}",
+      dispatcher_decision: 'compatible_alternative_approved',
+      alternative_part_name: alternative_part
     )
     
     @refund.create_activity(
@@ -415,7 +412,6 @@ class ResolutionController < ApplicationController
       total_pending_resolution: total_pending,
       agent_clarification: Refund.awaiting_agent_action.count,
       dispatcher_decision: Refund.awaiting_dispatcher_action.count,
-      customer_approval: Refund.awaiting_customer_action.count,
       overdue_resolutions: Refund.needs_resolution.where('created_at < ?', 2.days.ago).count,
       avg_resolution_time: calculate_avg_resolution_time,
       resolution_completion_rate: calculate_completion_rate,
@@ -448,8 +444,7 @@ class ResolutionController < ApplicationController
     {
       by_stage: {
         pending_customer_clarification: refunds.by_resolution_stage('pending_customer_clarification').count,
-        pending_dispatch_decision: refunds.by_resolution_stage('pending_dispatch_decision').count,
-        pending_customer_approval: refunds.by_resolution_stage('pending_customer_approval').count
+        pending_dispatch_decision: refunds.by_resolution_stage('pending_dispatch_decision').count
       },
       by_priority: {
         urgent: refunds.where(priority: 'urgent').count,

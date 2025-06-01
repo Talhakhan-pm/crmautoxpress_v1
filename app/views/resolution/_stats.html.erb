@@ -37,18 +37,6 @@
   </div>
 </div>
 
-<div class="metric-card primary">
-  <div class="metric-icon">
-    <i class="fas fa-user-check"></i>
-  </div>
-  <div class="metric-content">
-    <div class="metric-value"><%= stats[:customer_approval] %></div>
-    <div class="metric-label">Customer Approval</div>
-  </div>
-  <div class="metric-trend <%= stats[:customer_approval] > 0 ? 'negative' : 'neutral' %>">
-    <i class="fas fa-<%= stats[:customer_approval] > 0 ? 'arrow-up' : 'minus' %>"></i>
-  </div>
-</div>
 
 <div class="metric-card danger">
   <div class="metric-icon">

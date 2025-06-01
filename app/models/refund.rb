@@ -20,8 +20,7 @@ class Refund < ApplicationRecord
   enum resolution_stage: {
     pending_customer_clarification: 0,
     pending_dispatch_decision: 1,
-    pending_customer_approval: 2,
-    resolution_completed: 3
+    resolution_completed: 2
   }
 
   enum refund_reason: {
@@ -104,7 +103,6 @@ class Refund < ApplicationRecord
   scope :by_resolution_stage, ->(stage) { where(resolution_stage: stage) }
   scope :awaiting_agent_action, -> { where(resolution_stage: 'pending_customer_clarification') }
   scope :awaiting_dispatcher_action, -> { where(resolution_stage: 'pending_dispatch_decision') }
-  scope :awaiting_customer_action, -> { where(resolution_stage: 'pending_customer_approval') }
 
   def stage_color
     # Check for escalation first
@@ -151,7 +149,6 @@ class Refund < ApplicationRecord
     case resolution_stage
     when 'pending_customer_clarification' then 'warning'
     when 'pending_dispatch_decision' then 'info'
-    when 'pending_customer_approval' then 'primary'
     when 'resolution_completed' then 'success'
     else 'secondary'
     end
@@ -165,7 +162,6 @@ class Refund < ApplicationRecord
     case resolution_stage
     when 'pending_customer_clarification' then 'Agent needs to contact customer'
     when 'pending_dispatch_decision' then 'Dispatcher reviewing resolution options'
-    when 'pending_customer_approval' then 'Waiting for customer approval'
     when 'resolution_completed' then 'Resolution process complete'
     else 'Resolution status unknown'
     end
