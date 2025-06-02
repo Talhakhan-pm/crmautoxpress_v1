@@ -639,6 +639,12 @@ class DispatchesController < ApplicationController
     @dispatch.shipping_cost = order.shipping_cost
     @dispatch.total_cost = order.total_amount
     @dispatch.processing_agent_id = order.processing_agent_id || order.agent_id
+    
+    # For replacement orders, start in processing status since they're pre-confirmed
+    if order.source_channel == 'replacement'
+      @dispatch.dispatch_status = 'processing'
+      @dispatch.payment_status = 'paid' # Replacements are usually covered
+    end
   end
 
   def map_cancellation_reason(reason)

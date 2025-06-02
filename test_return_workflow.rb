@@ -5,106 +5,77 @@
 
 require_relative 'config/environment'
 
-puts "🧪 Testing Return Workflow Integration"
+puts "🔍 Checking Order AX20250602010 Status"
 puts "=" * 50
 
-# Test 1: Create a test order
-puts "\n1. Creating test order..."
-order = Order.create!(
-  order_number: "TEST#{Time.current.to_i}",
-  customer_name: "Test Customer",
-  customer_phone: "555-1234",
-  customer_email: "test@test.com",
-  product_name: "Test Auto Part",
-  product_price: 150.00,
-  total_amount: 150.00,
-  order_status: 'shipped',
-  order_date: Time.current
-)
-puts "✅ Order created: #{order.order_number}"
+# Search for the specific order
+order = Order.find_by(order_number: "AX20250602010")
 
-# Test 2: Create a dispatch for the order
-puts "\n2. Creating dispatch..."
-dispatch = Dispatch.create!(
-  order: order,
-  dispatch_status: 'shipped',
-  payment_status: 'paid'
-)
-puts "✅ Dispatch created with status: #{dispatch.dispatch_status}"
-
-# Test 3: Test wrong_product refund creation (should go to pending_resolution)
-puts "\n3. Testing wrong_product refund creation..."
-refund = Refund.new(
-  order: order,
-  customer_name: order.customer_name,
-  refund_amount: order.total_amount,
-  original_charge_amount: order.total_amount,
-  refund_reason: 'wrong_product'
-)
-
-if refund.save
-  puts "✅ Refund created: #{refund.refund_number}"
-  puts "   - Refund Stage: #{refund.refund_stage}"
-  puts "   - Resolution Stage: #{refund.resolution_stage}"
-  puts "   - Return Status: #{refund.return_status}"
-  puts "   - Order Status After: #{order.reload.order_status}"
+if order
+  puts "\n📦 Order Found: #{order.order_number}"
+  puts "   - Customer: #{order.customer_name}"
+  puts "   - Product: #{order.product_name}"
+  puts "   - Order Status: #{order.order_status}"
+  puts "   - Source Channel: #{order.source_channel}"
+  puts "   - Priority: #{order.priority}"
+  puts "   - Created: #{order.created_at}"
+  
+  if order.dispatch.present?
+    puts "\n🚚 Dispatch Information:"
+    puts "   - Dispatch Status: #{order.dispatch.dispatch_status}"
+    puts "   - Payment Status: #{order.dispatch.payment_status}"
+    puts "   - Shipment Status: #{order.dispatch.shipment_status}"
+    puts "   - Tracking Number: #{order.dispatch.tracking_number || 'None'}"
+  else
+    puts "\n🚚 No dispatch found for this order"
+  end
+  
+  if order.refund.present?
+    puts "\n💰 Refund Information:"
+    puts "   - Refund Number: #{order.refund.refund_number}"
+    puts "   - Refund Stage: #{order.refund.refund_stage}"
+    puts "   - Return Status: #{order.refund.return_status}"
+    puts "   - Resolution Stage: #{order.refund.resolution_stage}"
+    puts "   - Amount: $#{order.refund.refund_amount}"
+  else
+    puts "\n💰 No refund found for this order"
+  end
+  
+  if order.replacement_order_id.present?
+    replacement = Order.find_by(id: order.replacement_order_id)
+    if replacement
+      puts "\n🔄 Replacement Order Information:"
+      puts "   - Replacement Number: #{replacement.order_number}"
+      puts "   - Status: #{replacement.order_status}"
+      puts "   - Created: #{replacement.created_at}"
+      if replacement.dispatch.present?
+        puts "   - Dispatch Status: #{replacement.dispatch.dispatch_status}"
+      end
+    end
+  else
+    puts "\n🔄 No replacement order linked"
+  end
+  
 else
-  puts "❌ Refund failed: #{refund.errors.full_messages.join(', ')}"
+  puts "\n❌ Order AX20250602010 not found in database"
 end
 
-# Test 4: Test customer_changed_mind refund (should go to pending_refund)
-puts "\n4. Creating second order for changed_mind test..."
-order2 = Order.create!(
-  order_number: "TEST#{Time.current.to_i + 1}",
-  customer_name: "Test Customer 2",
-  customer_phone: "555-5678",
-  customer_email: "test2@test.com",
-  product_name: "Test Auto Part 2",
-  product_price: 200.00,
-  total_amount: 200.00,
-  order_status: 'shipped',
-  order_date: Time.current
-)
+# Fix existing replacement dispatches that are stuck in pending
+puts "\n🔧 Fixing existing replacement dispatches..."
+replacement_orders = Order.where(source_channel: 'replacement')
+fixed_count = 0
 
-dispatch2 = Dispatch.create!(
-  order: order2,
-  dispatch_status: 'shipped',
-  payment_status: 'paid'
-)
-
-refund2 = Refund.new(
-  order: order2,
-  customer_name: order2.customer_name,
-  refund_amount: order2.total_amount,
-  original_charge_amount: order2.total_amount,
-  refund_reason: 'customer_changed_mind'
-)
-
-if refund2.save
-  puts "✅ Second refund created: #{refund2.refund_number}"
-  puts "   - Refund Stage: #{refund2.refund_stage}"
-  puts "   - Return Status: #{refund2.return_status}"
-else
-  puts "❌ Second refund failed: #{refund2.errors.full_messages.join(', ')}"
+replacement_orders.each do |repl_order|
+  if repl_order.dispatch.present? && repl_order.dispatch.dispatch_status == 'pending'
+    repl_order.dispatch.update!(
+      dispatch_status: 'processing',
+      payment_status: 'paid'
+    )
+    puts "✅ Fixed dispatch for replacement order: #{repl_order.order_number}"
+    fixed_count += 1
+  end
 end
 
-# Test 5: Verify resolution center can find the return request
-puts "\n5. Testing resolution center integration..."
-pending_resolutions = Refund.where(refund_stage: 'pending_resolution')
-puts "✅ Found #{pending_resolutions.count} refund(s) in pending_resolution"
+puts "✅ Fixed #{fixed_count} replacement dispatch(es)"
 
-pending_resolutions.each do |ref|
-  puts "   - #{ref.refund_number}: #{ref.refund_reason} (#{ref.resolution_stage})"
-end
-
-puts "\n🎉 Return workflow test completed!"
-puts "\nNext steps:"
-puts "1. Run: rails db:migrate (if not already run)"
-puts "2. Start server: rails server"
-puts "3. Test UI dropdown functionality"
-puts "4. Verify resolution center shows return requests"
-
-# Cleanup (optional)
-puts "\n🧹 Cleaning up test data..."
-[refund, refund2, dispatch, dispatch2, order, order2].each(&:destroy)
-puts "✅ Test data cleaned up"
+puts "\n🎉 Order status check and fix completed!"
