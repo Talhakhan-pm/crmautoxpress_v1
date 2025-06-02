@@ -461,15 +461,35 @@
                 <i class="fas fa-box"></i>
                 <span>Replacement order created: <%= refund.replacement_order_number %></span>
               </div>
+            <% elsif refund.dispatcher_decision == 'delay_approved' %>
+              <div class="outcome-card">
+                <i class="fas fa-clock"></i>
+                <span>Delay accepted: Order will proceed with <%= refund.delay_duration %>-day extension</span>
+              </div>
+            <% elsif refund.dispatcher_decision == 'price_increase_approved' %>
+              <div class="outcome-card">
+                <i class="fas fa-dollar-sign"></i>
+                <span>Price increase approved: Additional $<%= refund.additional_cost %> required</span>
+              </div>
+            <% elsif refund.dispatcher_decision == 'compatible_alternative_approved' %>
+              <div class="outcome-card">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Compatible alternative approved: <%= refund.alternative_part_name %></span>
+              </div>
             <% elsif refund.alternative_part_name.present? %>
               <div class="outcome-card">
                 <i class="fas fa-exchange-alt"></i>
                 <span>Alternative part approved: <%= refund.alternative_part_name %></span>
               </div>
+            <% elsif refund.dispatcher_decision == 'issue_refund' || refund.refund_stage == 'refunded' %>
+              <div class="outcome-card">
+                <i class="fas fa-money-bill-wave"></i>
+                <span>Refund processed: $<%= refund.refund_amount %></span>
+              </div>
             <% else %>
               <div class="outcome-card">
-                <i class="fas fa-dollar-sign"></i>
-                <span>Refund processed: $<%= refund.refund_amount %></span>
+                <i class="fas fa-check"></i>
+                <span>Resolution completed</span>
               </div>
             <% end %>
           </div>

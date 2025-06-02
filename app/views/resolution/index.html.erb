@@ -184,13 +184,13 @@
   });
 
   // Global Communication Hub Management
-  let currentHubRefundId = null;
-  let hubOpen = false;
+  window.currentHubRefundId = window.currentHubRefundId || null;
+  window.hubOpen = window.hubOpen || false;
 
   window.openResolutionHub = function(refundId, stage) {
     console.log('Opening hub for refund:', refundId, 'stage:', stage);
     
-    currentHubRefundId = refundId;
+    window.currentHubRefundId = refundId;
     
     // Create or update the hub
     let hub = document.getElementById('global-resolution-hub');
@@ -345,7 +345,7 @@
     if (hub) {
       hub.classList.remove('d-none');
       setTimeout(() => hub.classList.add('show'), 10);
-      hubOpen = true;
+      window.hubOpen = true;
     }
   }
 
@@ -354,8 +354,8 @@
     if (hub) {
       hub.classList.remove('show');
       setTimeout(() => hub.classList.add('d-none'), 300);
-      hubOpen = false;
-      currentHubRefundId = null;
+      window.hubOpen = false;
+      window.currentHubRefundId = null;
     }
   };
 
@@ -372,7 +372,7 @@
     const input = document.getElementById('hub-message-input');
     const message = input.value.trim();
     
-    if (!message || !currentHubRefundId) return;
+    if (!message || !window.currentHubRefundId) return;
     
     // Clear input
     input.value = '';
@@ -382,7 +382,7 @@
     formData.append('message', message);
     formData.append('message_type', 'agent'); // Default to agent for now
     
-    fetch(`/resolution/${currentHubRefundId}/message`, {
+    fetch(`/resolution/${window.currentHubRefundId}/message`, {
       method: 'POST',
       body: formData,
       headers: {
@@ -392,14 +392,14 @@
     .then(response => {
       if (response.ok) {
         // Reload conversation
-        loadHubData(currentHubRefundId, 'pending_customer_clarification'); // Will be updated from server
+        loadHubData(window.currentHubRefundId, 'pending_customer_clarification'); // Will be updated from server
       }
     })
     .catch(error => console.error('Error sending message:', error));
   };
 
   window.executeQuickAction = function(action) {
-    if (!currentHubRefundId) return;
+    if (!window.currentHubRefundId) return;
     
     const criticalActions = ['approve_refund', 'escalate', 'customer_declined'];
     if (criticalActions.includes(action)) {
@@ -408,7 +408,7 @@
       }
     }
     
-    fetch(`/resolution/${currentHubRefundId}/${action}`, {
+    fetch(`/resolution/${window.currentHubRefundId}/${action}`, {
       method: 'PATCH',
       headers: {
         'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content

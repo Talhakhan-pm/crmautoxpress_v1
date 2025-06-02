@@ -138,11 +138,13 @@ class ResolutionController < ApplicationController
       case message_type
       when 'agent'
         current_notes = @refund.agent_notes || ''
-        new_notes = current_notes.present? ? "#{current_notes}\n\n#{Time.current.strftime('%m/%d %I:%M%p')}: #{message}" : "#{Time.current.strftime('%m/%d %I:%M%p')}: #{message}"
+        user_name = Current.user&.email&.split('@')&.first&.capitalize || 'Agent'
+        new_notes = current_notes.present? ? "#{current_notes}\n\n#{Time.current.strftime('%m/%d %I:%M%p')} [#{user_name}]: #{message}" : "#{Time.current.strftime('%m/%d %I:%M%p')} [#{user_name}]: #{message}"
         @refund.update!(agent_notes: new_notes)
       when 'dispatcher'
         current_notes = @refund.dispatcher_notes || ''
-        new_notes = current_notes.present? ? "#{current_notes}\n\n#{Time.current.strftime('%m/%d %I:%M%p')}: #{message}" : "#{Time.current.strftime('%m/%d %I:%M%p')}: #{message}"
+        user_name = Current.user&.email&.split('@')&.first&.capitalize || 'Dispatcher'
+        new_notes = current_notes.present? ? "#{current_notes}\n\n#{Time.current.strftime('%m/%d %I:%M%p')} [#{user_name}]: #{message}" : "#{Time.current.strftime('%m/%d %I:%M%p')} [#{user_name}]: #{message}"
         @refund.update!(dispatcher_notes: new_notes)
       end
       
@@ -334,7 +336,8 @@ class ResolutionController < ApplicationController
       resolution_stage: 'resolution_completed',
       dispatcher_notes: "#{@refund.dispatcher_notes}\n\n#{Time.current.strftime('%m/%d %I:%M%p')}: Sourcing complete - Approved #{delay_days} day delivery delay",
       dispatcher_decision: 'delay_approved',
-      delay_duration: delay_days
+      delay_duration: delay_days,
+      refund_stage: 'cancelled_refund'
     )
     
     @refund.create_activity(
