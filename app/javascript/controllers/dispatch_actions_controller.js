@@ -121,6 +121,46 @@ export default class extends Controller {
     }
   }
 
+  async markReturnShipped(event) {
+    event.preventDefault()
+    event.stopPropagation()
+    
+    const refundId = this.refundIdValue
+    if (!refundId) {
+      this.showError('No refund ID found')
+      return
+    }
+
+    if (!confirm('Mark return as shipped by customer?')) {
+      return
+    }
+
+    const trackingNumber = prompt('Enter tracking number (optional):')
+
+    try {
+      const response = await fetch(`/resolution/${refundId}/mark_return_shipped`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': this.getCSRFToken()
+        },
+        body: JSON.stringify({ tracking_number: trackingNumber })
+      })
+
+      const result = await this.handleResponse(response)
+      
+      if (result.success) {
+        this.showSuccess('Return marked as shipped!')
+        this.refreshView()
+      } else {
+        this.showError(result.message || 'Failed to mark return as shipped')
+      }
+    } catch (error) {
+      console.error('Error marking return as shipped:', error)
+      this.showError('Error marking return as shipped: ' + error.message)
+    }
+  }
+
   trackReturn(event) {
     event.preventDefault()
     event.stopPropagation()

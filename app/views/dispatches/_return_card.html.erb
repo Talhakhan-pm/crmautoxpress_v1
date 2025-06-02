@@ -74,10 +74,11 @@
         Generate Label
       </button>
     <% when 'return_label_sent' %>
-      <div class="waiting-customer">
-        <i class="fas fa-clock"></i>
-        Waiting for customer
-      </div>
+      <button class="quick-action-btn track" 
+              data-action="click->dispatch-actions#markReturnShipped">
+        <i class="fas fa-box"></i>
+        Mark Shipped
+      </button>
     <% when 'return_shipped', 'return_in_transit' %>
       <button class="quick-action-btn track" 
               data-action="click->dispatch-actions#trackReturn"
@@ -91,6 +92,11 @@
         <i class="fas fa-inbox"></i>
         Mark Received
       </button>
+    <% when 'return_received', 'return_inspected' %>
+      <div class="completed-indicator">
+        <i class="fas fa-check-circle"></i>
+        Return Complete
+      </div>
     <% end %>
   </div>
 </div>
