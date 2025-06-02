@@ -139,16 +139,90 @@
         </div>
         
         <div class="action-controls">
-          <button class="action-btn primary" onclick="openResolutionHub(<%= refund.id %>, '<%= refund.resolution_stage %>')">
-            <i class="fas fa-comments"></i>
-            Start Communication
-          </button>
-          <%= button_to "Mark as Contacted", 
-                        update_resolution_stage_path(refund),
-                        method: :patch,
-                        params: { refund: { resolution_stage: 'pending_dispatch_decision' } },
-                        class: "action-btn success",
-                        form: { data: { turbo: true } } %>
+          <!-- Contextual Agent Actions Based on Refund Reason -->
+          <% case refund.refund_reason %>
+          <% when 'shipping_delay' %>
+            <!-- Agent presents delay options to customer -->
+            <div class="agent-decision-section">
+              <div class="section-label">Present Options to Customer</div>
+              <div class="decision-grid">
+                <%= button_to resolution_accept_delay_path(refund),
+                              method: :patch,
+                              params: { delay_days: 5 },
+                              class: "decision-btn accept-delay",
+                              confirm: "Customer accepts 5-day delay?",
+                              form: { data: { turbo: true } } do %>
+                  <i class="fas fa-check"></i>
+                  <span class="btn-title">Customer Accepts Delay</span>
+                  <span class="btn-desc">Proceed with 5-day extended timeline</span>
+                <% end %>
+                
+                <%= button_to resolution_dispatcher_refund_path(refund),
+                              method: :patch,
+                              params: { refund_reason: 'Customer declined shipping delay' },
+                              class: "decision-btn refund-option",
+                              confirm: "Customer wants refund instead?",
+                              form: { data: { turbo: true } } do %>
+                  <i class="fas fa-money-bill-wave"></i>
+                  <span class="btn-title">Customer Wants Refund</span>
+                  <span class="btn-desc">Customer declined the delay option</span>
+                <% end %>
+              </div>
+            </div>
+          
+          <% when 'item_not_found' %>
+            <!-- Agent presents sourcing options to customer -->
+            <div class="agent-decision-section">
+              <div class="section-label">Present Options to Customer</div>
+              <div class="decision-grid">
+                <%= button_to resolution_accept_delay_path(refund),
+                              method: :patch,
+                              params: { delay_days: 7 },
+                              class: "decision-btn accept-delay",
+                              confirm: "Customer accepts 7-day delay for sourcing?",
+                              form: { data: { turbo: true } } do %>
+                  <i class="fas fa-clock"></i>
+                  <span class="btn-title">Customer Accepts Delay</span>
+                  <span class="btn-desc">7-day delay for sourcing</span>
+                <% end %>
+                
+                <%= button_to resolution_request_price_increase_path(refund),
+                              method: :patch,
+                              params: { additional_amount: 50 },
+                              class: "decision-btn price-increase",
+                              confirm: "Customer pays additional $50?",
+                              form: { data: { turbo: true } } do %>
+                  <i class="fas fa-dollar-sign"></i>
+                  <span class="btn-title">Customer Pays Extra</span>
+                  <span class="btn-desc">Additional $50 for higher cost</span>
+                <% end %>
+                
+                <%= button_to resolution_dispatcher_refund_path(refund),
+                              method: :patch,
+                              params: { refund_reason: 'Customer declined sourcing options' },
+                              class: "decision-btn refund-option",
+                              confirm: "Customer wants refund instead?",
+                              form: { data: { turbo: true } } do %>
+                  <i class="fas fa-money-bill-wave"></i>
+                  <span class="btn-title">Customer Wants Refund</span>
+                  <span class="btn-desc">Customer declined all options</span>
+                <% end %>
+              </div>
+            </div>
+          
+          <% else %>
+            <!-- Default agent actions for other reasons -->
+            <button class="action-btn primary" onclick="openResolutionHub(<%= refund.id %>, '<%= refund.resolution_stage %>')">
+              <i class="fas fa-comments"></i>
+              Start Communication
+            </button>
+            <%= button_to "Mark as Contacted", 
+                          update_resolution_stage_path(refund),
+                          method: :patch,
+                          params: { refund: { resolution_stage: 'pending_dispatch_decision' } },
+                          class: "action-btn success",
+                          form: { data: { turbo: true } } %>
+          <% end %>
         </div>
       </div>
       
