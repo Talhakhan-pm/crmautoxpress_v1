@@ -80,12 +80,23 @@
         Mark Shipped
       </button>
     <% when 'return_shipped', 'return_in_transit' %>
-      <button class="quick-action-btn track" 
-              data-action="click->dispatch-actions#trackReturn"
-              data-tracking-number="<%= refund.return_tracking_number %>">
-        <i class="fas fa-map-marker-alt"></i>
-        Track
-      </button>
+      <div style="display: flex; gap: 8px; justify-content: center;">
+        <% if refund.return_tracking_number.present? %>
+          <button class="quick-action-btn track" 
+                  data-action="click->dispatch-actions#trackReturn"
+                  data-tracking-number="<%= refund.return_tracking_number %>"
+                  style="flex: 1;">
+            <i class="fas fa-map-marker-alt"></i>
+            Track
+          </button>
+        <% end %>
+        <button class="quick-action-btn receive" 
+                data-action="click->dispatch-actions#markReturnReceived"
+                style="flex: 1;">
+          <i class="fas fa-inbox"></i>
+          Mark Received
+        </button>
+      </div>
     <% when 'return_delivered' %>
       <button class="quick-action-btn receive" 
               data-action="click->dispatch-actions#markReturnReceived">
