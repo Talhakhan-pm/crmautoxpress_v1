@@ -218,7 +218,7 @@ class Refund < ApplicationRecord
   def return_timeline_events
     events = []
     
-    events << { status: 'return_requested', date: created_at, description: 'Return requested by customer' } if return_requested? || return_status_was_changed?
+    events << { status: 'return_requested', date: created_at, description: 'Return requested by customer' } if return_requested? || return_status_changed?
     events << { status: 'return_authorized', date: return_authorized_at, description: 'Return authorized by dispatcher' } if return_authorized_at.present?
     events << { status: 'return_label_sent', date: return_authorized_at, description: 'Return label generated and sent' } if return_label_sent? && return_label_url.present?
     events << { status: 'return_shipped', date: return_shipped_at, description: 'Customer shipped return package' } if return_shipped_at.present?
