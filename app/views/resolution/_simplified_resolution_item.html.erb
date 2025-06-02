@@ -193,38 +193,10 @@
         <div class="action-controls dispatcher-decisions">
           <div class="decision-title">Dispatcher Decision:</div>
           
-          <!-- Sourcing Options -->
-          <div class="decision-section">
-            <div class="section-label">Part Sourcing Options</div>
-            <div class="decision-grid">
-              <button class="decision-btn accept-delay" 
-                      onclick="openDelayModal(<%= refund.id %>)"
-                      data-refund-id="<%= refund.id %>">
-                <i class="fas fa-clock"></i>
-                <span class="btn-title">Source with Delay</span>
-                <span class="btn-desc">Part available but requires extra time</span>
-              </button>
-              
-              <button class="decision-btn price-increase"
-                      onclick="openPriceModal(<%= refund.id %>)"
-                      data-refund-id="<%= refund.id %>">
-                <i class="fas fa-dollar-sign"></i>
-                <span class="btn-title">Source at Higher Cost</span>
-                <span class="btn-desc">Part available but costs more than original</span>
-              </button>
-              
-              <button class="decision-btn compatible-alternative"
-                      onclick="openAlternativeModal(<%= refund.id %>)"
-                      data-refund-id="<%= refund.id %>">
-                <i class="fas fa-exchange-alt"></i>
-                <span class="btn-title">Use Compatible Alternative</span>
-                <span class="btn-desc">Found substitute part that works</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Return Management Options -->
-          <% if refund.refund_reason.in?(['wrong_product', 'defective_product', 'quality_issues', 'customer_changed_mind']) %>
+          <!-- Contextual Decisions Based on Refund Reason -->
+          <% case refund.refund_reason %>
+          <% when 'wrong_product', 'defective_product', 'quality_issues' %>
+            <!-- Return Management Options for product issues -->
             <div class="decision-section return-section">
               <div class="section-label">
                 <i class="fas fa-undo"></i>
@@ -253,24 +225,141 @@
                 <% end %>
               </div>
             </div>
-          <% end %>
-          
-          <!-- Final Resolution -->
-          <div class="decision-section final-section">
-            <div class="section-label">Final Resolution</div>
-            <div class="decision-grid">
-              <%= button_to resolution_dispatcher_refund_path(refund),
-                            method: :patch,
-                            params: { refund_reason: 'Not economical to source' },
-                            class: "decision-btn refund-option",
-                            confirm: "Process immediate refund? This cannot be undone.",
-                            form: { data: { turbo: true } } do %>
-                <i class="fas fa-money-bill-wave"></i>
-                <span class="btn-title">Immediate Refund</span>
-                <span class="btn-desc">Cannot source part economically</span>
-              <% end %>
+
+          <% when 'customer_changed_mind' %>
+            <!-- Simple refund for customer mind change -->
+            <div class="decision-section final-section">
+              <div class="section-label">Customer Changed Mind</div>
+              <div class="decision-grid">
+                <%= button_to resolution_dispatcher_refund_path(refund),
+                              method: :patch,
+                              params: { refund_reason: 'Customer changed mind' },
+                              class: "decision-btn refund-option",
+                              confirm: "Process immediate refund? This cannot be undone.",
+                              form: { data: { turbo: true } } do %>
+                  <i class="fas fa-money-bill-wave"></i>
+                  <span class="btn-title">Issue Immediate Refund</span>
+                  <span class="btn-desc">Customer no longer wants item</span>
+                <% end %>
+              </div>
             </div>
-          </div>
+
+          <% when 'supplier_issue' %>
+            <!-- Simple refund for supplier issues -->
+            <div class="decision-section final-section">
+              <div class="section-label">Supplier Issue</div>
+              <div class="decision-grid">
+                <%= button_to resolution_dispatcher_refund_path(refund),
+                              method: :patch,
+                              params: { refund_reason: 'Item unavailable from supplier' },
+                              class: "decision-btn refund-option",
+                              confirm: "Process immediate refund? This cannot be undone.",
+                              form: { data: { turbo: true } } do %>
+                  <i class="fas fa-money-bill-wave"></i>
+                  <span class="btn-title">Issue Immediate Refund</span>
+                  <span class="btn-desc">Cannot source from supplier</span>
+                <% end %>
+              </div>
+            </div>
+
+          <% when 'shipping_delay' %>
+            <!-- Agent already contacted customer, dispatcher processes result -->
+            <div class="decision-section">
+              <div class="section-label">Shipping Delay Resolution</div>
+              <div class="decision-grid">
+                <%= button_to resolution_accept_delay_path(refund),
+                              method: :patch,
+                              params: { delay_days: 5 },
+                              class: "decision-btn accept-delay",
+                              confirm: "Customer accepts delay? Order will proceed with extended timeline.",
+                              form: { data: { turbo: true } } do %>
+                  <i class="fas fa-check"></i>
+                  <span class="btn-title">Customer Accepts Delay</span>
+                  <span class="btn-desc">Proceed with extended timeline</span>
+                <% end %>
+                
+                <%= button_to resolution_dispatcher_refund_path(refund),
+                              method: :patch,
+                              params: { refund_reason: 'Customer declined shipping delay' },
+                              class: "decision-btn refund-option",
+                              confirm: "Customer wants refund instead of delay?",
+                              form: { data: { turbo: true } } do %>
+                  <i class="fas fa-money-bill-wave"></i>
+                  <span class="btn-title">Customer Wants Refund</span>
+                  <span class="btn-desc">Customer declined delay</span>
+                <% end %>
+              </div>
+            </div>
+
+          <% when 'item_not_found' %>
+            <!-- Sourcing decisions for unavailable items -->
+            <div class="decision-section">
+              <div class="section-label">Item Sourcing Options</div>
+              <div class="decision-grid">
+                <%= button_to resolution_accept_delay_path(refund),
+                              method: :patch,
+                              params: { delay_days: 7 },
+                              class: "decision-btn accept-delay",
+                              confirm: "Source with delay? Customer will be contacted about extended timeline.",
+                              form: { data: { turbo: true } } do %>
+                  <i class="fas fa-clock"></i>
+                  <span class="btn-title">Source with Delay</span>
+                  <span class="btn-desc">Found item, requires 7+ days</span>
+                <% end %>
+                
+                <%= button_to resolution_request_price_increase_path(refund),
+                              method: :patch,
+                              params: { additional_amount: 50 },
+                              class: "decision-btn price-increase",
+                              confirm: "Request price increase? Customer will be contacted about additional cost.",
+                              form: { data: { turbo: true } } do %>
+                  <i class="fas fa-dollar-sign"></i>
+                  <span class="btn-title">Source at Higher Cost</span>
+                  <span class="btn-desc">Item costs more than original</span>
+                <% end %>
+                
+                <%= button_to resolution_send_compatible_alternative_path(refund),
+                              method: :patch,
+                              params: { alternative_part_name: 'Compatible upgrade' },
+                              class: "decision-btn compatible-alternative",
+                              confirm: "Send compatible alternative? Customer gets upgraded part at same price.",
+                              form: { data: { turbo: true } } do %>
+                  <i class="fas fa-exchange-alt"></i>
+                  <span class="btn-title">Compatible Alternative</span>
+                  <span class="btn-desc">Send upgraded/substitute part</span>
+                <% end %>
+                
+                <%= button_to resolution_dispatcher_refund_path(refund),
+                              method: :patch,
+                              params: { refund_reason: 'Item not economical to source' },
+                              class: "decision-btn refund-option",
+                              confirm: "Process immediate refund? This cannot be undone.",
+                              form: { data: { turbo: true } } do %>
+                  <i class="fas fa-money-bill-wave"></i>
+                  <span class="btn-title">Immediate Refund</span>
+                  <span class="btn-desc">Cannot source economically</span>
+                <% end %>
+              </div>
+            </div>
+
+          <% else %>
+            <!-- Fallback for other reasons -->
+            <div class="decision-section final-section">
+              <div class="section-label">General Resolution</div>
+              <div class="decision-grid">
+                <%= button_to resolution_dispatcher_refund_path(refund),
+                              method: :patch,
+                              params: { refund_reason: 'General resolution' },
+                              class: "decision-btn refund-option",
+                              confirm: "Process immediate refund? This cannot be undone.",
+                              form: { data: { turbo: true } } do %>
+                  <i class="fas fa-money-bill-wave"></i>
+                  <span class="btn-title">Issue Immediate Refund</span>
+                  <span class="btn-desc">Process standard refund</span>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
         </div>
       </div>
       
@@ -342,6 +431,29 @@
     </div>
     
     <div class="footer-actions">
+      <!-- Stage Toggle Buttons -->
+      <div class="stage-toggle-buttons">
+        <% if refund.resolution_stage == 'pending_dispatch_decision' %>
+          <%= button_to resolution_move_to_agent_review_path(refund),
+                        method: :patch,
+                        class: "toggle-btn agent-toggle",
+                        title: "Move to Agent Review",
+                        form: { data: { turbo: true } } do %>
+            <i class="fas fa-phone"></i>
+            <span>→ Agent</span>
+          <% end %>
+        <% elsif refund.resolution_stage == 'pending_customer_clarification' %>
+          <%= button_to resolution_move_to_dispatcher_review_path(refund),
+                        method: :patch,
+                        class: "toggle-btn dispatcher-toggle",
+                        title: "Move to Dispatcher Review",
+                        form: { data: { turbo: true } } do %>
+            <i class="fas fa-clipboard-check"></i>
+            <span>→ Dispatcher</span>
+          <% end %>
+        <% end %>
+      </div>
+      
       <button class="footer-btn" onclick="openResolutionHub(<%= refund.id %>, '<%= refund.resolution_stage %>')">
         <i class="fas fa-comments"></i>
         Open Chat

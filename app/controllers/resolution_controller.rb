@@ -183,6 +183,32 @@ class ResolutionController < ApplicationController
     render_quick_action_response
   end
 
+  def move_to_agent_review
+    @refund = Refund.find(params[:id])
+    @refund.update!(resolution_stage: 'pending_customer_clarification')
+    
+    @refund.create_activity(
+      action: 'moved_to_agent_review',
+      details: 'Case moved to Agent Review for customer communication',
+      user: Current.user
+    )
+    
+    render_quick_action_response
+  end
+
+  def move_to_dispatcher_review
+    @refund = Refund.find(params[:id])
+    @refund.update!(resolution_stage: 'pending_dispatch_decision')
+    
+    @refund.create_activity(
+      action: 'moved_to_dispatcher_review', 
+      details: 'Case moved to Dispatcher Review for business decision',
+      user: Current.user
+    )
+    
+    render_quick_action_response
+  end
+
   def request_info
     @refund = Refund.find(params[:id])
     # Add system note about requesting more info

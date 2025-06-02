@@ -27,9 +27,8 @@
             <%= select_tag :stage, 
                           options_for_select([
                             ['All Stages', ''],
-                            ['Agent Clarification', 'pending_customer_clarification'],
-                            ['Dispatcher Decision', 'pending_dispatch_decision'],
-                            ['Customer Approval', 'pending_customer_approval']
+                            ['Agent Review', 'pending_customer_clarification'],
+                            ['Dispatcher Review', 'pending_dispatch_decision']
                           ], params[:stage]), 
                           class: "filter-select" %>
             
@@ -71,7 +70,7 @@
           <div class="resolution-queue" id="resolution-queue">
             <% if @pending_queue.any? %>
               <% @pending_queue.each do |refund| %>
-                <%= render 'resolution_queue_item', refund: refund %>
+                <%= render 'simplified_resolution_item', refund: refund %>
               <% end %>
             <% else %>
               <div class="empty-state">
@@ -300,13 +299,6 @@
           { label: 'Approve Refund', action: 'approve_refund', variant: 'warning' }
         ];
         break;
-      case 'pending_customer_approval':
-        actions = [
-          { label: 'Customer Approved', action: 'customer_approved', variant: 'success' },
-          { label: 'Customer Declined', action: 'customer_declined', variant: 'danger' },
-          { label: 'Follow Up', action: 'follow_up', variant: 'info' }
-        ];
-        break;
       default:
         actions = [];
     }
@@ -330,7 +322,7 @@
   }
 
   function updateHubProgress(stage) {
-    const stages = ['pending_customer_clarification', 'pending_dispatch_decision', 'pending_customer_approval', 'resolution_completed'];
+    const stages = ['pending_customer_clarification', 'pending_dispatch_decision', 'resolution_completed'];
     const currentIndex = stages.indexOf(stage);
     const progress = ((currentIndex + 1) / stages.length) * 100;
     

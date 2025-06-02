@@ -71,6 +71,10 @@ Rails.application.routes.draw do
   patch "resolution/:id/mark_clarified", to: "resolution#mark_clarified", as: :resolution_mark_clarified
   patch "resolution/:id/request_info", to: "resolution#request_info", as: :resolution_request_info
   patch "resolution/:id/escalate", to: "resolution#escalate", as: :resolution_escalate
+  
+  # Stage Toggle routes
+  patch "resolution/:id/move_to_agent_review", to: "resolution#move_to_agent_review", as: :resolution_move_to_agent_review
+  patch "resolution/:id/move_to_dispatcher_review", to: "resolution#move_to_dispatcher_review", as: :resolution_move_to_dispatcher_review
   patch "resolution/:id/approve_retry", to: "resolution#approve_retry", as: :resolution_approve_retry
   patch "resolution/:id/suggest_alternative", to: "resolution#suggest_alternative", as: :resolution_suggest_alternative
   patch "resolution/:id/approve_refund", to: "resolution#approve_refund", as: :resolution_approve_refund

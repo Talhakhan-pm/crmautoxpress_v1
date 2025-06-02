@@ -65,14 +65,33 @@
       <%= render 'agent_clarification_section', refund: refund %>
     <% when 'pending_dispatch_decision' %>
       <%= render 'dispatcher_decision_section', refund: refund %>
-    <% when 'pending_customer_approval' %>
-      <%= render 'customer_approval_section', refund: refund %>
     <% when 'resolution_completed' %>
       <%= render 'resolution_completed_section', refund: refund %>
     <% end %>
   </div>
 
   <div class="resolution-actions">
+    <!-- Stage Toggle Buttons -->
+    <div class="stage-toggle-buttons">
+      <% if refund.resolution_stage == 'pending_dispatch_decision' %>
+        <%= button_to resolution_move_to_agent_review_path(refund),
+                      method: :patch,
+                      class: "btn btn-sm btn-warning",
+                      title: "Move to Agent Review",
+                      form: { data: { turbo: true } } do %>
+          <i class="fas fa-phone"></i> → Agent Review
+        <% end %>
+      <% elsif refund.resolution_stage == 'pending_customer_clarification' %>
+        <%= button_to resolution_move_to_dispatcher_review_path(refund),
+                      method: :patch,
+                      class: "btn btn-sm btn-info",
+                      title: "Move to Dispatcher Review",
+                      form: { data: { turbo: true } } do %>
+          <i class="fas fa-clipboard-check"></i> → Dispatcher Review
+        <% end %>
+      <% end %>
+    </div>
+    
     <div class="secondary-actions">
       <%= link_to refund_path(refund), class: "btn btn-outline-primary" do %>
         <i class="fas fa-eye"></i> View Details

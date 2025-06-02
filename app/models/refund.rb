@@ -715,10 +715,20 @@ class Refund < ApplicationRecord
     self.priority ||= 'standard'
     self.estimated_processing_days ||= 7
     
-    # Set initial stage based on refund reason (override enum default)
-    # Dropdown reasons go straight to dispatch decision since reason is already provided
-    if ['wrong_product', 'defective_product', 'quality_issues', 'customer_changed_mind'].include?(self.refund_reason)
-      # Dropdown selections go to dispatcher with reason already provided
+    # Set initial stage based on refund reason and workflow logic
+    case self.refund_reason
+    when 'shipping_delay', 'item_not_found'
+      # Agent needs to contact customer about delays/price changes
+      self.refund_stage = 'pending_resolution'
+      self.resolution_stage = 'pending_customer_clarification'
+      self.return_status = 'no_return_required'
+    when 'supplier_issue', 'customer_changed_mind'
+      # Dispatcher makes business decision for immediate refund
+      self.refund_stage = 'pending_resolution'
+      self.resolution_stage = 'pending_dispatch_decision'
+      self.return_status = 'no_return_required'
+    when 'wrong_product', 'defective_product', 'quality_issues'
+      # Dispatcher decides on return/replace options
       self.refund_stage = 'pending_resolution'
       self.resolution_stage = 'pending_dispatch_decision'
       self.return_status = 'return_requested'
