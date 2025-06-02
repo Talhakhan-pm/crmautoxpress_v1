@@ -797,20 +797,40 @@
     gap: 20px;
     
     &.returns-flow .flow-stream {
-      background: linear-gradient(135deg, #fef3c7 0%, #f59e0b 100%);
-      border: 2px solid #f59e0b;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
       
-      .stream-header .stream-title {
-        color: #92400e;
+      .stream-header {
+        background: #fafafa;
+        border-bottom: 1px solid #f3f4f6;
+        
+        .stream-title {
+          color: #374151;
+          
+          i {
+            color: #f59e0b;
+          }
+        }
       }
     }
     
     &.replacements-flow .flow-stream {
-      background: linear-gradient(135deg, #dbeafe 0%, #3b82f6 100%);
-      border: 2px solid #3b82f6;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
       
-      .stream-header .stream-title {
-        color: #1e40af;
+      .stream-header {
+        background: #fafafa;
+        border-bottom: 1px solid #f3f4f6;
+        
+        .stream-title {
+          color: #374151;
+          
+          i {
+            color: #3b82f6;
+          }
+        }
       }
     }
   }
@@ -818,18 +838,19 @@
 
 .return-flow-card,
 .replacement-flow-card {
-  background: rgba(255, 255, 255, 0.95);
+  background: #ffffff;
   border-radius: 12px;
   padding: 16px;
   margin-bottom: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-color: #d1d5db;
   }
 }
 
@@ -1001,42 +1022,101 @@
   justify-content: center;
   margin-bottom: 8px;
   
+  // Modern minimalistic button style specifically for dispatch return/replacement actions
   .quick-action-btn {
-    background: #3b82f6;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    transition: background 0.2s ease;
+    background: #ffffff !important;
+    color: #374151 !important;
+    border: 1px solid #e5e7eb !important;
+    padding: 10px 16px !important;
+    border-radius: 8px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    transition: all 0.2s ease !important;
+    text-decoration: none !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+    white-space: nowrap !important;
+    min-width: auto !important;
+    width: auto !important;
+    height: auto !important;
+    line-height: 1.4 !important;
     
     &:hover {
-      background: #2563eb;
+      background: #f9fafb !important;
+      border-color: #d1d5db !important;
+      transform: translateY(-1px) !important;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    &:active {
+      transform: translateY(0) !important;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+    }
+    
+    i {
+      font-size: 12px !important;
+      opacity: 0.8 !important;
+      flex-shrink: 0 !important;
     }
     
     &.authorize {
-      background: #10b981;
-      &:hover { background: #059669; }
+      color: #059669 !important;
+      border-color: #d1fae5 !important;
+      
+      &:hover { 
+        background: #ecfdf5 !important;
+        border-color: #a7f3d0 !important;
+      }
+      
+      i {
+        color: #10b981 !important;
+      }
     }
     
     &.generate-label {
-      background: #f59e0b;
-      &:hover { background: #d97706; }
+      color: #d97706 !important;
+      border-color: #fef3c7 !important;
+      
+      &:hover { 
+        background: #fffbeb !important;
+        border-color: #fde68a !important;
+      }
+      
+      i {
+        color: #f59e0b !important;
+      }
     }
     
     &.track {
-      background: #8b5cf6;
-      &:hover { background: #7c3aed; }
+      color: #7c3aed !important;
+      border-color: #ede9fe !important;
+      
+      &:hover { 
+        background: #faf7ff !important;
+        border-color: #ddd6fe !important;
+      }
+      
+      i {
+        color: #8b5cf6 !important;
+      }
     }
     
     &.receive {
-      background: #06b6d4;
-      &:hover { background: #0891b2; }
+      color: #0891b2 !important;
+      border-color: #cffafe !important;
+      
+      &:hover { 
+        background: #f0fdff !important;
+        border-color: #a5f3fc !important;
+      }
+      
+      i {
+        color: #06b6d4 !important;
+      }
     }
   }
   
