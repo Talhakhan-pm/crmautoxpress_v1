@@ -162,6 +162,7 @@ class DispatchesController < ApplicationController
           turbo_stream.replace("main_content", template: "dispatches/index")
         ]
       }
+      format.json { render json: { success: true, message: 'Dispatch was successfully updated.' } }
     end
     
   rescue ActiveRecord::RecordInvalid => e
@@ -169,6 +170,7 @@ class DispatchesController < ApplicationController
     respond_to do |format|
       format.html { render :edit, status: :unprocessable_entity }
       format.turbo_stream { render :edit, status: :unprocessable_entity }
+      format.json { render json: { success: false, message: e.message }, status: :unprocessable_entity }
     end
   end
 

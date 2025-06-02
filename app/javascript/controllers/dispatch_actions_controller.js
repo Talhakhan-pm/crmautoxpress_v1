@@ -326,20 +326,26 @@ export default class extends Controller {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'text/vnd.turbo-stream.html',
           'X-CSRF-Token': this.getCSRFToken()
         },
         body: JSON.stringify({ 
           dispatch: { 
             dispatch_status: 'shipped',
             tracking_number: trackingNumber,
-            shipment_status: 'shipped'
+            shipment_status: 'in_transit'
           }
         })
       })
 
       if (response.ok) {
+        const contentType = response.headers.get('content-type')
+        if (contentType && contentType.includes('turbo-stream')) {
+          // Handle Turbo stream response
+          const turboStreamHtml = await response.text()
+          Turbo.renderStreamMessage(turboStreamHtml)
+        }
         this.showSuccess('Replacement marked as shipped!')
-        this.refreshView()
       } else {
         this.showError('Failed to update shipment status')
       }
