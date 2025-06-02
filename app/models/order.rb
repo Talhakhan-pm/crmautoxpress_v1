@@ -96,6 +96,11 @@ class Order < ApplicationRecord
       return 'warning'
     end
     
+    # Check for replacement status
+    if has_replacement_order?
+      return 'info'
+    end
+    
     case order_status
     when 'pending' then 'warning'
     when 'confirmed' then 'info'
@@ -113,6 +118,11 @@ class Order < ApplicationRecord
     # Show pending resolution status if applicable
     if has_pending_refund_resolution?
       return 'Pending Resolution'
+    end
+    
+    # Show replacement status if applicable
+    if has_replacement_order?
+      return 'Replaced'
     end
     
     # Otherwise show normal status
