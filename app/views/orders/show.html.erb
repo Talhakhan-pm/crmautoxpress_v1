@@ -247,33 +247,86 @@
           </div>
         </div>
 
-        <!-- Additional Information Section -->
-        <% if @order.comments.present? || @order.internal_notes.present? || @order.warranty_terms.present? %>
+        <!-- Unified Notes Section -->
+        <% 
+          has_order_notes = @order.comments.present? || @order.internal_notes.present? || @order.warranty_terms.present?
+          has_dispatch_notes = @order.dispatch.present? && @order.dispatch.internal_notes.present?
+          has_refund_notes = @order.refund.present? && (@order.refund.agent_notes.present? || @order.refund.dispatcher_notes.present? || @order.refund.return_notes.present?)
+        %>
+        <% if has_order_notes || has_dispatch_notes || has_refund_notes %>
           <div class="unified-form-section">
             <div class="unified-section-header">
               <h3 class="section-title">
                 <i class="fas fa-sticky-note"></i>
-                Additional Information
+                Notes & Information
               </h3>
             </div>
             <div class="notes-container">
+              <!-- Order Notes -->
               <% if @order.comments.present? %>
                 <div class="form-group mb-3">
-                  <label class="form-label fw-semibold text-uppercase small text-muted">Customer Comments</label>
+                  <label class="form-label fw-semibold text-uppercase small text-muted">
+                    <i class="fas fa-shopping-cart me-1"></i>Order - Customer Comments
+                  </label>
                   <div class="p-3 bg-light border-start border-3 border-secondary rounded"><%= @order.comments %></div>
                 </div>
               <% end %>
               
               <% if @order.internal_notes.present? %>
                 <div class="form-group mb-3">
-                  <label class="form-label fw-semibold text-uppercase small text-muted">Internal Notes</label>
+                  <label class="form-label fw-semibold text-uppercase small text-muted">
+                    <i class="fas fa-shopping-cart me-1"></i>Order - Internal Notes
+                  </label>
                   <div class="p-3 bg-warning bg-opacity-10 border-start border-3 border-warning rounded"><%= @order.internal_notes %></div>
                 </div>
               <% end %>
               
+              <!-- Dispatch Notes -->
+              <% if @order.dispatch.present? && @order.dispatch.internal_notes.present? %>
+                <div class="form-group mb-3">
+                  <label class="form-label fw-semibold text-uppercase small text-muted">
+                    <i class="fas fa-truck me-1"></i>Dispatch - Internal Notes
+                  </label>
+                  <div class="p-3 bg-info bg-opacity-10 border-start border-3 border-info rounded"><%= @order.dispatch.internal_notes %></div>
+                </div>
+              <% end %>
+              
+              <!-- Refund Notes -->
+              <% if @order.refund.present? %>
+                <% if @order.refund.agent_notes.present? %>
+                  <div class="form-group mb-3">
+                    <label class="form-label fw-semibold text-uppercase small text-muted">
+                      <i class="fas fa-undo me-1"></i>Refund - Agent Notes
+                    </label>
+                    <div class="p-3 bg-danger bg-opacity-10 border-start border-3 border-danger rounded"><%= @order.refund.agent_notes %></div>
+                  </div>
+                <% end %>
+                
+                <% if @order.refund.dispatcher_notes.present? %>
+                  <div class="form-group mb-3">
+                    <label class="form-label fw-semibold text-uppercase small text-muted">
+                      <i class="fas fa-undo me-1"></i>Refund - Dispatcher Notes
+                    </label>
+                    <div class="p-3 bg-danger bg-opacity-10 border-start border-3 border-danger rounded"><%= @order.refund.dispatcher_notes %></div>
+                  </div>
+                <% end %>
+                
+                <% if @order.refund.return_notes.present? %>
+                  <div class="form-group mb-3">
+                    <label class="form-label fw-semibold text-uppercase small text-muted">
+                      <i class="fas fa-undo me-1"></i>Refund - Return Notes
+                    </label>
+                    <div class="p-3 bg-danger bg-opacity-10 border-start border-3 border-danger rounded"><%= @order.refund.return_notes %></div>
+                  </div>
+                <% end %>
+              <% end %>
+              
+              <!-- Warranty Terms -->
               <% if @order.warranty_terms.present? %>
                 <div class="form-group mb-3">
-                  <label class="form-label fw-semibold text-uppercase small text-muted">Warranty Terms</label>
+                  <label class="form-label fw-semibold text-uppercase small text-muted">
+                    <i class="fas fa-shield-alt me-1"></i>Warranty Terms
+                  </label>
                   <div class="p-3 bg-primary bg-opacity-10 border-start border-3 border-primary rounded"><%= @order.warranty_terms %></div>
                 </div>
               <% end %>

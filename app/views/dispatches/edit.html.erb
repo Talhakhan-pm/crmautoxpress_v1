@@ -539,27 +539,19 @@
                 <div class="unified-form-section">
                   <div class="unified-section-header">
                     <h3 class="section-title">
-                      <i class="fas fa-comments"></i>
-                      Communication & Notes
+                      <i class="fas fa-sticky-note"></i>
+                      Internal Notes
                     </h3>
                   </div>
                   
                   <div class="unified-form-grid">
                     <div class="unified-form-group full-width">
-                      <%= f.label :comments, "Customer-Facing Comments", class: "form-label" %>
-                      <%= f.text_area :comments, 
-                          rows: 3, 
-                          class: "form-input", 
-                          placeholder: "Status updates and messages that customers can see..." %>
-                      <small class="form-help">These comments may be shared with the customer in status updates.</small>
-                    </div>
-                    <div class="unified-form-group full-width">
                       <%= f.label :internal_notes, "Internal Team Notes", class: "form-label" %>
                       <%= f.text_area :internal_notes, 
-                          rows: 3, 
+                          rows: 4, 
                           class: "form-input", 
-                          placeholder: "Internal notes, supplier communications, special instructions..." %>
-                      <small class="form-help">Private notes visible only to your team.</small>
+                          placeholder: "Internal notes, supplier communications, special instructions, dispatch status updates..." %>
+                      <small class="form-help">Private notes visible only to your team. Use this for supplier communications, quality checks, shipping updates, and internal coordination.</small>
                     </div>
                   </div>
                 </div>

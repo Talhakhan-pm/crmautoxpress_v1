@@ -626,7 +626,8 @@ orders.select { |o| %w[shipped delivered].include?(o.order_status) }.each do |or
       tracking_link: order.tracking_number ? "https://ups.com/track/#{order.tracking_number}" : nil,
       shipment_status: order.order_status == "delivered" ? "delivered" : "in_transit",
       dispatch_status: order.order_status == "delivered" ? "completed" : "shipped",
-      comments: "Standard shipping processing"
+      comments: "Package shipped with tracking confirmation sent to customer",
+      internal_notes: "Supplier delivered on time. Quality check passed."
     )
     
     # Update timestamps to match order
