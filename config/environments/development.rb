@@ -13,6 +13,9 @@ Rails.application.configure do
 
   # Show full error reports.
   config.consider_all_requests_local = true
+  
+  # Allow all hosts for Railway deployment
+  config.hosts.clear
 
   # Enable server timing
   config.server_timing = true
