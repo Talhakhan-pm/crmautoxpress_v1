@@ -265,5 +265,269 @@
       </div>
     </div>
   </div>
+
+  <!-- Detailed Resolution History -->
+  <div class="sla-resolution-history-section">
+    <div class="sla-resolution-card">
+      <div class="sla-card-header">
+        <h3 class="sla-card-title">
+          <i class="fas fa-history"></i>
+          Resolution History & Outcomes
+        </h3>
+        <div class="sla-card-filters">
+          <select id="resolution-filter" class="form-select form-select-sm">
+            <option value="">All Resolutions</option>
+            <option value="authorize_return_and_refund">Return + Refund</option>
+            <option value="authorize_return_and_replacement">Return + Replacement</option>
+            <option value="issue_refund">Immediate Refund</option>
+            <option value="delay_approved">Delay Approved</option>
+            <option value="price_increase_approved">Price Increase</option>
+            <option value="compatible_alternative_approved">Alternative Part</option>
+            <option value="auto_resolved">Auto-Resolved</option>
+          </select>
+        </div>
+      </div>
+      <div class="sla-card-body">
+        <% 
+          # Get completed resolutions with detailed information
+          completed_resolutions = Refund.where(resolution_stage: 'resolution_completed')
+                                        .where(created_at: 30.days.ago..Time.current)
+                                        .includes(:order, :processing_agent, :activities)
+                                        .order(updated_at: :desc)
+                                        .limit(50)
+        %>
+        
+        <% if completed_resolutions.any? %>
+          <div class="resolution-timeline">
+            <% completed_resolutions.each do |refund| %>
+              <div class="resolution-entry" data-resolution="<%= refund.dispatcher_decision %>">
+                <div class="resolution-header">
+                  <div class="resolution-identity">
+                    <div class="resolution-refund-info">
+                      <h5 class="resolution-refund-number">
+                        <%= link_to refund.refund_number, refund_path(refund), class: "resolution-link" %>
+                        <span class="resolution-order">Order: <%= refund.order.order_number %></span>
+                      </h5>
+                      <div class="resolution-customer">
+                        <i class="fas fa-user"></i>
+                        <%= refund.customer_name %> • $<%= number_with_precision(refund.refund_amount, precision: 2) %>
+                      </div>
+                    </div>
+                    
+                    <div class="resolution-timeline-info">
+                      <div class="resolution-dates">
+                        <div class="resolution-date-item">
+                          <span class="date-label">Created:</span>
+                          <span class="date-value"><%= refund.created_at.strftime("%b %d, %I:%M %p") %></span>
+                        </div>
+                        <div class="resolution-date-item">
+                          <span class="date-label">Resolved:</span>
+                          <span class="date-value"><%= refund.updated_at.strftime("%b %d, %I:%M %p") %></span>
+                        </div>
+                        <div class="resolution-date-item resolution-duration">
+                          <span class="date-label">Duration:</span>
+                          <span class="date-value">
+                            <%= distance_of_time_in_words(refund.created_at, refund.updated_at) %>
+                            <% if refund.processing_time_hours.present? %>
+                              (<%= number_with_precision(refund.processing_time_hours, precision: 1) %>h)
+                            <% end %>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="resolution-outcome">
+                    <% 
+                      outcome_config = case refund.dispatcher_decision
+                      when 'authorize_return_and_refund'
+                        { icon: 'undo', color: 'info', label: 'Return + Refund' }
+                      when 'authorize_return_and_replacement'
+                        { icon: 'sync-alt', color: 'primary', label: 'Return + Replace' }
+                      when 'issue_refund'
+                        { icon: 'money-bill-wave', color: 'success', label: 'Immediate Refund' }
+                      when 'delay_approved'
+                        { icon: 'clock', color: 'warning', label: 'Delay Approved' }
+                      when 'price_increase_approved'
+                        { icon: 'dollar-sign', color: 'warning', label: 'Price Increase' }
+                      when 'compatible_alternative_approved'
+                        { icon: 'exchange-alt', color: 'info', label: 'Alternative Part' }
+                      when 'auto_resolved'
+                        { icon: 'magic', color: 'secondary', label: 'Auto-Resolved' }
+                      else
+                        { icon: 'check', color: 'success', label: 'Resolved' }
+                      end
+                    %>
+                    <div class="outcome-badge outcome-<%= outcome_config[:color] %>">
+                      <i class="fas fa-<%= outcome_config[:icon] %>"></i>
+                      <span><%= outcome_config[:label] %></span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="resolution-details">
+                  <div class="resolution-reason">
+                    <strong>Issue:</strong> <%= refund.refund_reason.humanize %>
+                    <% if refund.order.dispatch&.cancelled? %>
+                      <span class="reason-context">(Triggered by dispatch cancellation)</span>
+                    <% end %>
+                  </div>
+
+                  <!-- Resolution Actions Taken -->
+                  <div class="resolution-actions-taken">
+                    <% case refund.dispatcher_decision %>
+                    <% when 'authorize_return_and_refund' %>
+                      <div class="action-summary action-return-refund">
+                        <i class="fas fa-undo"></i>
+                        <span>Customer authorized to return item for <strong>$<%= refund.refund_amount %></strong> refund</span>
+                        <% if refund.return_authorized_at.present? %>
+                          <small class="action-date">Authorized: <%= refund.return_authorized_at.strftime("%b %d, %I:%M %p") %></small>
+                        <% end %>
+                      </div>
+                      
+                    <% when 'authorize_return_and_replacement' %>
+                      <div class="action-summary action-return-replace">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Return authorized with replacement order 
+                          <% if refund.replacement_order_number.present? %>
+                            <strong><%= refund.replacement_order_number %></strong>
+                          <% end %>
+                        </span>
+                        <% if refund.return_authorized_at.present? %>
+                          <small class="action-date">Authorized: <%= refund.return_authorized_at.strftime("%b %d, %I:%M %p") %></small>
+                        <% end %>
+                      </div>
+                      
+                    <% when 'issue_refund' %>
+                      <div class="action-summary action-immediate-refund">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span>Immediate refund of <strong>$<%= refund.refund_amount %></strong> processed</span>
+                      </div>
+                      
+                    <% when 'delay_approved' %>
+                      <div class="action-summary action-delay">
+                        <i class="fas fa-clock"></i>
+                        <span>Customer accepted 
+                          <%= refund.delay_duration.present? ? "#{refund.delay_duration}-day" : "" %> delay
+                        </span>
+                      </div>
+                      
+                    <% when 'price_increase_approved' %>
+                      <div class="action-summary action-price-increase">
+                        <i class="fas fa-dollar-sign"></i>
+                        <span>Customer agreed to pay additional 
+                          <strong>$<%= refund.additional_cost %></strong>
+                        </span>
+                      </div>
+                      
+                    <% when 'compatible_alternative_approved' %>
+                      <div class="action-summary action-alternative">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>Compatible alternative approved: 
+                          <strong><%= refund.alternative_part_name %></strong>
+                        </span>
+                      </div>
+                    <% end %>
+                  </div>
+
+                  <!-- Participants & Notes -->
+                  <div class="resolution-participants">
+                    <div class="participants-row">
+                      <% if refund.processing_agent.present? %>
+                        <div class="participant">
+                          <i class="fas fa-user-tie"></i>
+                          <span class="participant-role">Agent:</span>
+                          <span class="participant-name"><%= refund.processing_agent.email.split('@').first.humanize %></span>
+                        </div>
+                      <% end %>
+                      
+                      <% if refund.dispatcher_notes.present? || refund.agent_notes.present? %>
+                        <div class="participant">
+                          <i class="fas fa-clipboard-check"></i>
+                          <span class="participant-role">Dispatcher:</span>
+                          <span class="participant-name">Decision Made</span>
+                        </div>
+                      <% end %>
+                      
+                      <div class="resolution-sla-performance">
+                        <span class="sla-performance-label">SLA Performance:</span>
+                        <span class="sla-performance-score score-<%= refund.sla_performance_score >= 90 ? 'excellent' : refund.sla_performance_score >= 70 ? 'good' : 'poor' %>">
+                          <%= refund.sla_performance_score %>%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Notes (Expandable) -->
+                  <% if refund.dispatcher_notes.present? || refund.agent_notes.present? %>
+                    <div class="resolution-notes">
+                      <button class="notes-toggle" onclick="toggleNotes(<%= refund.id %>)">
+                        <i class="fas fa-sticky-note"></i>
+                        View Notes & Details
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                      </button>
+                      <div class="notes-content" id="notes-<%= refund.id %>" style="display: none;">
+                        <% if refund.agent_notes.present? %>
+                          <div class="note-section">
+                            <h6><i class="fas fa-phone"></i> Agent Notes:</h6>
+                            <div class="note-text"><%= simple_format(refund.agent_notes) %></div>
+                          </div>
+                        <% end %>
+                        
+                        <% if refund.dispatcher_notes.present? %>
+                          <div class="note-section">
+                            <h6><i class="fas fa-clipboard-check"></i> Dispatcher Notes:</h6>
+                            <div class="note-text"><%= simple_format(refund.dispatcher_notes) %></div>
+                          </div>
+                        <% end %>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="sla-empty-state">
+            <i class="fas fa-history"></i>
+            <h4>No Resolution History</h4>
+            <p>Completed resolutions will appear here with detailed outcomes and timelines.</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
 </div>
+
+<script>
+// Filter resolution history
+document.getElementById('resolution-filter').addEventListener('change', function() {
+  const selectedResolution = this.value;
+  const entries = document.querySelectorAll('.resolution-entry');
+  
+  entries.forEach(entry => {
+    if (!selectedResolution || entry.dataset.resolution === selectedResolution) {
+      entry.style.display = 'block';
+    } else {
+      entry.style.display = 'none';
+    }
+  });
+});
+
+// Toggle notes visibility
+function toggleNotes(refundId) {
+  const notesContent = document.getElementById(`notes-${refundId}`);
+  const toggleIcon = event.target.closest('.notes-toggle').querySelector('.toggle-icon');
+  
+  if (notesContent.style.display === 'none') {
+    notesContent.style.display = 'block';
+    toggleIcon.classList.remove('fa-chevron-down');
+    toggleIcon.classList.add('fa-chevron-up');
+  } else {
+    notesContent.style.display = 'none';
+    toggleIcon.classList.remove('fa-chevron-up');
+    toggleIcon.classList.add('fa-chevron-down');
+  }
+}
+</script>
 <% end %>

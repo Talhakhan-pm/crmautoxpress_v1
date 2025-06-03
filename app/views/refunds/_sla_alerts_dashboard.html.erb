@@ -14,9 +14,19 @@
   </div>
 
   <div class="alerts-content" id="sla-alerts-content">
-    <% breached_refunds = Refund.pending.select { |r| r.sla_status == 'breached' } %>
-    <% at_risk_refunds = Refund.pending.select { |r| r.sla_status == 'at_risk' } %>
-    <% urgent_refunds = Refund.pending.where(priority: 'urgent') %>
+    <% 
+      # Debug: Let's see what pending refunds exist
+      all_pending = Refund.pending.includes(:order)
+      Rails.logger.info "=== SLA ALERTS DEBUG ==="
+      Rails.logger.info "Total pending refunds: #{all_pending.count}"
+      all_pending.each do |r|
+        Rails.logger.info "Refund #{r.refund_number} (Order: #{r.order.order_number}) - Stage: #{r.refund_stage}, SLA: #{r.sla_status}, Priority: #{r.priority}"
+      end
+    %>
+    
+    <% breached_refunds = all_pending.select { |r| r.sla_status == 'breached' } %>
+    <% at_risk_refunds = all_pending.select { |r| r.sla_status == 'at_risk' } %>
+    <% urgent_refunds = all_pending.select { |r| r.priority == 'urgent' } %>
 
     <!-- Breached SLA Items -->
     <% if breached_refunds.any? %>
