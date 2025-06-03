@@ -30,6 +30,7 @@
           <% end %>
         </h6>
         <p><%= refund.refund_reason.humanize %> • $<%= number_with_precision(refund.refund_amount, precision: 2) %></p>
+        <small class="text-muted">Created by: <%= current_user&.email || 'System' %></small>
       </div>
     </div>
     
