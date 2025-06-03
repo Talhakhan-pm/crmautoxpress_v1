@@ -907,8 +907,11 @@ class Refund < ApplicationRecord
         user: Current.user
       )
     when 'processing_refund'
-      # When refund is processing, cancel the order since money will be returned
-      order.update!(order_status: 'cancelled') unless order.cancelled?
+      # When refund is processing, update order status appropriately
+      # If item was returned, keep as 'returned', otherwise cancel
+      unless order.returned?
+        order.update!(order_status: 'cancelled') unless order.cancelled?
+      end
       
       # Update dispatch status if exists
       if order.dispatch.present?
