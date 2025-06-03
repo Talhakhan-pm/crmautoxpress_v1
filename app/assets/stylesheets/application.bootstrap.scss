@@ -221,7 +221,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    background: linear-gradient(135deg, var(--color-brand-red) 0%, #b91c1c 100%);
     padding: 20px;
 }
 
@@ -246,7 +246,7 @@
     gap: 12px;
     font-size: 24px;
     font-weight: 700;
-    color: #dc2626;
+    color: var(--color-brand-red);
     margin-bottom: 24px;
 }
 
@@ -289,7 +289,7 @@
 
 .auth-form .form-input:focus {
     outline: none;
-    border-color: #dc2626;
+    border-color: var(--color-brand-red);
     box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
 }
 
@@ -326,7 +326,7 @@
 }
 
 .auth-link {
-    color: #dc2626;
+    color: var(--color-brand-red);
     text-decoration: none;
     font-weight: 500;
     font-size: 14px;
@@ -393,7 +393,7 @@ body {
     left: 20px;
     right: 20px;
     height: 2px;
-    background: linear-gradient(90deg, #dc2626 0%, transparent 100%);
+    background: linear-gradient(90deg, var(--color-brand-red) 0%, transparent 100%);
 }
 
 .logo {
@@ -406,14 +406,14 @@ body {
 }
 
 .logo-accent {
-    color: #dc2626;
+    color: var(--color-brand-red);
     font-weight: 800;
     text-shadow: 0 0 10px rgba(220, 38, 38, 0.3);
 }
 
 .logo i {
     font-size: 24px;
-    color: #dc2626;
+    color: var(--color-brand-red);
     filter: drop-shadow(0 0 8px rgba(220, 38, 38, 0.4));
     animation: pulse 2s infinite;
 }
@@ -463,7 +463,7 @@ body {
 .nav-item:hover {
     background: linear-gradient(90deg, rgba(220, 38, 38, 0.15) 0%, rgba(255, 255, 255, 0.1) 100%);
     color: white;
-    border-left: 3px solid #dc2626;
+    border-left: 3px solid var(--color-brand-red);
     padding-left: 17px;
     transition: all 0.3s ease;
 }
@@ -472,7 +472,7 @@ body {
     background: linear-gradient(90deg, rgba(220, 38, 38, 0.2) 0%, rgba(255, 255, 255, 0.15) 100%);
     color: white;
     font-weight: 500;
-    border-left: 3px solid #dc2626;
+    border-left: 3px solid var(--color-brand-red);
     padding-left: 17px;
     box-shadow: inset 0 0 20px rgba(220, 38, 38, 0.1);
 }
@@ -485,7 +485,7 @@ body {
     transform: translateY(-50%);
     width: 6px;
     height: 6px;
-    background: #dc2626;
+    background: var(--color-brand-red);
     border-radius: 50%;
     box-shadow: 0 0 8px rgba(220, 38, 38, 0.6);
 }
@@ -547,9 +547,9 @@ body {
 
 /* Override Bootstrap's default blue btn-primary */
 .btn-primary {
-    background: #dc2626 !important;
-    background-color: #dc2626 !important;
-    border-color: #dc2626 !important;
+    background: var(--color-brand-red) !important;
+    background-color: var(--color-brand-red) !important;
+    border-color: var(--color-brand-red) !important;
     color: white !important;
 }
 
@@ -607,7 +607,7 @@ body {
 
 .search-box input:focus {
     outline: none;
-    border-color: #dc2626;
+    border-color: var(--color-brand-red);
     background: white;
     box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
 }
@@ -643,8 +643,8 @@ body {
 
 .filter-btn.active {
     background: #fef2f2;
-    border-color: #dc2626;
-    color: #dc2626;
+    border-color: var(--color-brand-red);
+    color: var(--color-brand-red);
 }
 
 /* Table Container */
@@ -711,7 +711,7 @@ body {
 
 .status-not_interested {
     background: #fee2e2;
-    color: #dc2626;
+    color: var(--color-brand-red);
 }
 
 .status-already_purchased {
@@ -862,7 +862,7 @@ body {
 .form-select:focus,
 .form-textarea:focus {
     outline: none;
-    border-color: #dc2626;
+    border-color: var(--color-brand-red);
     box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
 }
 
@@ -935,7 +935,7 @@ body {
     color: #111827;
     margin-bottom: 20px;
     padding-bottom: 8px;
-    border-bottom: 2px solid #dc2626;
+    border-bottom: 2px solid var(--color-brand-red);
     display: inline-block;
 }
 
@@ -1051,8 +1051,8 @@ body {
 }
 
 .tab-item.active {
-    color: #dc2626;
-    border-bottom-color: #dc2626;
+    color: var(--color-brand-red);
+    border-bottom-color: var(--color-brand-red);
 }
 
 .tab-content {
@@ -1105,7 +1105,7 @@ body {
 .metric-value {
     font-size: 24px;
     font-weight: 700;
-    color: #dc2626;
+    color: var(--color-brand-red);
     margin-bottom: 4px;
 }
 
@@ -1156,7 +1156,7 @@ body {
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: #dc2626;
+    background: var(--color-brand-red);
     color: white;
     display: flex;
     align-items: center;
@@ -1194,7 +1194,7 @@ body {
 }
 
 .view-details {
-    color: #dc2626;
+    color: var(--color-brand-red);
     text-decoration: none;
     font-size: 14px;
     font-weight: 500;
@@ -1233,7 +1233,7 @@ body {
 }
 
 .activity-count {
-    background: #dc2626;
+    background: var(--color-brand-red);
     color: white;
     padding: 2px 8px;
     border-radius: 12px;
@@ -1265,8 +1265,8 @@ body {
 
 .filter-chip.active {
     background: #fef2f2;
-    color: #dc2626;
-    border-color: #dc2626;
+    color: var(--color-brand-red);
+    border-color: var(--color-brand-red);
 }
 
 .activity-list {
@@ -1298,7 +1298,7 @@ body {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #dc2626;
+    background: var(--color-brand-red);
 }
 
 .activity-content {
@@ -1356,7 +1356,7 @@ body {
 
 .change-from {
     background: #fee2e2;
-    color: #dc2626;
+    color: var(--color-brand-red);
 }
 
 .change-to {
@@ -1375,7 +1375,7 @@ body {
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: #dc2626;
+    background: var(--color-brand-red);
     color: white;
     display: flex;
     align-items: center;
@@ -1452,7 +1452,7 @@ body {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    background: linear-gradient(135deg, var(--color-brand-red) 0%, #b91c1c 100%);
     color: white;
     display: flex;
     align-items: center;
@@ -1584,7 +1584,7 @@ body {
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    background: linear-gradient(135deg, var(--color-brand-red) 0%, #b91c1c 100%);
     color: white;
     display: flex;
     align-items: center;
@@ -1770,7 +1770,7 @@ body {
 
 .change-from {
     background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-    color: #dc2626;
+    color: var(--color-brand-red);
     padding: 3px 8px;
     border-radius: 6px;
     font-size: 12px;
@@ -1795,7 +1795,7 @@ body {
 
     &.status-not_interested {
         background: linear-gradient(135deg, #fee2e2, #fecaca);
-        color: #dc2626;
+        color: var(--color-brand-red);
         border-color: #fecaca;
     }
 
@@ -1833,7 +1833,7 @@ body {
 
     &.status-not_interested {
         background: linear-gradient(135deg, #fee2e2, #fecaca);
-        color: #dc2626;
+        color: var(--color-brand-red);
         border: 1px solid #fecaca;
     }
 
@@ -1956,7 +1956,7 @@ body {
 .field .form-select:focus,
 .field .form-textarea:focus {
     outline: none;
-    border-color: #dc2626;
+    border-color: var(--color-brand-red);
     box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
 }
 

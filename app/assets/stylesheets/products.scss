@@ -24,8 +24,8 @@
   }
   
   &.active {
-    color: #dc2626;
-    border-bottom-color: #dc2626;
+    color: var(--color-brand-red);
+    border-bottom-color: var(--color-brand-red);
     font-weight: 500;
   }
   
@@ -40,7 +40,7 @@
   }
   
   &.active .count-badge {
-    background: #dc2626;
+    background: var(--color-brand-red);
     color: white;
   }
 }
@@ -96,7 +96,7 @@
   font-size: 12px;
   font-weight: 500;
   
-  &.category-engine { background: #dc2626; }
+  &.category-engine { background: var(--color-brand-red); }
   &.category-brakes { background: #ea580c; }
   &.category-suspension { background: #d97706; }
   &.category-electrical { background: #ca8a04; }
@@ -109,7 +109,7 @@
 
 /* Price and Margin */
 .price-cost {
-  color: #dc2626;
+  color: var(--color-brand-red);
   font-weight: 600;
 }
 
@@ -156,6 +156,6 @@
 }
 
 .badge-out_of_stock {
-  background: #dc2626;
+  background: var(--color-brand-red);
   color: white;
 }

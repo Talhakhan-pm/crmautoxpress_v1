@@ -20,7 +20,7 @@
 
 .status-not_interested {
   background: #fee2e2;
-  color: #dc2626;
+  color: var(--color-brand-red);
 }
 
 .status-already_purchased {
@@ -104,7 +104,7 @@
 }
 
 .status-dot.status-cancelled {
-  background: #dc2626;
+  background: var(--color-brand-red);
 }
 
 .status-dot.status-in_progress {
@@ -130,7 +130,7 @@
 
 .rescue-outcome-lost {
   background: #fee2e2;
-  color: #dc2626;
+  color: var(--color-brand-red);
 }
 
 /* === REVENUE BADGES === */
@@ -166,7 +166,7 @@
 
 .outcome-danger {
   background: #fee2e2;
-  color: #dc2626;
+  color: var(--color-brand-red);
 }
 
 .outcome-secondary {
@@ -182,7 +182,7 @@
 /* === PRIORITY BADGES === */
 .priority-urgent {
   background: #fee2e2;
-  color: #dc2626;
+  color: var(--color-brand-red);
   padding: 4px 8px;
   border-radius: 12px;
   font-size: 11px;

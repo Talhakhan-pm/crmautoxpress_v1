@@ -320,7 +320,7 @@
   }
   
   &.percentage-minimal {
-    color: #dc2626;
+    color: var(--color-brand-red);
   }
   
   &.percentage-bounce {
@@ -350,7 +350,7 @@
   }
   
   &.fill-minimal {
-    background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+    background: linear-gradient(90deg, #ef4444 0%, var(--color-brand-red) 100%);
   }
 }
 
@@ -420,12 +420,12 @@
 }
 
 .modern-btn-danger {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  background: linear-gradient(135deg, #ef4444 0%, var(--color-brand-red) 100%);
   color: white;
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
   
   &:hover {
-    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    background: linear-gradient(135deg, var(--color-brand-red) 0%, #b91c1c 100%);
     box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
     color: white;
   }
@@ -566,12 +566,12 @@ $z-modal-lookup: 1060;
   
   // Red Theme (Dispatches)
   &.theme-red {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    background: linear-gradient(135deg, #ef4444 0%, var(--color-brand-red) 100%);
   }
   
   // Blue Theme (Orders)
   &.theme-blue {
-    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    background: linear-gradient(135deg, var(--color-brand-red) 0%, #b91c1c 100%);
   }
   
   // Green Theme (Callbacks)
@@ -735,14 +735,14 @@ $z-modal-lookup: 1060;
 
 .unified-timeline-item.completed .unified-timeline-marker {
   background: rgba(255, 255, 255, 0.9);
-  color: #dc2626;
+  color: var(--color-brand-red);
   border-color: rgba(255, 255, 255, 0.9);
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
 }
 
 .unified-timeline-item.active .unified-timeline-marker {
   background: rgba(255, 255, 255, 0.95);
-  color: #dc2626;
+  color: var(--color-brand-red);
   border-color: rgba(255, 255, 255, 0.95);
   animation: unified-pulse-timeline 2s infinite;
   box-shadow: 0 0 25px rgba(255, 255, 255, 0.4);
@@ -900,7 +900,7 @@ $z-modal-lookup: 1060;
   // Theme-specific focus states
   .theme-red & .form-input:focus,
   .theme-red & .form-select:focus {
-    border-color: #dc2626;
+    border-color: var(--color-brand-red);
     box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
   }
 
@@ -994,7 +994,7 @@ $z-modal-lookup: 1060;
     }
 
     &.btn-primary {
-      background: #dc2626; /* Default red background for all primary buttons */
+      background: var(--color-brand-red); /* Default red background for all primary buttons */
       color: white;
       border: none;
 
@@ -1007,7 +1007,7 @@ $z-modal-lookup: 1060;
 
     // Theme-specific primary buttons
     .theme-red & &.btn-primary {
-      background: linear-gradient(135deg, #dc2626, #ef4444);
+      background: linear-gradient(135deg, var(--color-brand-red), #ef4444);
       box-shadow: 0 4px 14px rgba(220, 38, 38, 0.3);
 
       &:hover {
@@ -1301,7 +1301,7 @@ $z-modal-lookup: 1060;
     gap: 6px;
     
     i {
-      color: #dc2626;
+      color: var(--color-brand-red);
     }
   }
 }
@@ -1413,7 +1413,7 @@ $z-modal-lookup: 1060;
 }
 
 .profit-negative {
-  color: #dc2626 !important;
+  color: var(--color-brand-red) !important;
   font-weight: 700;
 }
 
@@ -1423,7 +1423,7 @@ $z-modal-lookup: 1060;
 }
 
 .margin-low {
-  color: #dc2626 !important;
+  color: var(--color-brand-red) !important;
 }
 
 .margin-good {
@@ -1436,7 +1436,7 @@ $z-modal-lookup: 1060;
 }
 
 .margin-negative {
-  color: #dc2626 !important;
+  color: var(--color-brand-red) !important;
   font-weight: 700;
 }
 

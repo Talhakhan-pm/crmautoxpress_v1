@@ -54,7 +54,7 @@
 .action-btn.delete-btn {
     background: #fef2f2;
     border-color: #fecaca;
-    color: #dc2626;
+    color: var(--color-brand-red);
 }
 
 .action-btn.delete-btn:hover {
@@ -115,7 +115,7 @@
     border-radius: 12px;
     padding: 16px;
     margin-bottom: 24px;
-    color: #dc2626;
+    color: var(--color-brand-red);
     font-weight: 500;
 }
 

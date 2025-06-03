@@ -124,7 +124,7 @@
 .refund-amount {
   font-weight: 700;
   font-size: 1.1rem;
-  color: #dc2626;
+  color: var(--color-brand-red);
 }
 
 .cancellation-reason {
@@ -214,8 +214,8 @@
 }
 
 .process-refund {
-  border-color: #dc2626;
-  color: #dc2626;
+  border-color: var(--color-brand-red);
+  color: var(--color-brand-red);
 }
 
 .process-refund:hover {
@@ -380,7 +380,7 @@
 
 /* Expanded state - stop pulsing and change to close styling */
 .action-icon.resolution-toggle.expanded {
-  background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
+  background: linear-gradient(135deg, var(--color-brand-red), #b91c1c) !important;
   animation: none !important;
 }
 

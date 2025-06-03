@@ -1,7 +1,7 @@
 /* Dashboard Styles - AutoXpress CRM */
 /* Brand Colors */
 :root {
-  --brand-red: #dc2626;
+  --brand-red: var(--color-brand-red);
   --brand-red-light: #ef4444;
   --brand-red-dark: #b91c1c;
   --brand-red-50: #fef2f2;
@@ -655,7 +655,7 @@
         
         .change-from {
           background: linear-gradient(135deg, #fee2e2, #fecaca) !important;
-          color: #dc2626 !important;
+          color: var(--color-brand-red) !important;
           padding: 0.25rem 0.5rem !important;
           border-radius: 6px !important;
           font-size: 0.75rem !important;
@@ -684,7 +684,7 @@
           
           &.status-not_interested {
             background: linear-gradient(135deg, #fee2e2, #fecaca) !important;
-            color: #dc2626 !important;
+            color: var(--color-brand-red) !important;
             border-color: #fecaca !important;
           }
           

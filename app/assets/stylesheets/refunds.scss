@@ -486,7 +486,7 @@
   &.refunds-dropdown-danger {
     &:hover {
       background: rgba(239, 68, 68, 0.1);
-      color: #dc2626;
+      color: var(--color-brand-red);
     }
   }
 }
@@ -534,7 +534,7 @@
   
   &.refunds-status-pending_resolution {
     background: rgba(239, 68, 68, 0.1);
-    color: #dc2626;
+    color: var(--color-brand-red);
     border: 1px solid rgba(239, 68, 68, 0.2);
     animation: refunds-pulse-danger 2s infinite;
   }
@@ -556,7 +556,7 @@
   }
   
   &.refunds-sla-breached {
-    color: #dc2626;
+    color: var(--color-brand-red);
     animation: refunds-pulse-danger 2s infinite;
   }
   
@@ -714,7 +714,7 @@
   color: #1e293b;
   
   &.refunds-overdue {
-    color: #dc2626;
+    color: var(--color-brand-red);
     animation: refunds-pulse-danger 2s infinite;
   }
 }
@@ -743,7 +743,7 @@
   
   &.refunds-priority-urgent {
     background: rgba(239, 68, 68, 0.1);
-    color: #dc2626;
+    color: var(--color-brand-red);
   }
 }
 
@@ -851,7 +851,7 @@
 
 .refunds-replacement-error-text {
   font-size: 0.75rem;
-  color: #dc2626;
+  color: var(--color-brand-red);
 }
 
 // Notes Section
@@ -1335,7 +1335,7 @@
   }
   
   &.sla-metric-danger::before {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    background: linear-gradient(135deg, #ef4444 0%, var(--color-brand-red) 100%);
   }
   
   &.sla-metric-primary::before {
@@ -1364,7 +1364,7 @@
   
   .sla-metric-danger & {
     background: rgba(239, 68, 68, 0.1);
-    color: #dc2626;
+    color: var(--color-brand-red);
   }
   
   .sla-metric-primary & {
@@ -1418,7 +1418,7 @@
   
   &.sla-trend-danger {
     background: rgba(239, 68, 68, 0.1);
-    color: #dc2626;
+    color: var(--color-brand-red);
   }
 }
 
@@ -1648,7 +1648,7 @@
   
   &.sla-score-poor {
     background: rgba(239, 68, 68, 0.1);
-    color: #dc2626;
+    color: var(--color-brand-red);
   }
 }
 
@@ -1754,7 +1754,7 @@
   }
   
   &.sla-rank-bronze {
-    background: linear-gradient(135deg, #ea580c 0%, #dc2626 100%);
+    background: linear-gradient(135deg, #ea580c 0%, var(--color-brand-red) 100%);
     box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3);
   }
   
@@ -2329,7 +2329,7 @@
   
   &.score-poor {
     background: rgba(239, 68, 68, 0.1);
-    color: #dc2626;
+    color: var(--color-brand-red);
   }
 }
 
@@ -2651,7 +2651,7 @@
   }
   
   &.rescue-metric-danger::before {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    background: linear-gradient(135deg, #ef4444 0%, var(--color-brand-red) 100%);
   }
   
   &.rescue-metric-primary::before {
@@ -2679,7 +2679,7 @@
   
   .rescue-metric-danger & {
     background: rgba(239, 68, 68, 0.1);
-    color: #dc2626;
+    color: var(--color-brand-red);
   }
   
   .rescue-metric-primary & {
@@ -2733,7 +2733,7 @@
   
   &.rescue-trend-danger {
     background: rgba(239, 68, 68, 0.1);
-    color: #dc2626;
+    color: var(--color-brand-red);
   }
   
   &.rescue-trend-primary {
@@ -2896,7 +2896,7 @@
   
   &.rescue-stat-lost {
     background: rgba(239, 68, 68, 0.1);
-    color: #dc2626;
+    color: var(--color-brand-red);
   }
   
   &.rescue-stat-avg {
@@ -3078,7 +3078,7 @@
   }
   
   &.rescue-rank-bronze {
-    background: linear-gradient(135deg, #ea580c 0%, #dc2626 100%);
+    background: linear-gradient(135deg, #ea580c 0%, var(--color-brand-red) 100%);
     box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3);
   }
   
@@ -3174,7 +3174,7 @@
   }
   
   &.rescue-stat-lost .rescue-stat-icon {
-    color: #dc2626;
+    color: var(--color-brand-red);
   }
   
   &.rescue-stat-revenue .rescue-stat-icon {
@@ -3227,7 +3227,7 @@
   
   &.rescue-outcome-lost {
     background: rgba(239, 68, 68, 0.1);
-    color: #dc2626;
+    color: var(--color-brand-red);
     border: 1px solid rgba(239, 68, 68, 0.2);
   }
 }
@@ -3255,11 +3255,11 @@
   padding: 0.75rem;
   
   i {
-    color: #dc2626;
+    color: var(--color-brand-red);
   }
   
   strong {
-    color: #dc2626;
+    color: var(--color-brand-red);
   }
 }
 
@@ -3291,7 +3291,7 @@
   }
   
   &.revenue-negative {
-    color: #dc2626;
+    color: var(--color-brand-red);
   }
 }
 
