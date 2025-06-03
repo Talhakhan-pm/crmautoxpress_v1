@@ -481,10 +481,35 @@
                 <i class="fas fa-exchange-alt"></i>
                 <span>Alternative part approved: <%= refund.alternative_part_name %></span>
               </div>
+            <% elsif refund.dispatcher_decision == 'authorize_return_and_refund' %>
+              <div class="outcome-card">
+                <i class="fas fa-undo"></i>
+                <span>Return authorized: Customer returns item for $<%= refund.refund_amount %> refund</span>
+              </div>
+            <% elsif refund.dispatcher_decision == 'authorize_return_and_replacement' %>
+              <div class="outcome-card">
+                <i class="fas fa-sync-alt"></i>
+                <span>Return + replacement: Customer returns item, gets replacement order</span>
+              </div>
             <% elsif refund.dispatcher_decision == 'issue_refund' || refund.refund_stage == 'refunded' %>
               <div class="outcome-card">
                 <i class="fas fa-money-bill-wave"></i>
                 <span>Refund processed: $<%= refund.refund_amount %></span>
+              </div>
+            <% elsif refund.dispatcher_decision == 'auto_resolved' %>
+              <div class="outcome-card">
+                <i class="fas fa-magic"></i>
+                <span>Auto-resolved: Issue automatically resolved</span>
+              </div>
+            <% elsif refund.dispatcher_decision == 'no_action_required' %>
+              <div class="outcome-card">
+                <i class="fas fa-times-circle"></i>
+                <span>No action required: Case closed without changes</span>
+              </div>
+            <% elsif refund.cancelled_refund? %>
+              <div class="outcome-card">
+                <i class="fas fa-ban"></i>
+                <span>Refund cancelled: Request was cancelled</span>
               </div>
             <% else %>
               <div class="outcome-card">

@@ -571,7 +571,8 @@ class Refund < ApplicationRecord
         dispatcher_decision: 'authorize_return_and_refund',
         return_status: 'return_authorized',
         return_authorized_at: Time.current,
-        refund_stage: 'pending_return'
+        refund_stage: 'pending_return',
+        dispatcher_notes: "#{dispatcher_notes}\n\n#{Time.current.strftime('%m/%d %I:%M%p')}: Decision: Authorize return and refund ($#{refund_amount}) - #{refund_reason.humanize}"
       )
       
       # Update dispatch status when return is authorized
@@ -602,7 +603,8 @@ class Refund < ApplicationRecord
         dispatcher_decision: 'authorize_return_and_replacement',
         return_status: 'return_authorized',
         return_authorized_at: Time.current,
-        replacement_order_number: replacement.order_number
+        replacement_order_number: replacement.order_number,
+        dispatcher_notes: "#{dispatcher_notes}\n\n#{Time.current.strftime('%m/%d %I:%M%p')}: Decision: Authorize return and replacement (#{replacement.order_number}) - #{refund_reason.humanize}"
       )
       
       # Update dispatch status when return and replacement is authorized

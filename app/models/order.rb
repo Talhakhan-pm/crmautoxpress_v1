@@ -116,6 +116,11 @@ class Order < ApplicationRecord
   end
   
   def display_status
+    # Show pending return status if applicable
+    if refund.present? && refund.pending_return?
+      return 'Pending Return'
+    end
+    
     # Show pending resolution status if applicable
     if has_pending_refund_resolution?
       return 'Pending Resolution'
