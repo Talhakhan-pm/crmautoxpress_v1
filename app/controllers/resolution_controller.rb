@@ -395,7 +395,7 @@ class ResolutionController < ApplicationController
     
     @refund.update!(
       resolution_stage: 'resolution_completed',
-      dispatcher_notes: "#{@refund.dispatcher_notes}\n\n#{Time.current.strftime('%m/%d %I:%M%p')}: Decision: Process refund - #{refund_reason}",
+      dispatcher_notes: "#{@refund.dispatcher_notes}\n\n#{Time.current.strftime('%m/%d %I:%M%p')}: Decision: Process refund ($#{@refund.refund_amount}) - #{refund_reason}",
       dispatcher_decision: 'issue_refund',
       refund_stage: 'processing_refund'
     )
@@ -417,7 +417,7 @@ class ResolutionController < ApplicationController
       @refund.update!(
         refund_stage: 'refunded', 
         completed_at: Time.current,
-        dispatcher_notes: "#{@refund.dispatcher_notes}\n\n#{Time.current.strftime('%m/%d %I:%M%p')}: Refund completed by dispatcher"
+        dispatcher_notes: "#{@refund.dispatcher_notes}\n\n#{Time.current.strftime('%m/%d %I:%M%p')}: Refund completed ($#{@refund.refund_amount}) by dispatcher"
       )
       
       @refund.create_activity(

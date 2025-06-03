@@ -565,7 +565,7 @@ class Order < ApplicationRecord
 
   # Check if this is a replacement order that just got completed
   def replacement_order_completed?
-    source_channel == 'replacement' && saved_change_to_order_status? && (delivered? || completed?)
+    source_channel == 'replacement' && saved_change_to_order_status? && delivered?
   end
 
   # Auto-resolve original order's refund when replacement is completed

@@ -344,7 +344,7 @@ class DispatchesController < ApplicationController
       # Update refund to processing
       refund.update!(
         refund_stage: 'processing_refund',
-        notes: "#{refund.notes}\n\nFull refund processing initiated by #{current_user.email}"
+        notes: "#{refund.notes}\n\nFull refund ($#{refund.refund_amount}) processing initiated by #{current_user.email}"
       )
       
       # Cancel order and dispatch
@@ -467,7 +467,7 @@ class DispatchesController < ApplicationController
       refund.update!(
         refund_stage: 'processing_refund',
         refund_amount: refund.original_charge_amount, # Full refund
-        notes: refund.notes + " | Resolution: Full refund approved"
+        notes: refund.notes + " | Resolution: Full refund approved ($#{refund.original_charge_amount})"
       )
       
       # Cancel the entire order
