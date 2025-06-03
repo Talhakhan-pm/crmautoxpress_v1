@@ -136,6 +136,11 @@ GEM
       actionview (>= 5.0.0)
       activesupport (>= 5.0.0)
     logger (1.7.0)
+    lograge (0.14.0)
+      actionpack (>= 4)
+      activesupport (>= 4)
+      railties (>= 4)
+      request_store (~> 1.0)
     loofah (2.24.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
@@ -177,6 +182,7 @@ GEM
     nokogiri (1.18.8-x86_64-linux-musl)
       racc (~> 1.4)
     orm_adapter (0.5.0)
+    pg (1.5.9)
     pp (0.6.2)
       prettyprint
     prettyprint (0.2.0)
@@ -228,9 +234,15 @@ GEM
     rdoc (6.14.0)
       erb
       psych (>= 4.0.0)
+    redis (5.4.0)
+      redis-client (>= 0.22.0)
+    redis-client (0.24.0)
+      connection_pool
     regexp_parser (2.10.0)
     reline (0.6.1)
       io-console (~> 0.5)
+    request_store (1.7.0)
+      rack (>= 1.4)
     responders (3.1.1)
       actionpack (>= 5.2)
       railties (>= 5.2)
@@ -243,6 +255,12 @@ GEM
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 3.0)
       websocket (~> 1.0)
+    sidekiq (7.3.9)
+      base64
+      connection_pool (>= 2.3.0)
+      logger
+      rack (>= 2.2.4)
+      redis-client (>= 0.22.2)
     sprockets (4.2.2)
       concurrent-ruby (~> 1.0)
       logger
@@ -305,9 +323,13 @@ DEPENDENCIES
   geocoder (~> 1.8)
   importmap-rails
   jbuilder
+  lograge
+  pg (~> 1.1)
   puma (>= 5.0)
   rails (~> 7.1.5, >= 7.1.5.1)
+  redis (>= 4.0.1)
   selenium-webdriver
+  sidekiq (~> 7.0)
   sprockets-rails
   sqlite3 (>= 1.4)
   stimulus-rails
