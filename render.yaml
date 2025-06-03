@@ -1,0 +1,58 @@
+services:
+  # Main Rails web service
+  - type: web
+    name: autoxpress-crm
+    env: ruby
+    region: oregon
+    plan: starter
+    buildCommand: "./bin/render-build.sh"
+    startCommand: "bundle exec puma -C config/puma.rb"
+    healthCheckPath: "/up"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: autoxpress-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: autoxpress-redis
+          type: redis
+          property: connectionString
+      - key: RAILS_MASTER_KEY
+        sync: false
+      - key: ACTION_CABLE_URL
+        value: wss://autoxpress-crm.onrender.com/cable
+
+  # Background job processor (Sidekiq)
+  - type: worker
+    name: autoxpress-sidekiq
+    env: ruby
+    region: oregon
+    plan: starter
+    buildCommand: "./bin/render-build.sh"
+    startCommand: "bundle exec sidekiq"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: autoxpress-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: autoxpress-redis
+          type: redis
+          property: connectionString
+      - key: RAILS_MASTER_KEY
+        sync: false
+
+databases:
+  - name: autoxpress-db
+    databaseName: autoxpress_production
+    user: autoxpress_user
+    plan: starter
+
+services:
+  - type: redis
+    name: autoxpress-redis
+    region: oregon
+    plan: starter
+    maxmemoryPolicy: allkeys-lru

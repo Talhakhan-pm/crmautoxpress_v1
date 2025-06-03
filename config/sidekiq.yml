@@ -1,0 +1,18 @@
+---
+:max_retries: 3
+:queues:
+  - critical
+  - default
+  - low
+
+production:
+  :concurrency: 2
+  :timeout: 25
+  :redis:
+    url: <%= ENV.fetch("REDIS_URL", "redis://localhost:6379/0") %>
+    network_timeout: 5
+
+development:
+  :concurrency: 2
+  :redis:
+    url: redis://localhost:6379/0
