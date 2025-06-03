@@ -165,46 +165,57 @@ class Dispatch < ApplicationRecord
     return unless order.present?
     old_status = dispatch_status_was
     
-    # Don't sync order status if there's an active refund workflow - let refund logic handle order status
-    # But allow sync for completed/cancelled refunds and return tracking
-    return if order.refund.present? && order.refund.refund_stage.in?(['pending_refund', 'processing_refund'])
+    # Skip sync if we're already in a sync operation to prevent circular calls
+    return if @syncing_with_order
+    @syncing_with_order = true
     
-    # Update order status based on dispatch status
-    case dispatch_status
-    when 'processing'
-      order.update!(order_status: 'processing') if order.confirmed?
-    when 'shipped'
-      order.update!(order_status: 'shipped', tracking_number: tracking_number)
-    when 'completed'
-      # Allow direct transition from processing or shipped to delivered
-      if order.processing? || order.shipped?
-        order.update!(order_status: 'delivered')
+    begin
+      # Auto-resolve any pending resolutions if applicable
+      if order.refund.present? && order.refund.pending_resolution?
+        order.refund.auto_complete_resolution_if_resolved!
       end
-    when 'cancelled'
-      # Order status update only - refund creation handled by controller for custom amounts/reasons
-      order.update!(order_status: 'processing')
       
-      # Create activity for the cancellation
-      create_activity(
-        action: 'dispatch_cancelled',
-        details: "Dispatch cancelled - Awaiting resolution decision",
-        user: Current.user
-      )
-    end
+      # Update order status based on dispatch status (unless blocked by active refund processing)
+      unless order.refund.present? && order.refund.refund_stage.in?(['pending_refund', 'processing_refund'])
+        case dispatch_status
+        when 'processing'
+          order.update!(order_status: 'processing') if order.confirmed?
+        when 'shipped'
+          order.update!(order_status: 'shipped', tracking_number: tracking_number)
+        when 'completed'
+          # Allow transition from confirmed, processing, or shipped to delivered
+          if order.confirmed? || order.processing? || order.shipped?
+            order.update!(order_status: 'delivered')
+          end
+        when 'cancelled'
+          # Order status update only - refund creation handled by controller for custom amounts/reasons
+          order.update!(order_status: 'processing')
+          
+          # Create activity for the cancellation
+          create_activity(
+            action: 'dispatch_cancelled',
+            details: "Dispatch cancelled - Awaiting resolution decision",
+            user: Current.user
+          )
+        end
+      end
 
-    # Update order tracking number if changed
-    if tracking_number.present? && order.tracking_number != tracking_number
-      order.update!(tracking_number: tracking_number)
-    end
+      # Update order tracking number if changed
+      if tracking_number.present? && order.tracking_number != tracking_number
+        order.update!(tracking_number: tracking_number)
+      end
 
-    # Update estimated delivery if we have tracking
-    if shipped? && order.estimated_delivery.blank?
-      estimated_date = Date.current + 3.days # Default 3-day shipping estimate
-      order.update!(estimated_delivery: estimated_date)
-    end
+      # Update estimated delivery if we have tracking
+      if shipped? && order.estimated_delivery.blank?
+        estimated_date = Date.current + 3.days # Default 3-day shipping estimate
+        order.update!(estimated_delivery: estimated_date)
+      end
 
-    # Handle payment status changes that affect refunds
-    sync_payment_with_refunds if payment_status_changed?
+      # Handle payment status changes that affect refunds
+      sync_payment_with_refunds if payment_status_changed?
+    ensure
+      @syncing_with_order = false
+    end
   end
 
   def handle_dispatch_cancellation

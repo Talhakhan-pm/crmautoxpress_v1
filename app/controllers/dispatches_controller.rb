@@ -98,15 +98,9 @@ class DispatchesController < ApplicationController
   def update
     @dispatch.last_modified_by = current_user.email
     
-    # Check if dispatch has pending resolution
+    # Auto-resolve pending resolutions if conditions are met
     if @dispatch.order.refund.present? && @dispatch.order.refund.refund_stage == 'pending_resolution'
-      respond_to do |format|
-        format.html { redirect_to edit_dispatch_path(@dispatch), alert: 'Cannot modify dispatch - pending refund resolution required. Please resolve in Refunds section first.' }
-        format.turbo_stream { 
-          render turbo_stream: turbo_stream.replace("flash-messages", partial: "shared/flash_messages", locals: { flash: { alert: 'Cannot modify dispatch - pending refund resolution required.' } })
-        }
-      end
-      return
+      @dispatch.order.refund.auto_complete_resolution_if_resolved!
     end
     
     # Update both dispatch and order in a transaction

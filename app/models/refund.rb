@@ -80,6 +80,7 @@ class Refund < ApplicationRecord
   before_save :populate_from_order
   after_create :sync_order_status
   after_update :sync_order_status
+  after_update :auto_resolve_if_applicable
   
   include Trackable
 
@@ -694,7 +695,123 @@ class Refund < ApplicationRecord
     end
   end
 
+  # Smart auto-resolution logic (public method for manual triggering)
+  def auto_complete_resolution_if_resolved!
+    return false unless pending_resolution?
+    
+    # If resolution is already completed but refund stage is stuck, transition it
+    if resolution_completed?
+      return transition_completed_resolution!
+    end
+    
+    auto_completed = false
+    resolution_reason = nil
+    
+    # Scenario 1: Replacement + Return = Customer issue resolved
+    if replacement_order_number.present? && return_authorized?
+      resolution_reason = "Replacement order #{replacement_order_number} created and return authorized - Customer issue resolved"
+      auto_completed = true
+      
+    # Scenario 2: Full refund processed = Customer compensated  
+    elsif refunded? || processing_refund?
+      resolution_reason = "Full refund of $#{refund_amount} processed - Customer compensated"
+      auto_completed = true
+      
+    # Scenario 3: Return received and processed = Issue closed
+    elsif return_received? || return_inspected?
+      resolution_reason = "Return received and processed - Resolution complete"
+      auto_completed = true
+      
+    # Scenario 4: Dispatch completed successfully after delay = Issue resolved
+    elsif order.dispatch.present? && order.dispatch.completed? && ['shipping_delay', 'item_not_found'].include?(refund_reason)
+      resolution_reason = "Dispatch completed successfully - #{refund_reason.humanize} issue resolved"
+      auto_completed = true
+    end
+    
+    if auto_completed
+      update!(
+        resolution_stage: 'resolution_completed',
+        dispatcher_decision: 'auto_resolved',
+        resolver_notes: resolution_reason
+      )
+      
+      create_activity(
+        action: 'auto_resolution_completed',
+        details: resolution_reason,
+        user: nil
+      )
+      
+      Rails.logger.info "Auto-completed resolution for refund #{id}: #{resolution_reason}"
+      
+      # Now transition the refund stage based on the resolution
+      return transition_completed_resolution!
+    end
+    
+    false
+  end
+  
+  # Transition refund_stage when resolution_stage is completed
+  def transition_completed_resolution!
+    return false unless resolution_completed? && pending_resolution?
+    
+    new_stage = nil
+    transition_reason = nil
+    
+    case dispatcher_decision
+    when 'authorize_return_and_replacement'
+      new_stage = 'pending_replacement'
+      transition_reason = "Resolution completed: Customer gets replacement + returns original item"
+      
+    when 'authorize_return_and_refund'
+      new_stage = 'pending_return'
+      transition_reason = "Resolution completed: Customer returns item for full refund"
+      
+    when 'immediate_refund', 'auto_resolved'
+      new_stage = 'pending_refund'
+      transition_reason = "Resolution completed: Processing immediate refund"
+      
+    when 'no_action_required'
+      new_stage = 'cancelled_refund'
+      transition_reason = "Resolution completed: No refund required"
+      
+    else
+      # Default based on return status and replacement
+      if replacement_order_number.present?
+        new_stage = 'pending_replacement'
+        transition_reason = "Resolution completed: Replacement order created"
+      elsif return_authorized?
+        new_stage = 'pending_return'
+        transition_reason = "Resolution completed: Return authorized"
+      else
+        new_stage = 'pending_refund'
+        transition_reason = "Resolution completed: Defaulting to refund processing"
+      end
+    end
+    
+    if new_stage && new_stage != refund_stage
+      update!(refund_stage: new_stage)
+      
+      create_activity(
+        action: 'stage_transitioned',
+        details: transition_reason,
+        user: nil
+      )
+      
+      Rails.logger.info "Transitioned refund #{id} from pending_resolution to #{new_stage}: #{transition_reason}"
+      return true
+    end
+    
+    false
+  end
+
   private
+
+  def auto_resolve_if_applicable
+    # Only trigger auto-resolution when relevant fields change
+    if saved_change_to_refund_stage? || saved_change_to_return_status? || saved_change_to_replacement_order_number?
+      auto_complete_resolution_if_resolved!
+    end
+  end
 
   def broadcast_refunds_update
     Rails.logger.info "=== REFUNDS BROADCAST TRIGGERED ==="
@@ -790,6 +907,14 @@ class Refund < ApplicationRecord
         user: Current.user
       )
     when 'processing_refund'
+      # When refund is processing, cancel the order since money will be returned
+      order.update!(order_status: 'cancelled') unless order.cancelled?
+      
+      # Update dispatch status if exists
+      if order.dispatch.present?
+        order.dispatch.update!(dispatch_status: 'cancelled') unless order.dispatch.cancelled?
+      end
+      
       # Create activity for processing
       create_activity(
         action: 'refund_processing',

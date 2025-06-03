@@ -61,6 +61,7 @@ class Order < ApplicationRecord
   after_create :create_auto_callback
   after_update :sync_with_dispatch
   after_update :update_supplier_total_orders
+  after_update :check_original_order_resolution, if: :replacement_order_completed?
   
   include Trackable
 
@@ -540,17 +541,40 @@ class Order < ApplicationRecord
 
   def sync_with_dispatch
     return unless dispatch.present?
+    
+    # Skip sync if we're already in a sync operation to prevent circular calls
+    return if @syncing_with_dispatch
+    @syncing_with_dispatch = true
 
-    # Update dispatch status based on order status
-    case order_status
-    when 'cancelled'
-      dispatch.update!(dispatch_status: 'cancelled') unless dispatch.cancelled?
-    when 'confirmed'
-      dispatch.update!(dispatch_status: 'assigned') if dispatch.pending?
-    when 'processing'
-      # DON'T override cancelled dispatches - manual cancellation should stay cancelled
-      # Only update if dispatch is in a state that allows processing
-      dispatch.update!(dispatch_status: 'processing') if dispatch.assigned?
+    begin
+      # Update dispatch status based on order status
+      case order_status
+      when 'cancelled'
+        dispatch.update!(dispatch_status: 'cancelled') unless dispatch.cancelled?
+      when 'confirmed'
+        dispatch.update!(dispatch_status: 'assigned') if dispatch.pending?
+      when 'processing'
+        # DON'T override cancelled dispatches - manual cancellation should stay cancelled
+        # Only update if dispatch is in a state that allows processing
+        dispatch.update!(dispatch_status: 'processing') if dispatch.assigned?
+      end
+    ensure
+      @syncing_with_dispatch = false
     end
+  end
+
+  # Check if this is a replacement order that just got completed
+  def replacement_order_completed?
+    source_channel == 'replacement' && saved_change_to_order_status? && (delivered? || completed?)
+  end
+
+  # Auto-resolve original order's refund when replacement is completed
+  def check_original_order_resolution
+    return unless original_order_id.present?
+    
+    original_order = Order.find_by(id: original_order_id)
+    return unless original_order&.refund&.pending_resolution?
+    
+    original_order.refund.auto_complete_resolution_if_resolved!
   end
 end
