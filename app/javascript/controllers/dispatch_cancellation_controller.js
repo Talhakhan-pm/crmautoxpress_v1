@@ -198,6 +198,9 @@ export default class extends Controller {
       const result = await response.json()
       
       if (result.success) {
+        // Immediately remove modal-open class to prevent layout issues during navigation
+        document.body.classList.remove('modal-open')
+        
         // Hide modal and redirect or update UI
         this.hideModal()
         
