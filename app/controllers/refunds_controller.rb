@@ -225,15 +225,17 @@ class RefundsController < ApplicationController
     end
   end
 
-  # SLA Analytics Dashboard
+  # Order Rescue Analytics Dashboard (formerly SLA Analytics)
   def sla_analytics
-    @sla_metrics = Refund.sla_metrics
+    @rescue_metrics = Refund.rescue_metrics
+    @agent_rescue_performance = Refund.agent_rescue_performance
+    @sla_metrics = Refund.sla_metrics # Keep for legacy compatibility
     @stage_performance = Refund.stage_performance_breakdown
     @agent_performance = Refund.agent_performance_metrics
 
     respond_to do |format|
       format.html
-      format.json { render json: { sla_metrics: @sla_metrics, stage_performance: @stage_performance } }
+      format.json { render json: { rescue_metrics: @rescue_metrics, agent_rescue_performance: @agent_rescue_performance } }
     end
   end
 

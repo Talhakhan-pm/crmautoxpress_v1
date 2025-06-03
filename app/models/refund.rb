@@ -452,6 +452,136 @@ class Refund < ApplicationRecord
     end
   end
 
+  # ============================================
+  # ORDER RESCUE TRACKING METHODS
+  # ============================================
+  
+  def order_was_saved?
+    # Order is considered "saved" if we avoided processing a refund
+    case dispatcher_decision
+    when 'delay_approved', 'price_increase_approved', 'compatible_alternative_approved'
+      true
+    when 'authorize_return_and_replacement'
+      # This is also a save because customer gets a replacement instead of refund
+      true
+    else
+      false
+    end
+  end
+  
+  def order_was_lost?
+    # Order is considered "lost" if we processed a refund
+    case dispatcher_decision
+    when 'issue_refund', 'authorize_return_and_refund'
+      true
+    when 'auto_resolved', 'no_action_required'
+      false # These don't count as lost
+    else
+      refunded? || processing_refund? # Check actual refund stage
+    end
+  end
+  
+  def rescue_method
+    return nil unless order_was_saved?
+    
+    case dispatcher_decision
+    when 'delay_approved'
+      'delay_accepted'
+    when 'price_increase_approved'
+      'price_increase_accepted'
+    when 'compatible_alternative_approved'
+      'alternative_part_accepted'
+    when 'authorize_return_and_replacement'
+      'replacement_order'
+    else
+      'other'
+    end
+  end
+  
+  def revenue_impact
+    if order_was_saved?
+      refund_amount # Revenue saved
+    elsif order_was_lost?
+      -refund_amount # Revenue lost
+    else
+      0
+    end
+  end
+  
+  # Class method for order rescue metrics
+  def self.rescue_metrics(timeframe = 30.days)
+    refunds_in_timeframe = where(created_at: timeframe.ago..Time.current)
+                          .where(resolution_stage: 'resolution_completed') # Only completed resolutions
+    
+    return {
+      total_completed: 0,
+      orders_saved: 0,
+      orders_lost: 0,
+      rescue_rate: 0,
+      revenue_saved: 0,
+      revenue_lost: 0,
+      net_revenue_impact: 0,
+      rescue_methods: {}
+    } if refunds_in_timeframe.empty?
+    
+    total_completed = refunds_in_timeframe.count
+    saved_refunds = refunds_in_timeframe.select(&:order_was_saved?)
+    lost_refunds = refunds_in_timeframe.select(&:order_was_lost?)
+    
+    orders_saved = saved_refunds.count
+    orders_lost = lost_refunds.count
+    rescue_rate = total_completed > 0 ? (orders_saved.to_f / total_completed * 100).round(1) : 0
+    
+    revenue_saved = saved_refunds.sum(&:refund_amount)
+    revenue_lost = lost_refunds.sum(&:refund_amount)
+    net_revenue_impact = revenue_saved - revenue_lost
+    
+    # Break down rescue methods
+    rescue_methods = saved_refunds.group_by(&:rescue_method).transform_values do |refunds|
+      {
+        count: refunds.count,
+        revenue_saved: refunds.sum(&:refund_amount),
+        avg_amount: refunds.sum(&:refund_amount) / refunds.count.to_f
+      }
+    end
+    
+    {
+      total_completed: total_completed,
+      orders_saved: orders_saved,
+      orders_lost: orders_lost,
+      rescue_rate: rescue_rate,
+      revenue_saved: revenue_saved,
+      revenue_lost: revenue_lost,
+      net_revenue_impact: net_revenue_impact,
+      rescue_methods: rescue_methods
+    }
+  end
+  
+  # Agent performance based on rescue success
+  def self.agent_rescue_performance(timeframe = 30.days)
+    completed_refunds = where(created_at: timeframe.ago..Time.current)
+                       .where(resolution_stage: 'resolution_completed')
+                       .includes(:processing_agent)
+    
+    return {} if completed_refunds.empty?
+    
+    completed_refunds.group_by(&:processing_agent_id).transform_values do |refunds|
+      saved_orders = refunds.select(&:order_was_saved?)
+      lost_orders = refunds.select(&:order_was_lost?)
+      
+      {
+        total_handled: refunds.count,
+        orders_saved: saved_orders.count,
+        orders_lost: lost_orders.count,
+        rescue_rate: refunds.count > 0 ? (saved_orders.count.to_f / refunds.count * 100).round(1) : 0,
+        revenue_saved: saved_orders.sum(&:refund_amount),
+        revenue_lost: lost_orders.sum(&:refund_amount),
+        avg_resolution_time: refunds.select { |r| r.processing_time_hours.present? }
+                                   .sum(&:processing_time_hours) / [refunds.count, 1].max / 24.0
+      }
+    end
+  end
+
   # Class methods for analytics
   def self.sla_metrics(timeframe = 30.days)
     # Actually use the timeframe parameter
