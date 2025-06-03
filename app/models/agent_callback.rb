@@ -42,6 +42,10 @@ class AgentCallback < ApplicationRecord
     notes&.include?("Auto-generated from Order")
   end
   
+  def agent
+    user&.email
+  end
+  
   private
   
   def broadcast_dashboard_metrics
