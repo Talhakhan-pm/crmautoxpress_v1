@@ -1,437 +1,63 @@
 /* 
- * AutoXpress CRM Animation Library
- * ===================================
- * 
- * This file contains all standardized animations used throughout the AutoXpress CRM.
- * This replaces the duplicate pulse, glow, and transition animations scattered across
- * multiple files with a unified, consistent animation system.
- * 
- * Naming Convention: ax-[animation-type]-[variant]
- * Usage: Add class .ax-animate-[animation-name] to elements
- * 
- * Animation Categories:
- * - Pulse animations (attention-getting)
- * - Scale animations (hover effects)
- * - Slide animations (entry/exit)
- * - Fade animations (transitions)
- * - Rotate animations (loading states)
- * - Shake animations (error states)
+ * AutoXpress CRM Essential Animations
+ * Only animations actually used in the application
  */
 
-/* === PULSE ANIMATIONS === */
-/* Used for status indicators, urgent items, and attention-getting elements */
-
-@keyframes ax-pulse-warning {
+/* Pulse animation for logo and critical elements */
+@keyframes pulse {
   0%, 100% {
-    background-color: rgba(245, 158, 11, 0.1);
-    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
-    border-color: var(--color-warning-200);
+    transform: scale(1);
+    filter: drop-shadow(0 0 8px rgba(220, 38, 38, 0.4));
   }
   50% {
-    background-color: rgba(245, 158, 11, 0.2);
-    box-shadow: 0 0 0 8px rgba(245, 158, 11, 0.1);
-    border-color: var(--color-warning-300);
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 12px rgba(220, 38, 38, 0.6));
   }
 }
 
-@keyframes ax-pulse-danger {
-  0%, 100% {
-    background-color: rgba(220, 38, 38, 0.1);
-    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.5);
-    border-color: var(--color-brand-red-200);
-  }
-  50% {
-    background-color: rgba(220, 38, 38, 0.25);
-    box-shadow: 0 0 0 10px rgba(220, 38, 38, 0.1);
-    border-color: var(--color-brand-red-300);
-  }
-}
-
-@keyframes ax-pulse-success {
-  0%, 100% {
-    background-color: rgba(5, 150, 105, 0.1);
-    box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.4);
-    border-color: var(--color-success-200);
-  }
-  50% {
-    background-color: rgba(5, 150, 105, 0.2);
-    box-shadow: 0 0 0 8px rgba(5, 150, 105, 0.1);
-    border-color: var(--color-success-300);
-  }
-}
-
-@keyframes ax-pulse-info {
-  0%, 100% {
-    background-color: rgba(59, 130, 246, 0.1);
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
-    border-color: var(--color-info-200);
-  }
-  50% {
-    background-color: rgba(59, 130, 246, 0.2);
-    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.1);
-    border-color: var(--color-info-300);
-  }
-}
-
-@keyframes ax-pulse-brand {
-  0%, 100% {
-    background-color: rgba(220, 38, 38, 0.1);
-    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4);
-    border-color: var(--color-brand-red-200);
-  }
-  50% {
-    background-color: rgba(220, 38, 38, 0.2);
-    box-shadow: 0 0 0 10px rgba(220, 38, 38, 0.1);
-    border-color: var(--color-brand-red-300);
-  }
-}
-
-/* Subtle pulse for less aggressive attention */
-@keyframes ax-pulse-subtle {
+/* Pulse green for online indicators */
+@keyframes pulse-green {
   0%, 100% {
     opacity: 1;
     transform: scale(1);
   }
   50% {
-    opacity: 0.8;
-    transform: scale(1.02);
+    opacity: 0.7;
+    transform: scale(1.1);
   }
 }
 
-/* === SCALE ANIMATIONS === */
-/* Used for hover effects and interactive feedback */
-
-@keyframes ax-scale-bounce {
-  0%, 100% { 
-    transform: scale(1); 
-  }
-  50% { 
-    transform: scale(1.05); 
-  }
-}
-
-@keyframes ax-scale-grow {
-  from {
-    transform: scale(0.95);
-  }
-  to {
-    transform: scale(1);
-  }
-}
-
-@keyframes ax-scale-shrink {
-  from {
-    transform: scale(1);
-  }
-  to {
-    transform: scale(0.95);
-  }
-}
-
-/* === SLIDE ANIMATIONS === */
-/* Used for panel entries, modal appearances, and drawer slides */
-
-@keyframes ax-slide-down {
+/* Timeline slide-in animation */
+@keyframes slideInTimeline {
   from {
     opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Floating animation for hero backgrounds */
+@keyframes refunds-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
     transform: translateY(-10px);
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
-@keyframes ax-slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Generic fade transitions */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-@keyframes ax-slide-right {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes ax-slide-left {
-  from {
-    opacity: 0;
-    transform: translateX(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-/* === FADE ANIMATIONS === */
-/* Used for smooth transitions and content changes */
-
-@keyframes ax-fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes ax-fade-out {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-@keyframes ax-fade-in-scale {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* === ROTATE ANIMATIONS === */
-/* Used for loading states and refresh indicators */
-
-@keyframes ax-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes ax-spin-slow {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* === SHAKE ANIMATIONS === */
-/* Used for error states and validation feedback */
-
-@keyframes ax-shake {
-  0%, 100% {
-    transform: translateX(0);
-  }
-  10%, 30%, 50%, 70%, 90% {
-    transform: translateX(-2px);
-  }
-  20%, 40%, 60%, 80% {
-    transform: translateX(2px);
-  }
-}
-
-@keyframes ax-shake-vertical {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  10%, 30%, 50%, 70%, 90% {
-    transform: translateY(-2px);
-  }
-  20%, 40%, 60%, 80% {
-    transform: translateY(2px);
-  }
-}
-
-/* === GLOW ANIMATIONS === */
-/* Used for highlighting and focus states */
-
-@keyframes ax-glow-brand {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 20px 5px rgba(220, 38, 38, 0.2);
-  }
-}
-
-@keyframes ax-glow-success {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 20px 5px rgba(5, 150, 105, 0.2);
-  }
-}
-
-/* === UTILITY ANIMATION CLASSES === */
-/* Apply these classes to elements to add animations */
-
-/* Pulse Animations */
-.ax-animate-pulse-warning {
-  animation: ax-pulse-warning 2s infinite;
-}
-
-.ax-animate-pulse-danger {
-  animation: ax-pulse-danger 2s infinite;
-}
-
-.ax-animate-pulse-success {
-  animation: ax-pulse-success 2s infinite;
-}
-
-.ax-animate-pulse-info {
-  animation: ax-pulse-info 2s infinite;
-}
-
-.ax-animate-pulse-brand {
-  animation: ax-pulse-brand 2s infinite;
-}
-
-.ax-animate-pulse-subtle {
-  animation: ax-pulse-subtle 3s infinite;
-}
-
-/* Scale Animations */
-.ax-animate-scale-bounce {
-  animation: ax-scale-bounce 1s infinite;
-}
-
-.ax-animate-scale-grow {
-  animation: ax-scale-grow var(--duration-normal) var(--ease-out);
-}
-
-.ax-animate-scale-shrink {
-  animation: ax-scale-shrink var(--duration-normal) var(--ease-in);
-}
-
-/* Slide Animations */
-.ax-animate-slide-down {
-  animation: ax-slide-down var(--duration-normal) var(--ease-out);
-}
-
-.ax-animate-slide-up {
-  animation: ax-slide-up var(--duration-normal) var(--ease-out);
-}
-
-.ax-animate-slide-right {
-  animation: ax-slide-right var(--duration-normal) var(--ease-out);
-}
-
-.ax-animate-slide-left {
-  animation: ax-slide-left var(--duration-normal) var(--ease-out);
-}
-
-/* Fade Animations */
-.ax-animate-fade-in {
-  animation: ax-fade-in var(--duration-normal) var(--ease-out);
-}
-
-.ax-animate-fade-out {
-  animation: ax-fade-out var(--duration-normal) var(--ease-in);
-}
-
-.ax-animate-fade-in-scale {
-  animation: ax-fade-in-scale var(--duration-normal) var(--ease-out);
-}
-
-/* Rotate Animations */
-.ax-animate-spin {
-  animation: ax-spin 1s linear infinite;
-}
-
-.ax-animate-spin-slow {
-  animation: ax-spin-slow 3s linear infinite;
-}
-
-/* Shake Animations */
-.ax-animate-shake {
-  animation: ax-shake 0.5s var(--ease-in-out);
-}
-
-.ax-animate-shake-vertical {
-  animation: ax-shake-vertical 0.5s var(--ease-in-out);
-}
-
-/* Glow Animations */
-.ax-animate-glow-brand {
-  animation: ax-glow-brand 2s infinite;
-}
-
-.ax-animate-glow-success {
-  animation: ax-glow-success 2s infinite;
-}
-
-/* === HOVER ANIMATIONS === */
-/* Apply these for hover-triggered animations */
-
-.ax-hover-scale:hover {
-  transform: scale(1.05);
-  transition: transform var(--duration-normal) var(--ease-out);
-}
-
-.ax-hover-lift:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
-  transition: all var(--duration-normal) var(--ease-out);
-}
-
-.ax-hover-glow:hover {
-  box-shadow: 0 0 20px 5px rgba(220, 38, 38, 0.2);
-  transition: box-shadow var(--duration-normal) var(--ease-out);
-}
-
-.ax-hover-fade:hover {
-  opacity: 0.8;
-  transition: opacity var(--duration-fast) var(--ease-out);
-}
-
-/* === TRANSITION UTILITIES === */
-/* Standard transitions for common use cases */
-
-.ax-transition-all {
-  transition: all var(--duration-normal) var(--ease-in-out);
-}
-
-.ax-transition-colors {
-  transition: color var(--duration-normal) var(--ease-in-out),
-              background-color var(--duration-normal) var(--ease-in-out),
-              border-color var(--duration-normal) var(--ease-in-out);
-}
-
-.ax-transition-opacity {
-  transition: opacity var(--duration-normal) var(--ease-in-out);
-}
-
-.ax-transition-transform {
-  transition: transform var(--duration-normal) var(--ease-in-out);
-}
-
-.ax-transition-shadow {
-  transition: box-shadow var(--duration-normal) var(--ease-in-out);
-}
-
-/* === ANIMATION CONTROLS === */
-/* Control animation states */
-
-.ax-animation-paused {
-  animation-play-state: paused !important;
-}
-
-.ax-animation-running {
-  animation-play-state: running !important;
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
 /* Reduce motion for accessibility */
@@ -442,19 +68,5 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-  }
-  
-  .ax-animate-pulse-warning,
-  .ax-animate-pulse-danger,
-  .ax-animate-pulse-success,
-  .ax-animate-pulse-info,
-  .ax-animate-pulse-brand,
-  .ax-animate-pulse-subtle,
-  .ax-animate-scale-bounce,
-  .ax-animate-spin,
-  .ax-animate-spin-slow,
-  .ax-animate-glow-brand,
-  .ax-animate-glow-success {
-    animation: none !important;
   }
 }
