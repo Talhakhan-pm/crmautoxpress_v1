@@ -492,6 +492,8 @@ class Order < ApplicationRecord
         customer_name: customer_name,
         phone_number: customer_phone,
         product: product_name,
+        year: car_year,
+        car_make_model: car_make_model,
         status: 'sale', # Mark as successful sale
         notes: "Auto-generated from Order ##{order_number}. Direct sale via #{source_channel}.",
         created_at: order_date,
