@@ -395,13 +395,13 @@ class Refund < ApplicationRecord
   end
 
   def sla_deadline
-    refund_date + sla_target_days.days
+    refund_date.beginning_of_day + sla_target_days.days
   end
 
   def sla_status
     return 'completed' if completed_stage?
-    return 'breached' if Date.current > sla_deadline
-    return 'at_risk' if Date.current >= (sla_deadline - 1.day)
+    return 'breached' if Time.current > sla_deadline.end_of_day
+    return 'at_risk' if Time.current >= (sla_deadline.end_of_day - 1.day)
     'on_track'
   end
 
@@ -415,20 +415,30 @@ class Refund < ApplicationRecord
     ((completed_at - refund_date) / 1.hour).round(1)
   end
 
+  def precise_elapsed_hours
+    ((Time.current - refund_date) / 1.hour).round(1)
+  end
+
   def sla_performance_score
-    return 100 if completed_stage? && processing_time_hours <= (sla_target_days * 24)
-    return 0 if sla_status == 'breached'
+    target_hours = sla_target_days * 24.0
+    return 100 if target_hours <= 0 # Edge case protection
     
     if completed_stage?
-      # Completed but over SLA
-      target_hours = sla_target_days * 24
+      return 100 if processing_time_hours.blank?
       actual_hours = processing_time_hours
-      [0, (100 - ((actual_hours - target_hours) / target_hours * 100)).round].max
+      return 100 if actual_hours <= target_hours
+      
+      # Completed but over SLA - calculate penalty
+      overage_percentage = ((actual_hours - target_hours) / target_hours * 100)
+      [0, (100 - overage_percentage).round].max
     else
-      # In progress scoring
-      elapsed_hours = days_since_request * 24
-      target_hours = sla_target_days * 24
-      [0, (100 - (elapsed_hours / target_hours * 100)).round].max
+      # In progress scoring using precise elapsed time
+      elapsed_hours = precise_elapsed_hours
+      return 100 if elapsed_hours <= target_hours
+      
+      # Calculate current performance based on elapsed time vs target
+      progress_percentage = (elapsed_hours / target_hours * 100)
+      [0, (200 - progress_percentage).round].max.clamp(0, 100)
     end
   end
 
@@ -444,7 +454,8 @@ class Refund < ApplicationRecord
 
   # Class methods for analytics
   def self.sla_metrics(timeframe = 30.days)
-    refunds = all # Get all refunds for now
+    # Actually use the timeframe parameter
+    refunds = where(created_at: timeframe.ago..Time.current)
     total_count = refunds.count
     
     if total_count.zero?
@@ -457,30 +468,41 @@ class Refund < ApplicationRecord
         avg_performance_score: 0,
         sla_compliance_rate: 0,
         avg_resolution_time: 0,
-        total_escalations: 0
+        total_escalations: 0,
+        in_progress_count: 0,
+        timeframe_days: (timeframe / 1.day).round
       }
     end
 
     # Calculate SLA status counts
-    on_track_count = refunds.select { |r| r.sla_status == 'on_track' }.count
-    at_risk_count = refunds.select { |r| r.sla_status == 'at_risk' }.count
-    breached_count = refunds.select { |r| r.sla_status == 'breached' }.count
-    completed_count = refunds.select { |r| r.sla_status == 'completed' }.count
+    on_track_count = refunds.count { |r| r.sla_status == 'on_track' }
+    at_risk_count = refunds.count { |r| r.sla_status == 'at_risk' }
+    breached_count = refunds.count { |r| r.sla_status == 'breached' }
+    completed_count = refunds.count { |r| r.sla_status == 'completed' }
+    in_progress_count = total_count - completed_count
     
     # Calculate performance metrics
-    avg_performance_score = refunds.map(&:sla_performance_score).sum.to_f / total_count
-    sla_compliance_rate = ((total_count - breached_count).to_f / total_count * 100)
+    avg_performance_score = refunds.sum(&:sla_performance_score).to_f / total_count
     
-    # Calculate resolution time for completed refunds
-    completed_refunds = refunds.select { |r| r.completed_stage? && r.processing_time_hours.present? }
-    avg_resolution_time = if completed_refunds.any?
-      completed_refunds.map { |r| r.processing_time_hours / 24 }.sum.to_f / completed_refunds.count
+    # Fix compliance rate - only count completed refunds
+    completed_refunds = refunds.select(&:completed_stage?)
+    if completed_refunds.any?
+      breached_completed = completed_refunds.count { |r| r.sla_status == 'breached' }
+      sla_compliance_rate = ((completed_refunds.count - breached_completed).to_f / completed_refunds.count * 100)
+    else
+      sla_compliance_rate = 0
+    end
+    
+    # Calculate resolution time for completed refunds only
+    completed_with_time = completed_refunds.select { |r| r.processing_time_hours.present? }
+    avg_resolution_time = if completed_with_time.any?
+      completed_with_time.sum { |r| r.processing_time_hours / 24.0 } / completed_with_time.count
     else
       0
     end
     
     # Count escalations (urgent priority items)
-    total_escalations = refunds.select { |r| r.priority == 'urgent' }.count
+    total_escalations = refunds.count { |r| r.priority == 'urgent' }
 
     {
       on_track: on_track_count,
@@ -488,80 +510,119 @@ class Refund < ApplicationRecord
       breached: breached_count,
       completed: completed_count,
       total_refunds: total_count,
+      in_progress_count: in_progress_count,
       avg_performance_score: avg_performance_score.round(1),
       sla_compliance_rate: sla_compliance_rate.round(1),
       avg_resolution_time: avg_resolution_time.round(1),
-      total_escalations: total_escalations
+      total_escalations: total_escalations,
+      timeframe_days: (timeframe / 1.day).round
     }
   end
 
   def self.agent_performance_metrics(timeframe = 30.days)
-    # Get all refunds grouped by agent
-    all_refunds = all
+    # Actually use the timeframe parameter
+    refunds_in_timeframe = where(created_at: timeframe.ago..Time.current)
     agent_stats = {}
     
-    # Group by processing_agent_id
-    all_refunds.group_by(&:processing_agent_id).each do |agent_id, agent_refunds|
+    # Group by processing_agent_id, handling nil values
+    refunds_in_timeframe.group_by(&:processing_agent_id).each do |agent_id, agent_refunds|
       next if agent_refunds.empty?
       
       completed_refunds = agent_refunds.select(&:completed_stage?)
-      total_score = agent_refunds.map(&:sla_performance_score).sum
-      avg_score = total_score.to_f / agent_refunds.count
+      avg_score = agent_refunds.sum(&:sla_performance_score).to_f / agent_refunds.count
       
-      # Calculate resolution time in days
-      avg_resolution_time = if completed_refunds.any? && completed_refunds.any? { |r| r.processing_time_hours.present? }
-        completed_refunds.select { |r| r.processing_time_hours.present? }
-                         .map { |r| r.processing_time_hours / 24 }
-                         .sum.to_f / completed_refunds.select { |r| r.processing_time_hours.present? }.count
+      # Calculate resolution time in days - simplified logic
+      completed_with_time = completed_refunds.select { |r| r.processing_time_hours.present? }
+      avg_resolution_time = if completed_with_time.any?
+        completed_with_time.sum { |r| r.processing_time_hours / 24.0 } / completed_with_time.count
       else
         0
       end
       
-      breach_count = agent_refunds.select { |r| r.sla_status == 'breached' }.count
-      sla_compliance_rate = ((agent_refunds.count - breach_count).to_f / agent_refunds.count * 100)
+      # Fix compliance rate - only count completed refunds for agent
+      if completed_refunds.any?
+        breached_completed = completed_refunds.count { |r| r.sla_status == 'breached' }
+        sla_compliance_rate = ((completed_refunds.count - breached_completed).to_f / completed_refunds.count * 100)
+      else
+        sla_compliance_rate = 0
+      end
       
-      agent_stats[agent_id] = {
+      agent_stats[agent_id || 'unassigned'] = {
+        agent_name: agent_id ? "Agent ##{agent_id}" : "Unassigned",
         total_refunds: agent_refunds.count,
+        completed_refunds: completed_refunds.count,
         avg_performance_score: avg_score.round(1),
         sla_compliance_rate: sla_compliance_rate.round(1),
         avg_resolution_time: avg_resolution_time.round(1),
-        total_escalations: agent_refunds.select { |r| r.priority == 'urgent' }.count
+        total_escalations: agent_refunds.count { |r| r.priority == 'urgent' }
       }
     end
     
-    agent_stats
+    # Sort by performance score descending
+    agent_stats.sort_by { |_, metrics| -metrics[:avg_performance_score] }.to_h
   end
 
   def self.stage_performance_breakdown(timeframe = 30.days)
-    all_refunds = all
+    # Actually use the timeframe parameter
+    refunds_in_timeframe = where(created_at: timeframe.ago..Time.current)
     breakdown = {}
     
     refund_stages.keys.each do |stage|
-      stage_refunds = all_refunds.select { |r| r.refund_stage == stage }
-      next if stage_refunds.empty?
-
-      # Calculate average score and days for this stage
-      avg_score = stage_refunds.map(&:sla_performance_score).sum.to_f / stage_refunds.count
+      # Get refunds currently in this stage
+      current_stage_refunds = refunds_in_timeframe.select { |r| r.refund_stage == stage }
       
-      # Calculate average days for completed refunds in this stage
-      completed_stage_refunds = stage_refunds.select { |r| r.completed_stage? && r.processing_time_hours.present? }
-      avg_days = if completed_stage_refunds.any?
-        completed_stage_refunds.map { |r| r.processing_time_hours / 24 }.sum.to_f / completed_stage_refunds.count
+      # Get refunds that have ever been in this stage (including completed ones that passed through)
+      stage_history_refunds = refunds_in_timeframe.select do |r|
+        r.refund_stage == stage || (r.completed_stage? && stage_came_before_completion?(stage, r.refund_stage))
+      end
+      
+      next if current_stage_refunds.empty? && stage_history_refunds.empty?
+
+      # Use current stage refunds for active performance
+      active_refunds = current_stage_refunds
+      avg_score = if active_refunds.any?
+        active_refunds.sum(&:sla_performance_score).to_f / active_refunds.count
+      else
+        0
+      end
+      
+      # Calculate average completion time for refunds that completed after passing through this stage
+      completed_from_stage = stage_history_refunds.select { |r| r.completed_stage? && r.processing_time_hours.present? }
+      avg_completion_days = if completed_from_stage.any?
+        completed_from_stage.sum { |r| r.processing_time_hours / 24.0 } / completed_from_stage.count
       else
         0
       end
 
+      # Calculate stage metrics
+      on_track_count = active_refunds.count { |r| r.sla_status == 'on_track' }
+      at_risk_count = active_refunds.count { |r| r.sla_status == 'at_risk' }
+      breached_count = active_refunds.count { |r| r.sla_status == 'breached' }
+
       breakdown[stage] = {
-        count: stage_refunds.count,
+        current_count: active_refunds.count,
+        historical_count: stage_history_refunds.count,
         avg_score: avg_score.round(1),
-        avg_days: avg_days.round(1)
+        avg_completion_days: avg_completion_days.round(1),
+        on_track: on_track_count,
+        at_risk: at_risk_count,
+        breached: breached_count,
+        stage_sla_target: case stage
+                          when 'pending_refund' then 3
+                          when 'processing_refund' then 7
+                          when 'pending_return' then 14
+                          when 'pending_resolution' then 2
+                          when 'pending_replacement' then 5
+                          when 'pending_retry' then 3
+                          else 7
+                          end
       }
     end
     
     breakdown
   end
 
-  # Resolution Actions for Returns
+  # Resolution Actions for Returns (Public methods)
   def authorize_return_and_refund!
     return false unless pending_resolution?
     
@@ -807,6 +868,15 @@ class Refund < ApplicationRecord
   end
 
   private
+
+  def self.stage_came_before_completion?(stage, final_stage)
+    stage_order = %w[pending_refund processing_refund pending_return pending_resolution pending_replacement pending_retry refunded returned cancelled_refund]
+    stage_index = stage_order.index(stage)
+    final_index = stage_order.index(final_stage)
+    
+    return false if stage_index.nil? || final_index.nil?
+    stage_index < final_index
+  end
 
   def auto_resolve_if_applicable
     # Only trigger auto-resolution when relevant fields change

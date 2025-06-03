@@ -1,0 +1,236 @@
+<%= turbo_frame_tag "main_content", data: { turbo_action: "advance" } do %>
+<% content_for :title, "Edit Refund ##{@refund.refund_number}" %>
+
+<div class="refund-edit-container">
+  <!-- Header Section -->
+  <div class="refund-edit-header">
+    <div class="refund-header-content">
+      <div class="refund-header-left">
+        <div class="refund-header-icon">
+          <i class="fas fa-edit"></i>
+        </div>
+        <div class="refund-header-text">
+          <h1 class="refund-header-title">Edit Refund</h1>
+          <p class="refund-header-subtitle">Refund #<%= @refund.refund_number %> • <%= @refund.customer_name %></p>
+        </div>
+      </div>
+      
+      <div class="refund-header-actions">
+        <%= link_to refund_path(@refund), class: "refund-btn refund-btn-ghost" do %>
+          <i class="fas fa-arrow-left"></i>
+          <span>Back to Refund</span>
+        <% end %>
+        <%= link_to refunds_path, class: "refund-btn refund-btn-outline" do %>
+          <i class="fas fa-list"></i>
+          <span>All Refunds</span>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Overview -->
+  <div class="refund-status-overview">
+    <div class="status-badges">
+      <span class="badge badge-<%= @refund.stage_color %>">
+        <%= @refund.refund_stage.humanize %>
+      </span>
+      <% if @refund.pending_resolution? %>
+        <span class="badge badge-<%= @refund.resolution_stage_color %>">
+          <%= @refund.resolution_stage.humanize %>
+        </span>
+      <% end %>
+      <span class="badge badge-<%= @refund.priority_color %>">
+        <%= @refund.priority.humanize %> Priority
+      </span>
+      <span class="badge badge-<%= @refund.sla_status == 'breached' ? 'danger' : @refund.sla_status == 'at_risk' ? 'warning' : 'success' %>">
+        SLA: <%= @refund.sla_status.humanize %>
+      </span>
+    </div>
+  </div>
+
+  <!-- Edit Form -->
+  <div class="refund-edit-form">
+    <%= form_with model: @refund, local: false, data: { turbo_frame: "main_content" } do |f| %>
+      <% if @refund.errors.any? %>
+        <div class="alert alert-danger">
+          <h4><%= pluralize(@refund.errors.count, "error") %> prohibited this refund from being saved:</h4>
+          <ul>
+            <% @refund.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="form-sections">
+        <!-- Basic Information -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <i class="fas fa-info-circle"></i>
+            Basic Information
+          </h3>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <%= f.label :customer_name, class: "form-label" %>
+              <%= f.text_field :customer_name, class: "form-control", readonly: true %>
+            </div>
+            
+            <div class="form-group">
+              <%= f.label :customer_email, class: "form-label" %>
+              <%= f.email_field :customer_email, class: "form-control" %>
+            </div>
+            
+            <div class="form-group">
+              <%= f.label :refund_reason, class: "form-label" %>
+              <%= f.select :refund_reason, 
+                  options_for_select(Refund.refund_reasons.map { |k, v| [k.humanize, k] }, @refund.refund_reason), 
+                  { prompt: "Select reason..." }, 
+                  { class: "form-control" } %>
+            </div>
+            
+            <div class="form-group">
+              <%= f.label :priority, class: "form-label" %>
+              <%= f.select :priority, 
+                  options_for_select(Refund.priorities.map { |k, v| [k.humanize, k] }, @refund.priority), 
+                  {}, 
+                  { class: "form-control" } %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Financial Details -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <i class="fas fa-dollar-sign"></i>
+            Financial Details
+          </h3>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <%= f.label :original_charge_amount, "Original Charge Amount", class: "form-label" %>
+              <%= f.number_field :original_charge_amount, step: 0.01, class: "form-control", readonly: true %>
+            </div>
+            
+            <div class="form-group">
+              <%= f.label :refund_amount, "Refund Amount", class: "form-label" %>
+              <%= f.number_field :refund_amount, step: 0.01, class: "form-control" %>
+            </div>
+            
+            <div class="form-group">
+              <%= f.label :refund_method, class: "form-label" %>
+              <%= f.select :refund_method, 
+                  options_for_select(Refund.refund_methods.map { |k, v| [k.humanize, k] }, @refund.refund_method), 
+                  { prompt: "Select method..." }, 
+                  { class: "form-control" } %>
+            </div>
+            
+            <div class="form-group">
+              <%= f.label :transaction_id, "Transaction ID", class: "form-label" %>
+              <%= f.text_field :transaction_id, class: "form-control" %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Processing Details -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <i class="fas fa-cogs"></i>
+            Processing Details
+          </h3>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <%= f.label :refund_stage, class: "form-label" %>
+              <%= f.select :refund_stage, 
+                  options_for_select(Refund.refund_stages.map { |k, v| [k.humanize, k] }, @refund.refund_stage), 
+                  {}, 
+                  { class: "form-control" } %>
+            </div>
+            
+            <div class="form-group">
+              <%= f.label :processing_agent_id, "Processing Agent", class: "form-label" %>
+              <%= f.select :processing_agent_id, 
+                  options_from_collection_for_select(@agents, :id, :email, @refund.processing_agent_id), 
+                  { prompt: "Select agent..." }, 
+                  { class: "form-control" } %>
+            </div>
+            
+            <div class="form-group">
+              <%= f.label :estimated_processing_days, class: "form-label" %>
+              <%= f.number_field :estimated_processing_days, class: "form-control" %>
+            </div>
+            
+            <div class="form-group">
+              <%= f.label :payment_processor, class: "form-label" %>
+              <%= f.text_field :payment_processor, class: "form-control" %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Return Information -->
+        <% if @refund.requires_return? %>
+          <div class="form-section">
+            <h3 class="section-title">
+              <i class="fas fa-undo"></i>
+              Return Information
+            </h3>
+            
+            <div class="form-grid">
+              <div class="form-group">
+                <%= f.label :return_tracking_number, class: "form-label" %>
+                <%= f.text_field :return_tracking_number, class: "form-control" %>
+              </div>
+              
+              <div class="form-group">
+                <%= f.label :return_deadline, class: "form-label" %>
+                <%= f.datetime_local_field :return_deadline, class: "form-control" %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- Notes Section -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <i class="fas fa-sticky-note"></i>
+            Notes & Comments
+          </h3>
+          
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <%= f.label :notes, "Customer Notes", class: "form-label" %>
+              <%= f.text_area :notes, rows: 3, class: "form-control" %>
+            </div>
+            
+            <div class="form-group full-width">
+              <%= f.label :internal_notes, "Internal Notes", class: "form-label" %>
+              <%= f.text_area :internal_notes, rows: 3, class: "form-control" %>
+            </div>
+            
+            <div class="form-group full-width">
+              <%= f.label :bank_details, class: "form-label" %>
+              <%= f.text_area :bank_details, rows: 2, class: "form-control" %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <%= f.submit "Update Refund", class: "btn btn-primary" %>
+        <%= link_to "Cancel", refund_path(@refund), class: "btn btn-secondary" %>
+        <% if @refund.can_be_cancelled? %>
+          <%= link_to "Cancel Refund", cancel_refund_refund_path(@refund), 
+              method: :patch, 
+              class: "btn btn-danger",
+              data: { 
+                confirm: "Are you sure you want to cancel this refund? This action cannot be undone.",
+                turbo_method: :patch
+              } %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+<% end %>

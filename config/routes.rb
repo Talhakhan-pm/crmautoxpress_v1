@@ -32,7 +32,11 @@ Rails.application.routes.draw do
   resources :refunds do
     collection do
       get :sla_analytics
+      get :sla_alerts_dashboard
+      get :returns_tracking
       post :create_refund, to: 'refunds#create'
+      post :bulk_escalate
+      post :bulk_prioritize
     end
     member do
       patch :process_refund

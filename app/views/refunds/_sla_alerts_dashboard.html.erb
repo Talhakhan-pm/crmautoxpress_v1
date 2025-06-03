@@ -1,0 +1,317 @@
+<div class="sla-alerts-dashboard" data-controller="sla-alerts" data-sla-alerts-refresh-interval-value="30000">
+  <div class="alerts-header">
+    <h3 class="alerts-title">
+      <i class="fas fa-exclamation-triangle text-warning"></i>
+      SLA Alerts
+      <span class="badge badge-danger" id="total-alerts-count"><%= @sla_alerts&.count || 0 %></span>
+    </h3>
+    <div class="alerts-filters">
+      <button class="alert-filter active" data-filter="all">All</button>
+      <button class="alert-filter" data-filter="breached">Breached</button>
+      <button class="alert-filter" data-filter="at_risk">At Risk</button>
+      <button class="alert-filter" data-filter="urgent">Urgent</button>
+    </div>
+  </div>
+
+  <div class="alerts-content" id="sla-alerts-content">
+    <% breached_refunds = Refund.pending.select { |r| r.sla_status == 'breached' } %>
+    <% at_risk_refunds = Refund.pending.select { |r| r.sla_status == 'at_risk' } %>
+    <% urgent_refunds = Refund.pending.where(priority: 'urgent') %>
+
+    <!-- Breached SLA Items -->
+    <% if breached_refunds.any? %>
+      <div class="alert-section breached-section">
+        <div class="section-header">
+          <i class="fas fa-times-circle text-danger"></i>
+          <span class="section-title">SLA Breached (<%= breached_refunds.count %>)</span>
+          <span class="section-action">
+            <button class="btn btn-sm btn-danger" onclick="escalateAll('breached')">
+              <i class="fas fa-bolt"></i> Escalate All
+            </button>
+          </span>
+        </div>
+        <div class="alert-items">
+          <% breached_refunds.each do |refund| %>
+            <div class="alert-item critical" data-refund-id="<%= refund.id %>" data-category="breached">
+              <div class="alert-icon">
+                <i class="fas fa-fire text-danger"></i>
+              </div>
+              <div class="alert-content">
+                <div class="alert-title">
+                  <%= link_to refund.refund_number, refund_path(refund), class: "alert-link" %>
+                  <span class="customer-name"><%= refund.customer_name %></span>
+                  <span class="amount">$<%= number_with_precision(refund.refund_amount, precision: 2) %></span>
+                </div>
+                <div class="alert-details">
+                  <span class="time-overdue">
+                    <i class="fas fa-clock"></i>
+                    <%= pluralize((Time.current - refund.sla_deadline.end_of_day) / 1.hour, 'hour').round %> overdue
+                  </span>
+                  <span class="stage">
+                    <i class="fas fa-tag"></i>
+                    <%= refund.refund_stage.humanize %>
+                  </span>
+                  <span class="reason">
+                    <%= refund.refund_reason.humanize %>
+                  </span>
+                </div>
+              </div>
+              <div class="alert-actions">
+                <% if refund.pending_resolution? %>
+                  <button class="btn btn-sm btn-primary" onclick="openResolutionHub(<%= refund.id %>, '<%= refund.resolution_stage %>')">
+                    <i class="fas fa-comments"></i> Resolve
+                  </button>
+                <% else %>
+                  <%= link_to "Process", process_refund_refund_path(refund), 
+                      method: :patch, 
+                      class: "btn btn-sm btn-success",
+                      data: { turbo_method: :patch } %>
+                <% end %>
+                <%= button_to "Escalate", resolution_escalate_path(refund), 
+                    method: :patch, 
+                    class: "btn btn-sm btn-warning",
+                    form: { data: { turbo: true } } %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- At Risk Items -->
+    <% if at_risk_refunds.any? %>
+      <div class="alert-section at-risk-section">
+        <div class="section-header">
+          <i class="fas fa-exclamation-triangle text-warning"></i>
+          <span class="section-title">At Risk (<%= at_risk_refunds.count %>)</span>
+          <span class="section-action">
+            <button class="btn btn-sm btn-warning" onclick="prioritizeAll('at_risk')">
+              <i class="fas fa-arrow-up"></i> Prioritize All
+            </button>
+          </span>
+        </div>
+        <div class="alert-items">
+          <% at_risk_refunds.each do |refund| %>
+            <div class="alert-item warning" data-refund-id="<%= refund.id %>" data-category="at_risk">
+              <div class="alert-icon">
+                <i class="fas fa-exclamation-triangle text-warning"></i>
+              </div>
+              <div class="alert-content">
+                <div class="alert-title">
+                  <%= link_to refund.refund_number, refund_path(refund), class: "alert-link" %>
+                  <span class="customer-name"><%= refund.customer_name %></span>
+                  <span class="amount">$<%= number_with_precision(refund.refund_amount, precision: 2) %></span>
+                </div>
+                <div class="alert-details">
+                  <span class="time-remaining">
+                    <i class="fas fa-hourglass-half"></i>
+                    <%= pluralize(refund.sla_remaining_hours, 'hour') %> remaining
+                  </span>
+                  <span class="stage">
+                    <i class="fas fa-tag"></i>
+                    <%= refund.refund_stage.humanize %>
+                  </span>
+                  <span class="reason">
+                    <%= refund.refund_reason.humanize %>
+                  </span>
+                </div>
+              </div>
+              <div class="alert-actions">
+                <% if refund.pending_resolution? %>
+                  <button class="btn btn-sm btn-primary" onclick="openResolutionHub(<%= refund.id %>, '<%= refund.resolution_stage %>')">
+                    <i class="fas fa-comments"></i> Resolve
+                  </button>
+                <% else %>
+                  <%= link_to "Process", process_refund_refund_path(refund), 
+                      method: :patch, 
+                      class: "btn btn-sm btn-success",
+                      data: { turbo_method: :patch } %>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Urgent Priority Items -->
+    <% if urgent_refunds.any? %>
+      <div class="alert-section urgent-section">
+        <div class="section-header">
+          <i class="fas fa-bolt text-danger"></i>
+          <span class="section-title">Urgent Priority (<%= urgent_refunds.count %>)</span>
+        </div>
+        <div class="alert-items">
+          <% urgent_refunds.each do |refund| %>
+            <div class="alert-item urgent" data-refund-id="<%= refund.id %>" data-category="urgent">
+              <div class="alert-icon">
+                <i class="fas fa-bolt text-danger"></i>
+              </div>
+              <div class="alert-content">
+                <div class="alert-title">
+                  <%= link_to refund.refund_number, refund_path(refund), class: "alert-link" %>
+                  <span class="customer-name"><%= refund.customer_name %></span>
+                  <span class="amount">$<%= number_with_precision(refund.refund_amount, precision: 2) %></span>
+                </div>
+                <div class="alert-details">
+                  <span class="stage">
+                    <i class="fas fa-tag"></i>
+                    <%= refund.refund_stage.humanize %>
+                  </span>
+                  <span class="reason">
+                    <%= refund.refund_reason.humanize %>
+                  </span>
+                  <span class="sla-status">
+                    <i class="fas fa-stopwatch"></i>
+                    SLA: <%= refund.sla_status.humanize %>
+                  </span>
+                </div>
+              </div>
+              <div class="alert-actions">
+                <% if refund.pending_resolution? %>
+                  <button class="btn btn-sm btn-primary" onclick="openResolutionHub(<%= refund.id %>, '<%= refund.resolution_stage %>')">
+                    <i class="fas fa-comments"></i> Resolve Now
+                  </button>
+                <% else %>
+                  <%= link_to "Process Now", process_refund_refund_path(refund), 
+                      method: :patch, 
+                      class: "btn btn-sm btn-success",
+                      data: { turbo_method: :patch } %>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Empty State -->
+    <% if breached_refunds.empty? && at_risk_refunds.empty? && urgent_refunds.empty? %>
+      <div class="alerts-empty-state">
+        <div class="empty-icon">
+          <i class="fas fa-check-circle text-success"></i>
+        </div>
+        <h4>All SLA Targets Met!</h4>
+        <p>No items require immediate attention at this time.</p>
+        <small class="text-muted">
+          Last updated: <%= Time.current.strftime("%I:%M %p") %>
+        </small>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Summary Footer -->
+  <div class="alerts-summary">
+    <div class="summary-stats">
+      <div class="stat-item">
+        <span class="stat-label">Total Alerts:</span>
+        <span class="stat-value"><%= (breached_refunds.count + at_risk_refunds.count + urgent_refunds.count) %></span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Avg Response Time:</span>
+        <span class="stat-value"><%= Refund.sla_metrics(7.days)[:avg_resolution_time] %> days</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Compliance Rate:</span>
+        <span class="stat-value 
+               <%= Refund.sla_metrics(7.days)[:sla_compliance_rate] > 90 ? 'text-success' : 
+                   Refund.sla_metrics(7.days)[:sla_compliance_rate] > 70 ? 'text-warning' : 'text-danger' %>">
+          <%= Refund.sla_metrics(7.days)[:sla_compliance_rate] %>%
+        </span>
+      </div>
+    </div>
+    <div class="summary-actions">
+      <button class="btn btn-outline-primary btn-sm" onclick="refreshAlerts()">
+        <i class="fas fa-sync-alt"></i> Refresh
+      </button>
+      <%= link_to "Full SLA Report", sla_analytics_refunds_path, 
+          class: "btn btn-outline-secondary btn-sm" %>
+    </div>
+  </div>
+</div>
+
+<script>
+// Auto-refresh SLA alerts
+function refreshAlerts() {
+  fetch(window.location.href, {
+    headers: { 'Accept': 'text/html' }
+  })
+  .then(response => response.text())
+  .then(html => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const newContent = doc.querySelector('#sla-alerts-content');
+    if (newContent) {
+      document.getElementById('sla-alerts-content').innerHTML = newContent.innerHTML;
+    }
+  })
+  .catch(error => console.error('Error refreshing alerts:', error));
+}
+
+// Filter alerts
+document.querySelectorAll('.alert-filter').forEach(button => {
+  button.addEventListener('click', function() {
+    document.querySelectorAll('.alert-filter').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    
+    const filter = this.dataset.filter;
+    const items = document.querySelectorAll('.alert-item');
+    
+    items.forEach(item => {
+      if (filter === 'all' || item.dataset.category === filter) {
+        item.style.display = 'flex';
+      } else {
+        item.style.display = 'none';
+      }
+    });
+  });
+});
+
+// Bulk actions
+function escalateAll(category) {
+  if (!confirm(`Escalate all ${category} items to urgent priority?`)) return;
+  
+  const items = document.querySelectorAll(`[data-category="${category}"]`);
+  const refundIds = Array.from(items).map(item => item.dataset.refundId);
+  
+  // Make bulk escalation request
+  fetch('/refunds/bulk_escalate', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+    },
+    body: JSON.stringify({ refund_ids: refundIds })
+  })
+  .then(response => {
+    if (response.ok) {
+      refreshAlerts();
+    }
+  });
+}
+
+function prioritizeAll(category) {
+  if (!confirm(`Set all ${category} items to high priority?`)) return;
+  
+  const items = document.querySelectorAll(`[data-category="${category}"]`);
+  const refundIds = Array.from(items).map(item => item.dataset.refundId);
+  
+  // Make bulk prioritization request
+  fetch('/refunds/bulk_prioritize', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+    },
+    body: JSON.stringify({ refund_ids: refundIds, priority: 'high' })
+  })
+  .then(response => {
+    if (response.ok) {
+      refreshAlerts();
+    }
+  });
+}
+
+// Auto-refresh every 30 seconds
+setInterval(refreshAlerts, 30000);
+</script>

@@ -237,6 +237,48 @@ class RefundsController < ApplicationController
     end
   end
 
+  # SLA Alerts Dashboard
+  def sla_alerts_dashboard
+    @sla_alerts = Refund.pending.includes(:order, :processing_agent)
+    
+    respond_to do |format|
+      format.html
+      format.json { render json: { alerts: @sla_alerts } }
+    end
+  end
+
+  # Returns Tracking Dashboard
+  def returns_tracking
+    @returns = Refund.where.not(return_status: 'no_return_required')
+                    .includes(:order, :processing_agent)
+                    .order(:return_status, :created_at)
+    
+    respond_to do |format|
+      format.html
+      format.json { render json: { returns: @returns } }
+    end
+  end
+
+  # Bulk Actions
+  def bulk_escalate
+    refund_ids = params[:refund_ids]
+    refunds = Refund.where(id: refund_ids)
+    
+    refunds.update_all(priority: 'urgent')
+    
+    render json: { success: true, message: "#{refunds.count} refunds escalated to urgent priority" }
+  end
+
+  def bulk_prioritize
+    refund_ids = params[:refund_ids]
+    priority = params[:priority] || 'high'
+    refunds = Refund.where(id: refund_ids)
+    
+    refunds.update_all(priority: priority)
+    
+    render json: { success: true, message: "#{refunds.count} refunds updated to #{priority} priority" }
+  end
+
   private
 
   def set_refund

@@ -1,0 +1,37 @@
+<%= turbo_frame_tag "main_content", data: { turbo_action: "advance" } do %>
+<!-- Main Content -->
+<main class="main-content">
+  <% content_for :title, "SLA Alerts Dashboard" %>
+
+  <div class="dashboard-container">
+    <!-- Header Section -->
+    <div class="dashboard-header">
+      <div class="header-content">
+        <div class="header-left">
+          <div class="header-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+          </div>
+          <div class="header-text">
+            <h1 class="dashboard-title">SLA Alerts Dashboard</h1>
+            <p class="dashboard-subtitle">Monitor and manage refunds requiring immediate attention</p>
+          </div>
+        </div>
+        
+        <div class="header-actions">
+          <%= link_to refunds_path, class: "btn btn-ghost" do %>
+            <i class="fas fa-arrow-left"></i>
+            <span>Back to Refunds</span>
+          <% end %>
+          <%= link_to sla_analytics_refunds_path, class: "btn btn-outline" do %>
+            <i class="fas fa-chart-line"></i>
+            <span>SLA Analytics</span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLA Alerts Dashboard Content -->
+    <%= render 'sla_alerts_dashboard' %>
+  </div>
+</main>
+<% end %>

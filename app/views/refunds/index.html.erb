@@ -31,6 +31,14 @@
       </div>
       
       <div class="refunds-hero-actions">
+        <%= link_to sla_alerts_dashboard_refunds_path, class: "refunds-btn refunds-btn-warning" do %>
+          <i class="fas fa-exclamation-triangle"></i>
+          <span>SLA Alerts</span>
+        <% end %>
+        <%= link_to returns_tracking_refunds_path, class: "refunds-btn refunds-btn-info" do %>
+          <i class="fas fa-undo"></i>
+          <span>Returns</span>
+        <% end %>
         <%= link_to sla_analytics_refunds_path, class: "refunds-btn refunds-btn-primary" do %>
           <i class="fas fa-chart-line"></i>
           <span>Analytics</span>

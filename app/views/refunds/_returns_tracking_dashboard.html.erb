@@ -1,0 +1,402 @@
+<div class="returns-tracking-dashboard">
+  <div class="returns-header">
+    <h3 class="returns-title">
+      <i class="fas fa-undo text-info"></i>
+      Return Tracking Center
+      <span class="badge badge-info" id="active-returns-count">
+        <%= Refund.where.not(return_status: ['no_return_required', 'return_inspected']).count %>
+      </span>
+    </h3>
+    <div class="returns-filters">
+      <select class="form-select form-select-sm" id="return-status-filter">
+        <option value="">All Returns</option>
+        <option value="return_requested">Requested</option>
+        <option value="return_authorized">Authorized</option>
+        <option value="return_label_sent">Label Sent</option>
+        <option value="return_shipped">In Transit</option>
+        <option value="return_received">Received</option>
+      </select>
+      <button class="btn btn-sm btn-outline-primary" onclick="refreshReturns()">
+        <i class="fas fa-sync-alt"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+  <div class="returns-content" id="returns-content">
+    <% returns_by_status = Refund.where.not(return_status: 'no_return_required').group_by(&:return_status) %>
+
+    <!-- Return Workflow Pipeline -->
+    <div class="returns-pipeline">
+      <% pipeline_stages = [
+        { status: 'return_requested', label: 'Requested', icon: 'question-circle', color: 'warning' },
+        { status: 'return_authorized', label: 'Authorized', icon: 'check-circle', color: 'success' },
+        { status: 'return_label_sent', label: 'Label Sent', icon: 'shipping-fast', color: 'info' },
+        { status: 'return_shipped', label: 'In Transit', icon: 'truck', color: 'primary' },
+        { status: 'return_received', label: 'Received', icon: 'box-open', color: 'success' },
+        { status: 'return_inspected', label: 'Complete', icon: 'check-double', color: 'dark' }
+      ] %>
+
+      <% pipeline_stages.each_with_index do |stage, index| %>
+        <% stage_returns = returns_by_status[stage[:status]] || [] %>
+        <div class="pipeline-stage" data-status="<%= stage[:status] %>">
+          <div class="stage-header">
+            <div class="stage-icon stage-<%= stage[:color] %>">
+              <i class="fas fa-<%= stage[:icon] %>"></i>
+            </div>
+            <div class="stage-info">
+              <h5 class="stage-title"><%= stage[:label] %></h5>
+              <span class="stage-count"><%= stage_returns.count %> items</span>
+            </div>
+          </div>
+
+          <div class="stage-items">
+            <% if stage_returns.any? %>
+              <% stage_returns.each do |refund| %>
+                <div class="return-item" data-refund-id="<%= refund.id %>">
+                  <div class="item-header">
+                    <div class="item-identity">
+                      <strong class="refund-number">
+                        <%= link_to refund.refund_number, refund_path(refund), class: "return-link" %>
+                      </strong>
+                      <span class="customer-name"><%= refund.customer_name %></span>
+                    </div>
+                    <div class="item-amount">
+                      $<%= number_with_precision(refund.refund_amount, precision: 2) %>
+                    </div>
+                  </div>
+
+                  <div class="item-details">
+                    <div class="detail-row">
+                      <span class="detail-label">
+                        <i class="fas fa-box"></i> Product:
+                      </span>
+                      <span class="detail-value"><%= refund.order.product_name %></span>
+                    </div>
+                    
+                    <% if refund.return_authorized_at.present? %>
+                      <div class="detail-row">
+                        <span class="detail-label">
+                          <i class="fas fa-calendar"></i> Authorized:
+                        </span>
+                        <span class="detail-value">
+                          <%= time_ago_in_words(refund.return_authorized_at) %> ago
+                        </span>
+                      </div>
+                    <% end %>
+
+                    <% if refund.return_carrier.present? %>
+                      <div class="detail-row">
+                        <span class="detail-label">
+                          <i class="fas fa-shipping-fast"></i> Carrier:
+                        </span>
+                        <span class="detail-value"><%= refund.return_carrier %></span>
+                      </div>
+                    <% end %>
+
+                    <% if refund.return_tracking_number.present? %>
+                      <div class="detail-row">
+                        <span class="detail-label">
+                          <i class="fas fa-barcode"></i> Tracking:
+                        </span>
+                        <span class="detail-value">
+                          <a href="#" onclick="trackReturn('<%= refund.return_tracking_number %>', '<%= refund.return_carrier %>')" 
+                             class="tracking-link">
+                            <%= refund.return_tracking_number %>
+                          </a>
+                        </span>
+                      </div>
+                    <% end %>
+
+                    <% if refund.return_deadline.present? %>
+                      <div class="detail-row">
+                        <span class="detail-label">
+                          <i class="fas fa-hourglass-half"></i> Deadline:
+                        </span>
+                        <span class="detail-value deadline-<%= refund.return_deadline < Time.current ? 'overdue' : 'active' %>">
+                          <%= refund.return_deadline.strftime("%b %d, %Y") %>
+                          <% if refund.return_deadline < Time.current %>
+                            <span class="overdue-indicator">(Overdue)</span>
+                          <% end %>
+                        </span>
+                      </div>
+                    <% end %>
+
+                    <!-- SLA Status for Returns -->
+                    <div class="detail-row">
+                      <span class="detail-label">
+                        <i class="fas fa-stopwatch"></i> Return SLA:
+                      </span>
+                      <span class="detail-value">
+                        <span class="sla-badge sla-<%= refund.return_sla_status %>">
+                          <%= refund.return_sla_status.humanize %>
+                        </span>
+                        <small class="text-muted">
+                          (<%= refund.days_since_return_requested %> days elapsed)
+                        </small>
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Stage-specific Actions -->
+                  <div class="item-actions">
+                    <% case stage[:status] %>
+                    <% when 'return_requested' %>
+                      <%= button_to "Authorize Return", resolution_authorize_return_and_refund_path(refund),
+                          method: :patch,
+                          class: "btn btn-sm btn-success",
+                          confirm: "Authorize return for #{refund.customer_name}?",
+                          form: { data: { turbo: true } } %>
+                      <%= button_to "Return + Replace", resolution_authorize_return_and_replacement_path(refund),
+                          method: :patch,
+                          class: "btn btn-sm btn-primary",
+                          confirm: "Authorize return with replacement order?",
+                          form: { data: { turbo: true } } %>
+
+                    <% when 'return_authorized' %>
+                      <% if refund.can_generate_return_label? %>
+                        <%= button_to "Generate Label", resolution_generate_return_label_path(refund),
+                            method: :patch,
+                            params: { carrier: 'FedEx' },
+                            class: "btn btn-sm btn-info",
+                            form: { data: { turbo: true } } %>
+                      <% end %>
+                      
+                    <% when 'return_label_sent' %>
+                      <div class="label-info">
+                        <% if refund.return_label_url.present? %>
+                          <a href="<%= refund.return_label_url %>" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-download"></i> View Label
+                          </a>
+                        <% end %>
+                        <%= button_to "Mark as Shipped", resolution_mark_return_shipped_path(refund),
+                            method: :patch,
+                            class: "btn btn-sm btn-success",
+                            form: { data: { turbo: true } } %>
+                      </div>
+
+                    <% when 'return_shipped', 'return_in_transit', 'return_delivered' %>
+                      <%= button_to "Mark as Received", resolution_mark_return_received_path(refund),
+                          method: :patch,
+                          class: "btn btn-sm btn-success",
+                          confirm: "Confirm return package received?",
+                          form: { data: { turbo: true } } %>
+                      
+                    <% when 'return_received' %>
+                      <%= button_to "Complete Inspection", resolution_complete_refund_path(refund),
+                          method: :patch,
+                          class: "btn btn-sm btn-primary",
+                          confirm: "Complete return inspection and process refund?",
+                          form: { data: { turbo: true } } %>
+                    <% end %>
+
+                    <!-- Common Actions -->
+                    <button class="btn btn-sm btn-outline-secondary" onclick="openReturnNotes(<%= refund.id %>)">
+                      <i class="fas fa-sticky-note"></i> Notes
+                    </button>
+                    <%= link_to "Details", refund_path(refund), class: "btn btn-sm btn-outline-info" %>
+                  </div>
+
+                  <!-- Return Timeline -->
+                  <div class="return-timeline">
+                    <% refund.return_timeline_events.each do |event| %>
+                      <div class="timeline-event">
+                        <div class="event-icon">
+                          <i class="fas fa-<%= case event[:status]
+                            when 'return_requested' then 'question-circle'
+                            when 'return_authorized' then 'check-circle'
+                            when 'return_label_sent' then 'shipping-fast'
+                            when 'return_shipped' then 'truck'
+                            when 'return_received' then 'box-open'
+                            else 'circle'
+                            end %>"></i>
+                        </div>
+                        <div class="event-content">
+                          <span class="event-title"><%= event[:description] %></span>
+                          <span class="event-time"><%= event[:date]&.strftime("%b %d, %I:%M %p") %></span>
+                        </div>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            <% else %>
+              <div class="stage-empty">
+                <i class="fas fa-check-circle text-muted"></i>
+                <span>No items in this stage</span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Returns Summary Statistics -->
+    <div class="returns-summary">
+      <div class="summary-card">
+        <h6>Active Returns</h6>
+        <div class="summary-number">
+          <%= Refund.where.not(return_status: ['no_return_required', 'return_inspected']).count %>
+        </div>
+      </div>
+      <div class="summary-card">
+        <h6>Overdue Returns</h6>
+        <div class="summary-number text-danger">
+          <%= Refund.joins(:order).where(return_deadline: ...Time.current).where.not(return_status: 'return_inspected').count %>
+        </div>
+      </div>
+      <div class="summary-card">
+        <h6>Avg Return Time</h6>
+        <div class="summary-number">
+          <% completed_returns = Refund.where(return_status: 'return_inspected').where.not(return_received_at: nil) %>
+          <% if completed_returns.any? %>
+            <%= ((completed_returns.sum { |r| (r.return_received_at - r.created_at) / 1.day }) / completed_returns.count).round(1) %> days
+          <% else %>
+            -- days
+          <% end %>
+        </div>
+      </div>
+      <div class="summary-card">
+        <h6>Return Success Rate</h6>
+        <div class="summary-number text-success">
+          <% total_returns = Refund.where.not(return_status: 'no_return_required').count %>
+          <% if total_returns > 0 %>
+            <%= ((Refund.where(return_status: 'return_inspected').count.to_f / total_returns) * 100).round(1) %>%
+          <% else %>
+            100%
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Return Notes Modal -->
+<div class="modal fade" id="returnNotesModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Return Notes</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="returnNotesForm">
+          <div class="mb-3">
+            <label for="returnNotes" class="form-label">Notes</label>
+            <textarea class="form-control" id="returnNotes" rows="4" 
+                      placeholder="Add notes about the return condition, packaging, etc."></textarea>
+          </div>
+          <input type="hidden" id="returnRefundId">
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="saveReturnNotes()">Save Notes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Filter returns by status
+document.getElementById('return-status-filter').addEventListener('change', function() {
+  const selectedStatus = this.value;
+  const stages = document.querySelectorAll('.pipeline-stage');
+  
+  stages.forEach(stage => {
+    if (!selectedStatus || stage.dataset.status === selectedStatus) {
+      stage.style.display = 'block';
+    } else {
+      stage.style.display = 'none';
+    }
+  });
+});
+
+// Refresh returns data
+function refreshReturns() {
+  fetch(window.location.href, {
+    headers: { 'Accept': 'text/html' }
+  })
+  .then(response => response.text())
+  .then(html => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const newContent = doc.querySelector('#returns-content');
+    if (newContent) {
+      document.getElementById('returns-content').innerHTML = newContent.innerHTML;
+    }
+  })
+  .catch(error => console.error('Error refreshing returns:', error));
+}
+
+// Track return package
+function trackReturn(trackingNumber, carrier) {
+  let trackingUrl;
+  
+  switch(carrier) {
+    case 'FedEx':
+      trackingUrl = `https://www.fedex.com/fedextrack/?trknbr=${trackingNumber}`;
+      break;
+    case 'UPS':
+      trackingUrl = `https://www.ups.com/track?loc=en_US&tracknum=${trackingNumber}`;
+      break;
+    case 'USPS':
+      trackingUrl = `https://tools.usps.com/go/TrackConfirmAction?tLabels=${trackingNumber}`;
+      break;
+    default:
+      alert(`Tracking number: ${trackingNumber}\nCarrier: ${carrier}`);
+      return;
+  }
+  
+  window.open(trackingUrl, '_blank');
+}
+
+// Return notes management
+function openReturnNotes(refundId) {
+  document.getElementById('returnRefundId').value = refundId;
+  
+  // Load existing notes
+  fetch(`/refunds/${refundId}`, {
+    headers: { 'Accept': 'application/json' }
+  })
+  .then(response => response.json())
+  .then(data => {
+    document.getElementById('returnNotes').value = data.return_notes || '';
+    new bootstrap.Modal(document.getElementById('returnNotesModal')).show();
+  })
+  .catch(error => {
+    console.error('Error loading notes:', error);
+    new bootstrap.Modal(document.getElementById('returnNotesModal')).show();
+  });
+}
+
+function saveReturnNotes() {
+  const refundId = document.getElementById('returnRefundId').value;
+  const notes = document.getElementById('returnNotes').value;
+  
+  const formData = new FormData();
+  formData.append('refund[return_notes]', notes);
+  
+  fetch(`/refunds/${refundId}`, {
+    method: 'PATCH',
+    body: formData,
+    headers: {
+      'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+    }
+  })
+  .then(response => {
+    if (response.ok) {
+      bootstrap.Modal.getInstance(document.getElementById('returnNotesModal')).hide();
+      refreshReturns();
+    } else {
+      alert('Error saving notes. Please try again.');
+    }
+  })
+  .catch(error => {
+    console.error('Error saving notes:', error);
+    alert('Network error. Please try again.');
+  });
+}
+
+// Auto-refresh every 60 seconds
+setInterval(refreshReturns, 60000);
+</script>

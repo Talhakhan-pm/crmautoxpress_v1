@@ -1,0 +1,37 @@
+<%= turbo_frame_tag "main_content", data: { turbo_action: "advance" } do %>
+<!-- Main Content -->
+<main class="main-content">
+  <% content_for :title, "Returns Tracking" %>
+
+  <div class="dashboard-container">
+    <!-- Header Section -->
+    <div class="dashboard-header">
+      <div class="header-content">
+        <div class="header-left">
+          <div class="header-icon">
+            <i class="fas fa-undo"></i>
+          </div>
+          <div class="header-text">
+            <h1 class="dashboard-title">Returns Tracking</h1>
+            <p class="dashboard-subtitle">Monitor return workflow and package status</p>
+          </div>
+        </div>
+        
+        <div class="header-actions">
+          <%= link_to refunds_path, class: "btn btn-ghost" do %>
+            <i class="fas fa-arrow-left"></i>
+            <span>Back to Refunds</span>
+          <% end %>
+          <%= link_to sla_alerts_dashboard_refunds_path, class: "btn btn-outline" do %>
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>SLA Alerts</span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Returns Tracking Dashboard Content -->
+    <%= render 'returns_tracking_dashboard' %>
+  </div>
+</main>
+<% end %>

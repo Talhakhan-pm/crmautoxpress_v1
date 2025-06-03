@@ -22,6 +22,8 @@
 @use 'orders';
 @use 'dispatches';
 @use 'refunds';
+@use 'sla_alerts_dashboard';
+@use 'returns_tracking_dashboard';
 @use 'resolution';
 @use 'order_resolution';
 

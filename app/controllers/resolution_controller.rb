@@ -277,7 +277,7 @@ class ResolutionController < ApplicationController
     @refund = Refund.find(params[:id])
     
     if @refund.authorize_return_and_refund!
-      render_quick_action_response
+      render_quick_action_response(message: "Return authorized! Customer will receive $#{@refund.refund_amount} refund after returning the item.")
     else
       render json: { errors: ['Cannot authorize return from current state'] }, status: :unprocessable_entity
     end
@@ -287,7 +287,7 @@ class ResolutionController < ApplicationController
     @refund = Refund.find(params[:id])
     
     if @refund.authorize_return_and_replacement!
-      render_quick_action_response
+      render_quick_action_response(message: "Return and replacement authorized! Replacement order #{@refund.replacement_order_number} created.")
     else
       render json: { errors: ['Cannot authorize return and replacement from current state'] }, status: :unprocessable_entity
     end
@@ -299,7 +299,7 @@ class ResolutionController < ApplicationController
     label_url = params[:label_url]
     
     if @refund.generate_return_label!(carrier: carrier, label_url: label_url)
-      render_quick_action_response
+      render_quick_action_response(message: "Return label generated via #{carrier}! Customer has 14 days to ship the return.")
     else
       render json: { errors: ['Cannot generate return label from current state'] }, status: :unprocessable_entity
     end
@@ -310,7 +310,8 @@ class ResolutionController < ApplicationController
     tracking_number = params[:tracking_number]
     
     if @refund.mark_return_shipped!(tracking_number: tracking_number)
-      render_quick_action_response
+      tracking_msg = tracking_number.present? ? " (Tracking: #{tracking_number})" : ""
+      render_quick_action_response(message: "Return marked as shipped#{tracking_msg}! Package is now in transit.")
     else
       render json: { errors: ['Cannot mark return as shipped from current state'] }, status: :unprocessable_entity
     end
@@ -321,7 +322,7 @@ class ResolutionController < ApplicationController
     condition_notes = params[:condition_notes]
     
     if @refund.mark_return_received!(condition_notes: condition_notes)
-      render_quick_action_response
+      render_quick_action_response(message: "Return package received and inspected! Processing refund now.")
     else
       render json: { errors: ['Cannot mark return as received from current state'] }, status: :unprocessable_entity
     end
@@ -554,15 +555,19 @@ class ResolutionController < ApplicationController
                                    :delay_duration, :additional_cost, :agent_instructions)
   end
 
-  def render_quick_action_response
+  def render_quick_action_response(message: nil)
+    # Set default success message if none provided
+    flash.now[:notice] = message || "Action completed successfully!"
+    
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
           turbo_stream.replace("refund_#{@refund.id}", partial: "simplified_resolution_item", locals: { refund: @refund }),
-          turbo_stream.update("resolution-stats-container", partial: "stats", locals: { stats: calculate_resolution_stats })
+          turbo_stream.update("resolution-stats-container", partial: "stats", locals: { stats: calculate_resolution_stats }),
+          turbo_stream.replace("flash-messages", partial: "shared/flash_messages")
         ]
       end
-      format.json { render json: { success: true } }
+      format.json { render json: { success: true, message: flash.now[:notice] } }
     end
   end
 end
