@@ -98,3 +98,510 @@
 .data-table .action-group {
     gap: 8px !important;
 }
+
+/* Modern Quick Callback Form */
+.quick-callback-form {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 48px 0 0 0;
+}
+
+.quick-form-alert {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 24px;
+    color: #dc2626;
+    font-weight: 500;
+}
+
+.quick-form-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    margin-bottom: 24px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+
+.quick-form-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.quick-form-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.quick-form-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.quick-badge {
+    background: #3b82f6;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.quick-badge-secondary {
+    background: #6b7280;
+}
+
+.quick-badge-accent {
+    background: #10b981;
+}
+
+.quick-form-row {
+    display: flex;
+    gap: 16px;
+    padding: 24px;
+    flex-wrap: wrap;
+}
+
+.quick-form-row:not(:last-child) {
+    border-bottom: 1px solid #f3f4f6;
+    padding-bottom: 20px;
+    margin-bottom: 4px;
+}
+
+.quick-input-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.quick-input-group.quick-input-small {
+    flex: 0 0 120px;
+    min-width: 120px;
+}
+
+.quick-input-group.quick-input-full {
+    flex: 1 1 100%;
+}
+
+.quick-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    background: white;
+}
+
+.quick-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+    transform: translateY(-1px);
+    background: #fafbff;
+}
+
+.quick-input:invalid {
+    border-color: #e5e7eb;
+    box-shadow: none;
+}
+
+.quick-input:required {
+    border-color: #e5e7eb;
+    box-shadow: none;
+}
+
+.quick-input::placeholder {
+    color: #9ca3af;
+}
+
+.quick-status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    padding: 24px;
+}
+
+.quick-status-option {
+    position: relative;
+}
+
+.quick-status-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.quick-status-option label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 12px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: white;
+    text-align: center;
+    min-height: 80px;
+    justify-content: center;
+}
+
+.quick-status-option label i {
+    font-size: 20px;
+    color: #6b7280;
+    transition: color 0.2s ease;
+}
+
+.quick-status-option label span {
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.quick-status-option:hover label {
+    border-color: #3b82f6;
+    background: #f8faff;
+}
+
+.quick-status-option input[type="radio"]:checked + label {
+    border-color: #3b82f6;
+    background: #eff6ff;
+}
+
+.quick-status-option input[type="radio"]:checked + label i {
+    color: #3b82f6;
+}
+
+.quick-status-option input[type="radio"]:checked + label span {
+    color: #1e40af;
+}
+
+.quick-followup-section {
+    padding: 0 24px 24px;
+}
+
+.quick-form-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 16px;
+}
+
+.quick-date-options {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.quick-date-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 80px;
+}
+
+.quick-date-btn span {
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.quick-date-btn small {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.quick-date-btn:hover {
+    border-color: #3b82f6;
+    background: #f8faff;
+}
+
+.quick-date-btn.active {
+    border-color: #3b82f6;
+    background: #eff6ff;
+}
+
+.quick-date-btn.active span {
+    color: #1e40af;
+}
+
+.quick-date-custom {
+    border-style: dashed;
+}
+
+.quick-date-custom i {
+    font-size: 16px;
+    color: #6b7280;
+}
+
+.quick-date-input {
+    display: none;
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 16px;
+    margin-top: 12px;
+}
+
+.quick-date-input.show {
+    display: block;
+}
+
+.quick-agent-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 8px;
+    color: #0369a1;
+    font-size: 14px;
+    margin: 0 24px 24px;
+}
+
+.quick-select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 16px;
+    background: white;
+    transition: all 0.2s ease;
+}
+
+.quick-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+    transform: translateY(-1px);
+    background: #fafbff;
+}
+
+.quick-form-collapsible .quick-form-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.quick-form-collapsible.expanded .quick-form-content {
+    max-height: 200px;
+}
+
+.quick-toggle-btn {
+    background: none;
+    border: none;
+    padding: 4px;
+    color: #6b7280;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.quick-form-collapsible.expanded .quick-toggle-btn {
+    transform: rotate(180deg);
+}
+
+.quick-textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 16px;
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+}
+
+.quick-textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+    transform: translateY(-1px);
+    background: #fafbff;
+}
+
+.quick-form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 24px 0;
+}
+
+.quick-btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.quick-btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+
+.quick-btn-secondary:hover {
+    background: #e5e7eb;
+    text-decoration: none;
+}
+
+.quick-btn-primary {
+    background: #3b82f6;
+    color: white;
+    min-width: 140px;
+    justify-content: center;
+}
+
+.quick-btn-primary:hover {
+    background: #2563eb;
+}
+
+.quick-btn-primary:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .quick-form-row {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .quick-input-group.quick-input-small {
+        flex: 1 1 100%;
+        min-width: auto;
+    }
+    
+    .quick-status-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .quick-date-options {
+        justify-content: center;
+    }
+    
+    .quick-form-actions {
+        flex-direction: column-reverse;
+        gap: 12px;
+    }
+    
+    .quick-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Remove validation states - keeping simple focus styling */
+
+/* Date input show state */
+.quick-date-input.show {
+    display: block;
+    animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Loading states */
+.quick-btn-primary:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+}
+
+.quick-btn-primary.loading {
+    position: relative;
+    color: transparent;
+}
+
+.quick-btn-primary.loading:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ffffff;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+/* Focus improvements for accessibility */
+.quick-status-option input[type="radio"]:focus + label {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+.quick-date-btn:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* Enhanced hover effects */
+.quick-form-card {
+    position: relative;
+}
+
+.quick-form-card:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #3b82f6, #10b981, #f59e0b);
+    border-radius: 16px 16px 0 0;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.quick-form-card:hover:before {
+    opacity: 1;
+}

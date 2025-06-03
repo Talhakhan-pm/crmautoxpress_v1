@@ -2,7 +2,7 @@
               url: callback.persisted? ? callback_path(callback) : callbacks_path,
               method: callback.persisted? ? :patch : :post,
               local: false, 
-              class: "callback-form", 
+              class: "quick-callback-form", 
               data: { 
                 callback_form_target: "form",
                 turbo_frame: "main_content",
@@ -11,177 +11,243 @@
   
   <!-- Error Messages -->
   <% if callback.errors.any? %>
-    <div class="alert alert-danger">
-      <h4><%= pluralize(callback.errors.count, "error") %> prohibited this callback from being saved:</h4>
-      <ul>
-        <% callback.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
+    <div class="quick-form-alert">
+      <i class="fas fa-exclamation-triangle"></i>
+      <span>Please fix the highlighted fields below</span>
     </div>
   <% end %>
 
-  <!-- Customer Information Section -->
-  <div class="form-section">
-    <div class="section-header">
-      <h4 class="section-title">
-        <i class="fas fa-user"></i>
-        Customer Information
-      </h4>
+  <!-- Primary Info Card -->
+  <div class="quick-form-card">
+    <div class="quick-form-header">
+      <h3>Customer & Contact</h3>
+      <span class="quick-badge">Required</span>
     </div>
     
-    <div class="form-grid">
-      <div class="form-group">
-        <%= form.label :customer_name, "Customer Name *", class: "form-label" %>
+    <div class="quick-form-row">
+      <div class="quick-input-group">
         <%= form.text_field :customer_name, 
-                            class: "form-input", 
-                            placeholder: "Full customer name", 
-                            required: true %>
+                            class: "quick-input", 
+                            placeholder: "Customer Name *", 
+                            required: true,
+                            data: { action: "input->callback-form#validateField" } %>
       </div>
       
-      <div class="form-group">
-        <%= form.label :phone_number, "Phone Number *", class: "form-label" %>
+      <div class="quick-input-group">
         <%= form.telephone_field :phone_number, 
-                                 class: "form-input", 
-                                 placeholder: "(555) 123-4567", 
+                                 class: "quick-input", 
+                                 placeholder: "Phone Number *", 
                                  required: true,
-                                 data: { callback_form_target: "phoneNumber" } %>
+                                 data: { 
+                                   callback_form_target: "phoneNumber",
+                                   action: "input->callback-form#formatPhone input->callback-form#validateField"
+                                 } %>
       </div>
       
-      <div class="form-group">
-        <%= form.label :zip_code, "ZIP Code", class: "form-label" %>
+      <div class="quick-input-group">
         <%= form.text_field :zip_code, 
-                            class: "form-input", 
-                            placeholder: "12345" %>
+                            class: "quick-input", 
+                            placeholder: "ZIP Code (Optional)" %>
       </div>
     </div>
   </div>
 
-  <!-- Vehicle Information Section -->
-  <div class="form-section">
-    <div class="section-header">
-      <h4 class="section-title">
-        <i class="fas fa-car"></i>
-        Vehicle Information
-      </h4>
+  <!-- Vehicle & Product Card -->
+  <div class="quick-form-card">
+    <div class="quick-form-header">
+      <h3>Vehicle & Product</h3>
+      <span class="quick-badge quick-badge-secondary">Details</span>
     </div>
     
-    <div class="form-grid">
-      <div class="form-group">
-        <%= form.label :car_make_model, "Car Make & Model *", class: "form-label" %>
+    <div class="quick-form-row">
+      <div class="quick-input-group">
         <%= form.text_field :car_make_model, 
-                            class: "form-input", 
-                            placeholder: "e.g., Ford Fusion", 
-                            required: true %>
+                            class: "quick-input", 
+                            placeholder: "Car Make & Model *", 
+                            required: true,
+                            data: { action: "input->callback-form#validateField" } %>
       </div>
       
-      <div class="form-group">
-        <%= form.label :year, "Year", class: "form-label" %>
+      <div class="quick-input-group quick-input-small">
         <%= form.number_field :year, 
-                              class: "form-input", 
-                              placeholder: "2023",
+                              class: "quick-input", 
+                              placeholder: "Year",
                               min: 1990,
-                              max: 2030 %>
+                              max: 2030,
+                              value: Date.current.year %>
+      </div>
+    </div>
+    
+    <div class="quick-form-row">
+      <div class="quick-input-group quick-input-full">
+        <%= form.text_field :product, 
+                           class: "quick-input", 
+                           placeholder: "Product Description *", 
+                           required: true,
+                           data: { action: "input->callback-form#validateField" } %>
       </div>
     </div>
   </div>
 
-  <!-- Product Information Section -->
-  <div class="form-section">
-    <div class="section-header">
-      <h4 class="section-title">
-        <i class="fas fa-cog"></i>
-        Product Information
-      </h4>
+  <!-- Callback Setup Card -->
+  <div class="quick-form-card">
+    <div class="quick-form-header">
+      <h3>Callback Setup</h3>
+      <span class="quick-badge quick-badge-accent">Schedule</span>
     </div>
     
-    <div class="form-grid">
-      <div class="form-group full-width">
-        <%= form.label :product, "Product *", class: "form-label" %>
-        <%= form.text_area :product, 
-                           class: "form-input", 
-                           rows: 3, 
-                           placeholder: "Enter product name or description", 
-                           required: true %>
-      </div>
-    </div>
-  </div>
-
-  <!-- Callback Management Section -->
-  <div class="form-section">
-    <div class="section-header">
-      <h4 class="section-title">
-        <i class="fas fa-tasks"></i>
-        Callback Management
-      </h4>
-    </div>
-    
-    <div class="form-grid">
-      <div class="form-group">
-        <%= form.label :status, "Status", class: "form-label" %>
-        <%= form.select :status, options_for_select([
-            ['Pending', 'pending'],
-            ['Not Interested', 'not_interested'],
-            ['Already Purchased', 'already_purchased'],
-            ['Sale', 'sale'],
-            ['Payment Link', 'payment_link'],
-            ['Follow Up', 'follow_up']
-        ], callback.status || 'pending'), {}, { class: "form-select" } %>
+    <!-- Status Quick Selection -->
+    <div class="quick-status-grid">
+      <div class="quick-status-option" data-status="pending">
+        <input type="radio" name="agent_callback[status]" value="pending" id="status_pending" 
+               <%= 'checked' if (callback.status || 'pending') == 'pending' %>
+               data-action="change->callback-form#updateStatus">
+        <label for="status_pending">
+          <i class="fas fa-clock"></i>
+          <span>Pending</span>
+        </label>
       </div>
       
-      <div class="form-group">
-        <%= form.label :follow_up_date, "Follow-up Date", class: "form-label" %>
-        <%= form.date_field :follow_up_date, 
-                            class: "form-input",
-                            value: callback.follow_up_date || (Date.current + 1.day) %>
+      <div class="quick-status-option" data-status="follow_up">
+        <input type="radio" name="agent_callback[status]" value="follow_up" id="status_follow_up"
+               <%= 'checked' if callback.status == 'follow_up' %>
+               data-action="change->callback-form#updateStatus">
+        <label for="status_follow_up">
+          <i class="fas fa-phone"></i>
+          <span>Follow Up</span>
+        </label>
       </div>
       
-      <div class="form-group full-width">
-        <%= form.label :agent, "Assigned Agent", class: "form-label" %>
-        <% if callback.persisted? %>
-          <%= form.select :agent, options_from_collection_for_select(User.all, :email, :email, callback.agent), 
-              { prompt: 'Select agent' }, { class: "form-select" } %>
-        <% else %>
-          <%= form.hidden_field :agent, value: current_user.email %>
-          <div class="form-input-readonly">
-            <i class="fas fa-user"></i>
-            <%= current_user.email %>
-          </div>
-          <small class="text-muted">Callbacks are automatically assigned to you</small>
-        <% end %>
+      <div class="quick-status-option" data-status="sale">
+        <input type="radio" name="agent_callback[status]" value="sale" id="status_sale"
+               <%= 'checked' if callback.status == 'sale' %>
+               data-action="change->callback-form#updateStatus">
+        <label for="status_sale">
+          <i class="fas fa-handshake"></i>
+          <span>Sale</span>
+        </label>
+      </div>
+      
+      <div class="quick-status-option" data-status="not_interested">
+        <input type="radio" name="agent_callback[status]" value="not_interested" id="status_not_interested"
+               <%= 'checked' if callback.status == 'not_interested' %>
+               data-action="change->callback-form#updateStatus">
+        <label for="status_not_interested">
+          <i class="fas fa-times"></i>
+          <span>Not Interested</span>
+        </label>
+      </div>
+      
+      <div class="quick-status-option" data-status="already_purchased">
+        <input type="radio" name="agent_callback[status]" value="already_purchased" id="status_already_purchased"
+               <%= 'checked' if callback.status == 'already_purchased' %>
+               data-action="change->callback-form#updateStatus">
+        <label for="status_already_purchased">
+          <i class="fas fa-check-circle"></i>
+          <span>Already Purchased</span>
+        </label>
+      </div>
+      
+      <div class="quick-status-option" data-status="payment_link">
+        <input type="radio" name="agent_callback[status]" value="payment_link" id="status_payment_link"
+               <%= 'checked' if callback.status == 'payment_link' %>
+               data-action="change->callback-form#updateStatus">
+        <label for="status_payment_link">
+          <i class="fas fa-credit-card"></i>
+          <span>Payment Link</span>
+        </label>
       </div>
     </div>
-  </div>
-
-  <!-- Notes Section -->
-  <div class="form-section">
-    <div class="section-header">
-      <h4 class="section-title">
-        <i class="fas fa-sticky-note"></i>
-        Additional Notes
-      </h4>
+    
+    <!-- Follow-up Date Selection -->
+    <div class="quick-followup-section" data-callback-form-target="followupSection">
+      <div class="quick-form-label">Follow-up Date</div>
+      
+      <!-- Quick Date Buttons -->
+      <div class="quick-date-options">
+        <button type="button" class="quick-date-btn" 
+                data-action="click->callback-form#setFollowupDate" 
+                data-days="0">
+          <span>Today</span>
+          <small><%= Date.current.strftime("%m/%d") %></small>
+        </button>
+        
+        <button type="button" class="quick-date-btn" 
+                data-action="click->callback-form#setFollowupDate" 
+                data-days="1">
+          <span>Tomorrow</span>
+          <small><%= (Date.current + 1.day).strftime("%m/%d") %></small>
+        </button>
+        
+        <button type="button" class="quick-date-btn" 
+                data-action="click->callback-form#setFollowupDate" 
+                data-days="3">
+          <span>3 Days</span>
+          <small><%= (Date.current + 3.days).strftime("%m/%d") %></small>
+        </button>
+        
+        <button type="button" class="quick-date-btn" 
+                data-action="click->callback-form#setFollowupDate" 
+                data-days="7">
+          <span>1 Week</span>
+          <small><%= (Date.current + 1.week).strftime("%m/%d") %></small>
+        </button>
+        
+        <button type="button" class="quick-date-btn quick-date-custom" 
+                data-action="click->callback-form#showCustomDate">
+          <i class="fas fa-calendar-alt"></i>
+          <span>Custom</span>
+        </button>
+      </div>
+      
+      <!-- Hidden Date Input -->
+      <%= form.date_field :follow_up_date, 
+                          class: "quick-date-input", 
+                          value: callback.follow_up_date || (Date.current + 1.day),
+                          data: { callback_form_target: "followupDateInput" } %>
     </div>
     
-    <div class="form-grid">
-      <div class="form-group full-width">
-        <%= form.label :notes, "Notes", class: "form-label" %>
+    <!-- Agent Assignment (Auto for new) -->
+    <% unless callback.persisted? %>
+      <%= form.hidden_field :agent, value: current_user.email %>
+      <div class="quick-agent-info">
+        <i class="fas fa-user-check"></i>
+        <span>Assigned to you (<%= current_user.email %>)</span>
+      </div>
+    <% else %>
+      <div class="quick-input-group">
+        <%= form.select :agent, options_from_collection_for_select(User.all, :email, :email, callback.agent), 
+            { prompt: 'Select agent' }, { class: "quick-select" } %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Notes Card (Collapsible) -->
+  <div class="quick-form-card quick-form-collapsible" data-callback-form-target="notesCard">
+    <div class="quick-form-header" data-action="click->callback-form#toggleNotes">
+      <h3>Additional Notes</h3>
+      <button type="button" class="quick-toggle-btn">
+        <i class="fas fa-chevron-down"></i>
+      </button>
+    </div>
+    
+    <div class="quick-form-content" data-callback-form-target="notesContent">
+      <div class="quick-input-group quick-input-full">
         <%= form.text_area :notes, 
-                           class: "form-input", 
-                           rows: 4, 
-                           placeholder: "Add any additional notes about this callback..." %>
-        <small class="text-muted">Include any relevant information about customer preferences, call history, or special requirements.</small>
+                           class: "quick-textarea", 
+                           rows: 3, 
+                           placeholder: "Customer preferences, call history, special requirements..." %>
       </div>
     </div>
   </div>
   
-  <!-- Form Actions -->
-  <div class="form-actions">
-    <%= link_to "Cancel", callbacks_path, class: "ax-btn ax-btn--secondary", 
+  <!-- Quick Actions -->
+  <div class="quick-form-actions">
+    <%= link_to "Cancel", callbacks_path, class: "quick-btn quick-btn-secondary", 
         data: { turbo_frame: turbo_frame_request? ? "main_content" : "_top" } %>
     
-    <div class="primary-actions">
-      <%= form.submit callback.persisted? ? "Update Callback" : "Create Callback", 
-          class: "ax-btn ax-btn--primary", data: { callback_form_target: "submitBtn" } %>
-    </div>
+    <%= form.submit callback.persisted? ? "Update Callback" : "Save Callback", 
+        class: "quick-btn quick-btn-primary", 
+        data: { callback_form_target: "submitBtn" } %>
   </div>
 <% end %>

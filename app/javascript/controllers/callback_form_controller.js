@@ -2,7 +2,8 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = [
-    "modal", "form", "phoneNumber", "submitBtn"
+    "modal", "form", "phoneNumber", "submitBtn", "followupSection", 
+    "followupDateInput", "notesCard", "notesContent"
   ]
   
   static values = { 
@@ -13,6 +14,7 @@ export default class extends Controller {
     console.log('Callback form controller connected')
     this.setupPhoneFormatting()
     this.setupFormValidation()
+    this.initializeQuickFeatures()
   }
 
   disconnect() {
@@ -274,5 +276,136 @@ export default class extends Controller {
         }
       }, 300)
     }, 3000)
+  }
+
+  // === NEW QUICK FORM FEATURES ===
+
+  // Initialize quick form features
+  initializeQuickFeatures() {
+    this.setupDateButtons()
+    this.setupNotesToggle()
+  }
+
+  // Enhanced phone formatting for quick form
+  formatPhone(event) {
+    this.formatPhoneNumber(event)
+  }
+
+  // Simple field validation (no visual styling)
+  validateField(event) {
+    // Just basic validation, no special styling
+    return event.target.checkValidity()
+  }
+
+  // Set follow-up date from quick buttons
+  setFollowupDate(event) {
+    event.preventDefault()
+    const days = parseInt(event.currentTarget.dataset.days)
+    const today = new Date()
+    const followupDate = new Date(today.getTime() + (days * 24 * 60 * 60 * 1000))
+    
+    if (this.hasFollowupDateInputTarget) {
+      this.followupDateInputTarget.value = followupDate.toISOString().split('T')[0]
+      this.followupDateInputTarget.classList.remove('show')
+    }
+    
+    // Update button states
+    this.updateDateButtonStates(event.currentTarget)
+  }
+
+  // Show custom date picker
+  showCustomDate(event) {
+    event.preventDefault()
+    
+    if (this.hasFollowupDateInputTarget) {
+      this.followupDateInputTarget.classList.add('show')
+      this.followupDateInputTarget.focus()
+    }
+    
+    this.updateDateButtonStates(event.currentTarget)
+  }
+
+  // Update date button visual states
+  updateDateButtonStates(activeButton) {
+    const allButtons = this.element.querySelectorAll('.quick-date-btn')
+    allButtons.forEach(btn => btn.classList.remove('active'))
+    activeButton.classList.add('active')
+  }
+
+  // Update status and show/hide follow-up section
+  updateStatus(event) {
+    const status = event.target.value
+    const followupSection = this.hasFollowupSectionTarget ? this.followupSectionTarget : null
+    
+    if (followupSection) {
+      // Show follow-up date for statuses that typically need follow-up
+      const needsFollowup = ['pending', 'follow_up', 'payment_link'].includes(status)
+      followupSection.style.display = needsFollowup ? 'block' : 'none'
+    }
+  }
+
+  // Toggle notes section
+  toggleNotes(event) {
+    event.preventDefault()
+    
+    if (this.hasNotesCardTarget) {
+      this.notesCardTarget.classList.toggle('expanded')
+    }
+  }
+
+  // Setup date button interactions
+  setupDateButtons() {
+    // Set default active button (Tomorrow)
+    const tomorrowBtn = this.element.querySelector('[data-days="1"]')
+    if (tomorrowBtn) {
+      this.updateDateButtonStates(tomorrowBtn)
+    }
+  }
+
+  // Setup notes toggle functionality
+  setupNotesToggle() {
+    // Notes section starts collapsed
+    if (this.hasNotesCardTarget) {
+      this.notesCardTarget.classList.remove('expanded')
+    }
+  }
+
+
+  // Auto-save draft functionality (optional enhancement)
+  saveDraft() {
+    const formData = new FormData(this.formTarget)
+    const draftData = {}
+    
+    for (let [key, value] of formData.entries()) {
+      draftData[key] = value
+    }
+    
+    localStorage.setItem('callback_draft', JSON.stringify(draftData))
+    
+    // Show subtle indicator
+    this.showNotification('Draft saved', 'info')
+  }
+
+  // Load draft data (optional enhancement)
+  loadDraft() {
+    const draftData = localStorage.getItem('callback_draft')
+    
+    if (draftData) {
+      try {
+        const data = JSON.parse(draftData)
+        
+        Object.keys(data).forEach(key => {
+          const field = this.formTarget.querySelector(`[name="${key}"]`)
+          if (field && !field.value) {
+            field.value = data[key]
+          }
+        })
+        
+        // Clear draft after loading
+        localStorage.removeItem('callback_draft')
+      } catch (e) {
+        console.warn('Failed to load draft data:', e)
+      }
+    }
   }
 }
