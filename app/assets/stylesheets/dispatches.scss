@@ -1618,27 +1618,7 @@
 // ANIMATIONS
 // ============================================
 
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.7;
-    transform: scale(1.1);
-  }
-}
-
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* Use global animations */
 
 .flow-card {
   animation: slideInUp 0.5s ease-out;
@@ -2285,27 +2265,7 @@
   }
 }
 
-// Workflow pulse animation
-@keyframes workflow-pulse {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 0 25px rgba(59, 130, 246, 0.4);
-  }
-  50% {
-    transform: scale(1.05);
-    box-shadow: 0 0 35px rgba(59, 130, 246, 0.6);
-  }
-}
-
-// Spinning animation for processing icons
-@keyframes workflow-spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
+/* Use global pulse and spin animations */
 
 // Enhanced workflow animations
 .workflow-stage {

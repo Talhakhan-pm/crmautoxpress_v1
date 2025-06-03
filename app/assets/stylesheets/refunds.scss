@@ -1118,52 +1118,7 @@
 // ANIMATIONS
 // ============================================
 
-@keyframes refunds-float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-@keyframes refunds-pulse-danger {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
-}
-
-@keyframes refunds-glow {
-  0%, 100% {
-    box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
-  }
-}
-
-@keyframes refunds-urgent-glow {
-  0%, 100% {
-    box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 20px rgba(245, 158, 11, 0.6);
-  }
-}
-
-@keyframes refunds-pulse-warning {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.7;
-    transform: scale(1.1);
-  }
-}
+/* Use global animations from _animations.scss */
 
 // ============================================
 // SLA ANALYTICS PAGE STYLES
