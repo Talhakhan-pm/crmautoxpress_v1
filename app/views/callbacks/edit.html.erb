@@ -1,18 +1,37 @@
-<% content_for :page_title, "Edit Callback" %>
-
-<%= turbo_stream_from "callback_#{@callback.id}_activities" %>
-
-<%= turbo_frame_tag "main_content", data: { turbo_action: "advance", controller: "callback-form" } do %>
+<%= turbo_frame_tag "main_content", data: { turbo_action: "advance" } do %>
   <main class="main-content">
-    <header class="main-header">
-      <div class="header-left">
-        <h1>Edit Callback #CB-<%= Date.current.year %>-<%= @callback.id.to_s.rjust(4, '0') %></h1>
-        <div class="breadcrumb">CRM › Callbacks › <%= link_to "Callback Details", callback_path(@callback), style: "color: #dc2626; text-decoration: none;", data: { turbo_frame: "main_content" } %> › Edit</div>
-      </div>
-    </header>
+    <!-- Smart Callback Edit Modal -->
+    <div id="callback-modal" 
+         class="callback-modal active" 
+         data-controller="modal callback-form"
+         data-modal-close-url-value="<%= callback_path(@callback) %>"
+         data-action="click->modal#closeModal">
+      
+      <div class="modal-overlay" 
+           title="Click to close"></div>
+      
+      <div class="callback-modal-content" data-callback-form-target="modal" data-action="click->modal#stopPropagation">
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <div class="header-content">
+            <div class="modal-title-section">
+              <h2 class="modal-title">
+                <i class="fas fa-edit modal-icon"></i>
+                Edit Callback #CB-<%= Date.current.year %>-<%= @callback.id.to_s.rjust(4, '0') %>
+              </h2>
+              <p class="modal-subtitle">Update callback information and schedule</p>
+            </div>
+            <button type="button" data-action="click->modal#closeModal" class="close-btn">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
 
-    <div class="content-card">
-      <%= render 'form', callback: @callback %>
+        <!-- Modal Body -->
+        <div class="modal-body">
+          <%= render 'form', callback: @callback %>
+        </div>
+      </div>
     </div>
   </main>
 <% end %>
