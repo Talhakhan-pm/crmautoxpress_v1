@@ -41,7 +41,6 @@ Rails.application.configure do
 
   # Configure Action Cable for production
   config.action_cable.mount_path = "/cable"
-  config.action_cable.adapter = :redis
   config.action_cable.url = ENV.fetch("ACTION_CABLE_URL", "wss://your-app.onrender.com/cable")
   config.action_cable.allowed_request_origins = [
     /https:\/\/.*\.onrender\.com/,
