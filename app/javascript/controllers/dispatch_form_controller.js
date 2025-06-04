@@ -26,26 +26,43 @@ export default class extends Controller {
     // Set up keyboard shortcuts
     this.setupKeyboardShortcuts()
     
-    // Set up real-time listeners
+    // Set up real-time listeners with debouncing
     this.setupRealTimeListeners()
     
     // Initialize supplier autocomplete
     this.initializeSupplierAutocomplete()
+    
+    // Initialize debounced functions to prevent CPU overload
+    this.debouncedCalculateProfit = this.debounce(this.calculateProfit.bind(this), 300)
+    this.debouncedAutocomplete = this.debounce(this.filterAndShowSuppliers.bind(this), 200)
   }
 
   disconnect() {
     // Controller disconnected
   }
 
-  // Set up real-time listeners for profit calculation
+  // Set up real-time listeners for profit calculation with debouncing
   setupRealTimeListeners() {
-    // Listen for supplier cost changes
+    // Listen for supplier cost changes with debouncing to prevent CPU overload
     if (this.hasSupplierCostTarget) {
       this.supplierCostTarget.addEventListener('input', () => {
-        this.calculateProfit()
+        this.debouncedCalculateProfit()
       })
       this.supplierCostTarget.addEventListener('keyup', () => {
-        this.calculateProfit()
+        this.debouncedCalculateProfit()
+      })
+    }
+    
+    // Also listen for shipping and tax changes
+    if (this.hasSupplierShippingTarget) {
+      this.supplierShippingTarget.addEventListener('input', () => {
+        this.debouncedCalculateProfit()
+      })
+    }
+    
+    if (this.hasSupplierTaxTarget) {
+      this.supplierTaxTarget.addEventListener('input', () => {
+        this.debouncedCalculateProfit()
       })
     }
   }
@@ -144,7 +161,7 @@ export default class extends Controller {
 
   // Action method for supplier cost input changes
   supplierCostChanged(event) {
-    this.calculateProfit()
+    this.debouncedCalculateProfit()
   }
 
   // Real-time profit calculation
@@ -614,7 +631,8 @@ export default class extends Controller {
       return
     }
 
-    this.filterAndShowSuppliers(query)
+    // Use debounced version to prevent excessive filtering
+    this.debouncedAutocomplete(query)
   }
 
   filterAndShowSuppliers(query) {
@@ -765,6 +783,19 @@ export default class extends Controller {
     // This method is called when supplier dropdown changes (if using select)
     // Now mainly used for validation and styling
     this.calculateProfit()
+  }
+
+  // Utility function to debounce rapid function calls (prevents CPU overload)
+  debounce(func, wait) {
+    let timeout
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout)
+        func(...args)
+      }
+      clearTimeout(timeout)
+      timeout = setTimeout(later, wait)
+    }
   }
 }
 

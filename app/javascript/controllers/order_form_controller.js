@@ -16,6 +16,9 @@ export default class extends Controller {
   connect() {
     this.calculateTotal()
     this.checkForCallback()
+    
+    // Initialize debounced functions to prevent CPU overload
+    this.debouncedCalculateTotal = this.debounce(this.calculateTotal.bind(this), 200)
   }
 
   checkForCallback() {
@@ -320,5 +323,18 @@ export default class extends Controller {
         }
       }, 300)
     }, 3000)
+  }
+
+  // Utility function to debounce rapid function calls (prevents CPU overload)
+  debounce(func, wait) {
+    let timeout
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout)
+        func(...args)
+      }
+      clearTimeout(timeout)
+      timeout = setTimeout(later, wait)
+    }
   }
 }

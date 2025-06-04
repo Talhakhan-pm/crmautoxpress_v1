@@ -21,7 +21,7 @@
 
     <!-- Unified Modal Body -->
     <div class="unified-modal-body">
-      <%= form_with model: @order, local: true, class: "order-edit-form" do |form| %>
+      <%= form_with model: @order, local: false, data: { turbo_frame: "main_content" }, class: "order-edit-form" do |form| %>
         
         <!-- Customer Information Section -->
         <div class="unified-form-section">

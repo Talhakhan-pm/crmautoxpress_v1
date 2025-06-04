@@ -11,6 +11,12 @@ export default class extends Controller {
     console.log("Dispatch cancellation controller connected")
   }
 
+  disconnect() {
+    // Ensure scrolling is always restored when controller is removed
+    this.restoreBodyScrolling()
+    console.log("Dispatch cancellation controller disconnected - scrolling restored")
+  }
+
   statusChanged() {
     const selectedStatus = this.statusSelectTarget.value
     console.log("Status changed to:", selectedStatus)
@@ -25,6 +31,11 @@ export default class extends Controller {
   showCancellationModal() {
     console.log("showCancellationModal called")
     
+    // Store the original status value before showing modal
+    if (this.hasStatusSelectTarget) {
+      this.statusSelectTarget.dataset.originalValue = this.statusSelectTarget.value
+    }
+    
     // Pre-populate the refund amount with original amount
     if (this.hasRefundAmountTarget && this.originalAmountValue) {
       this.refundAmountTarget.value = this.originalAmountValue.toFixed(2)
@@ -35,10 +46,12 @@ export default class extends Controller {
     if (this.hasCancellationModalTarget) {
       console.log("Modal target found, showing modern modal")
       
+      // Prevent body scrolling while modal is open
+      this.preventBodyScrolling()
+      
       // Show modal with fade-in animation
       this.cancellationModalTarget.style.display = 'flex'
       this.cancellationModalTarget.classList.add('modal-show')
-      document.body.classList.add('modal-open')
       
       // Add fade-in animation
       requestAnimationFrame(() => {
@@ -49,6 +62,15 @@ export default class extends Controller {
     } else {
       console.log("Modal target not found!")
     }
+  }
+
+  preventBodyScrolling() {
+    // Prevent background scrolling while modal is open
+    document.body.classList.add('modal-open')
+    document.body.style.overflow = 'hidden'
+    
+    // Store current scroll position to restore later
+    this.scrollPosition = window.pageYOffset || document.documentElement.scrollTop
   }
 
   reasonChanged() {
@@ -198,18 +220,18 @@ export default class extends Controller {
       const result = await response.json()
       
       if (result.success) {
-        // Immediately remove modal-open class to prevent layout issues during navigation
-        document.body.classList.remove('modal-open')
+        // First hide the modal properly
+        this.hideModalImmediate()
         
-        // Hide modal and redirect or update UI
-        this.hideModal()
-        
-        // Show success message and redirect
-        if (result.redirect_url) {
-          window.Turbo.visit(result.redirect_url, { frame: 'main_content' })
-        } else {
-          window.Turbo.visit('/dispatches', { frame: 'main_content' })
-        }
+        // Wait a moment for any UI cleanup, then navigate
+        setTimeout(() => {
+          const redirectUrl = result.redirect_url || '/dispatches'
+          if (window.Turbo) {
+            window.Turbo.visit(redirectUrl, { frame: 'main_content' })
+          } else {
+            window.location.href = redirectUrl
+          }
+        }, 100)
       } else {
         alert(result.message || 'Failed to cancel dispatch')
       }
@@ -220,7 +242,9 @@ export default class extends Controller {
   }
 
   hideModal() {
-    console.log("Hiding modal")
+    console.log("Hiding modal with animation")
+    
+    if (!this.hasCancellationModalTarget) return
     
     // Hide the modern modal with animation
     this.cancellationModalTarget.classList.remove('modal-visible')
@@ -229,17 +253,52 @@ export default class extends Controller {
     setTimeout(() => {
       this.cancellationModalTarget.style.display = 'none'
       this.cancellationModalTarget.classList.remove('modal-show')
-      document.body.classList.remove('modal-open')
+      this.restoreBodyScrolling()
     }, 300)
+  }
+
+  hideModalImmediate() {
+    console.log("Hiding modal immediately")
+    
+    if (!this.hasCancellationModalTarget) return
+    
+    // Hide modal immediately without animation for smooth navigation
+    this.cancellationModalTarget.style.display = 'none'
+    this.cancellationModalTarget.classList.remove('modal-visible', 'modal-show')
+    this.restoreBodyScrolling()
+  }
+
+  restoreBodyScrolling() {
+    // Use global function if available, otherwise restore locally
+    if (window.restorePageScrolling) {
+      window.restorePageScrolling()
+    } else {
+      // Fallback: Remove modal-open class and restore scrolling
+      document.body.classList.remove('modal-open')
+      document.body.style.overflow = ''
+      document.body.style.overflowY = ''
+      document.body.style.paddingRight = ''
+      document.body.style.position = ''
+      document.body.style.top = ''
+      document.body.style.width = ''
+      
+      // Also restore on html element in case it was affected
+      document.documentElement.style.overflow = ''
+      document.documentElement.style.overflowY = ''
+      
+      console.log('Page scrolling restored (fallback)')
+    }
   }
 
   cancelModal() {
     console.log("Cancel modal called")
     
     // Reset the status dropdown to its previous value
-    this.statusSelectTarget.value = this.statusSelectTarget.dataset.originalValue || 'pending'
+    if (this.hasStatusSelectTarget) {
+      this.statusSelectTarget.value = this.statusSelectTarget.dataset.originalValue || 'pending'
+    }
     
-    // Hide the modal
+    // Hide the modal with animation
     this.hideModal()
   }
 

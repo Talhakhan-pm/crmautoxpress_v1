@@ -42,20 +42,28 @@ export default class extends Controller {
     let targetUrl = this.getContextualUrl()
     
     // Always use turbo frame navigation for consistent smooth behavior
-    window.Turbo.visit(targetUrl, { frame: 'main_content' })
+    if (targetUrl && window.Turbo) {
+      window.Turbo.visit(targetUrl, { frame: 'main_content' })
+    } else {
+      console.error('Modal close failed: missing targetUrl or Turbo not loaded')
+    }
   }
 
   // Get contextual URL based on current location and callback context
   getContextualUrl() {
-    // Use explicit close URL if provided
-    if (this.hasCloseUrlValue) {
+    // Use explicit close URL if provided and valid
+    if (this.hasCloseUrlValue && this.closeUrlValue && this.closeUrlValue.trim()) {
       return this.closeUrlValue
     }
     
     // Check for callback context (order forms opened from callbacks)
-    const urlParams = new URLSearchParams(window.location.search)
-    if (urlParams.get('callback_id')) {
-      return '/callbacks'
+    try {
+      const urlParams = new URLSearchParams(window.location.search)
+      if (urlParams.get('callback_id')) {
+        return '/callbacks'
+      }
+    } catch (error) {
+      console.warn('URL params parsing failed, using pathname fallback')
     }
     
     // Default to current path context

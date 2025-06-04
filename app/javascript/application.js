@@ -58,3 +58,24 @@ window.openResolutionHub = function(refundId, stage) {
     window.location.href = url;
   }
 };
+
+// Global function to restore page scrolling (useful for modal cleanup)
+window.restorePageScrolling = function() {
+  console.log('Restoring page scrolling globally');
+  
+  // Remove all possible modal-related classes and styles
+  document.body.classList.remove('modal-open', 'no-scroll');
+  document.body.style.overflow = '';
+  document.body.style.overflowY = '';
+  document.body.style.paddingRight = '';
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.width = '';
+  document.body.style.height = '';
+  
+  // Also restore on html element
+  document.documentElement.style.overflow = '';
+  document.documentElement.style.overflowY = '';
+  
+  console.log('Page scrolling fully restored');
+};
