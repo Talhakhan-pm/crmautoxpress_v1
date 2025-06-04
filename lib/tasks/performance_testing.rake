@@ -171,7 +171,9 @@ namespace :performance do
       }
     end
     
-    Customer.insert_all(customers_to_create)
+    customers_to_create.each do |customer_data|
+      Customer.create!(customer_data)
+    end
     puts "✅ Created #{needed} customers"
   end
   
@@ -192,7 +194,7 @@ namespace :performance do
     
     car_makes = ["Honda Accord", "Toyota Camry", "Ford F-150", "Nissan Altima", "BMW 3 Series", "Mercedes C-Class", "Audi A4", "Lexus ES", "Acura TLX", "Infiniti Q50", "Mazda 6", "Subaru Legacy", "Volkswagen Passat", "Hyundai Sonata", "Kia Optima", "Chevrolet Malibu", "Dodge Charger", "Chrysler 300", "Buick LaCrosse", "Lincoln MKZ"]
     
-    statuses = ["pending", "contacted", "follow_up", "payment_link", "sale", "no_answer", "already_purchased", "not_interested"]
+    statuses = ["pending", "not_interested", "already_purchased", "sale", "payment_link", "follow_up"]
     
     callbacks_to_create = []
     
@@ -224,13 +226,15 @@ namespace :performance do
         follow_up_date: follow_up_date,
         agent: user.email.split('@').first.humanize,
         notes: generate_callback_notes(status),
-        user: user,
+        user_id: user.id,
         created_at: rand(3.months.ago..Time.current),
         updated_at: rand(1.week.ago..Time.current)
       }
     end
     
-    AgentCallback.insert_all(callbacks_to_create)
+    callbacks_to_create.each do |callback_data|
+      AgentCallback.create!(callback_data)
+    end
     puts "✅ Created #{needed} callbacks"
   end
   
@@ -323,7 +327,9 @@ namespace :performance do
       }
     end
     
-    Order.insert_all(orders_to_create)
+    orders_to_create.each do |order_data|
+      Order.create!(order_data)
+    end
     puts "✅ Created #{needed} orders"
   end
   
@@ -386,6 +392,10 @@ namespace :performance do
       
       dispatch = Dispatch.create!(
         order: order,
+        processing_agent: order.agent,
+        order_number: order.order_number,
+        customer_name: order.customer_name,
+        total_cost: order.total_amount,
         condition: ["new", "refurbished"].sample,
         payment_processor: ["stripe", "paypal", "square"].sample,
         payment_status: "paid",
@@ -418,7 +428,7 @@ namespace :performance do
         customer_name: order.customer_name,
         original_charge_amount: order.total_amount,
         processing_agent: order.agent,
-        resolution_stage: ["pending_customer_clarification", "pending_dispatch_decision", "pending_customer_approval"].sample,
+        resolution_stage: ["pending_customer_clarification", "pending_dispatch_decision", "resolution_completed"].sample,
         agent_notes: "Performance test refund - customer issue reported",
         created_at: rand(order.created_at..Time.current)
       )
@@ -481,16 +491,12 @@ namespace :performance do
     case status
     when "pending"
       "New lead - needs initial contact"
-    when "contacted"
-      "Made contact, customer interested"
     when "follow_up"
       "Customer requested callback later"
     when "payment_link"
       "Payment link sent, awaiting completion"
     when "sale"
       "Successfully converted to sale!"
-    when "no_answer"
-      "Multiple attempts, no response"
     when "already_purchased"
       "Customer found part elsewhere"
     when "not_interested"
