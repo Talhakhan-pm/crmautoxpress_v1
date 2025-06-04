@@ -1,6 +1,10 @@
 @use 'bootstrap/scss/bootstrap' as bootstrap;
 @use 'bootstrap-icons/font/bootstrap-icons' as bootstrap-icons;
 
+// Import design tokens and animations first
+@use 'design-tokens';
+@use 'animations';
+
 // Import unified modal system first to prevent conflicts
 @use 'unified_modals';
 
@@ -13,6 +17,16 @@
 @use 'refunds';
 @use 'resolution';
 @use 'order_resolution';
+@use 'callbacks';
+
+// Import component styles
+@use 'components/buttons';
+@use 'components/badges';
+@use 'components/cards';
+
+// Import dashboard components
+@use 'sla_alerts_dashboard';
+@use 'returns_tracking_dashboard';
 
 /* Error alerts for validation */
 .alert {
