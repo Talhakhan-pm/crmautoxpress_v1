@@ -73,4 +73,3 @@ end
 gem "devise", "~> 4.9"
 gem "geocoder", "~> 1.8"
 gem "sidekiq", "~> 7.0"
-gem "cron_job", "~> 1.0"
