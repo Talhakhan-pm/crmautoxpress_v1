@@ -93,6 +93,11 @@ class DispatchesController < ApplicationController
 
   def edit
     load_form_data
+    
+    respond_to do |format|
+      format.html
+      format.turbo_stream
+    end
   end
 
   def update

@@ -1,6 +1,4 @@
-<!-- Main Content with Turbo Frame -->
-<main class="main-content">
-    <%= turbo_frame_tag "main_content" do %>
+<%= turbo_frame_tag "main_content" do %>
         <!-- Modern Timeline Dispatch Management Modal -->
         <div id="dispatch-modal" 
              class="unified-modal theme-red active" 
@@ -687,26 +685,25 @@
             </div>
           </div>
         </div>
-    <% end %>
-</main>
-
-<!-- Supplier Lookup Modal -->
-<div id="supplier-lookup" class="lookup-modal">
-  <div class="lookup-content">
-    <div class="lookup-header">
-      <h3>Select Supplier</h3>
-      <button data-action="click->dispatch-form#closeLookupModal" 
-              data-type="supplier" 
-              class="close-btn">×</button>
-    </div>
-    <div class="lookup-body">
-      <input type="text" 
-             id="supplier-search" 
-             placeholder="Search suppliers..." 
-             class="search-input">
-      <div id="suppliers-list" class="lookup-results">
-        <!-- Populated via AJAX -->
-      </div>
-    </div>
-  </div>
-</div>
+        
+        <!-- Supplier Lookup Modal -->
+        <div id="supplier-lookup" class="lookup-modal">
+          <div class="lookup-content">
+            <div class="lookup-header">
+              <h3>Select Supplier</h3>
+              <button data-action="click->dispatch-form#closeLookupModal" 
+                      data-type="supplier" 
+                      class="close-btn">×</button>
+            </div>
+            <div class="lookup-body">
+              <input type="text" 
+                     id="supplier-search" 
+                     placeholder="Search suppliers..." 
+                     class="search-input">
+              <div id="suppliers-list" class="lookup-results">
+                <!-- Populated via AJAX -->
+              </div>
+            </div>
+          </div>
+        </div>
+<% end %>
