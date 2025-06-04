@@ -379,7 +379,7 @@
             <div class="small text-muted text-uppercase">Updates</div>
           </div>
           <div class="text-center">
-            <div class="fw-bold fs-4 text-danger"><%= @activities.select(:user_id).distinct.count %></div>
+            <div class="fw-bold fs-4 text-danger"><%= @activities.distinct.count(:user_id) %></div>
             <div class="small text-muted text-uppercase">Agents</div>
           </div>
         </div>
