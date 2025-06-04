@@ -177,6 +177,7 @@ GEM
     nokogiri (1.18.8-x86_64-linux-musl)
       racc (~> 1.4)
     orm_adapter (0.5.0)
+    pg (1.5.9)
     pp (0.6.2)
       prettyprint
     prettyprint (0.2.0)
@@ -309,6 +310,7 @@ DEPENDENCIES
   geocoder (~> 1.8)
   importmap-rails
   jbuilder
+  pg
   puma (>= 5.0)
   rails (~> 7.1.5, >= 7.1.5.1)
   redis (>= 4.0.1)
