@@ -50,8 +50,8 @@ class CustomersController < ApplicationController
       if @customer.update(customer_params)
         format.html { redirect_to @customer, notice: 'Customer was successfully updated.' }
         format.turbo_stream { 
-          load_customers_for_index
-          render :update 
+          # Always redirect to customers index after successful update
+          redirect_to customers_path, notice: 'Customer was successfully updated.'
         }
       else
         format.html { render :edit, status: :unprocessable_entity }

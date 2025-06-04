@@ -79,3 +79,22 @@ window.restorePageScrolling = function() {
   
   console.log('Page scrolling fully restored');
 };
+
+// Turbo navigation event listeners for cleanup
+document.addEventListener('turbo:before-visit', function(event) {
+  console.log('Turbo navigation starting - cleaning up');
+  
+  // Restore any stuck scrolling states
+  if (window.restorePageScrolling) {
+    window.restorePageScrolling();
+  }
+  
+  // Clean up any stuck modal states
+  document.querySelectorAll('.modal-open, .unified-modal.active').forEach(element => {
+    element.classList.remove('modal-open', 'active');
+  });
+});
+
+document.addEventListener('turbo:load', function(event) {
+  console.log('Turbo page loaded successfully');
+});

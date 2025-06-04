@@ -150,11 +150,9 @@ class DispatchesController < ApplicationController
     respond_to do |format|
       format.html { redirect_to dispatches_path, notice: 'Dispatch was successfully updated.' }
       format.turbo_stream { 
-        load_dispatches_for_index
-        render turbo_stream: [
-          turbo_stream.replace("flash-messages", partial: "shared/flash_messages", locals: { flash: { notice: 'Dispatch was successfully updated.' } }),
-          turbo_stream.replace("main_content", template: "dispatches/index")
-        ]
+        # Always redirect to dispatches index after successful update
+        # This ensures clean navigation whether from modal or regular form
+        redirect_to dispatches_path, notice: 'Dispatch was successfully updated.'
       }
       format.json { render json: { success: true, message: 'Dispatch was successfully updated.' } }
     end

@@ -25,7 +25,7 @@
         </div>
       <% end %>
 
-      <%= form_with model: @customer, local: true, class: "customer-form" do |form| %>
+      <%= form_with model: @customer, local: false, data: { turbo_frame: "main_content" }, class: "customer-form" do |form| %>
         <div class="form-section">
           <h3><i class="fas fa-user"></i> Basic Information</h3>
           

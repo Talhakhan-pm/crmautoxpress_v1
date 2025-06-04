@@ -105,13 +105,17 @@ class OrdersController < ApplicationController
       respond_to do |format|
         format.html { redirect_to @order, notice: 'Order was successfully updated.' }
         format.turbo_stream { 
-          load_orders_for_index
-          render :update 
+          # Always redirect to orders index after successful update
+          # This ensures clean navigation whether from modal or regular form
+          redirect_to orders_path, notice: 'Order was successfully updated.'
         }
       end
     else
       load_form_data
-      render :edit, status: :unprocessable_entity
+      respond_to do |format|
+        format.html { render :edit, status: :unprocessable_entity }
+        format.turbo_stream { render :edit, status: :unprocessable_entity }
+      end
     end
   end
 
