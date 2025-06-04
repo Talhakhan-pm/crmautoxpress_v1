@@ -483,6 +483,9 @@ class Order < ApplicationRecord
     # Skip if this order was already created from a callback
     return if agent_callback_id.present?
     
+    # Skip if this is a replacement order - it shouldn't create a new callback
+    return if is_replacement_order?
+    
     Rails.logger.info "=== AUTO-CREATING CALLBACK FROM ORDER ==="
     Rails.logger.info "Order ##{order_number} - Customer: #{customer_name}"
     
