@@ -1,0 +1,50 @@
+databases:
+  - name: crm-autoxpress-db
+    databaseName: crm_autoxpress_production
+    user: crm_autoxpress
+
+services:
+  # Redis for Sidekiq
+  - type: redis
+    name: crm-autoxpress-redis
+    ipAllowList: []
+    plan: starter
+    maxmemoryPolicy: noeviction
+
+  # Sidekiq worker
+  - type: worker
+    name: crm-autoxpress-sidekiq
+    env: ruby
+    buildCommand: bundle install
+    startCommand: bundle exec sidekiq -C config/sidekiq.yml
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: crm-autoxpress-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: crm-autoxpress-redis
+          property: connectionString
+      - key: RAILS_MASTER_KEY
+        sync: false
+
+  # Web application
+  - type: web
+    name: crm-autoxpress-web
+    env: ruby
+    buildCommand: './bin/render-build.sh'
+    startCommand: 'bundle exec puma -C config/puma.rb'
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: crm-autoxpress-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: crm-autoxpress-redis
+          property: connectionString
+      - key: RAILS_MASTER_KEY
+        sync: false
