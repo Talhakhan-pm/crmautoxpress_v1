@@ -84,15 +84,20 @@ window.restorePageScrolling = function() {
 document.addEventListener('turbo:before-visit', function(event) {
   console.log('Turbo navigation starting - cleaning up');
   
-  // Restore any stuck scrolling states
-  if (window.restorePageScrolling) {
-    window.restorePageScrolling();
+  // Only clean up if we're navigating away from the current frame context
+  // Don't clean up modals if we're navigating within the same turbo frame
+  const targetFrame = event.detail?.frame;
+  if (!targetFrame || targetFrame !== 'main_content') {
+    // Restore any stuck scrolling states
+    if (window.restorePageScrolling) {
+      window.restorePageScrolling();
+    }
+    
+    // Clean up any stuck modal states only for non-frame navigation
+    document.querySelectorAll('.modal-open').forEach(element => {
+      element.classList.remove('modal-open');
+    });
   }
-  
-  // Clean up any stuck modal states
-  document.querySelectorAll('.modal-open, .unified-modal.active').forEach(element => {
-    element.classList.remove('modal-open', 'active');
-  });
 });
 
 document.addEventListener('turbo:load', function(event) {

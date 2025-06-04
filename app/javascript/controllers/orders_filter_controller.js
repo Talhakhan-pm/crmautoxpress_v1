@@ -81,10 +81,9 @@ export default class extends Controller {
   navigateToOrder(event) {
     event.preventDefault()
     const orderUrl = event.currentTarget.dataset.orderUrl
-    const turboFrame = event.currentTarget.dataset.turboFrame
     
-    if (orderUrl && turboFrame) {
-      window.Turbo.visit(orderUrl, { frame: turboFrame })
+    if (orderUrl) {
+      window.Turbo.visit(orderUrl, { frame: "main_content" })
     }
   }
 
