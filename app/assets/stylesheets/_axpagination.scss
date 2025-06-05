@@ -10,7 +10,7 @@
   padding: 32px 0;
   margin-top: 24px;
   position: relative;
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -34,7 +34,7 @@
   backdrop-filter: blur(12px);
   border-radius: 16px;
   padding: 8px;
-  box-shadow: 
+  box-shadow:
     0 4px 20px rgba(0, 0, 0, 0.08),
     0 1px 3px rgba(0, 0, 0, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.5);
@@ -43,7 +43,7 @@
 
 .pagination-axpagination .page-item {
   margin: 0;
-  
+
   .page-link {
     display: flex;
     align-items: center;
@@ -62,7 +62,7 @@
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
-    
+
     &::before {
       content: '';
       position: absolute;
@@ -75,44 +75,44 @@
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       opacity: 0;
     }
-    
+
     &:hover {
       color: #334155;
       transform: translateY(-1px);
-      
+
       &::before {
         background: rgba(51, 65, 85, 0.06);
         opacity: 1;
       }
     }
-    
+
     &:active {
       transform: translateY(0);
     }
   }
-  
+
   // Current page styling
   &.active .page-link {
     background: linear-gradient(135deg, var(--color-brand-red, #dc2626) 0%, #b91c1c 100%);
     color: white;
     font-weight: 600;
-    box-shadow: 
+    box-shadow:
       0 2px 8px rgba(220, 38, 38, 0.3),
       inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    
+
     &::before {
       background: transparent;
     }
-    
+
     &:hover {
       color: white;
       transform: translateY(0);
-      box-shadow: 
+      box-shadow:
         0 4px 12px rgba(220, 38, 38, 0.4),
         inset 0 1px 0 rgba(255, 255, 255, 0.2);
     }
   }
-  
+
   // First/Last page buttons
   &.first,
   &.last {
@@ -122,14 +122,14 @@
       width: auto;
       padding: 0 12px;
       min-width: 40px;
-      
+
       i {
         margin-right: 4px;
         font-size: 10px;
       }
     }
   }
-  
+
   // Previous/Next buttons  
   &.prev,
   &.next {
@@ -139,31 +139,31 @@
       }
     }
   }
-  
+
   // Disabled state
   &.disabled .page-link {
     color: #cbd5e1;
     cursor: not-allowed;
-    
+
     &:hover {
       color: #cbd5e1;
       transform: none;
-      
+
       &::before {
         opacity: 0;
       }
     }
   }
-  
+
   // Gap (ellipsis)
   &.gap .page-link {
     cursor: default;
     color: #94a3b8;
-    
+
     &:hover {
       color: #94a3b8;
       transform: none;
-      
+
       &::before {
         opacity: 0;
       }
@@ -180,7 +180,7 @@
   justify-content: center;
   color: #64748b;
   font-size: 14px;
-  
+
   .page-details {
     background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(8px);
@@ -188,7 +188,8 @@
     border-radius: 20px;
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    
+    margin-left: 20px;
+
     .current-page {
       font-weight: 600;
       color: var(--color-brand-red, #dc2626);
@@ -201,20 +202,20 @@
   .pagination-axpagination {
     gap: 2px;
     padding: 6px;
-    
+
     .page-item .page-link {
       width: 36px;
       height: 36px;
       font-size: 13px;
     }
-    
+
     // Hide first/last on mobile for space
     .page-item.first,
     .page-item.last {
       display: none;
     }
   }
-  
+
   .pagination-info {
     margin-top: 12px;
     font-size: 13px;
@@ -234,7 +235,7 @@
 // Animation for page transitions
 .pagination-axpagination .page-item .page-link[data-remote="true"] {
   position: relative;
-  
+
   &::after {
     content: '';
     position: absolute;
@@ -249,7 +250,7 @@
     pointer-events: none;
     opacity: 0;
   }
-  
+
   &.loading::after {
     width: 20px;
     height: 20px;
@@ -259,10 +260,13 @@
 }
 
 @keyframes axPaginationPulse {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translate(-50%, -50%) scale(1);
     opacity: 0.3;
   }
+
   50% {
     transform: translate(-50%, -50%) scale(1.2);
     opacity: 0.6;
@@ -271,6 +275,7 @@
 
 // Integration with existing AutoXpress theme
 .pagination-wrapper {
+
   // Ensure it works with the current layout
   .main-content & {
     background: transparent;
@@ -281,7 +286,7 @@
 [data-turbo-loading] .pagination-axpagination {
   pointer-events: none;
   opacity: 0.6;
-  
+
   .page-link {
     cursor: wait;
   }
