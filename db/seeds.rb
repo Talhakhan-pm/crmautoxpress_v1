@@ -2,20 +2,22 @@
 # development, test). The code here should be idempotent so that it can be executed at any point in every environment.
 # The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
 
-puts "🌱 Starting AutoXpress CRM seed data..."
+# Only run seed data in development and test environments
+unless Rails.env.production?
+  puts "🌱 Starting AutoXpress CRM seed data..."
 
-# Clear existing data in development
-if Rails.env.development?
-  puts "🧹 Cleaning existing data..."
-  Activity.destroy_all
-  Dispatch.destroy_all
-  Order.destroy_all
-  Product.destroy_all
-  Supplier.destroy_all
-  Customer.destroy_all
-  AgentCallback.destroy_all
-  User.destroy_all
-end
+  # Clear existing data in development
+  if Rails.env.development?
+    puts "🧹 Cleaning existing data..."
+    Activity.destroy_all
+    Dispatch.destroy_all
+    Order.destroy_all
+    Product.destroy_all
+    Supplier.destroy_all
+    Customer.destroy_all
+    AgentCallback.destroy_all
+    User.destroy_all
+  end
 
 # Create Users (Agents)
 puts "👥 Creating users/agents..."
@@ -640,15 +642,19 @@ end
 
 puts "✅ Updated #{dispatches_count} dispatches"
 
-puts "\n🎉 AutoXpress CRM seed data complete!"
-puts "📊 Summary:"
-puts "   👥 Users: #{User.count}"
-puts "   🙍 Customers: #{Customer.count}" 
-puts "   📦 Products: #{Product.count}"
-puts "   📞 Callbacks: #{AgentCallback.count}"
-puts "   🛒 Orders: #{Order.count}"
-puts "   🚚 Dispatches: #{Dispatch.count}"
-puts "   📊 Activities: #{Activity.count}"
-puts "\n🚀 Ready to test your AutoXpress Order Management System!"
-puts "   📱 Login with any agent email (password: password123)"
-puts "   🌐 Visit http://localhost:3000/orders to see your orders"
+  puts "\n🎉 AutoXpress CRM seed data complete!"
+  puts "📊 Summary:"
+  puts "   👥 Users: #{User.count}"
+  puts "   🙍 Customers: #{Customer.count}" 
+  puts "   📦 Products: #{Product.count}"
+  puts "   📞 Callbacks: #{AgentCallback.count}"
+  puts "   🛒 Orders: #{Order.count}"
+  puts "   🚚 Dispatches: #{Dispatch.count}"
+  puts "   📊 Activities: #{Activity.count}"
+  puts "\n🚀 Ready to test your AutoXpress Order Management System!"
+  puts "   📱 Login with any agent email (password: password123)"
+  puts "   🌐 Visit http://localhost:3000/orders to see your orders"
+else
+  puts "🏭 Production environment detected - skipping seed data creation"
+  puts "💡 Seed data only runs in development and test environments"
+end
