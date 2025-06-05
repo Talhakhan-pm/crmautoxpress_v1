@@ -22,7 +22,7 @@ class OrdersController < ApplicationController
       )
     end
 
-    @orders = @orders.page(params[:page]).per(25) if defined?(Kaminari)
+    @orders = @orders.page(params[:page]).per(25)
 
     # For filter dropdowns
     @agents = User.all

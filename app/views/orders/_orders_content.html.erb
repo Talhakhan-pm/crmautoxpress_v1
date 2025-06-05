@@ -231,3 +231,15 @@ show_table = if defined?(view_type)
     <% end %>
   </div>
 <% end %>
+
+<!-- Pagination -->
+<% if orders.respond_to?(:current_page) %>
+  <div class="pagination-wrapper" 
+       data-controller="pagination"
+       data-pagination-current-page-value="<%= orders.current_page %>"
+       data-pagination-total-pages-value="<%= orders.total_pages %>"
+       data-pagination-total-count-value="<%= orders.total_count %>">
+    <%= paginate orders, theme: :axpagination, remote: true %>
+    <div class="pagination-info" data-pagination-target="info"></div>
+  </div>
+<% end %>

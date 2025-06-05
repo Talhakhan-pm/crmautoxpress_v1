@@ -24,6 +24,9 @@
 @use 'components/badges';
 @use 'components/cards';
 
+// Import pagination styles
+@use 'axpagination';
+
 // Import dashboard components
 @use 'sla_alerts_dashboard';
 @use 'returns_tracking_dashboard';
