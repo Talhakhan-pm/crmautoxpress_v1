@@ -1833,7 +1833,7 @@
       }
       
       &.status-confirmed {
-        background: #3b82f6;
+        background: #f59e0b;
       }
       
       &.status-processing {
@@ -1878,9 +1878,9 @@
     }
     
     .status-dot.status-confirmed + .status-text {
-      background: rgba(59, 130, 246, 0.08);
-      color: #2563eb;
-      border-color: rgba(59, 130, 246, 0.15);
+      background: rgba(245, 158, 11, 0.08);
+      color: #d97706;
+      border-color: rgba(245, 158, 11, 0.15);
     }
     
     .status-dot.status-processing + .status-text {
@@ -2303,8 +2303,8 @@
 }
 
 .status-confirmed {
-  background: #dbeafe;
-  color: #1e40af;
+  background: #fef3c7;
+  color: #d97706;
 }
 
 .status-processing {
@@ -2865,8 +2865,8 @@
     }
 
     &.status-confirmed {
-      background: #dbeafe;
-      color: #2563eb;
+      background: #fef3c7;
+      color: #d97706;
     }
 
     &.status-processing {

@@ -18,6 +18,11 @@
   color: #92400e;
 }
 
+.status-confirmed {
+  background: #fef3c7;
+  color: #92400e;
+}
+
 .status-not_interested {
   background: #fee2e2;
   color: var(--color-brand-red);
@@ -96,6 +101,10 @@
 }
 
 .status-dot.status-pending {
+  background: #f59e0b;
+}
+
+.status-dot.status-confirmed {
   background: #f59e0b;
 }
 
