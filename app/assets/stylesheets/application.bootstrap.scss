@@ -34,6 +34,9 @@
 // Import communication styles
 @use 'communication';
 
+// Import notification styles
+@use 'notifications';
+
 /* Error alerts for validation */
 .alert {
     padding: 16px;

@@ -45,9 +45,7 @@ class CallbacksController < ApplicationController
       if params[:communication_message].present?
         @callback.communications.create!(
           user: current_user,
-          content: params[:communication_message],
-          message_type: params[:message_type] || 'note',
-          is_urgent: params[:mark_urgent] == '1'
+          content: params[:communication_message]
         )
       end
       
@@ -79,9 +77,7 @@ class CallbacksController < ApplicationController
       if params[:communication_message].present?
         @callback.communications.create!(
           user: current_user,
-          content: params[:communication_message],
-          message_type: params[:message_type] || 'note',
-          is_urgent: params[:mark_urgent] == '1'
+          content: params[:communication_message]
         )
       end
       

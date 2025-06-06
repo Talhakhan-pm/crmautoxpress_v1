@@ -6,18 +6,8 @@ class Communication < ApplicationRecord
   has_many :activities, as: :trackable, dependent: :destroy
 
   validates :content, presence: true
-  validates :message_type, presence: true
-
-  enum message_type: {
-    note: 'note',
-    customer_update: 'customer_update',
-    urgent: 'urgent',
-    follow_up: 'follow_up',
-    assignment: 'assignment'
-  }
 
   scope :recent, -> { order(created_at: :desc) }
-  scope :urgent, -> { where(is_urgent: true) }
   scope :main_messages, -> { where(parent_communication: nil) }
 
   include Trackable
@@ -25,6 +15,7 @@ class Communication < ApplicationRecord
   after_create_commit :broadcast_new_communication
   after_create_commit :notify_mentioned_users
   after_create_commit :create_activity_log
+  after_create_commit :create_team_notifications
 
   def author_name
     user.email.split('@').first.humanize
@@ -78,7 +69,44 @@ class Communication < ApplicationRecord
       user: user,
       action: 'communication_added',
       field_changed: 'communication',
-      new_value: message_type
+      new_value: 'team_message'
     )
+  end
+
+  def create_team_notifications
+    # Find all users who have interacted with this callback (except the sender)
+    involved_user_ids = agent_callback.activities
+                                     .joins(:user)
+                                     .where.not(user: user)
+                                     .distinct
+                                     .pluck(:user_id)
+
+    # Also include the original callback owner if not already included
+    involved_user_ids << agent_callback.user_id unless involved_user_ids.include?(agent_callback.user_id) || agent_callback.user_id == user_id
+
+    # Create notifications for all involved users
+    involved_user_ids.uniq.each do |user_id|
+      next if user_id == self.user_id # Don't notify the sender
+
+      # Check for mentions
+      notification_type = mentions_user?(User.find(user_id)) ? 'mention' : 'new_communication'
+
+      Notification.create!(
+        user_id: user_id,
+        communication: self,
+        agent_callback: agent_callback,
+        notification_type: notification_type
+      )
+    end
+
+    Rails.logger.info "Created notifications for #{involved_user_ids.size} users for communication ##{id}"
+  end
+
+  def mentions_user?(user)
+    return false unless mentions.present?
+    
+    mentioned_emails = mentions.scan(/@(\w+(?:\.\w+)*)/).flatten
+    user_handle = user.email.split('@').first
+    mentioned_emails.include?(user_handle)
   end
 end

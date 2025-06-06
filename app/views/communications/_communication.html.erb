@@ -8,16 +8,6 @@
       <span class="message-author"><%= communication.author_name %></span>
       <span class="message-time"><%= time_ago_in_words(communication.created_at) %> ago</span>
       
-      <% if communication.is_urgent? %>
-        <span class="message-type urgent">
-          <i class="fas fa-exclamation-triangle"></i>
-          Urgent
-        </span>
-      <% end %>
-      
-      <span class="message-type-badge message-type-<%= communication.message_type %>">
-        <%= communication.message_type.humanize %>
-      </span>
     </div>
     
     <div class="message-body">
@@ -95,7 +85,6 @@
         </div>
         
         <%= form.hidden_field :parent_communication_id, value: communication.id %>
-        <%= form.hidden_field :message_type, value: 'note' %>
       <% end %>
     </div>
   </div>

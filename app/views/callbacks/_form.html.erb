@@ -225,37 +225,15 @@
   <!-- Quick Communication Card -->
   <div class="quick-form-card">
     <div class="quick-form-header">
-      <h3>Quick Communication</h3>
-      <span class="quick-badge quick-badge-info">Team</span>
+      <h3>Team Communication</h3>
+      <span class="quick-badge quick-badge-info">Auto-notify</span>
     </div>
     
     <div class="quick-input-group quick-input-full">
       <%= text_area_tag :communication_message, "", 
                          class: "quick-textarea", 
                          rows: 2, 
-                         placeholder: "Add note or @mention team members..." %>
-    </div>
-    
-    <div class="communication-options">
-      <label class="quick-checkbox">
-        <%= check_box_tag :notify_team %>
-        <span>Notify team members</span>
-      </label>
-      <label class="quick-checkbox">
-        <%= check_box_tag :mark_urgent %>
-        <span>Mark as urgent</span>
-      </label>
-      
-      <div class="message-type-selector">
-        <%= select_tag :message_type, 
-            options_for_select([
-              ['Internal Note', 'note'],
-              ['Customer Update', 'customer_update'],
-              ['Follow-up Required', 'follow_up'],
-              ['Assignment Change', 'assignment']
-            ], 'note'), 
-            { class: "quick-select" } %>
-      </div>
+                         placeholder: "Add message to communicate with team..." %>
     </div>
   </div>
   

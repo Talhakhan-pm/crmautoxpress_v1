@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  # Notification routes
+  patch 'notifications/:id/mark_read', to: 'notifications#mark_read', as: :mark_notification_read
+  patch 'notifications/mark_all_read', to: 'notifications#mark_all_read', as: :mark_all_notifications_read
   # Suppliers routes (view-only catalog, auto-created from orders)
   resources :suppliers, only: [:index, :show, :edit, :update]
   # Orders routes

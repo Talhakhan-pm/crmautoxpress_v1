@@ -48,6 +48,6 @@ class CommunicationsController < ApplicationController
   end
 
   def communication_params
-    params.require(:communication).permit(:content, :message_type, :is_urgent, :mentions, :parent_communication_id)
+    params.require(:communication).permit(:content, :mentions, :parent_communication_id)
   end
 end

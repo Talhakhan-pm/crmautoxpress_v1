@@ -12,31 +12,15 @@
           </div>
           <div class="composer-actions">
               <button type="button" class="mention-btn" title="Mention team member">@</button>
-              <button type="button" class="urgent-btn" title="Mark urgent">!</button>
           </div>
       </div>
       
       <%= form.text_area :content, 
                          class: "composer-input", 
                          rows: 3,
-                         placeholder: "Add internal note or communicate with team..." %>
+                         placeholder: "Add message to communicate with team..." %>
       
       <div class="composer-footer">
-          <div class="composer-options">
-              <%= form.select :message_type, 
-                  options_for_select([
-                      ['Internal Note', 'note'],
-                      ['Customer Update', 'customer_update'],
-                      ['Follow-up Required', 'follow_up'],
-                      ['Assignment Change', 'assignment']
-                  ], 'note'), 
-                  {}, { class: "composer-select" } %>
-              
-              <label class="composer-checkbox">
-                  <%= form.check_box :is_urgent %>
-                  <span>Urgent</span>
-              </label>
-          </div>
           <%= form.submit "Send", class: "btn-send" %>
       </div>
       

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_06_141541) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_06_144540) do
   create_table "activities", force: :cascade do |t|
     t.string "trackable_type", null: false
     t.integer "trackable_id", null: false
@@ -108,6 +108,21 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_06_141541) do
     t.index ["payment_status"], name: "index_dispatches_on_payment_status"
     t.index ["processing_agent_id"], name: "index_dispatches_on_processing_agent_id"
     t.index ["shipment_status"], name: "index_dispatches_on_shipment_status"
+  end
+
+  create_table "notifications", force: :cascade do |t|
+    t.integer "user_id"
+    t.integer "communication_id"
+    t.integer "agent_callback_id"
+    t.string "notification_type", default: "new_communication"
+    t.datetime "read_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["agent_callback_id"], name: "index_notifications_on_agent_callback_id"
+    t.index ["communication_id"], name: "index_notifications_on_communication_id"
+    t.index ["user_id", "created_at"], name: "index_notifications_on_user_id_and_created_at"
+    t.index ["user_id", "read_at"], name: "index_notifications_on_user_id_and_read_at"
+    t.index ["user_id"], name: "index_notifications_on_user_id"
   end
 
   create_table "orders", force: :cascade do |t|
@@ -288,6 +303,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_06_141541) do
   add_foreign_key "communications", "agent_callbacks"
   add_foreign_key "communications", "communications", column: "parent_communication_id"
   add_foreign_key "communications", "users"
+  add_foreign_key "notifications", "agent_callbacks"
+  add_foreign_key "notifications", "communications"
+  add_foreign_key "notifications", "users"
   add_foreign_key "orders", "suppliers"
   add_foreign_key "refunds", "orders"
   add_foreign_key "refunds", "users", column: "processing_agent_id"
