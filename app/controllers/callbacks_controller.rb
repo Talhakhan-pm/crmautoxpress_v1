@@ -5,6 +5,13 @@ class CallbacksController < ApplicationController
     @callbacks = AgentCallback.all.order(created_at: :desc)
   end
 
+  def dashboard
+    @callbacks = AgentCallback.includes(:user, communications: :user)
+                              .with_communication_stats
+                              .recent_activity_first
+                              .limit(20)
+  end
+
   def show
     @callback.track_view
     

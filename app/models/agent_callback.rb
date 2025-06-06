@@ -23,6 +23,19 @@ class AgentCallback < ApplicationRecord
 
   # Scopes
   scope :recent, -> { order(created_at: :desc) }
+  
+  # Dashboard-specific scopes (database agnostic)
+  scope :with_communication_stats, -> {
+    left_joins(:communications)
+      .select('agent_callbacks.*, COUNT(communications.id) as communications_count')
+      .group('agent_callbacks.id')
+  }
+  
+  scope :recent_activity_first, -> {
+    left_joins(:communications)
+      .group('agent_callbacks.id')
+      .order(Arel.sql('MAX(COALESCE(communications.created_at, agent_callbacks.created_at)) DESC'))
+  }
 
   include Trackable
   
@@ -45,6 +58,40 @@ class AgentCallback < ApplicationRecord
   
   def agent
     user&.email
+  end
+  
+  # Dashboard helper methods
+  def latest_communication
+    @latest_communication ||= communications.includes(:user).order(created_at: :desc).first
+  end
+  
+  def communications_count
+    if has_attribute?(:communications_count)
+      read_attribute(:communications_count) || 0
+    else
+      communications.count
+    end
+  end
+  
+  def unread_communications_for(user)
+    # Count communications since user last viewed this callback
+    last_view = activities.where(user: user, action: 'viewed').order(created_at: :desc).first
+    if last_view
+      communications.where('created_at > ?', last_view.created_at).count
+    else
+      communications.count
+    end
+  end
+  
+  def team_members
+    @team_members ||= User.joins(:activities)
+                         .where(activities: { trackable: self })
+                         .distinct
+                         .limit(5)
+  end
+  
+  def has_recent_activity?
+    latest_communication&.created_at&.> 1.day.ago
   end
   
   private

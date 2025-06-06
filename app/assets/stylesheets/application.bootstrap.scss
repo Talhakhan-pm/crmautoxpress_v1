@@ -37,6 +37,9 @@
 // Import notification styles
 @use 'notifications';
 
+// Import callback dashboard styles
+@use 'callback_dashboard';
+
 /* Error alerts for validation */
 .alert {
     padding: 16px;

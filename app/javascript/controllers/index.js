@@ -17,6 +17,7 @@ import DispatchFilterController from "./dispatch_filter_controller"
 import NavigationController from "./navigation_controller"
 import PaginationController from "./pagination_controller"
 import NotificationsController from "./notifications_controller"
+import CallbackCardController from "./callback_card_controller"
 
 application.register("hello", HelloController)
 application.register("order-form", OrderFormController)
@@ -35,5 +36,6 @@ application.register("dispatch-filter", DispatchFilterController)
 application.register("navigation", NavigationController)
 application.register("pagination", PaginationController)
 application.register("notifications", NotificationsController)
+application.register("callback-card", CallbackCardController)
 
-console.log("Controllers registered: hello, order-form, dispatch-form, modal, callback-form, refund-form, dispatch-cancellation, orders-filter, order-resolution, order-timeline, unified-resolution, dispatch-actions, dispatch-navigation, dispatch-filter, navigation, pagination, notifications")
+console.log("Controllers registered: hello, order-form, dispatch-form, modal, callback-form, refund-form, dispatch-cancellation, orders-filter, order-resolution, order-timeline, unified-resolution, dispatch-actions, dispatch-navigation, dispatch-filter, navigation, pagination, notifications, callback-card")

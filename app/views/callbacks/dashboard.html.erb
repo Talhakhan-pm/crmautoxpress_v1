@@ -1,0 +1,77 @@
+<%= turbo_frame_tag "main_content", data: { turbo_action: "advance", controller: "callback-dashboard" } do %>
+<!-- Collaborative Callback Dashboard -->
+<main class="main-content">
+  <%= turbo_stream_from "callbacks" %>
+  
+  <!-- Dashboard Header -->
+  <header class="main-header">
+    <div class="header-left">
+      <h1>Collaborative Dashboard</h1>
+      <div class="breadcrumb">CRM › Callbacks › Team Dashboard</div>
+    </div>
+    <div class="header-actions">
+      <!-- Notifications -->
+      <%= render 'shared/notifications' %>
+      
+      <!-- View Toggle -->
+      <div class="cb-view-toggle">
+        <%= link_to callbacks_path, class: "cb-toggle-btn", data: { turbo_frame: "main_content" } do %>
+          <i class="fas fa-table"></i>
+          Table
+        <% end %>
+        <%= link_to dashboard_callbacks_path, class: "cb-toggle-btn cb-toggle-active", data: { turbo_frame: "main_content" } do %>
+          <i class="fas fa-th-large"></i>
+          Dashboard
+        <% end %>
+      </div>
+      
+      <%= link_to new_callback_path, class: "btn btn-primary", data: { turbo_frame: "main_content" } do %>
+        <i class="fas fa-plus"></i>
+        Add Callback
+      <% end %>
+    </div>
+  </header>
+
+  <!-- Dashboard Filters -->
+  <div class="cb-dashboard-filters">
+    <div class="cb-filter-group">
+      <button class="cb-filter-btn cb-filter-active" data-status="all">All</button>
+      <button class="cb-filter-btn" data-status="pending">Pending</button>
+      <button class="cb-filter-btn" data-status="follow_up">Follow Up</button>
+      <button class="cb-filter-btn" data-status="sale">Closed</button>
+    </div>
+    
+    <div class="cb-filter-group">
+      <button class="cb-filter-btn" data-filter="recent">Recent Activity</button>
+      <button class="cb-filter-btn" data-filter="unread">Unread Messages</button>
+      <button class="cb-filter-btn" data-filter="assigned">My Callbacks</button>
+    </div>
+    
+    <div class="cb-search-container">
+      <i class="fas fa-search"></i>
+      <input type="text" class="cb-search-input" placeholder="Search callbacks...">
+    </div>
+  </div>
+
+  <!-- Dashboard Grid -->
+  <div class="cb-dashboard-container">
+    <div class="cb-dashboard-grid" id="callback-cards">
+      <% @callbacks.each do |callback| %>
+        <%= render 'dashboard_card', callback: callback %>
+      <% end %>
+    </div>
+    
+    <% if @callbacks.empty? %>
+      <div class="cb-empty-state">
+        <i class="fas fa-phone-slash"></i>
+        <h3>No callbacks found</h3>
+        <p>Create your first callback to start collaborating with your team.</p>
+        <%= link_to new_callback_path, class: "btn btn-primary", data: { turbo_frame: "main_content" } do %>
+          <i class="fas fa-plus"></i>
+          Add First Callback
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</main>
+<% end %>

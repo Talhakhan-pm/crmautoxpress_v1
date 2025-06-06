@@ -105,6 +105,9 @@ Rails.application.routes.draw do
 
   # Callbacks routes  
   resources :callbacks do
+    collection do
+      get :dashboard
+    end
     resources :communications, only: [:create, :destroy]
   end
   
