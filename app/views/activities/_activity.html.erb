@@ -8,6 +8,8 @@
                 <i class="fas fa-edit"></i>
             <% when 'viewed' %>
                 <i class="fas fa-eye"></i>
+            <% when 'communication_added' %>
+                <i class="fas fa-comment"></i>
             <% else %>
                 <i class="fas fa-circle"></i>
             <% end %>
@@ -36,7 +38,7 @@
                 </div>
             </div>
             
-            <% unless ['viewed', 'created'].include?(activity.action) %>
+            <% unless ['viewed', 'created', 'communication_added'].include?(activity.action) %>
                 <div class="timeline-body">
                     <div class="activity-description">
                         <% case activity.action %>
@@ -46,6 +48,8 @@
                             <% else %>
                                 Updated callback
                             <% end %>
+                        <% when 'communication_added' %>
+                            Added <strong><%= activity.new_value&.humanize || 'communication' %></strong> message
                         <% else %>
                             <%= activity.action.humanize %> callback
                         <% end %>

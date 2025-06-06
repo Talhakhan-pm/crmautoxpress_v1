@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_05_30_130339) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_06_141541) do
   create_table "activities", force: :cascade do |t|
     t.string "trackable_type", null: false
     t.integer "trackable_id", null: false
@@ -43,6 +43,23 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_30_130339) do
     t.datetime "updated_at", null: false
     t.integer "user_id"
     t.index ["user_id"], name: "index_agent_callbacks_on_user_id"
+  end
+
+  create_table "communications", force: :cascade do |t|
+    t.integer "agent_callback_id"
+    t.integer "user_id"
+    t.text "content"
+    t.string "message_type", default: "note"
+    t.boolean "is_urgent", default: false
+    t.text "mentions"
+    t.integer "parent_communication_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["agent_callback_id", "created_at"], name: "index_communications_on_agent_callback_id_and_created_at"
+    t.index ["agent_callback_id"], name: "index_communications_on_agent_callback_id"
+    t.index ["created_at"], name: "index_communications_on_created_at"
+    t.index ["parent_communication_id"], name: "index_communications_on_parent_communication_id"
+    t.index ["user_id"], name: "index_communications_on_user_id"
   end
 
   create_table "customers", force: :cascade do |t|
@@ -203,20 +220,15 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_30_130339) do
     t.datetime "return_deadline"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "resolution_stage"
     t.text "agent_notes"
     t.text "dispatcher_notes"
     t.text "customer_response"
-    t.integer "resolution_stage", default: 0
     t.text "corrected_customer_details"
     t.text "part_research_notes"
     t.decimal "price_difference"
     t.string "alternative_part_name"
     t.decimal "alternative_part_price"
-    t.string "agent_action_type"
-    t.integer "delay_days"
-    t.decimal "price_increase_amount", precision: 8, scale: 2
-    t.text "save_attempt_notes"
-    t.datetime "customer_contact_date"
     t.string "dispatcher_decision"
     t.integer "delay_duration"
     t.decimal "additional_cost"
@@ -232,7 +244,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_30_130339) do
     t.index ["refund_date"], name: "index_refunds_on_refund_date"
     t.index ["refund_number"], name: "index_refunds_on_refund_number"
     t.index ["refund_stage"], name: "index_refunds_on_refund_stage"
-    t.index ["resolution_stage"], name: "index_refunds_on_resolution_stage"
     t.index ["return_status"], name: "index_refunds_on_return_status"
   end
 
@@ -274,6 +285,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_30_130339) do
 
   add_foreign_key "activities", "users"
   add_foreign_key "agent_callbacks", "users"
+  add_foreign_key "communications", "agent_callbacks"
+  add_foreign_key "communications", "communications", column: "parent_communication_id"
+  add_foreign_key "communications", "users"
   add_foreign_key "orders", "suppliers"
   add_foreign_key "refunds", "orders"
   add_foreign_key "refunds", "users", column: "processing_agent_id"

@@ -101,8 +101,13 @@ Rails.application.routes.draw do
   patch "resolution/:id/complete_refund", to: "resolution#complete_refund", as: :resolution_complete_refund
 
   # Callbacks routes  
-  resources :callbacks
-  resources :agent_callbacks, only: [:show]
+  resources :callbacks do
+    resources :communications, only: [:create, :destroy]
+  end
+  
+  resources :agent_callbacks, only: [:show] do
+    resources :communications, only: [:create, :destroy]
+  end
   
   # Customers routes (minimal - no new/create)
   resources :customers, only: [:index, :show, :edit, :update]

@@ -1,0 +1,45 @@
+<div class="communication-composer" id="communication-form">
+  <%= form_with model: [callback, Communication.new], 
+                url: agent_callback_communications_path(callback),
+                local: false,
+                class: "composer-form",
+                data: { turbo_frame: false } do |form| %>
+      
+      <div class="composer-header">
+          <div class="composer-user">
+              <div class="user-avatar"><%= current_user.email.first(2).upcase %></div>
+              <span><%= current_user.email.split('@').first.humanize %></span>
+          </div>
+          <div class="composer-actions">
+              <button type="button" class="mention-btn" title="Mention team member">@</button>
+              <button type="button" class="urgent-btn" title="Mark urgent">!</button>
+          </div>
+      </div>
+      
+      <%= form.text_area :content, 
+                         class: "composer-input", 
+                         rows: 3,
+                         placeholder: "Add internal note or communicate with team..." %>
+      
+      <div class="composer-footer">
+          <div class="composer-options">
+              <%= form.select :message_type, 
+                  options_for_select([
+                      ['Internal Note', 'note'],
+                      ['Customer Update', 'customer_update'],
+                      ['Follow-up Required', 'follow_up'],
+                      ['Assignment Change', 'assignment']
+                  ], 'note'), 
+                  {}, { class: "composer-select" } %>
+              
+              <label class="composer-checkbox">
+                  <%= form.check_box :is_urgent %>
+                  <span>Urgent</span>
+              </label>
+          </div>
+          <%= form.submit "Send", class: "btn-send" %>
+      </div>
+      
+      <%= form.hidden_field :mentions %>
+  <% end %>
+</div>

@@ -29,6 +29,7 @@
             <div class="tab-container">
                 <div class="tab-list">
                     <div class="tab-item active" data-action="click->callback-form#switchTab">Details</div>
+                    <div class="tab-item" data-action="click->callback-form#switchTab">Communication</div>
                     <div class="tab-item" data-action="click->callback-form#switchTab">Performance</div>
                 </div>
             </div>
@@ -76,6 +77,21 @@
                     <div class="field-value"><%= callback.notes %></div>
                 </div>
                 <% end %>
+            </div>
+
+            <!-- Tab Content: Communication (hidden by default) -->
+            <div class="tab-content" style="display: none;">
+                <%= turbo_stream_from "callback_#{callback.id}_communications" %>
+                
+                <!-- Communication Composer -->
+                <%= render 'communications/form', callback: callback %>
+                
+                <!-- Communication Thread -->
+                <div class="communication-thread" id="communication-thread">
+                    <% callback.communications.main_messages.recent.includes(:user, :replies).each do |communication| %>
+                        <%= render 'communications/communication', communication: communication, current_user_for_broadcast: current_user %>
+                    <% end %>
+                </div>
             </div>
 
             <!-- Tab Content: Performance (hidden by default) -->

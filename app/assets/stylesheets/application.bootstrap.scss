@@ -31,6 +31,9 @@
 @use 'sla_alerts_dashboard';
 @use 'returns_tracking_dashboard';
 
+// Import communication styles
+@use 'communication';
+
 /* Error alerts for validation */
 .alert {
     padding: 16px;

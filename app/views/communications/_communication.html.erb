@@ -1,0 +1,102 @@
+<div class="thread-message" id="<%= dom_id(communication) %>" data-message-type="<%= communication.message_type %>">
+  <div class="message-avatar">
+    <%= communication.author_initials %>
+  </div>
+  
+  <div class="message-content">
+    <div class="message-header">
+      <span class="message-author"><%= communication.author_name %></span>
+      <span class="message-time"><%= time_ago_in_words(communication.created_at) %> ago</span>
+      
+      <% if communication.is_urgent? %>
+        <span class="message-type urgent">
+          <i class="fas fa-exclamation-triangle"></i>
+          Urgent
+        </span>
+      <% end %>
+      
+      <span class="message-type-badge message-type-<%= communication.message_type %>">
+        <%= communication.message_type.humanize %>
+      </span>
+    </div>
+    
+    <div class="message-body">
+      <%= simple_format(communication.content) %>
+    </div>
+    
+    <div class="message-actions">
+      <button class="reply-btn" data-action="click->callback-form#showReplyForm" data-communication-id="<%= communication.id %>">
+        <i class="fas fa-reply"></i>
+        Reply
+      </button>
+      
+      <% current_user_context = local_assigns[:current_user_for_broadcast] || (defined?(current_user) ? current_user : nil) %>
+      <% if current_user_context && communication.user == current_user_context %>
+        <%= link_to agent_callback_communication_path(communication.agent_callback, communication), 
+                    method: :delete,
+                    class: "delete-btn",
+                    confirm: "Are you sure you want to delete this communication?",
+                    data: { 
+                      turbo_method: :delete,
+                      turbo_confirm: "Are you sure you want to delete this communication?"
+                    } do %>
+          <i class="fas fa-trash"></i>
+          Delete
+        <% end %>
+      <% end %>
+      
+      <div class="message-meta">
+        <% if communication.has_replies? %>
+          <span class="reply-count"><%= communication.replies.count %> replies</span>
+        <% end %>
+      </div>
+    </div>
+    
+    <!-- Replies -->
+    <% if communication.has_replies? %>
+      <div class="message-replies">
+        <% communication.replies.recent.includes(:user).each do |reply| %>
+          <div class="reply-message" id="<%= dom_id(reply) %>">
+            <div class="reply-avatar">
+              <%= reply.author_initials %>
+            </div>
+            <div class="reply-content">
+              <div class="reply-header">
+                <span class="reply-author"><%= reply.author_name %></span>
+                <span class="reply-time"><%= time_ago_in_words(reply.created_at) %> ago</span>
+              </div>
+              <div class="reply-body">
+                <%= simple_format(reply.content) %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+    
+    <!-- Reply Form (hidden by default) -->
+    <div class="reply-form" id="reply-form-<%= communication.id %>" style="display: none;">
+      <%= form_with model: [communication.agent_callback, Communication.new], 
+                    url: agent_callback_communications_path(communication.agent_callback),
+                    local: false,
+                    class: "reply-composer",
+                    data: { turbo_frame: false } do |form| %>
+        
+        <%= form.text_area :content, 
+                           class: "reply-input", 
+                           rows: 2,
+                           placeholder: "Write a reply..." %>
+        
+        <div class="reply-actions">
+          <%= form.submit "Reply", class: "btn-reply" %>
+          <button type="button" class="btn-cancel" data-action="click->callback-form#hideReplyForm" data-communication-id="<%= communication.id %>">
+            Cancel
+          </button>
+        </div>
+        
+        <%= form.hidden_field :parent_communication_id, value: communication.id %>
+        <%= form.hidden_field :message_type, value: 'note' %>
+      <% end %>
+    </div>
+  </div>
+</div>

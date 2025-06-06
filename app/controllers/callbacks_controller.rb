@@ -41,6 +41,16 @@ class CallbacksController < ApplicationController
     end
     
     if @callback.save
+      # Create communication if message provided
+      if params[:communication_message].present?
+        @callback.communications.create!(
+          user: current_user,
+          content: params[:communication_message],
+          message_type: params[:message_type] || 'note',
+          is_urgent: params[:mark_urgent] == '1'
+        )
+      end
+      
       respond_to do |format|
         format.html { 
           flash[:notice] = 'Callback was successfully created.'
@@ -65,6 +75,16 @@ class CallbacksController < ApplicationController
 
   def update
     if @callback.update(callback_params)
+      # Create communication if message provided
+      if params[:communication_message].present?
+        @callback.communications.create!(
+          user: current_user,
+          content: params[:communication_message],
+          message_type: params[:message_type] || 'note',
+          is_urgent: params[:mark_urgent] == '1'
+        )
+      end
+      
       respond_to do |format|
         format.html { 
           flash[:notice] = 'Callback was successfully updated.'

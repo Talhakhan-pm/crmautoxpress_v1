@@ -4,6 +4,11 @@ class Activity < ApplicationRecord
   
   validates :action, presence: true
   
+  # Communication-specific activity handling
+  def communication_activity?
+    action == 'communication_added'
+  end
+  
   scope :recent, -> { order(created_at: :desc) }
   scope :for_trackable, ->(trackable) { where(trackable: trackable) }
   
