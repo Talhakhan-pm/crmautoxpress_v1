@@ -74,6 +74,8 @@ class Communication < ApplicationRecord
   end
 
   def create_team_notifications
+    Rails.logger.info "=== CREATING TEAM NOTIFICATIONS FOR COMMUNICATION ##{id} ==="
+    
     # Find all users who have interacted with this callback (except the sender)
     involved_user_ids = agent_callback.activities
                                      .joins(:user)
@@ -81,25 +83,40 @@ class Communication < ApplicationRecord
                                      .distinct
                                      .pluck(:user_id)
 
+    Rails.logger.info "Users from activities: #{involved_user_ids}"
+
     # Also include the original callback owner if not already included
-    involved_user_ids << agent_callback.user_id unless involved_user_ids.include?(agent_callback.user_id) || agent_callback.user_id == user_id
+    unless involved_user_ids.include?(agent_callback.user_id) || agent_callback.user_id == user_id
+      involved_user_ids << agent_callback.user_id 
+    end
+
+    Rails.logger.info "Final involved users: #{involved_user_ids}"
 
     # Create notifications for all involved users
+    notifications_created = 0
     involved_user_ids.uniq.each do |user_id|
       next if user_id == self.user_id # Don't notify the sender
 
-      # Check for mentions
-      notification_type = mentions_user?(User.find(user_id)) ? 'mention' : 'new_communication'
+      begin
+        # Check for mentions
+        target_user = User.find(user_id)
+        notification_type = mentions_user?(target_user) ? 'mention' : 'new_communication'
 
-      Notification.create!(
-        user_id: user_id,
-        communication: self,
-        agent_callback: agent_callback,
-        notification_type: notification_type
-      )
+        notification = Notification.create!(
+          user_id: user_id,
+          communication: self,
+          agent_callback: agent_callback,
+          notification_type: notification_type
+        )
+        
+        notifications_created += 1
+        Rails.logger.info "Created #{notification_type} notification ##{notification.id} for user ##{user_id}"
+      rescue => e
+        Rails.logger.error "Failed to create notification for user ##{user_id}: #{e.message}"
+      end
     end
 
-    Rails.logger.info "Created notifications for #{involved_user_ids.size} users for communication ##{id}"
+    Rails.logger.info "=== CREATED #{notifications_created} NOTIFICATIONS ==="
   end
 
   def mentions_user?(user)

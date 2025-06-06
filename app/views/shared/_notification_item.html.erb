@@ -1,6 +1,7 @@
 <div class="notification-item <%= 'unread' if notification.unread? %>" 
      id="<%= dom_id(notification) %>"
      data-notification-id="<%= notification.id %>"
+     data-callback-url="<%= callback_path(notification.agent_callback) %>"
      data-action="click->notifications#markAsRead">
   
   <div class="notification-avatar">

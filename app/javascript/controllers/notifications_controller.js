@@ -4,6 +4,7 @@ export default class extends Controller {
   static targets = ["dropdown", "bell", "badge", "list"]
 
   connect() {
+    console.log('Notifications controller connected')
     // Close dropdown when clicking outside
     document.addEventListener('click', this.closeOnOutsideClick.bind(this))
   }
@@ -13,9 +14,13 @@ export default class extends Controller {
   }
 
   toggle(event) {
+    console.log('Toggle clicked')
     event.stopPropagation()
     
-    if (this.dropdownTarget.style.display === 'none') {
+    const isHidden = this.dropdownTarget.style.display === 'none' || 
+                     getComputedStyle(this.dropdownTarget).display === 'none'
+    
+    if (isHidden) {
       this.show()
     } else {
       this.hide()

@@ -10,7 +10,7 @@
   </div>
 
   <!-- Notification Dropdown -->
-  <div class="notification-dropdown" data-notifications-target="dropdown" style="display: none;">
+  <div class="notification-dropdown" data-notifications-target="dropdown">
     <div class="notification-header">
       <h3>Notifications</h3>
       <% if current_user.unread_notification_count > 0 %>
@@ -21,8 +21,11 @@
     </div>
 
     <div class="notification-list" data-notifications-target="list">
-      <% if current_user.recent_notifications.any? %>
-        <% current_user.recent_notifications.each do |notification| %>
+      <% notifications = current_user.recent_notifications %>
+      <% Rails.logger.info "Rendering notifications for user #{current_user.id}: #{notifications.count} notifications" %>
+      
+      <% if notifications.any? %>
+        <% notifications.each do |notification| %>
           <%= render 'shared/notification_item', notification: notification %>
         <% end %>
         
@@ -35,6 +38,7 @@
         <div class="empty-notifications">
           <i class="fas fa-bell-slash"></i>
           <p>No notifications yet</p>
+          <small>Total in DB: <%= current_user.notifications.count %></small>
         </div>
       <% end %>
     </div>
