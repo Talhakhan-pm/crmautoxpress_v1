@@ -27,21 +27,36 @@ class DashboardController < ApplicationController
   def calculate_dashboard_stats(period = 'today')
     date_range = get_date_range(period)
     
-    total_leads = AgentCallback.where(created_at: date_range).count
-    sales_count = AgentCallback.where(created_at: date_range, status: ['sale', 'payment_link']).count
+    # Single optimized query to get all status counts for the period
+    status_counts = AgentCallback.where(created_at: date_range)
+                                 .group(:status)
+                                 .count
+    
+    total_leads = status_counts.values.sum
+    sales_count = status_counts.slice('sale', 'payment_link').values.sum
+    pending_count = status_counts['pending'] || 0
+    hot_leads_count = status_counts['follow_up'] || 0
+    
+    # Single query for follow-ups due
+    follow_ups_due = AgentCallback.where(status: 'follow_up')
+                                  .where(follow_up_date: Date.current..3.days.from_now)
+                                  .count
+    
+    # Single query for active agents
+    active_agents_today = User.joins(:agent_callbacks)
+                              .where(agent_callbacks: { created_at: date_range })
+                              .distinct.count
     
     {
       total_leads: total_leads,
-      pending_leads: AgentCallback.where(created_at: date_range).pending.count,
+      pending_leads: pending_count,
       sales_closed: sales_count,
       conversion_rate: total_leads > 0 ? ((sales_count.to_f / total_leads) * 100).round(1) : 0,
-      follow_ups_due: AgentCallback.follow_up.where(follow_up_date: Date.current..3.days.from_now).count,
+      follow_ups_due: follow_ups_due,
       total_agents: User.count,
-      active_agents_today: User.joins(:agent_callbacks)
-                              .where(agent_callbacks: { created_at: date_range })
-                              .distinct.count,
+      active_agents_today: active_agents_today,
       avg_lead_value: calculate_avg_lead_value(period),
-      hot_leads: AgentCallback.where(created_at: date_range, status: 'follow_up').count
+      hot_leads: hot_leads_count
     }
   end
 
@@ -116,17 +131,27 @@ class DashboardController < ApplicationController
 
   def conversion_funnel_data(period = 'today')
     date_range = get_date_range(period)
-    total = AgentCallback.where(created_at: date_range).count
+    
+    # Single query to get all status counts
+    status_counts = AgentCallback.where(created_at: date_range)
+                                 .group(:status)
+                                 .count
+    
+    total = status_counts.values.sum
     return [] if total.zero?
+
+    qualified_count = status_counts.reject { |status, _| status == 'not_interested' }.values.sum
+    follow_up_count = status_counts['follow_up'] || 0
+    sales_count = status_counts.slice('sale', 'payment_link').values.sum
 
     [
       { stage: 'Total Leads', count: total, percentage: 100 },
-      { stage: 'Qualified', count: AgentCallback.where(created_at: date_range).where.not(status: 'not_interested').count, 
-        percentage: ((AgentCallback.where(created_at: date_range).where.not(status: 'not_interested').count.to_f / total) * 100).round(1) },
-      { stage: 'Follow-up', count: AgentCallback.where(created_at: date_range).follow_up.count,
-        percentage: ((AgentCallback.where(created_at: date_range).follow_up.count.to_f / total) * 100).round(1) },
-      { stage: 'Sales Closed', count: AgentCallback.where(created_at: date_range, status: ['sale', 'payment_link']).count,
-        percentage: ((AgentCallback.where(created_at: date_range, status: ['sale', 'payment_link']).count.to_f / total) * 100).round(1) }
+      { stage: 'Qualified', count: qualified_count, 
+        percentage: ((qualified_count.to_f / total) * 100).round(1) },
+      { stage: 'Follow-up', count: follow_up_count,
+        percentage: ((follow_up_count.to_f / total) * 100).round(1) },
+      { stage: 'Sales Closed', count: sales_count,
+        percentage: ((sales_count.to_f / total) * 100).round(1) }
     ]
   end
 

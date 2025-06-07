@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_06_144540) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_07_163224) do
   create_table "activities", force: :cascade do |t|
     t.string "trackable_type", null: false
     t.integer "trackable_id", null: false
@@ -24,7 +24,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_06_144540) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "details"
+    t.index ["trackable_type", "trackable_id", "created_at"], name: "index_activities_on_trackable_and_created_at"
     t.index ["trackable_type", "trackable_id"], name: "index_activities_on_trackable"
+    t.index ["user_id", "created_at"], name: "index_activities_on_user_id_and_created_at"
     t.index ["user_id"], name: "index_activities_on_user_id"
   end
 
@@ -42,6 +44,10 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_06_144540) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "user_id"
+    t.index ["car_make_model"], name: "index_agent_callbacks_on_car_make_model"
+    t.index ["created_at", "status"], name: "index_agent_callbacks_on_created_at_and_status"
+    t.index ["status", "follow_up_date"], name: "index_agent_callbacks_on_status_and_follow_up_date"
+    t.index ["user_id", "created_at"], name: "index_agent_callbacks_on_user_id_and_created_at"
     t.index ["user_id"], name: "index_agent_callbacks_on_user_id"
   end
 
@@ -58,7 +64,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_06_144540) do
     t.index ["agent_callback_id", "created_at"], name: "index_communications_on_agent_callback_id_and_created_at"
     t.index ["agent_callback_id"], name: "index_communications_on_agent_callback_id"
     t.index ["created_at"], name: "index_communications_on_created_at"
+    t.index ["message_type"], name: "index_communications_on_message_type"
     t.index ["parent_communication_id"], name: "index_communications_on_parent_communication_id"
+    t.index ["user_id", "created_at"], name: "index_communications_on_user_and_created_at"
     t.index ["user_id"], name: "index_communications_on_user_id"
   end
 
@@ -75,6 +83,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_06_144540) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["gclid"], name: "index_customers_on_gclid"
+    t.index ["name"], name: "index_customers_on_name"
     t.index ["phone_number"], name: "index_customers_on_phone_number"
   end
 
@@ -102,6 +111,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_06_144540) do
     t.string "last_modified_by"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["created_at", "dispatch_status"], name: "index_dispatches_on_created_at_and_status"
     t.index ["dispatch_status"], name: "index_dispatches_on_dispatch_status"
     t.index ["order_id"], name: "index_dispatches_on_order_id", unique: true
     t.index ["order_number"], name: "index_dispatches_on_order_number"
@@ -120,7 +130,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_06_144540) do
     t.datetime "updated_at", null: false
     t.index ["agent_callback_id"], name: "index_notifications_on_agent_callback_id"
     t.index ["communication_id"], name: "index_notifications_on_communication_id"
+    t.index ["notification_type", "created_at"], name: "index_notifications_on_type_and_created_at"
     t.index ["user_id", "created_at"], name: "index_notifications_on_user_id_and_created_at"
+    t.index ["user_id", "notification_type", "read_at"], name: "index_notifications_on_user_type_read"
     t.index ["user_id", "read_at"], name: "index_notifications_on_user_id_and_read_at"
     t.index ["user_id"], name: "index_notifications_on_user_id"
   end
@@ -174,13 +186,17 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_06_144540) do
     t.integer "replacement_order_id"
     t.string "replacement_reason"
     t.index ["agent_callback_id"], name: "index_orders_on_agent_callback_id"
+    t.index ["agent_id", "created_at"], name: "index_orders_on_agent_id_and_created_at"
     t.index ["agent_id"], name: "index_orders_on_agent_id"
+    t.index ["created_at", "order_status"], name: "index_orders_on_created_at_and_status"
     t.index ["customer_id"], name: "index_orders_on_customer_id"
+    t.index ["customer_name"], name: "index_orders_on_customer_name"
     t.index ["order_date"], name: "index_orders_on_order_date"
     t.index ["order_number"], name: "index_orders_on_order_number", unique: true
     t.index ["order_status"], name: "index_orders_on_order_status"
     t.index ["original_order_id"], name: "index_orders_on_original_order_id"
     t.index ["priority"], name: "index_orders_on_priority"
+    t.index ["processing_agent_id", "created_at"], name: "index_orders_on_processing_agent_and_created_at"
     t.index ["product_id"], name: "index_orders_on_product_id"
     t.index ["replacement_order_id"], name: "index_orders_on_replacement_order_id"
     t.index ["supplier_id"], name: "index_orders_on_supplier_id"
@@ -202,6 +218,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_06_144540) do
     t.datetime "updated_at", null: false
     t.string "source", default: "callback"
     t.index ["category"], name: "index_products_on_category"
+    t.index ["name"], name: "index_products_on_name"
     t.index ["part_number"], name: "index_products_on_part_number"
     t.index ["source"], name: "index_products_on_source"
     t.index ["status"], name: "index_products_on_status"
@@ -255,6 +272,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_06_144540) do
     t.datetime "return_authorized_at"
     t.datetime "return_shipped_at"
     t.datetime "return_received_at"
+    t.index ["created_at", "refund_stage"], name: "index_refunds_on_created_at_and_stage"
     t.index ["order_id"], name: "index_refunds_on_order_id"
     t.index ["refund_date"], name: "index_refunds_on_refund_date"
     t.index ["refund_number"], name: "index_refunds_on_refund_number"

@@ -15,6 +15,10 @@ class CallbacksController < ApplicationController
   def show
     @callback.track_view
     
+    # Preload associations to prevent N+1 queries
+    @communications = @callback.communications.includes(:user).recent.limit(20)
+    @activities = @callback.activities.includes(:user).recent.limit(10)
+    
     respond_to do |format|
       format.html
       format.json { 
@@ -117,7 +121,7 @@ class CallbacksController < ApplicationController
   private
 
   def set_callback
-    @callback = AgentCallback.find(params[:id])
+    @callback = AgentCallback.includes(:user, :communications, :activities).find(params[:id])
   end
 
   def callback_params
