@@ -59,6 +59,7 @@ class Order < ApplicationRecord
   after_create :find_or_create_supplier
   after_create :create_dispatch_record
   after_create :create_auto_callback
+  after_create :send_confirmation_email
   after_update :sync_with_dispatch
   after_update :update_supplier_total_orders
   after_update :check_original_order_resolution, if: :replacement_order_completed?
@@ -322,6 +323,53 @@ class Order < ApplicationRecord
     end
   end
 
+  # Email automation methods
+  def send_confirmation_email
+    return unless customer_email.present?
+    
+    # Send confirmation email asynchronously
+    OrderEmailJob.perform_later(id, 'confirmation')
+    Rails.logger.info "📧 Queued confirmation email for order ##{order_number} to #{customer_email}"
+  end
+
+  def send_shipping_notification_email
+    return unless customer_email.present? && dispatch.present?
+    
+    # Send shipping notification email asynchronously
+    OrderEmailJob.perform_later(id, 'shipping_notification')
+    Rails.logger.info "📧 Queued shipping notification email for order ##{order_number} to #{customer_email}"
+  end
+
+  def send_follow_up_email(delay_days = 7)
+    return unless customer_email.present?
+    
+    # Send follow-up email with delay
+    OrderEmailJob.set(wait: delay_days.days).perform_later(id, 'follow_up', { delay_days: delay_days })
+    Rails.logger.info "📧 Queued follow-up email for order ##{order_number} (#{delay_days} days delay)"
+  end
+
+  # Manual email triggers for UI buttons
+  def send_email_now(email_type)
+    return { success: false, error: 'No customer email' } unless customer_email.present?
+    
+    begin
+      case email_type.to_s
+      when 'confirmation'
+        OrderMailer.confirmation(self).deliver_now
+      when 'shipping_notification'
+        OrderMailer.shipping_notification(self).deliver_now
+      when 'follow_up'
+        OrderMailer.follow_up(self).deliver_now
+      else
+        return { success: false, error: "Unknown email type: #{email_type}" }
+      end
+
+      { success: true, message: "#{email_type.humanize} email sent to #{customer_email}" }
+    rescue => e
+      Rails.logger.error "Failed to send #{email_type} email for order ##{order_number}: #{e.message}"
+      { success: false, error: e.message }
+    end
+  end
 
   private
 

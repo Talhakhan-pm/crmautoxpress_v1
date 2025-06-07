@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  # Email actions
+  post 'email_actions/send_order_email', to: 'email_actions#send_order_email'
   # Notification routes
   patch 'notifications/:id/mark_read', to: 'notifications#mark_read', as: :mark_notification_read
   patch 'notifications/mark_all_read', to: 'notifications#mark_all_read', as: :mark_all_notifications_read

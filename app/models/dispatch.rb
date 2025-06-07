@@ -46,6 +46,7 @@ class Dispatch < ApplicationRecord
   before_validation :set_defaults, on: :create
   before_save :calculate_total_cost
   after_update :sync_with_order
+  after_update :send_shipping_notification_on_status_change
   
   include Trackable
 
@@ -344,5 +345,16 @@ class Dispatch < ApplicationRecord
                         target: "dispatches", 
                         partial: "dispatches/list_content", 
                         locals: { dispatches: fresh_dispatches }
+  end
+
+  # Email automation for shipping notifications
+  def send_shipping_notification_on_status_change
+    # Only send shipping notification when dispatch status changes to 'shipped'
+    # or when tracking number is added
+    if saved_change_to_dispatch_status? && dispatch_status == 'shipped'
+      order.send_shipping_notification_email
+    elsif saved_change_to_tracking_number? && tracking_number.present? && shipped?
+      order.send_shipping_notification_email
+    end
   end
 end

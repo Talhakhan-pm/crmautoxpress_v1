@@ -76,7 +76,7 @@
         <div class="unified-section-header">
           <h3 class="section-title">Actions</h3>
         </div>
-        <div class="action-buttons-grid" style="display: flex; gap: 12px;">
+        <div class="action-buttons-grid" style="display: flex; flex-wrap: wrap; gap: 12px;">
           <%= link_to edit_order_path(@order), class: "btn btn-secondary", data: { turbo_frame: "main_content" } do %>
             <i class="fas fa-edit"></i>
             Edit Order
@@ -94,10 +94,56 @@
             <% end %>
           <% end %>
           
+          <!-- Email Action Buttons -->
+          <% if @order.customer_email.present? %>
+            <div class="email-actions" style="display: flex; gap: 8px;">
+              <button class="btn btn-success btn-sm" 
+                      data-controller="email-sender"
+                      data-email-sender-order-id-value="<%= @order.id %>"
+                      data-email-sender-email-type-value="confirmation"
+                      data-action="click->email-sender#sendEmail">
+                <i class="fas fa-check-circle"></i>
+                Send Confirmation
+              </button>
+              
+              <% if @order.shipped? || @order.delivered? %>
+                <button class="btn btn-info btn-sm" 
+                        data-controller="email-sender"
+                        data-email-sender-order-id-value="<%= @order.id %>"
+                        data-email-sender-email-type-value="shipping_notification"
+                        data-action="click->email-sender#sendEmail">
+                  <i class="fas fa-truck"></i>
+                  Send Shipping Update
+                </button>
+              <% end %>
+              
+              <% if @order.delivered? %>
+                <button class="btn btn-warning btn-sm" 
+                        data-controller="email-sender"
+                        data-email-sender-order-id-value="<%= @order.id %>"
+                        data-email-sender-email-type-value="follow_up"
+                        data-action="click->email-sender#sendEmail">
+                  <i class="fas fa-heart"></i>
+                  Send Follow-up
+                </button>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="email-warning" style="padding: 8px 12px; background: #fef3c7; border-radius: 6px; color: #92400e; font-size: 14px;">
+              <i class="fas fa-exclamation-triangle"></i>
+              No email address
+            </div>
+          <% end %>
+          
           <div class="status-info" style="display: flex; gap: 8px; align-items: center;">
             <span class="badge badge-<%= @order.order_status %>"><%= @order.order_status.humanize %></span>
             <span class="badge badge-<%= @order.priority %>"><%= @order.priority.humanize %> Priority</span>
           </div>
+        </div>
+        
+        <!-- Email Status Indicator -->
+        <div id="email-status-<%= @order.id %>" class="email-status-indicator mt-3" style="display: none;">
+          <!-- This will be updated by Turbo Stream when emails are sent -->
         </div>
         
         <% if @order.tracking_number.present? %>
