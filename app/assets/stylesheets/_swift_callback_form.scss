@@ -102,7 +102,7 @@
       background: #e9ecef;
     }
 
-    &.swift-status-active {
+    &:has(.swift-radio:checked) {
       background: #007bff;
       color: white;
       border-color: #007bff;
