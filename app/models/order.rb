@@ -352,10 +352,10 @@ class Order < ApplicationRecord
   def send_email_now(email_type)
     return { success: false, error: 'No customer email' } unless customer_email.present?
     
-    # Check for recent duplicate emails (within last 10 minutes)
+    # Check for recent duplicate emails (within last 30 seconds)
     recent_email = activities.where(
       action: "#{email_type}_email_sent",
-      created_at: 10.minutes.ago..Time.current
+      created_at: 30.seconds.ago..Time.current
     ).exists?
     
     if recent_email
