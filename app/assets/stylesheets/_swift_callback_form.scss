@@ -6,7 +6,7 @@
   background: #ffffff;
   border-radius: 12px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-  
+
   // Field Groups
   .swift-field-group {
     display: flex;
@@ -14,13 +14,13 @@
     gap: 16px;
     margin-bottom: 24px;
   }
-  
+
   .swift-field-row {
     display: flex;
     gap: 12px;
     margin-bottom: 16px;
   }
-  
+
   // Individual Fields
   .swift-field {
     position: relative;
@@ -32,22 +32,22 @@
     padding: 0 16px;
     height: 52px;
     transition: all 0.2s ease;
-    
+
     &:focus-within {
       background: #ffffff;
       border-color: #007bff;
       box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
     }
-    
+
     &.swift-field-wide {
       flex: 2;
     }
-    
+
     &.swift-field-narrow {
       flex: 1;
     }
   }
-  
+
   // Icons
   .swift-icon {
     color: #6c757d;
@@ -55,7 +55,7 @@
     margin-right: 12px;
     flex-shrink: 0;
   }
-  
+
   // Inputs
   .swift-input {
     flex: 1;
@@ -64,23 +64,24 @@
     font-size: 15px;
     color: #212529;
     outline: none;
-    
+
     &::placeholder {
       color: #9ca3af;
     }
   }
-  
+
   // Status Section
   .swift-status-section {
     margin-bottom: 24px;
   }
-  
+
   .swift-status-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
+    margin-top: 20px;
   }
-  
+
   .swift-status {
     position: relative;
     display: flex;
@@ -96,40 +97,40 @@
     font-size: 14px;
     font-weight: 500;
     color: #6c757d;
-    
+
     &:hover {
       background: #e9ecef;
     }
-    
+
     &.swift-status-active {
       background: #007bff;
       color: white;
       border-color: #007bff;
     }
-    
+
     i {
       font-size: 14px;
     }
   }
-  
+
   .swift-radio {
     position: absolute;
     opacity: 0;
     pointer-events: none;
   }
-  
+
   // Follow-up Section
   .swift-followup-section {
     margin-bottom: 24px;
   }
-  
+
   .swift-date-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
     margin-bottom: 12px;
   }
-  
+
   .swift-date-btn {
     display: flex;
     flex-direction: column;
@@ -144,24 +145,24 @@
     font-size: 13px;
     font-weight: 500;
     color: #6c757d;
-    
+
     &:hover {
       background: #e9ecef;
     }
-    
+
     &.swift-date-active,
     &:active {
       background: #007bff;
       color: white;
       border-color: #007bff;
     }
-    
+
     i {
       font-size: 16px;
       margin-bottom: 2px;
     }
   }
-  
+
   .swift-date-input {
     width: 100%;
     padding: 12px 16px;
@@ -173,25 +174,25 @@
     outline: none;
     transition: all 0.2s ease;
     display: none;
-    
+
     &:focus {
       background: #ffffff;
       border-color: #007bff;
       box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
     }
-    
+
     &.show {
       display: block;
     }
   }
-  
+
   // Actions
   .swift-actions {
     display: flex;
     gap: 12px;
     margin-top: 32px;
   }
-  
+
   .swift-btn {
     flex: 1;
     padding: 14px 24px;
@@ -203,25 +204,25 @@
     text-align: center;
     cursor: pointer;
     transition: all 0.2s ease;
-    
+
     &.swift-btn-cancel {
       background: #f8f9fa;
       color: #6c757d;
-      
+
       &:hover {
         background: #e9ecef;
         color: #495057;
       }
     }
-    
+
     &.swift-btn-save {
       background: #007bff;
       color: white;
-      
+
       &:hover {
         background: #0056b3;
       }
-      
+
       &:disabled {
         opacity: 0.6;
         cursor: not-allowed;
@@ -243,20 +244,20 @@
   .swift-form {
     padding: 20px;
     margin: 0 16px;
-    
+
     .swift-field-row {
       flex-direction: column;
       gap: 16px;
     }
-    
+
     .swift-status-grid {
       grid-template-columns: 1fr;
     }
-    
+
     .swift-date-grid {
       grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .swift-actions {
       flex-direction: column;
     }
