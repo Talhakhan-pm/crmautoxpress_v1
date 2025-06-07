@@ -351,9 +351,9 @@ export default class extends Controller {
 
   // Update date button visual states
   updateDateButtonStates(activeButton) {
-    const allButtons = this.element.querySelectorAll('.quick-date-btn')
-    allButtons.forEach(btn => btn.classList.remove('active'))
-    activeButton.classList.add('active')
+    const allButtons = this.element.querySelectorAll('.swift-date-btn')
+    allButtons.forEach(btn => btn.classList.remove('swift-date-active'))
+    activeButton.classList.add('swift-date-active')
   }
 
   // Update status and show/hide follow-up section
