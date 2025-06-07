@@ -748,76 +748,7 @@ body {
 }
 
 
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-label {
-    display: block;
-    margin-bottom: 6px;
-    font-weight: 500;
-    color: #374151;
-}
-
-.form-input,
-.form-select,
-.form-textarea {
-    width: 100%;
-    padding: 12px 16px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: 14px;
-    transition: border-color 0.2s;
-}
-
-.form-input:focus,
-.form-select:focus,
-.form-textarea:focus {
-    outline: none;
-    border-color: #dc2626;
-    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
-}
-
-.form-textarea {
-    resize: vertical;
-    min-height: 100px;
-}
-
-.form-input-readonly {
-    width: 100%;
-    padding: 12px 16px;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    font-size: 14px;
-    background: #f9fafb;
-    color: #6b7280;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.text-muted {
-    font-size: 12px;
-    color: #6b7280;
-    margin-top: 4px;
-    display: block;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-}
-
-.modal-footer {
-    padding: 24px;
-    border-top: 1px solid #e5e7eb;
-    display: flex;
-    gap: 12px;
-    justify-content: flex-end;
-}
-
-/* Form Page Styles */
+/* Essential Layout Classes */
 .content-card {
     background: white;
     border-radius: 12px;
@@ -826,46 +757,11 @@ body {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.callback-form {
-    max-width: 800px;
-}
-
-.form-section {
-    margin-bottom: 32px;
-    padding-bottom: 24px;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.form-section:last-of-type {
-    border-bottom: none;
-    margin-bottom: 24px;
-}
-
-.section-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: #111827;
-    margin-bottom: 20px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid #dc2626;
-    display: inline-block;
-}
-
-/* Form actions for app forms (not Devise) */
-.content-card .form-actions,
-.modal-footer,
-.unified-modal .form-actions {
-    display: flex;
-    gap: 12px;
-    justify-content: flex-end;
-    padding-top: 24px;
-    border-top: 1px solid #e5e7eb;
-}
-
-/* Devise form actions - keep existing auth styles */
-.auth-form .form-actions {
+.text-muted {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 4px;
     display: block;
-    margin-top: 24px;
 }
 
 /* Responsive */
