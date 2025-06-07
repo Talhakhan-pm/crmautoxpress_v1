@@ -132,7 +132,7 @@ export default class extends Controller {
         <i class="${statusIcon}"></i>
         <strong>${emailType.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())} Email:</strong> ${message}
         <small class="d-block mt-1">Sent at ${timestamp}</small>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
       </div>
     `
   }
