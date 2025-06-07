@@ -83,12 +83,12 @@
         <span>Follow Up</span>
       </label>
       
-      <label class="swift-status <%= 'swift-status-active' if callback.status == 'sale' %>">
-        <%= form.radio_button :status, 'sale', 
+      <label class="swift-status <%= 'swift-status-active' if callback.status == 'payment_link' %>">
+        <%= form.radio_button :status, 'payment_link', 
                               class: "swift-radio",
                               data: { action: "change->callback-form#updateStatus" } %>
-        <i class="fas fa-handshake"></i>
-        <span>Sale</span>
+        <i class="fas fa-credit-card"></i>
+        <span>Payment Link</span>
       </label>
       
       <label class="swift-status <%= 'swift-status-active' if callback.status == 'not_interested' %>">

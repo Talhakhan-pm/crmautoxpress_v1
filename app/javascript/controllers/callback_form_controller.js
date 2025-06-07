@@ -351,8 +351,8 @@ export default class extends Controller {
     const followupSection = this.hasFollowupSectionTarget ? this.followupSectionTarget : null
     
     if (followupSection) {
-      // Show follow-up date for statuses that typically need follow-up
-      const needsFollowup = ['pending', 'follow_up', 'payment_link'].includes(status)
+      // Show follow-up date only for follow_up status
+      const needsFollowup = ['follow_up'].includes(status)
       followupSection.style.display = needsFollowup ? 'block' : 'none'
     }
   }
