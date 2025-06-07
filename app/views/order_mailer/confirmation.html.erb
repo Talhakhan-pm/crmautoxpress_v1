@@ -45,11 +45,15 @@
       margin-bottom: 10px;
       padding-bottom: 10px;
       border-bottom: 1px solid #e9ecef;
+      gap: 15px;
     }
     .detail-row:last-child {
       border-bottom: none;
       font-weight: bold;
       font-size: 18px;
+    }
+    .detail-label {
+      margin-right: 8px;
     }
     .button {
       display: inline-block;
@@ -90,39 +94,39 @@
       
       <div class="order-details">
         <div class="detail-row">
-          <span>Order Number:</span>
+          <span class="detail-label">Order Number:</span>
           <span><strong>#<%= @order.order_number %></strong></span>
         </div>
         <div class="detail-row">
-          <span>Order Date:</span>
+          <span class="detail-label">Order Date:</span>
           <span><%= @order.order_date.strftime("%B %d, %Y") %></span>
         </div>
         <div class="detail-row">
-          <span>Product:</span>
+          <span class="detail-label">Product:</span>
           <span><%= @order.product_name %></span>
         </div>
         <div class="detail-row">
-          <span>Vehicle:</span>
+          <span class="detail-label">Vehicle:</span>
           <span><%= @order.car_year %> <%= @order.car_make_model %></span>
         </div>
         <div class="detail-row">
-          <span>Product Price:</span>
+          <span class="detail-label">Product Price:</span>
           <span>$<%= number_with_precision(@order.product_price, precision: 2) %></span>
         </div>
         <% if @order.tax_amount > 0 %>
         <div class="detail-row">
-          <span>Tax:</span>
+          <span class="detail-label">Tax:</span>
           <span>$<%= number_with_precision(@order.tax_amount, precision: 2) %></span>
         </div>
         <% end %>
         <% if @order.shipping_cost > 0 %>
         <div class="detail-row">
-          <span>Shipping:</span>
+          <span class="detail-label">Shipping:</span>
           <span>$<%= number_with_precision(@order.shipping_cost, precision: 2) %></span>
         </div>
         <% end %>
         <div class="detail-row">
-          <span>Total Amount:</span>
+          <span class="detail-label">Total Amount:</span>
           <span>$<%= number_with_precision(@order.total_amount, precision: 2) %></span>
         </div>
       </div>
@@ -139,7 +143,7 @@
         <li>Estimated delivery: <%= @order.estimated_delivery&.strftime("%B %d, %Y") || "2-5 business days" %></li>
       </ul>
       
-      <p>Questions about your order? Reply to this email or call us at <strong>(555) 123-AUTO</strong>.</p>
+      <p>Questions about your order? Reply to this email or call us at <strong>(252) 275-3786</strong>.</p>
     </div>
     
     <div class="footer">
