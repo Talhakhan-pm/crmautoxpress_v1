@@ -31,33 +31,22 @@
             </div>
         </header>
 
-    <!-- Toolbar -->
-    <div class="toolbar">
-        <div class="toolbar-left">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search callbacks, customers, products..." data-action="input->callback-form#searchCallbacks">
-            </div>
-            <div class="filter-group">
-                <button class="filter-btn active" data-status="all" data-action="click->callback-form#filterByStatus">All</button>
-                <button class="filter-btn" data-status="pending" data-action="click->callback-form#filterByStatus">Pending</button>
-                <button class="filter-btn" data-status="not_interested" data-action="click->callback-form#filterByStatus">Not Interested</button>
-                <button class="filter-btn" data-status="already_purchased" data-action="click->callback-form#filterByStatus">Already Purchased</button>
-                <button class="filter-btn" data-status="sale" data-action="click->callback-form#filterByStatus">Sale</button>
-                <button class="filter-btn" data-status="payment_link" data-action="click->callback-form#filterByStatus">Payment Link</button>
-                <button class="filter-btn" data-status="follow_up" data-action="click->callback-form#filterByStatus">Follow Up</button>
-            </div>
-        </div>
-        <div class="toolbar-right">
-            <button class="filter-btn">
-                <i class="fas fa-filter"></i>
-                Filter
-            </button>
-            <button class="filter-btn">
-                <i class="fas fa-sort"></i>
-                Sort
-            </button>
-        </div>
+    <!-- Dashboard Filters -->
+    <div class="cb-dashboard-filters">
+      <div class="cb-filter-group">
+        <button class="cb-filter-btn cb-filter-active" data-status="all" data-action="click->callback-form#filterByStatus">All</button>
+        <button class="cb-filter-btn" data-status="pending" data-action="click->callback-form#filterByStatus">Pending</button>
+        <button class="cb-filter-btn" data-status="not_interested" data-action="click->callback-form#filterByStatus">Not Interested</button>
+        <button class="cb-filter-btn" data-status="already_purchased" data-action="click->callback-form#filterByStatus">Already Purchased</button>
+        <button class="cb-filter-btn" data-status="sale" data-action="click->callback-form#filterByStatus">Sale</button>
+        <button class="cb-filter-btn" data-status="payment_link" data-action="click->callback-form#filterByStatus">Payment Link</button>
+        <button class="cb-filter-btn" data-status="follow_up" data-action="click->callback-form#filterByStatus">Follow Up</button>
+      </div>
+      
+      <div class="cb-search-container">
+        <i class="fas fa-search"></i>
+        <input type="text" class="cb-search-input" placeholder="Search callbacks, customers, products..." data-action="input->callback-form#searchCallbacks">
+      </div>
     </div>
 
     <!-- Table -->
