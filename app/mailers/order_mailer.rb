@@ -11,6 +11,7 @@ class OrderMailer < ApplicationMailer
     
     mail(
       to: order.customer_email,
+      cc: order.agent.email,
       subject: "Order Confirmation ##{order.order_number} - AutoXpress"
     )
   end
@@ -25,6 +26,7 @@ class OrderMailer < ApplicationMailer
     
     mail(
       to: order.customer_email,
+      cc: order.agent.email,
       subject: "Your Order ##{order.order_number} Has Shipped - AutoXpress"
     )
   end
@@ -39,6 +41,7 @@ class OrderMailer < ApplicationMailer
     
     mail(
       to: order.customer_email,
+      cc: order.agent.email,
       subject: "How's Your New #{order.product_name}? - AutoXpress"
     )
   end
