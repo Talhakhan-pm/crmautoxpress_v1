@@ -764,6 +764,27 @@ body {
     display: block;
 }
 
+/* Activity Timeline - Map to existing dashboard activity classes */
+.activity-feed {
+    @extend .dashboard-activity-feed;
+}
+
+.timeline-item {
+    @extend .dashboard-activity-item;
+}
+
+.timeline-avatar {
+    @extend .dashboard-activity-avatar;
+}
+
+.timeline-content {
+    @extend .dashboard-activity-content;
+}
+
+.activity-description {
+    @extend .activity-text;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .sidebar {
