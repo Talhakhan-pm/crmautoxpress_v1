@@ -6,171 +6,345 @@
   <title>Your Order Has Shipped - AutoXpress</title>
   <style>
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-      line-height: 1.6;
-      color: #333;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      line-height: 1.7;
+      color: #1f2937;
       margin: 0;
       padding: 0;
-      background-color: #f5f5f5;
-    }
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      background-color: white;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    .header {
-      background: linear-gradient(135deg, #059669 0%, #047857 100%);
-      color: white;
-      padding: 30px;
-      text-align: center;
-    }
-    .logo {
-      font-size: 28px;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-    .content {
-      padding: 30px;
-    }
-    .shipping-details {
-      background: #f0f9ff;
-      padding: 20px;
-      border-radius: 8px;
-      margin: 20px 0;
-      border-left: 4px solid #0ea5e9;
-    }
-    .tracking-info {
-      background: #fef3c7;
-      padding: 20px;
-      border-radius: 8px;
-      margin: 20px 0;
-      text-align: center;
-    }
-    .tracking-number {
-      font-size: 24px;
-      font-weight: bold;
-      color: #dc2626;
-      margin: 10px 0;
-      font-family: monospace;
-    }
-    .button {
-      display: inline-block;
-      background: #dc2626;
-      color: white;
-      padding: 15px 30px;
-      text-decoration: none;
-      border-radius: 6px;
-      font-weight: 500;
-      margin: 20px 0;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
       font-size: 16px;
     }
-    .footer {
-      background: #f8f9fa;
-      padding: 20px;
-      text-align: center;
-      color: #6c757d;
-      font-size: 14px;
+    .email-wrapper {
+      max-width: 640px;
+      margin: 40px auto;
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
     }
-    .detail-row {
+    
+    /* Modern Header */
+    .header {
+      background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+      padding: 40px 32px;
+      text-align: center;
+      position: relative;
+    }
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #dc2626 0%, #ef4444 50%, #f97316 100%);
+    }
+    .logo {
+      font-size: 32px;
+      font-weight: 800;
+      color: white;
+      margin: 0 0 8px 0;
+      letter-spacing: -0.025em;
+    }
+    .header-subtitle {
+      color: #d1d5db;
+      font-size: 18px;
+      font-weight: 500;
+      margin: 0;
+    }
+    
+    /* Content Area */
+    .content {
+      padding: 48px 32px;
+    }
+    .greeting {
+      font-size: 20px;
+      font-weight: 600;
+      color: #111827;
+      margin: 0 0 16px 0;
+      line-height: 1.4;
+    }
+    .intro-text {
+      font-size: 17px;
+      color: #4b5563;
+      margin: 0 0 40px 0;
+      line-height: 1.6;
+    }
+    
+    /* Tracking Hero Section */
+    .tracking-hero {
+      background: linear-gradient(135deg, #fef2f2 0%, #fef7f7 100%);
+      border: 2px solid #fee2e2;
+      border-radius: 16px;
+      padding: 32px;
+      text-align: center;
+      margin: 40px 0;
+    }
+    .tracking-hero h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #dc2626;
+      margin: 0 0 16px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .tracking-number {
+      background: #ffffff;
+      border: 2px solid #dc2626;
+      border-radius: 12px;
+      padding: 16px 24px;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+      font-size: 20px;
+      font-weight: 700;
+      color: #dc2626;
+      letter-spacing: 2px;
+      margin: 20px 0;
+    }
+    .track-button {
+      display: inline-block;
+      background: #dc2626;
+      color: #ffffff;
+      padding: 16px 32px;
+      text-decoration: none;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 16px;
+      margin: 20px 0 0 0;
+      transition: all 0.2s ease;
+    }
+    .track-button:hover {
+      background: #b91c1c;
+      transform: translateY(-1px);
+    }
+    
+    /* Package Preparation */
+    .package-prep {
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+      border: 2px solid #fde68a;
+      border-radius: 16px;
+      padding: 32px;
+      text-align: center;
+      margin: 40px 0;
+    }
+    .package-prep h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #d97706;
+      margin: 0 0 16px 0;
+    }
+    .package-prep p {
+      font-size: 16px;
+      color: #92400e;
+      margin: 12px 0;
+      line-height: 1.6;
+    }
+    
+    /* Details Grid */
+    .details-grid {
+      background: #f9fafb;
+      border-radius: 16px;
+      padding: 32px;
+      margin: 40px 0;
+    }
+    .details-grid h4 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #111827;
+      margin: 0 0 24px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .detail-item {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 10px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid #e9ecef;
+      align-items: center;
+      padding: 16px 0;
+      border-bottom: 1px solid #e5e7eb;
     }
-    .detail-row:last-child {
+    .detail-item:last-child {
       border-bottom: none;
     }
-    .status-badge {
-      background: #10b981;
-      color: white;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 14px;
+    .detail-label {
+      font-size: 16px;
+      color: #6b7280;
       font-weight: 500;
+      margin-right: 8px;
+    }
+    .detail-value {
+      font-size: 16px;
+      color: #111827;
+      font-weight: 600;
+      text-align: right;
+    }
+    .status-badge {
+      background: #dc2626;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    /* What to Expect */
+    .expectations {
+      margin: 40px 0;
+    }
+    .expectations h4 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #111827;
+      margin: 0 0 20px 0;
+    }
+    .expectations ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .expectations li {
+      font-size: 16px;
+      color: #4b5563;
+      margin: 12px 0;
+      padding-left: 24px;
+      position: relative;
+    }
+    .expectations li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: #10b981;
+      font-weight: bold;
+    }
+    
+    /* Footer */
+    .footer {
+      background: #f8fafc;
+      padding: 32px;
+      text-align: center;
+      border-top: 1px solid #e5e7eb;
+    }
+    .footer-brand {
+      font-size: 18px;
+      font-weight: 700;
+      color: #374151;
+      margin: 0 0 8px 0;
+    }
+    .footer-text {
+      font-size: 14px;
+      color: #6b7280;
+      margin: 4px 0;
+    }
+    
+    /* Mobile Responsive */
+    @media only screen and (max-width: 600px) {
+      .email-wrapper {
+        margin: 20px;
+        border-radius: 16px;
+      }
+      .content {
+        padding: 32px 24px;
+      }
+      .header {
+        padding: 32px 24px;
+      }
+      .tracking-hero, .package-prep, .details-grid {
+        padding: 24px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="email-wrapper">
+    <!-- Modern Header -->
     <div class="header">
-      <div class="logo">📦 AutoXpress</div>
-      <h2>Your Order Has Shipped!</h2>
-      <p>Order #<%= @order.order_number %></p>
+      <div class="logo">🚗 AutoXpress</div>
+      <div class="header-subtitle">Your Order Has Shipped</div>
     </div>
     
+    <!-- Content -->
     <div class="content">
-      <h2>Great news, <%= @customer.name %>!</h2>
+      <div class="greeting">Great news, <%= @customer.name %>! 🎉</div>
+      <div class="intro-text">
+        Your <strong><%= @order.product_name %></strong> for your <%= @order.car_year %> <%= @order.car_make_model %> 
+        has been carefully packaged and is now on its way to you.
+      </div>
       
-      <p>Your AutoXpress order is on its way! We've carefully packaged your <strong><%= @order.product_name %></strong> and handed it off to our shipping partner.</p>
-      
+      <!-- Tracking Hero or Package Prep -->
       <% if @dispatch&.tracking_number.present? %>
-        <div class="tracking-info">
+        <div class="tracking-hero">
           <h3>📍 Track Your Package</h3>
-          <p>Tracking Number:</p>
           <div class="tracking-number"><%= @dispatch.tracking_number %></div>
           <% if @dispatch.tracking_link.present? %>
-            <a href="<%= @dispatch.tracking_link %>" class="button">Track Your Package</a>
+            <a href="<%= @dispatch.tracking_link %>" class="track-button">Track Your Package</a>
           <% end %>
         </div>
       <% else %>
-        <div class="tracking-info" style="background: #fef3c7; border-left: 4px solid #f59e0b;">
+        <div class="package-prep">
           <h3>📦 Package Preparation</h3>
-          <p>Your order has been processed and is being prepared for shipment. You'll receive tracking information within the next 24 hours.</p>
-          <p><strong>We'll email you again</strong> as soon as tracking details are available!</p>
+          <p>Your order has been processed and is being prepared for shipment.</p>
+          <p><strong>We'll send you tracking details within 24 hours!</strong></p>
         </div>
       <% end %>
       
-      <div class="shipping-details">
-        <h4>📋 Shipping Details</h4>
-        <div class="detail-row">
-          <span>Order Number:</span>
-          <span><strong>#<%= @order.order_number %></strong></span>
+      <!-- Order Details -->
+      <div class="details-grid">
+        <h4>📋 Order Details</h4>
+        <div class="detail-item">
+          <span class="detail-label">Order Number:  </span>
+          <span class="detail-value">#<%= @order.order_number %></span>
         </div>
-        <div class="detail-row">
-          <span>Product:</span>
-          <span><%= @order.product_name %></span>
+        <div class="detail-item">
+          <span class="detail-label">Product:  </span>
+          <span class="detail-value"><%= @order.product_name %></span>
         </div>
-        <div class="detail-row">
-          <span>Vehicle:</span>
-          <span><%= @order.car_year %> <%= @order.car_make_model %></span>
+        <div class="detail-item">
+          <span class="detail-label">Vehicle:  </span>
+          <span class="detail-value"><%= @order.car_year %> <%= @order.car_make_model %></span>
         </div>
         <% if @dispatch %>
-          <div class="detail-row">
-            <span>Shipping Status:</span>
-            <span><span class="status-badge"><%= @dispatch.shipment_status.humanize %></span></span>
+          <div class="detail-item">
+            <span class="detail-label">Status:  </span>
+            <span class="detail-value"><span class="status-badge">In Transit</span></span>
           </div>
-          <% if @dispatch.shipment_status == 'in_transit' %>
-            <div class="detail-row">
-              <span>Estimated Delivery:</span>
-              <span><%= @order.estimated_delivery&.strftime("%B %d, %Y") || "2-3 business days" %></span>
-            </div>
-          <% end %>
+          <div class="detail-item">
+            <span class="detail-label">Estimated Delivery:  </span>
+            <span class="detail-value"><%= @order.estimated_delivery&.strftime("%B %d, %Y") || "2-3 business days" %></span>
+          </div>
         <% end %>
-        <div class="detail-row">
-          <span>Shipping Address:</span>
-          <span><%= @order.customer_address %></span>
+        <div class="detail-item">
+          <span class="detail-label">Shipping Address:  </span>
+          <span class="detail-value"><%= @order.customer_address %></span>
         </div>
       </div>
       
-      <p><strong>🚚 What to Expect:</strong></p>
-      <ul>
-        <li><strong>In Transit:</strong> Your package is on the way to you</li>
-        <li><strong>Delivery:</strong> Watch for delivery updates via tracking</li>
-        <li><strong>Installation:</strong> Professional installation available upon request</li>
-      </ul>
+      <!-- What to Expect -->
+      <div class="expectations">
+        <h4>🚚 What to Expect</h4>
+        <ul>
+          <li><strong>Tracking Updates: </strong> Monitor your package's journey in real-time</li>
+          <li><strong>Delivery Window: </strong> Most packages arrive within 2-3 business days</li>
+          <li><strong>Installation Support: </strong> Expert guidance available at (555) 123-AUTO</li>
+          <li><strong>Quality Guarantee: </strong> 100% satisfaction or your money back</li>
+        </ul>
+      </div>
       
-      <p><strong>💡 Installation Tips:</strong></p>
-      <p>Need help installing your <%= @order.product_name %>? We recommend consulting with a qualified mechanic or our technical support team at <strong>(555) 123-AUTO</strong>.</p>
-      
-      <p>Questions about your shipment? Reply to this email or call us!</p>
+      <div style="background: #f0f9ff; padding: 24px; border-radius: 12px; text-align: center; margin: 32px 0;">
+        <p style="margin: 0; font-size: 16px; color: #1e40af;">
+          <strong>Questions about your shipment?</strong><br>
+          Reply to this email or call us at <strong>(555) 123-AUTO</strong>
+        </p>
+      </div>
     </div>
     
+    <!-- Footer -->
     <div class="footer">
-      <p><strong>AutoXpress</strong> - Premium Automotive Parts</p>
-      <p>This email was sent regarding order #<%= @order.order_number %></p>
-      <p>© <%= Date.current.year %> AutoXpress. All rights reserved.</p>
+      <div class="footer-brand">AutoXpress</div>
+      <div class="footer-text">Premium Automotive Parts & Service</div>
+      <div class="footer-text">Order #<%= @order.order_number %> • <%= Date.current.year %> AutoXpress</div>
     </div>
   </div>
 </body>

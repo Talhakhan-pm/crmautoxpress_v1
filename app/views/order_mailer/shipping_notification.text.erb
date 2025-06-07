@@ -26,10 +26,8 @@ We'll email you again as soon as tracking details are available!
 Shipping Details:
 =================
 <% if @dispatch %>
-Shipping Status: <%= @dispatch.shipment_status.humanize %>
-<% if @dispatch.shipment_status == 'in_transit' %>
+Shipping Status: In Transit
 Estimated Delivery: <%= @order.estimated_delivery&.strftime("%B %d, %Y") || "2-3 business days" %>
-<% end %>
 <% end %>
 Shipping Address: <%= @order.customer_address %>
 
