@@ -2606,6 +2606,15 @@
       background: #eff6ff;
     }
   }
+  
+  &.email-action {
+    border-color: #7c3aed;
+    cursor: pointer;
+    
+    &:hover {
+      background: #f3f4f6;
+    }
+  }
 }
 
 .action-icon {
@@ -2632,6 +2641,11 @@
 .view-action .action-icon, .edit-action .action-icon {
   background: #dbeafe;
   color: #2563eb;
+}
+
+.email-action .action-icon {
+  background: #ede9fe;
+  color: #7c3aed;
 }
 
 .action-content h4 {

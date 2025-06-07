@@ -352,19 +352,38 @@ class Order < ApplicationRecord
   def send_email_now(email_type)
     return { success: false, error: 'No customer email' } unless customer_email.present?
     
+    # Check for recent duplicate emails (within last 10 minutes)
+    recent_email = activities.where(
+      action: "#{email_type}_email_sent",
+      created_at: 10.minutes.ago..Time.current
+    ).exists?
+    
+    if recent_email
+      return { 
+        success: false, 
+        error: "#{email_type.humanize} email was already sent recently. Please wait before sending again." 
+      }
+    end
+    
     begin
       case email_type.to_s
       when 'confirmation'
-        OrderMailer.confirmation(self).deliver_now
+        mail = OrderMailer.confirmation(self)
       when 'shipping_notification'
-        OrderMailer.shipping_notification(self).deliver_now
+        return { success: false, error: 'No dispatch information available' } unless dispatch.present?
+        mail = OrderMailer.shipping_notification(self)
       when 'follow_up'
-        OrderMailer.follow_up(self).deliver_now
+        mail = OrderMailer.follow_up(self)
       else
         return { success: false, error: "Unknown email type: #{email_type}" }
       end
 
-      { success: true, message: "#{email_type.humanize} email sent to #{customer_email}" }
+      if mail.present?
+        mail.deliver_now
+        { success: true, message: "#{email_type.humanize} email sent to #{customer_email}" }
+      else
+        { success: false, error: "Email validation failed" }
+      end
     rescue => e
       Rails.logger.error "Failed to send #{email_type} email for order ##{order_number}: #{e.message}"
       { success: false, error: e.message }

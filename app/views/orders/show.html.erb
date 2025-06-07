@@ -106,14 +106,18 @@
                 Send Confirmation
               </button>
               
-              <% if @order.shipped? || @order.delivered? %>
+              <% if @order.dispatch&.shipped? %>
                 <button class="btn btn-info btn-sm" 
                         data-controller="email-sender"
                         data-email-sender-order-id-value="<%= @order.id %>"
                         data-email-sender-email-type-value="shipping_notification"
                         data-action="click->email-sender#sendEmail">
                   <i class="fas fa-truck"></i>
-                  Send Shipping Update
+                  <% if @order.dispatch.tracking_number.present? %>
+                    Send Tracking Info
+                  <% else %>
+                    Send Shipping Update
+                  <% end %>
                 </button>
               <% end %>
               

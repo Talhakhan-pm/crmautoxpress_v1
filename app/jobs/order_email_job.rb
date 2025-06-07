@@ -15,18 +15,35 @@ class OrderEmailJob < ApplicationJob
     begin
       case email_type.to_s
       when 'confirmation'
-        OrderMailer.confirmation(order).deliver_now
-        log_email_success(order, 'confirmation')
+        mail = OrderMailer.confirmation(order)
+        if mail.present?
+          mail.deliver_now
+          log_email_success(order, 'confirmation')
+        else
+          Rails.logger.warn "OrderEmailJob: Confirmation email skipped for order ##{order.order_number} (validation failed)"
+        end
         
       when 'shipping_notification'
-        OrderMailer.shipping_notification(order).deliver_now
-        log_email_success(order, 'shipping_notification')
+        mail = OrderMailer.shipping_notification(order)
+        if mail.present?
+          mail.deliver_now
+          log_email_success(order, 'shipping_notification')
+        else
+          Rails.logger.warn "OrderEmailJob: Shipping email skipped for order ##{order.order_number} (validation failed)"
+        end
         
       when 'follow_up'
-        # Wait specified delay before sending follow-up
-        delay = options[:delay_days] || 3
-        OrderMailer.follow_up(order).deliver_now if order.created_at <= delay.days.ago
-        log_email_success(order, 'follow_up')
+        mail = OrderMailer.follow_up(order)
+        if mail.present?
+          # Wait specified delay before sending follow-up
+          delay = options[:delay_days] || 3
+          if order.created_at <= delay.days.ago
+            mail.deliver_now
+            log_email_success(order, 'follow_up')
+          end
+        else
+          Rails.logger.warn "OrderEmailJob: Follow-up email skipped for order ##{order.order_number} (validation failed)"
+        end
         
       else
         Rails.logger.error "OrderEmailJob: Unknown email type '#{email_type}'"

@@ -89,4 +89,28 @@ Rails.application.configure do
 
   # Allow all hosts for Railway deployment
   config.hosts.clear
+
+  # Email configuration for production
+  config.action_mailer.perform_deliveries = true
+  config.action_mailer.raise_delivery_errors = true
+  config.action_mailer.perform_caching = false
+  
+  # Production email settings - using Gmail SMTP (can be changed to SendGrid/AWS SES)
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.default_url_options = { 
+    host: ENV['DOMAIN'] || 'your-production-domain.com',
+    protocol: 'https'
+  }
+  
+  config.action_mailer.smtp_settings = {
+    address: 'smtp.gmail.com',
+    port: 587,
+    domain: 'autoxpress.us',
+    user_name: Rails.application.credentials.dig(:gmail, :username),
+    password: Rails.application.credentials.dig(:gmail, :password),
+    authentication: 'plain',
+    enable_starttls_auto: true,
+    open_timeout: 10,
+    read_timeout: 10
+  }
 end

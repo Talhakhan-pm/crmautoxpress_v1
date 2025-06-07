@@ -1,3 +1,49 @@
-Order#shipping_notification
+AutoXpress - Your Order Has Shipped!
 
-<%= @greeting %>, find me in app/views/order_mailer/shipping_notification.text.erb
+Great news, <%= @customer.name %>!
+
+Your AutoXpress order is on its way! We've carefully packaged your <%= @order.product_name %> and handed it off to our shipping partner.
+
+Order Details:
+==============
+Order Number: #<%= @order.order_number %>
+Product: <%= @order.product_name %>
+Vehicle: <%= @order.car_year %> <%= @order.car_make_model %>
+
+<% if @dispatch&.tracking_number.present? %>
+Tracking Information:
+====================
+Tracking Number: <%= @dispatch.tracking_number %>
+<% if @dispatch.tracking_link.present? %>Track Your Package: <%= @dispatch.tracking_link %><% end %>
+<% else %>
+Package Preparation:
+===================
+Your order has been processed and is being prepared for shipment. You'll receive tracking information within the next 24 hours.
+
+We'll email you again as soon as tracking details are available!
+<% end %>
+
+Shipping Details:
+=================
+<% if @dispatch %>
+Shipping Status: <%= @dispatch.shipment_status.humanize %>
+<% if @dispatch.shipment_status == 'in_transit' %>
+Estimated Delivery: <%= @order.estimated_delivery&.strftime("%B %d, %Y") || "2-3 business days" %>
+<% end %>
+<% end %>
+Shipping Address: <%= @order.customer_address %>
+
+What to Expect:
+===============
+- In Transit: Your package is on the way to you
+- Delivery: Watch for delivery updates via tracking
+- Installation: Professional installation available upon request
+
+Installation Tips:
+==================
+Need help installing your <%= @order.product_name %>? We recommend consulting with a qualified mechanic or our technical support team at (555) 123-AUTO.
+
+Questions about your shipment? Reply to this email or call us!
+
+AutoXpress - Premium Automotive Parts
+© <%= Date.current.year %> AutoXpress. All rights reserved.

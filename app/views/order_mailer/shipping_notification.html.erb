@@ -114,6 +114,12 @@
             <a href="<%= @dispatch.tracking_link %>" class="button">Track Your Package</a>
           <% end %>
         </div>
+      <% else %>
+        <div class="tracking-info" style="background: #fef3c7; border-left: 4px solid #f59e0b;">
+          <h3>📦 Package Preparation</h3>
+          <p>Your order has been processed and is being prepared for shipment. You'll receive tracking information within the next 24 hours.</p>
+          <p><strong>We'll email you again</strong> as soon as tracking details are available!</p>
+        </div>
       <% end %>
       
       <div class="shipping-details">

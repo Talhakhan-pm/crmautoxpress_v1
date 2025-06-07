@@ -633,6 +633,22 @@
             <p>Modify dispatch information</p>
           </div>
         <% end %>
+        
+        <% if @dispatch.shipped? && @dispatch.tracking_number.present? && @dispatch.order.customer_email.present? %>
+          <button class="quick-action email-action"
+                  data-controller="email-sender"
+                  data-email-sender-order-id-value="<%= @dispatch.order.id %>"
+                  data-email-sender-email-type-value="shipping_notification"
+                  data-action="click->email-sender#sendEmail">
+            <div class="action-icon">
+              <i class="fas fa-envelope"></i>
+            </div>
+            <div class="action-content">
+              <h4>Email Tracking Info</h4>
+              <p>Send tracking details to customer</p>
+            </div>
+          </button>
+        <% end %>
       </div>
     </div>
   </div>
