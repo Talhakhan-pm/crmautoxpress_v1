@@ -1,4 +1,4 @@
-<%= turbo_frame_tag "main_content", data: { turbo_action: "advance", controller: "callback-dashboard" } do %>
+<%= turbo_frame_tag "main_content", data: { turbo_action: "advance", controller: "callback-form" } do %>
 <!-- Collaborative Callback Dashboard -->
 <main class="main-content">
   <%= turbo_stream_from "callbacks" %>
@@ -35,21 +35,18 @@
   <!-- Dashboard Filters -->
   <div class="cb-dashboard-filters">
     <div class="cb-filter-group">
-      <button class="cb-filter-btn cb-filter-active" data-status="all">All</button>
-      <button class="cb-filter-btn" data-status="pending">Pending</button>
-      <button class="cb-filter-btn" data-status="follow_up">Follow Up</button>
-      <button class="cb-filter-btn" data-status="sale">Closed</button>
-    </div>
-    
-    <div class="cb-filter-group">
-      <button class="cb-filter-btn" data-filter="recent">Recent Activity</button>
-      <button class="cb-filter-btn" data-filter="unread">Unread Messages</button>
-      <button class="cb-filter-btn" data-filter="assigned">My Callbacks</button>
+      <button class="cb-filter-btn cb-filter-active" data-status="all" data-action="click->callback-form#filterByStatus">All</button>
+      <button class="cb-filter-btn" data-status="pending" data-action="click->callback-form#filterByStatus">Pending</button>
+      <button class="cb-filter-btn" data-status="not_interested" data-action="click->callback-form#filterByStatus">Not Interested</button>
+      <button class="cb-filter-btn" data-status="already_purchased" data-action="click->callback-form#filterByStatus">Already Purchased</button>
+      <button class="cb-filter-btn" data-status="sale" data-action="click->callback-form#filterByStatus">Sale</button>
+      <button class="cb-filter-btn" data-status="payment_link" data-action="click->callback-form#filterByStatus">Payment Link</button>
+      <button class="cb-filter-btn" data-status="follow_up" data-action="click->callback-form#filterByStatus">Follow Up</button>
     </div>
     
     <div class="cb-search-container">
       <i class="fas fa-search"></i>
-      <input type="text" class="cb-search-input" placeholder="Search callbacks...">
+      <input type="text" class="cb-search-input" placeholder="Search callbacks..." data-action="input->callback-form#searchCallbacks">
     </div>
   </div>
 

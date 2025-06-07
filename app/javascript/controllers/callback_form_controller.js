@@ -164,39 +164,49 @@ export default class extends Controller {
   // Search functionality for callbacks
   searchCallbacks(event) {
     const query = event.target.value.toLowerCase().trim()
+    
+    // Handle both table rows (index page) and dashboard cards
     const callbackRows = document.querySelectorAll('#callbacks tr[data-status]')
+    const callbackCards = document.querySelectorAll('.cb-card[data-status]')
+    const callbackItems = [...callbackRows, ...callbackCards]
     let visibleCount = 0
     
-    callbackRows.forEach(row => {
-      const text = row.textContent.toLowerCase()
+    callbackItems.forEach(item => {
+      const text = item.textContent.toLowerCase()
       const matchesSearch = !query || text.includes(query)
       
       // Also check current status filter
-      const activeFilter = document.querySelector('.filter-btn.active')
+      const activeFilter = document.querySelector('.filter-btn.active, .cb-filter-btn.cb-filter-active')
       const statusFilter = activeFilter ? activeFilter.dataset.status : 'all'
-      const matchesStatus = statusFilter === 'all' || row.dataset.status === statusFilter
+      const matchesStatus = statusFilter === 'all' || item.dataset.status === statusFilter
       
       const shouldShow = matchesSearch && matchesStatus
-      row.style.display = shouldShow ? '' : 'none'
+      item.style.display = shouldShow ? '' : 'none'
       
       if (shouldShow) visibleCount++
     })
     
     // Update pagination info
-    this.updatePaginationInfo(visibleCount, callbackRows.length)
+    this.updatePaginationInfo(visibleCount, callbackItems.length)
   }
 
   // Status filter functionality
   filterByStatus(event) {
     const status = event.currentTarget.dataset.status
     
-    // Update filter buttons
-    const filterGroup = event.currentTarget.closest('.filter-group')
+    // Update filter buttons - handle both index and dashboard styles
+    const filterGroup = event.currentTarget.closest('.filter-group, .cb-filter-group')
     if (filterGroup) {
-      filterGroup.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.remove('active')
+      // Remove active classes from both types of buttons
+      filterGroup.querySelectorAll('.filter-btn, .cb-filter-btn').forEach(btn => {
+        btn.classList.remove('active', 'cb-filter-active')
       })
-      event.currentTarget.classList.add('active')
+      // Add appropriate active class
+      if (event.currentTarget.classList.contains('cb-filter-btn')) {
+        event.currentTarget.classList.add('cb-filter-active')
+      } else {
+        event.currentTarget.classList.add('active')
+      }
     }
     
     // Apply status filter
@@ -204,24 +214,27 @@ export default class extends Controller {
   }
 
   applyStatusFilter(status) {
+    // Handle both table rows (index page) and dashboard cards
     const callbackRows = document.querySelectorAll('#callbacks tr[data-status]')
+    const callbackCards = document.querySelectorAll('.cb-card[data-status]')
+    const callbackItems = [...callbackRows, ...callbackCards]
     let visibleCount = 0
     
-    callbackRows.forEach(row => {
-      const matchesStatus = status === 'all' || row.dataset.status === status
+    callbackItems.forEach(item => {
+      const matchesStatus = status === 'all' || item.dataset.status === status
       
       // Also check search query
-      const searchInput = document.querySelector('.search-box input')
+      const searchInput = document.querySelector('.search-box input, .cb-search-input')
       const query = searchInput ? searchInput.value.toLowerCase().trim() : ''
-      const matchesSearch = !query || row.textContent.toLowerCase().includes(query)
+      const matchesSearch = !query || item.textContent.toLowerCase().includes(query)
       
       const shouldShow = matchesStatus && matchesSearch
-      row.style.display = shouldShow ? '' : 'none'
+      item.style.display = shouldShow ? '' : 'none'
       
       if (shouldShow) visibleCount++
     })
     
-    this.updatePaginationInfo(visibleCount, callbackRows.length)
+    this.updatePaginationInfo(visibleCount, callbackItems.length)
   }
 
   updatePaginationInfo(visible, total) {

@@ -1,6 +1,7 @@
 <div class="cb-card cb-card-status-<%= callback.status %> <%= 'cb-card-recent' if callback.has_recent_activity? %>" 
      id="<%= dom_id(callback, :card) %>"
      data-callback-id="<%= callback.id %>"
+     data-status="<%= callback.status %>"
      data-controller="callback-card">
 
   <!-- Card Header -->
