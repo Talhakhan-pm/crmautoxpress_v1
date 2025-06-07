@@ -297,6 +297,17 @@ export default class extends Controller {
   initializeQuickFeatures() {
     this.setupDateButtons()
     this.setupNotesToggle()
+    this.initializeFollowupVisibility()
+  }
+
+  // Initialize follow-up section visibility based on default status
+  initializeFollowupVisibility() {
+    const checkedRadio = this.element.querySelector('.swift-radio:checked')
+    if (checkedRadio && this.hasFollowupSectionTarget) {
+      const status = checkedRadio.value
+      const needsFollowup = ['follow_up'].includes(status)
+      this.followupSectionTarget.style.display = needsFollowup ? 'block' : 'none'
+    }
   }
 
   // Enhanced phone formatting for quick form
