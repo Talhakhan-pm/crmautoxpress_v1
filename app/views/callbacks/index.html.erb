@@ -12,10 +12,18 @@
                 <!-- Notifications -->
                 <%= render 'shared/notifications' %>
                 
-                <button class="btn btn-secondary">
-                    <i class="fas fa-download"></i>
-                    Export
-                </button>
+                <!-- View Toggle -->
+                <div class="cb-view-toggle">
+                  <%= link_to callbacks_path, class: "cb-toggle-btn cb-toggle-active", data: { turbo_frame: "main_content" } do %>
+                    <i class="fas fa-table"></i>
+                    Table
+                  <% end %>
+                  <%= link_to dashboard_callbacks_path, class: "cb-toggle-btn", data: { turbo_frame: "main_content" } do %>
+                    <i class="fas fa-th-large"></i>
+                    Dashboard
+                  <% end %>
+                </div>
+                
                 <%= link_to new_callback_path, class: "btn btn-primary", data: { turbo_frame: "main_content" } do %>
                     <i class="fas fa-plus"></i>
                     Add Callback
