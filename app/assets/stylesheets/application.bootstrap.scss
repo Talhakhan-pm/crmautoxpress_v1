@@ -715,45 +715,6 @@ body {
     background: #fafbfc;
 }
 
-/* Status badges */
-.status-badge {
-    padding: 4px 12px;
-    border-radius: 16px;
-    font-size: 12px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.025em;
-}
-
-.status-pending {
-    background: #fef3c7;
-    color: #92400e;
-}
-
-.status-not_interested {
-    background: #fee2e2;
-    color: #dc2626;
-}
-
-.status-already_purchased {
-    background: #f3e8ff;
-    color: #7c3aed;
-}
-
-.status-sale {
-    background: #d1fae5;
-    color: #065f46;
-}
-
-.status-payment_link {
-    background: #dbeafe;
-    color: #1d4ed8;
-}
-
-.status-follow_up {
-    background: #fce7f3;
-    color: #be185d;
-}
 
 /* Action buttons */
 .action-btn {
