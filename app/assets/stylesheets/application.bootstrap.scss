@@ -40,6 +40,9 @@
 // Import callback dashboard styles
 @use 'callback_dashboard';
 
+// Import swift callback form styles
+@use 'swift_callback_form';
+
 /* Error alerts for validation */
 .alert {
     padding: 16px;
