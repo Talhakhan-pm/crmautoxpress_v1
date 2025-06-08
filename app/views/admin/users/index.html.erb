@@ -140,11 +140,11 @@ document.addEventListener('DOMContentLoaded', function() {
       const cancelBtn = document.querySelector(`[data-user-id="${userId}"].cancel-btn`);
       
       if (currentValue !== originalValue) {
-        saveBtn.style.display = 'inline-block';
-        cancelBtn.style.display = 'inline-block';
+        if (saveBtn) saveBtn.style.display = 'inline-block';
+        if (cancelBtn) cancelBtn.style.display = 'inline-block';
       } else {
-        saveBtn.style.display = 'none';
-        cancelBtn.style.display = 'none';
+        if (saveBtn) saveBtn.style.display = 'none';
+        if (cancelBtn) cancelBtn.style.display = 'none';
       }
     });
   });
