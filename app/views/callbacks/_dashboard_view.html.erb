@@ -1,0 +1,20 @@
+<!-- Dashboard View Content -->
+<div class="cb-dashboard-container">
+  <div class="cb-dashboard-grid" id="callback-cards">
+    <% @callbacks.each do |callback| %>
+      <%= render 'dashboard_card', callback: callback %>
+    <% end %>
+  </div>
+  
+  <% if @callbacks.empty? %>
+    <div class="cb-empty-state">
+      <i class="fas fa-phone-slash"></i>
+      <h3>No callbacks found</h3>
+      <p>Create your first callback to start collaborating with your team.</p>
+      <%= link_to new_callback_path, class: "btn btn-primary", data: { turbo_frame: "main_content" } do %>
+        <i class="fas fa-plus"></i>
+        Add First Callback
+      <% end %>
+    </div>
+  <% end %>
+</div>

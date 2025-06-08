@@ -1,124 +1,21 @@
 <%= turbo_frame_tag "main_content", data: { turbo_action: "advance", controller: "callback-form" } do %>
-<!-- Main Content -->
-<main class="main-content">
-        <%= turbo_stream_from "callbacks" %>
-        <!-- Header -->
-        <header class="main-header">
-            <div class="header-left">
-                <h1>Callbacks</h1>
-                <div class="breadcrumb">CRM › Callbacks › Overview</div>
-            </div>
-            <div class="header-actions">
-                <!-- Notifications -->
-                <%= render 'shared/notifications' %>
-                
-                <!-- View Toggle -->
-                <div class="cb-view-toggle">
-                  <%= link_to callbacks_path, class: "cb-toggle-btn cb-toggle-active", data: { turbo_frame: "main_content" } do %>
-                    <i class="fas fa-table"></i>
-                    Table
-                  <% end %>
-                  <%= link_to dashboard_callbacks_path, class: "cb-toggle-btn", data: { turbo_frame: "main_content" } do %>
-                    <i class="fas fa-th-large"></i>
-                    Dashboard
-                  <% end %>
-                </div>
-                
-                <%= link_to new_callback_path, class: "btn btn-primary", data: { turbo_frame: "main_content" } do %>
-                    <i class="fas fa-plus"></i>
-                    Add Callback
-                <% end %>
-            </div>
-        </header>
-
-    <!-- Dashboard Filters -->
-    <div class="cb-dashboard-filters">
-      <div class="cb-filter-group">
-        <button class="cb-filter-btn cb-filter-active" data-status="all" data-action="click->callback-form#filterByStatus">All</button>
-        <button class="cb-filter-btn" data-status="pending" data-action="click->callback-form#filterByStatus">Pending</button>
-        <button class="cb-filter-btn" data-status="not_interested" data-action="click->callback-form#filterByStatus">Not Interested</button>
-        <button class="cb-filter-btn" data-status="already_purchased" data-action="click->callback-form#filterByStatus">Already Purchased</button>
-        <button class="cb-filter-btn" data-status="sale" data-action="click->callback-form#filterByStatus">Sale</button>
-        <button class="cb-filter-btn" data-status="payment_link" data-action="click->callback-form#filterByStatus">Payment Link</button>
-        <button class="cb-filter-btn" data-status="follow_up" data-action="click->callback-form#filterByStatus">Follow Up</button>
-      </div>
-      
-      <div class="cb-search-container">
-        <i class="fas fa-search"></i>
-        <input type="text" class="cb-search-input" placeholder="Search callbacks, customers, products..." data-action="input->callback-form#searchCallbacks">
-      </div>
-    </div>
-
-    <!-- Table -->
-    <div class="table-container">
-        <div class="table-wrapper">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Status</th>
-                        <th>Product</th>
-                        <th>Car Make & Model</th>
-                        <th>Year</th>
-                        <th>ZIP</th>
-                        <th>Customer Name</th>
-                        <th>Callback Number</th>
-                        <th>Follow-up Date</th>
-                        <th>Agent</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="callbacks">
-                    <% @callbacks.each do |callback| %>
-                        <tr id="<%= dom_id(callback) %>" data-status="<%= callback.status %>">
-                            <td><%= callback.created_at.strftime('%Y-%m-%d') %></td>
-                            <td><span class="status-badge status-<%= callback.status %>"><%= callback.status.humanize %></span></td>
-                            <td><%= callback.product %></td>
-                            <td><%= callback.car_make_model %></td>
-                            <td><%= callback.year %></td>
-                            <td><%= callback.zip_code %></td>
-                            <td style="color: #dc2626; font-weight: 500;"><%= callback.customer_name %></td>
-                            <td><%= callback.phone_number %></td>
-                            <td><%= callback.follow_up_date %></td>
-                            <td><%= callback.agent %></td>
-                            <td>
-                                <div class="action-group">
-                                    <%= link_to callback_path(callback), class: "action-btn", data: { turbo_frame: "main_content", turbo_prefetch: false }, title: "View Details" do %>
-                                        <i class="fas fa-eye"></i>
-                                    <% end %>
-                                    
-                                    <% unless callback.status == 'sale' %>
-                                        <%= link_to new_order_path(callback_id: callback.id), class: "action-btn order-btn", title: "Convert to Order", data: { turbo_frame: "_top" } do %>
-                                            <i class="fas fa-shopping-cart"></i>
-                                        <% end %>
-                                    <% else %>
-                                        <span class="action-btn disabled" title="Already converted to order">
-                                            <i class="fas fa-check-circle"></i>
-                                        </span>
-                                    <% end %>
-                                    
-                                    
-                                    <%= link_to callback_path(callback), method: :delete, class: "action-btn delete-btn", 
-                                        confirm: "Are you sure you want to delete this callback?", 
-                                        data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to delete this callback?", turbo_prefetch: false },
-                                        title: "Delete Callback" do %>
-                                        <i class="fas fa-trash"></i>
-                                    <% end %>
-                                </div>
-                            </td>
-                        </tr>
-                    <% end %>
-                </tbody>
-            </table>
-        </div>
-        <div class="pagination">
-            <div class="pagination-info">
-                Showing <%= @callbacks.count %> of <%= @callbacks.count %> results
-            </div>
-        </div>
-    </div>
-</main>
+  <!-- Unified Callbacks View - Dashboard Default, Table Optional -->
+  <main class="main-content">
+    <%= turbo_stream_from "callbacks" %>
+    
+    <!-- Shared Header with View Toggle -->
+    <%= render 'shared_header' %>
+    
+    <!-- Shared Filters -->
+    <%= render 'shared_filters' %>
+    
+    <!-- Conditional Content Rendering -->
+    <% if params[:view] == 'table' %>
+      <!-- Table View -->
+      <%= render 'table_view' %>
+    <% else %>
+      <!-- Dashboard View (Default) -->
+      <%= render 'dashboard_view' %>
+    <% end %>
+  </main>
 <% end %>
-
-
-

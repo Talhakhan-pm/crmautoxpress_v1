@@ -2,14 +2,22 @@ class CallbacksController < ApplicationController
   before_action :set_callback, only: [:show, :edit, :update, :destroy, :track_call]
 
   def index
-    @callbacks = AgentCallback.all.order(created_at: :desc)
+    # Dashboard view is default, table view available via ?view=table
+    if params[:view] == 'table'
+      # Table view - show all callbacks with basic ordering
+      @callbacks = AgentCallback.all.order(created_at: :desc)
+    else
+      # Dashboard view (default) - optimized for collaboration features
+      @callbacks = AgentCallback.includes(:user, communications: :user)
+                                .with_communication_stats
+                                .recent_activity_first
+                                .limit(20)
+    end
   end
 
   def dashboard
-    @callbacks = AgentCallback.includes(:user, communications: :user)
-                              .with_communication_stats
-                              .recent_activity_first
-                              .limit(20)
+    # Redirect to index for backward compatibility
+    redirect_to callbacks_path, status: :moved_permanently
   end
 
   def show

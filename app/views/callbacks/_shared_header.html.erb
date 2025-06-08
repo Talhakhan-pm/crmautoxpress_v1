@@ -1,0 +1,32 @@
+<!-- Shared Header for Both Views -->
+<header class="main-header">
+  <div class="header-left">
+    <h1><%= params[:view] == 'table' ? 'Callbacks' : 'Collaborative Dashboard' %></h1>
+    <div class="breadcrumb">CRM › Callbacks › <%= params[:view] == 'table' ? 'Overview' : 'Team Dashboard' %></div>
+  </div>
+  <div class="header-actions">
+    <!-- Notifications -->
+    <%= render 'shared/notifications' %>
+    
+    <!-- View Toggle with Smooth Navigation -->
+    <div class="cb-view-toggle">
+      <%= link_to callbacks_path(preserve_params_for_view_switch), 
+          class: "cb-toggle-btn #{'cb-toggle-active' if params[:view] != 'table'}", 
+          data: { turbo_frame: "main_content" } do %>
+        <i class="fas fa-th-large"></i>
+        Dashboard
+      <% end %>
+      <%= link_to callbacks_path(preserve_params_for_view_switch.merge(view: 'table')), 
+          class: "cb-toggle-btn #{'cb-toggle-active' if params[:view] == 'table'}", 
+          data: { turbo_frame: "main_content" } do %>
+        <i class="fas fa-table"></i>
+        Table
+      <% end %>
+    </div>
+    
+    <%= link_to new_callback_path, class: "btn btn-primary", data: { turbo_frame: "main_content" } do %>
+      <i class="fas fa-plus"></i>
+      Add Callback
+    <% end %>
+  </div>
+</header>

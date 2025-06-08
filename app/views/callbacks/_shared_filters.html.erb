@@ -1,0 +1,19 @@
+<!-- Shared Filters for Both Views -->
+<div class="cb-dashboard-filters">
+  <div class="cb-filter-group">
+    <button class="cb-filter-btn cb-filter-active" data-status="all" data-action="click->callback-form#filterByStatus">All</button>
+    <button class="cb-filter-btn" data-status="pending" data-action="click->callback-form#filterByStatus">Pending</button>
+    <button class="cb-filter-btn" data-status="not_interested" data-action="click->callback-form#filterByStatus">Not Interested</button>
+    <button class="cb-filter-btn" data-status="already_purchased" data-action="click->callback-form#filterByStatus">Already Purchased</button>
+    <button class="cb-filter-btn" data-status="sale" data-action="click->callback-form#filterByStatus">Sale</button>
+    <button class="cb-filter-btn" data-status="payment_link" data-action="click->callback-form#filterByStatus">Payment Link</button>
+    <button class="cb-filter-btn" data-status="follow_up" data-action="click->callback-form#filterByStatus">Follow Up</button>
+  </div>
+  
+  <div class="cb-search-container">
+    <i class="fas fa-search"></i>
+    <input type="text" class="cb-search-input" 
+           placeholder="<%= params[:view] == 'table' ? 'Search callbacks, customers, products...' : 'Search callbacks...' %>" 
+           data-action="input->callback-form#searchCallbacks">
+  </div>
+</div>

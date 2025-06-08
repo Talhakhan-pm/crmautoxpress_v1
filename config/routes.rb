@@ -113,7 +113,7 @@ Rails.application.routes.draw do
   # Callbacks routes  
   resources :callbacks do
     collection do
-      get :dashboard
+      get :dashboard # Will redirect to index for backward compatibility
     end
     member do
       post :track_call
