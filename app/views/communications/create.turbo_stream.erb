@@ -1,9 +1,14 @@
+<!-- Clear and reset the communication form -->
 <%= turbo_stream.replace "communication-form" do %>
   <%= render 'communications/form', callback: @callback, communication: Communication.new %>
 <% end %>
 
+<!-- Add new communication to detail view thread if we're on the callback show page -->
 <%= turbo_stream.prepend "communication-thread" do %>
   <%= render 'communications/communication', communication: @communication, current_user_for_broadcast: current_user %>
 <% end %>
+
+<!-- Dashboard card update is handled automatically by Communication model broadcast -->
+<!-- This ensures real-time updates for all agents without form duplication -->
 
 <%= render 'shared/flash_messages' %>

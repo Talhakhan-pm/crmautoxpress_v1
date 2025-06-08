@@ -40,7 +40,13 @@ class CommunicationsController < ApplicationController
   private
 
   def set_callback
-    @callback = AgentCallback.find(params[:agent_callback_id])
+    if params[:agent_callback_id]
+      @callback = AgentCallback.find(params[:agent_callback_id])
+    elsif params[:callback_id]
+      @callback = AgentCallback.find(params[:callback_id])
+    else
+      raise ActionController::ParameterMissing, "callback_id or agent_callback_id required"
+    end
   end
 
   def set_communication

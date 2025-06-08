@@ -13,6 +13,7 @@ class Communication < ApplicationRecord
   include Trackable
 
   after_create_commit :broadcast_new_communication
+  after_create_commit :broadcast_dashboard_card_update
   after_create_commit :notify_mentioned_users
   after_create_commit :create_activity_log
   after_create_commit :create_team_notifications
@@ -50,6 +51,28 @@ class Communication < ApplicationRecord
                           communication: self, 
                           current_user_for_broadcast: self.user 
                         }
+  end
+
+  def broadcast_dashboard_card_update
+    # Update the specific dashboard card without reordering
+    # This ensures real-time updates for all agents working simultaneously
+    begin
+      # Reload the callback to get fresh communication data including counts
+      fresh_callback = agent_callback.reload
+      
+      # Only broadcast if we're not in test/console environment
+      unless Rails.env.test? || defined?(Rails::Console)
+        broadcast_replace_to "callbacks",
+                            target: "#{ActionView::RecordIdentifier.dom_id(fresh_callback, :card)}",
+                            partial: "callbacks/dashboard_card",
+                            locals: { callback: fresh_callback }
+        
+        Rails.logger.info "Broadcasted dashboard card update for callback ##{agent_callback.id}"
+      end
+    rescue => e
+      Rails.logger.error "Failed to broadcast dashboard card update: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+    end
   end
 
   def notify_mentioned_users

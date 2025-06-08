@@ -7,10 +7,10 @@ class CallbacksController < ApplicationController
       # Table view - show all callbacks with basic ordering
       @callbacks = AgentCallback.all.order(created_at: :desc)
     else
-      # Dashboard view (default) - optimized for collaboration features
+      # Dashboard view (default) - optimized for collaboration features with stable ordering
       @callbacks = AgentCallback.includes(:user, communications: :user)
                                 .with_communication_stats
-                                .recent_activity_first
+                                .order(created_at: :desc)  # Stable order based on callback creation time
                                 .limit(20)
     end
   end

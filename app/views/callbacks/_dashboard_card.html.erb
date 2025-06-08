@@ -150,7 +150,7 @@
   <!-- Inline Message Composer (Hidden by default) -->
   <div class="cb-quick-composer" data-callback-card-target="composer" style="display: none;">
     <%= form_with model: [callback, Communication.new], 
-                  url: agent_callback_communications_path(callback),
+                  url: callback_communications_path(callback),
                   local: false,
                   class: "cb-composer-form",
                   data: { 

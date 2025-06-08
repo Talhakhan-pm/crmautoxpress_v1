@@ -51,6 +51,16 @@ export default class extends Controller {
     
     // Show brief success feedback
     this.showSuccessFeedback()
+    
+    // Clear any form validation errors
+    this.clearFormErrors()
+  }
+  
+  clearFormErrors() {
+    const textarea = this.composerTarget.querySelector('textarea')
+    if (textarea) {
+      textarea.classList.remove('error')
+    }
   }
 
   showSuccessFeedback() {
