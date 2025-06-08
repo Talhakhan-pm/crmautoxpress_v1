@@ -11,6 +11,7 @@ Rails.application.routes.draw do
     member do
       get :get_callback
       get :get_order_details
+      post :track_call
     end
   end
   

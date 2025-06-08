@@ -1,6 +1,6 @@
 class OrdersController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_order, only: [:show, :edit, :update, :destroy]
+  before_action :set_order, only: [:show, :edit, :update, :destroy, :track_call]
 
   def index
     @orders = Order.includes(:customer, :product, :agent, :processing_agent, :dispatch)
@@ -184,6 +184,75 @@ class OrdersController < ApplicationController
       message: "Order #{order.order_number} created and broadcast sent!",
       order_id: order.id
     }
+  end
+
+  def track_call
+    # Check if user has Dialpad configured
+    unless current_user.dialpad_user_id.present?
+      respond_to do |format|
+        format.json { 
+          render json: { 
+            status: 'error', 
+            message: 'Dialpad not configured for this user' 
+          }, status: :unprocessable_entity 
+        }
+      end
+      return
+    end
+    
+    # Get phone number from order or associated callback
+    phone_number = @order.customer_phone || @order.agent_callback&.phone_number
+    
+    unless phone_number.present?
+      respond_to do |format|
+        format.json { 
+          render json: { 
+            status: 'error', 
+            message: 'No phone number available for this order' 
+          }, status: :unprocessable_entity 
+        }
+      end
+      return
+    end
+    
+    # Initiate call via Dialpad API (user through department)
+    result = DialpadService.initiate_call(current_user.dialpad_user_id, phone_number)
+    
+    if result[:success]
+      # Track successful call initiation
+      @order.create_activity(
+        action: 'call_initiated',
+        details: "Agent initiated Dialpad call to #{phone_number}",
+        user: current_user
+      )
+      
+      respond_to do |format|
+        format.json { 
+          render json: { 
+            status: 'success', 
+            message: 'Call initiated successfully via Dialpad',
+            dialpad_response: result[:response]
+          } 
+        }
+      end
+    else
+      # Track failed call attempt
+      @order.create_activity(
+        action: 'call_failed',
+        details: "Failed to initiate call to #{phone_number}: #{result[:message]}",
+        user: current_user
+      )
+      
+      respond_to do |format|
+        format.json { 
+          render json: { 
+            status: 'error', 
+            message: result[:message],
+            error: result[:error]
+          }, status: :unprocessable_entity 
+        }
+      end
+    end
   end
 
   private

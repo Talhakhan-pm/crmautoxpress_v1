@@ -121,6 +121,48 @@ export default class extends Controller {
     })
   }
 
+  // Make call from order card and track it
+  makeOrderCall(event) {
+    console.log('Making order call and tracking')
+    const orderId = event.currentTarget.dataset.orderId
+    const phoneNumber = event.currentTarget.dataset.phone
+    
+    if (!orderId || !phoneNumber) {
+      console.warn('Missing order ID or phone number for call tracking')
+      return
+    }
+
+    console.log('Initiating Dialpad call via API for order')
+    console.log('Phone number:', phoneNumber)
+    
+    // Show visual feedback immediately
+    this.showCallFeedback(event.currentTarget)
+    
+    // Initiate call via Dialpad API (backend handles everything)
+    fetch(`/orders/${orderId}/track_call`, {
+      method: 'POST',
+      headers: {
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Dialpad API response:', data)
+      
+      if (data.status === 'success') {
+        this.showSuccessNotification('Call initiated successfully! Check your Dialpad app.')
+      } else {
+        this.showErrorNotification(data.message || 'Failed to initiate call')
+      }
+    })
+    .catch(error => {
+      console.error('Failed to initiate call:', error)
+      this.showErrorNotification('Network error while initiating call')
+    })
+  }
+
   showCallFeedback(callBtn) {
     const originalText = callBtn.innerHTML
     const originalStyle = {

@@ -10,6 +10,10 @@
                 <i class="fas fa-eye"></i>
             <% when 'communication_added' %>
                 <i class="fas fa-comment"></i>
+            <% when 'call_initiated' %>
+                <i class="fas fa-phone"></i>
+            <% when 'call_failed' %>
+                <i class="fas fa-phone-slash"></i>
             <% else %>
                 <i class="fas fa-circle"></i>
             <% end %>
@@ -46,12 +50,22 @@
                             <% if activity.field_changed.present? %>
                                 Updated <strong><%= activity.field_changed.humanize %></strong>
                             <% else %>
-                                Updated callback
+                                Updated <%= activity.trackable_type&.downcase || 'record' %>
                             <% end %>
                         <% when 'communication_added' %>
                             Added <strong><%= activity.new_value&.humanize || 'communication' %></strong> message
+                        <% when 'call_initiated' %>
+                            <strong>Call initiated successfully</strong>
+                            <% if activity.details.present? %>
+                                <div class="call-details"><%= activity.details %></div>
+                            <% end %>
+                        <% when 'call_failed' %>
+                            <strong>Call attempt failed</strong>
+                            <% if activity.details.present? %>
+                                <div class="call-details text-danger"><%= activity.details %></div>
+                            <% end %>
                         <% else %>
-                            <%= activity.action.humanize %> callback
+                            <%= activity.action.humanize %> <%= activity.trackable_type&.downcase || 'record' %>
                         <% end %>
                     </div>
                     

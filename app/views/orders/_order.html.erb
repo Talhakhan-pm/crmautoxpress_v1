@@ -249,6 +249,16 @@
         <%= link_to edit_order_path(order), class: "action-icon", title: "Edit Order", data: { turbo_frame: "main_content" } do %>
           <i class="fas fa-edit"></i>
         <% end %>
+        <% if order.customer_phone.present? || order.agent_callback&.phone_number.present? %>
+          <button class="action-icon" 
+                  title="Call Customer" 
+                  data-phone="<%= order.customer_phone || order.agent_callback&.phone_number %>" 
+                  data-order-id="<%= order.id %>" 
+                  data-controller="callback-card" 
+                  data-action="click->callback-card#makeOrderCall">
+            <i class="fas fa-phone"></i>
+          </button>
+        <% end %>
         <% if order.dispatch.present? %>
           <%= link_to dispatch_path(order.dispatch), class: "action-icon dispatch-active", title: "View Dispatch", data: { turbo_frame: "main_content" } do %>
             <i class="fas fa-truck"></i>
