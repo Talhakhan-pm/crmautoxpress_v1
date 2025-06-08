@@ -79,6 +79,12 @@
               
               <div class="nav-section">
                   <div class="nav-section-title">System</div>
+                  <% if current_user&.admin? %>
+                    <%= link_to admin_users_path, class: "nav-item #{'active' if request.path.start_with?('/admin')}", "data-turbo-prefetch" => "false", data: { action: "click->navigation#setActive" } do %>
+                        <i class="fas fa-user-shield"></i>
+                        <span>Admin - Users</span>
+                    <% end %>
+                  <% end %>
                   <a href="#" class="nav-item">
                       <i class="fas fa-link"></i>
                       <span>Links</span>

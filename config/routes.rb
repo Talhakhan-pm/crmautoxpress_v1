@@ -105,6 +105,11 @@ Rails.application.routes.draw do
   patch "resolution/:id/mark_return_received", to: "resolution#mark_return_received", as: :resolution_mark_return_received
   patch "resolution/:id/complete_refund", to: "resolution#complete_refund", as: :resolution_complete_refund
 
+  # Admin routes (simple - no complex role system)
+  namespace :admin do
+    resources :users, only: [:index, :show, :update]
+  end
+
   # Callbacks routes  
   resources :callbacks do
     collection do

@@ -28,4 +28,9 @@ class User < ApplicationRecord
   def recent_notifications(limit = 5)
     notifications.recent.includes(:communication, :agent_callback).limit(limit)
   end
+  
+  # Simple admin check - hardcoded for now
+  def admin?
+    email.in?(['khan@autoxpress.com', 'murtaza@autoxpress.com'])
+  end
 end
