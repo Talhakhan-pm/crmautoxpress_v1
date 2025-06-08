@@ -31,6 +31,6 @@ class User < ApplicationRecord
   
   # Simple admin check - hardcoded for now
   def admin?
-    email.in?(['khan@autoxpress.com', 'murtaza@autoxpress.com'])
+    email.in?(['khan@autoxpress.us', 'murtaza@autoxpress.com'])
   end
 end

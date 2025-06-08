@@ -113,4 +113,8 @@ Rails.application.configure do
     open_timeout: 10,
     read_timeout: 10
   }
+  
+  # Dialpad API configuration
+  config.dialpad_api_key = ENV.fetch('DIALPAD_API_KEY')
+  config.dialpad_base_url = 'https://dialpad.com/api/v2'
 end
