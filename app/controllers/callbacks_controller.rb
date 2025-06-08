@@ -140,7 +140,7 @@ class CallbacksController < ApplicationController
       return
     end
     
-    # Initiate call via Dialpad API
+    # Initiate call via Dialpad API (user through department)
     result = DialpadService.initiate_call(current_user.dialpad_user_id, @callback.phone_number)
     
     if result[:success]

@@ -45,7 +45,9 @@ class DialpadService
             'content-type' => 'application/json'
           },
           body: {
-            "phone_number" => e164_phone
+            "phone_number" => e164_phone,
+            "group_type" => "department",
+            "group_id" => "5509607641759744"
           }.to_json,
           timeout: 10
         )
