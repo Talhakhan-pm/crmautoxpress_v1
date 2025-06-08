@@ -70,6 +70,7 @@ end
 gem "devise", "~> 4.9"
 gem "geocoder", "~> 1.8"
 gem "kaminari", "~> 1.2"
+gem "httparty", "~> 0.21"
 
 group :development, :test do
   gem "sqlite3", ">= 1.4"

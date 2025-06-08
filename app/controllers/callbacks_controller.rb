@@ -119,14 +119,56 @@ class CallbacksController < ApplicationController
   end
 
   def track_call
-    @callback.create_activity(
-      action: 'call_initiated',
-      details: "Agent initiated call to #{@callback.phone_number}",
-      user: current_user
-    )
+    # Check if user has Dialpad configured
+    unless current_user.dialpad_user_id.present?
+      respond_to do |format|
+        format.json { 
+          render json: { 
+            status: 'error', 
+            message: 'Dialpad not configured for this user' 
+          }, status: :unprocessable_entity 
+        }
+      end
+      return
+    end
     
-    respond_to do |format|
-      format.json { render json: { status: 'success', message: 'Call tracked successfully' } }
+    # Initiate call via Dialpad API
+    result = DialpadService.initiate_call(current_user.dialpad_user_id, @callback.phone_number)
+    
+    if result[:success]
+      # Track successful call initiation
+      @callback.create_activity(
+        action: 'call_initiated',
+        details: "Agent initiated Dialpad call to #{@callback.phone_number}",
+        user: current_user
+      )
+      
+      respond_to do |format|
+        format.json { 
+          render json: { 
+            status: 'success', 
+            message: 'Call initiated successfully via Dialpad',
+            dialpad_response: result[:response]
+          } 
+        }
+      end
+    else
+      # Track failed call attempt
+      @callback.create_activity(
+        action: 'call_failed',
+        details: "Failed to initiate call to #{@callback.phone_number}: #{result[:message]}",
+        user: current_user
+      )
+      
+      respond_to do |format|
+        format.json { 
+          render json: { 
+            status: 'error', 
+            message: result[:message],
+            error: result[:error]
+          }, status: :unprocessable_entity 
+        }
+      end
     end
   end
 

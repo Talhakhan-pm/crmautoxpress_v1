@@ -9,6 +9,18 @@ class User < ApplicationRecord
   has_many :communications, dependent: :destroy
   has_many :notifications, dependent: :destroy
 
+  # Dialpad integration
+  # validates :dialpad_user_id, presence: true, if: :dialpad_enabled?
+  
+  def dialpad_enabled?
+    # Enable Dialpad for all users by default
+    true
+  end
+  
+  def dialpad_configured?
+    dialpad_user_id.present?
+  end
+
   def unread_notification_count
     notifications.unread.count
   end

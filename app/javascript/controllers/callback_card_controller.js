@@ -80,21 +80,13 @@ export default class extends Controller {
       return
     }
 
-    // Clean phone number for callto: protocol (remove spaces, keep only digits)
-    const cleanPhone = phoneNumber.replace(/\D/g, '') // Remove all non-digits
-    const calltoUrl = `callto:${cleanPhone}` // Use the format that works
+    console.log('Initiating Dialpad call via API')
+    console.log('Phone number:', phoneNumber)
     
-    console.log('Original phone:', phoneNumber)
-    console.log('Cleaned phone:', cleanPhone)
-    console.log('Triggering call with:', calltoUrl)
-    
-    // CRITICAL: Trigger call IMMEDIATELY while user gesture is active
-    window.location.href = calltoUrl
-    
-    // Show visual feedback
+    // Show visual feedback immediately
     this.showCallFeedback(event.currentTarget)
     
-    // Track the call attempt via AJAX (after call is triggered)
+    // Initiate call via Dialpad API (backend handles everything)
     fetch(`/callbacks/${callbackId}/track_call`, {
       method: 'POST',
       headers: {
@@ -105,10 +97,17 @@ export default class extends Controller {
     })
     .then(response => response.json())
     .then(data => {
-      console.log('Call tracked successfully:', data)
+      console.log('Dialpad API response:', data)
+      
+      if (data.status === 'success') {
+        this.showSuccessNotification('Call initiated successfully! Check your Dialpad app.')
+      } else {
+        this.showErrorNotification(data.message || 'Failed to initiate call')
+      }
     })
     .catch(error => {
-      console.error('Failed to track call:', error)
+      console.error('Failed to initiate call:', error)
+      this.showErrorNotification('Network error while initiating call')
     })
   }
 
@@ -119,8 +118,8 @@ export default class extends Controller {
       color: callBtn.style.color
     }
     
-    // Show "calling" state
-    callBtn.innerHTML = '<i class="fas fa-phone-alt"></i> Calling...'
+    // Show "initiating" state
+    callBtn.innerHTML = '<i class="fas fa-phone-alt"></i> Initiating...'
     callBtn.style.background = '#dbeafe'
     callBtn.style.color = '#1e40af'
     
@@ -130,5 +129,60 @@ export default class extends Controller {
       callBtn.style.background = originalStyle.background
       callBtn.style.color = originalStyle.color
     }, 3000)
+  }
+  
+  showSuccessNotification(message) {
+    this.showNotification(message, 'success')
+  }
+  
+  showErrorNotification(message) {
+    this.showNotification(message, 'error')
+  }
+  
+  showNotification(message, type = 'info') {
+    const notification = document.createElement('div')
+    notification.className = `notification notification-${type}`
+    notification.innerHTML = `
+      <div class="notification-content">
+        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+        <span>${message}</span>
+      </div>
+    `
+    
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: ${type === 'success' ? '#10b981' : '#ef4444'};
+      color: white;
+      padding: 12px 16px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      max-width: 300px;
+    `
+    
+    document.body.appendChild(notification)
+    
+    // Animate in
+    setTimeout(() => {
+      notification.style.transform = 'translateX(0)'
+    }, 100)
+    
+    // Remove after delay
+    setTimeout(() => {
+      notification.style.transform = 'translateX(100%)'
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification)
+        }
+      }, 300)
+    }, 5000) // Show for 5 seconds for call notifications
   }
 }

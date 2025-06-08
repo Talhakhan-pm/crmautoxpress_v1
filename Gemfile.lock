@@ -121,6 +121,10 @@ GEM
       csv (>= 3.0.0)
     globalid (1.2.1)
       activesupport (>= 6.1)
+    httparty (0.23.1)
+      csv
+      mini_mime (>= 1.0.0)
+      multi_xml (>= 0.5.2)
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
     importmap-rails (2.1.0)
@@ -161,6 +165,8 @@ GEM
     mini_mime (1.1.5)
     minitest (5.25.5)
     msgpack (1.8.0)
+    multi_xml (0.7.2)
+      bigdecimal (~> 3.1)
     mutex_m (0.3.0)
     net-imap (0.5.8)
       date
@@ -320,6 +326,7 @@ DEPENDENCIES
   debug
   devise (~> 4.9)
   geocoder (~> 1.8)
+  httparty (~> 0.21)
   importmap-rails
   jbuilder
   kaminari (~> 1.2)
