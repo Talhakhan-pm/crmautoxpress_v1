@@ -1,5 +1,5 @@
 class CallbacksController < ApplicationController
-  before_action :set_callback, only: [:show, :edit, :update, :destroy]
+  before_action :set_callback, only: [:show, :edit, :update, :destroy, :track_call]
 
   def index
     @callbacks = AgentCallback.all.order(created_at: :desc)
@@ -115,6 +115,18 @@ class CallbacksController < ApplicationController
     respond_to do |format|
       format.html { redirect_to callbacks_path }
       format.turbo_stream { head :ok }
+    end
+  end
+
+  def track_call
+    @callback.create_activity(
+      action: 'call_initiated',
+      details: "Agent initiated call to #{@callback.phone_number}",
+      user: current_user
+    )
+    
+    respond_to do |format|
+      format.json { render json: { status: 'success', message: 'Call tracked successfully' } }
     end
   end
 

@@ -126,10 +126,14 @@
         Message
       </button>
       
-      <a href="tel:<%= callback.phone_number %>" class="cb-action-btn cb-action-call" title="Call Customer">
+      <button class="cb-action-btn cb-action-call" 
+              title="Call Customer"
+              data-phone="<%= callback.phone_number %>"
+              data-callback-id="<%= callback.id %>"
+              data-action="click->callback-card#makeCall">
         <i class="fas fa-phone"></i>
         Call
-      </a>
+      </button>
       
       <% unless callback.status == 'sale' %>
         <%= link_to new_order_path(callback_id: callback.id), 

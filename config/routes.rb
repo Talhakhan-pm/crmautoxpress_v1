@@ -110,6 +110,9 @@ Rails.application.routes.draw do
     collection do
       get :dashboard
     end
+    member do
+      post :track_call
+    end
     resources :communications, only: [:create, :destroy]
   end
   
