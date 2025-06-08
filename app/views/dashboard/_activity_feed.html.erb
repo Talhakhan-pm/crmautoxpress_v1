@@ -2,14 +2,7 @@
   <% activities.each do |activity| %>
     <div class="dashboard-activity-item">
       <div class="dashboard-activity-avatar">
-        <% case activity.action %>
-        <% when 'created' %>
-          <i class="fas fa-plus activity-icon-create"></i>
-        <% when 'updated' %>
-          <i class="fas fa-edit activity-icon-update"></i>
-        <% when 'viewed' %>
-          <i class="fas fa-eye activity-icon-view"></i>
-        <% end %>
+        <%= activity.user.email.split('@').first.first.upcase %>
       </div>
       <div class="dashboard-activity-content">
         <p class="activity-text">
