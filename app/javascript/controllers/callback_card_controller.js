@@ -170,10 +170,18 @@ export default class extends Controller {
       color: callBtn.style.color
     }
     
-    // Show "initiating" state
-    callBtn.innerHTML = '<i class="fas fa-phone-alt"></i> Initiating...'
-    callBtn.style.background = '#dbeafe'
-    callBtn.style.color = '#1e40af'
+    // Check if this is an order card call (has data-order-id) vs callback card call
+    const isOrderCall = callBtn.hasAttribute('data-order-id')
+    
+    if (isOrderCall) {
+      // Order card: Show only spinning icon, no text
+      callBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'
+    } else {
+      // Callback card: Show existing "Initiating..." text
+      callBtn.innerHTML = '<i class="fas fa-phone-alt"></i> Initiating...'
+      callBtn.style.background = '#dbeafe'
+      callBtn.style.color = '#1e40af'
+    }
     
     // Reset after delay
     setTimeout(() => {
