@@ -115,6 +115,6 @@ Rails.application.configure do
   }
   
   # Dialpad API configuration
-  config.dialpad_api_key = ENV.fetch('DIALPAD_API_KEY')
+  config.dialpad_api_key = ENV['DIALPAD_API_KEY'] # Will be set at runtime
   config.dialpad_base_url = 'https://dialpad.com/api/v2'
 end

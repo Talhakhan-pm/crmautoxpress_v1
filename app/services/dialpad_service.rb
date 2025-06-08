@@ -2,7 +2,7 @@ class DialpadService
   include HTTParty
   
   BASE_URL = Rails.application.config.dialpad_base_url rescue 'https://dialpad.com/api/v2'
-  API_KEY = Rails.application.config.dialpad_api_key rescue ENV.fetch('DIALPAD_API_KEY', 'pZcxnhANRfWWwU9G754vaSQp3huh5bmtUmchFQusrpxBjxZJkzYPVuUHJGZGjT3Mrs8Cj58Dph4uLHMBRbW2pxEHpt2u8Tdv5Ny5')
+  API_KEY = Rails.application.config.dialpad_api_key || ENV['DIALPAD_API_KEY'] || 'pZcxnhANRfWWwU9G754vaSQp3huh5bmtUmchFQusrpxBjxZJkzYPVuUHJGZGjT3Mrs8Cj58Dph4uLHMBRbW2pxEHpt2u8Tdv5Ny5'
   
   base_uri BASE_URL
   
