@@ -5,48 +5,6 @@ export default class extends Controller {
 
   connect() {
     console.log('Callback card controller connected')
-    this.setupCallStatusSubscription()
-  }
-
-  setupCallStatusSubscription() {
-    // Subscribe to Turbo Streams for smooth card updates
-    if (window.callStatusSubscription) {
-      return // Already subscribed
-    }
-
-    console.log('🔌 Setting up Turbo Streams subscription for call status updates')
-    
-    // Subscribe to the callback_dashboard stream for Turbo Stream updates
-    window.callStatusSubscription = window.consumer.subscriptions.create(
-      { channel: "Turbo::StreamsChannel", signed_stream_name: "callback_dashboard" },
-      {
-        connected() {
-          console.log('✅ Connected to callback dashboard Turbo Streams')
-        },
-
-        disconnected() {
-          console.log('❌ Disconnected from callback dashboard Turbo Streams')
-        },
-
-        received(data) {
-          console.log('📡 Received Turbo Stream update:', data)
-          // Turbo automatically handles the HTML replacement
-          // We just need to add smooth transitions
-          this.handleCardUpdate()
-        },
-
-        handleCardUpdate() {
-          // Add smooth transition classes when cards are updated
-          const updatedCards = document.querySelectorAll('.cb-card')
-          updatedCards.forEach(card => {
-            card.classList.add('card-updating')
-            setTimeout(() => {
-              card.classList.remove('card-updating')
-            }, 300)
-          })
-        }
-      }
-    )
   }
 
   toggleComposer(event) {
