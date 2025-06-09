@@ -55,7 +55,6 @@
     background: #fef2f2;
     border-color: #fecaca;
     color: var(--color-brand-red);
-    display: none;
 }
 
 .action-btn.delete-btn:hover {
@@ -279,16 +278,16 @@
     background: #f8faff;
 }
 
-.quick-status-option input[type="radio"]:checked + label {
+.quick-status-option input[type="radio"]:checked+label {
     border-color: #3b82f6;
     background: #eff6ff;
 }
 
-.quick-status-option input[type="radio"]:checked + label i {
+.quick-status-option input[type="radio"]:checked+label i {
     color: #3b82f6;
 }
 
-.quick-status-option input[type="radio"]:checked + label span {
+.quick-status-option input[type="radio"]:checked+label span {
     color: #1e40af;
 }
 
@@ -499,25 +498,25 @@
         flex-direction: column;
         gap: 16px;
     }
-    
+
     .quick-input-group.quick-input-small {
         flex: 1 1 100%;
         min-width: auto;
     }
-    
+
     .quick-status-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .quick-date-options {
         justify-content: center;
     }
-    
+
     .quick-form-actions {
         flex-direction: column-reverse;
         gap: 12px;
     }
-    
+
     .quick-btn {
         width: 100%;
         justify-content: center;
@@ -537,6 +536,7 @@
         opacity: 0;
         transform: translateY(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -575,7 +575,7 @@
 }
 
 /* Focus improvements for accessibility */
-.quick-status-option input[type="radio"]:focus + label {
+.quick-status-option input[type="radio"]:focus+label {
     outline: 2px solid #3b82f6;
     outline-offset: 2px;
 }
