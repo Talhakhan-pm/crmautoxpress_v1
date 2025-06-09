@@ -335,26 +335,34 @@
   font-size: 9px;
   color: #6b7280;
   font-weight: 500;
-  text-transform: capitalize;
   line-height: 1;
-  padding: 1px 4px;
-  border-radius: 8px;
-  background: #f9fafb;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: #f3f4f6;
   white-space: nowrap;
+  transition: all 0.3s ease;
   
-  &[data-call-status="calling"] {
-    color: #f59e0b;
-    background: #fef3c7;
-  }
-  
-  &[data-call-status="on_call"] {
-    color: #10b981;
-    background: #d1fae5;
-  }
-  
-  &[data-call-status="idle"] {
+  // Default idle state
+  &.status-idle {
     color: #6b7280;
     background: #f3f4f6;
+    font-weight: 400;
+  }
+  
+  // Target-specific styling for "calling this customer"
+  &.status-calling-target {
+    color: #f59e0b;
+    background: #fef3c7;
+    font-weight: 600;
+    animation: pulse 1.5s infinite;
+  }
+  
+  // Target-specific styling for "on call with this customer"  
+  &.status-on-call-target {
+    color: #10b981;
+    background: #d1fae5;
+    font-weight: 600;
+    animation: pulse 2s infinite;
   }
 }
 

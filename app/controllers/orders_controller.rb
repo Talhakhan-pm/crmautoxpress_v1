@@ -219,6 +219,12 @@ class OrdersController < ApplicationController
     result = DialpadService.initiate_call(current_user.dialpad_user_id, phone_number)
     
     if result[:success]
+      # Track which order this agent is calling
+      current_user.update!(
+        current_target_type: 'order',
+        current_target_id: @order.id
+      )
+      
       # Track successful call initiation
       @order.create_activity(
         action: 'call_initiated',

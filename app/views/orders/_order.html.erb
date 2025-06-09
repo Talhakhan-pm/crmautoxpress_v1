@@ -25,6 +25,55 @@
           <% end %>
         </span>
       </div>
+      
+      <!-- Agent Call Status (compact for order cards) -->
+      <% 
+        # Find who is currently calling this specific order
+        current_caller = User.find_by(
+          current_target_type: 'order', 
+          current_target_id: order.id,
+          call_status: ['calling', 'on_call']
+        )
+        
+        # Show either the active caller or the order creator
+        display_user = current_caller || (order.agent_callback&.user || User.first)
+        is_active_call = current_caller.present?
+      %>
+      
+      <div class="order-agent-status">
+        <div class="order-agent-avatar" data-order-id="<%= order.id %>">
+          <%= display_user.email.first.upcase %>
+          <div class="cb-call-status-indicator" 
+               data-user-id="<%= display_user.id %>"
+               data-call-status="<%= display_user.call_status %>"
+               data-target-type="<%= display_user.current_target_type %>"
+               data-target-id="<%= display_user.current_target_id %>"
+               data-order-id="<%= order.id %>">
+            <i class="fas fa-circle cb-status-icon cb-status-<%= display_user.call_status %>"></i>
+          </div>
+        </div>
+        <span class="cb-call-status-text" 
+              data-user-id="<%= display_user.id %>"
+              data-call-status="<%= display_user.call_status %>"
+              data-target-type="<%= display_user.current_target_type %>"
+              data-target-id="<%= display_user.current_target_id %>"
+              data-order-id="<%= order.id %>">
+          <%= 
+            if is_active_call
+              case display_user.call_status
+              when 'calling'
+                "Calling this customer"
+              when 'on_call'
+                "On call with this customer"
+              else
+                "Idle"
+              end
+            else
+              "Idle"
+            end
+          %>
+        </span>
+      </div>
     </div>
     <div class="status-indicator">
       <% if order.has_pending_refund_resolution? %>

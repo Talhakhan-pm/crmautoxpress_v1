@@ -19,20 +19,52 @@
     
     <div class="cb-card-meta">
       <div class="cb-agent-info">
-        <div class="cb-agent-avatar">
-          <%= callback.user.email.first.upcase %>
+        <% 
+          # Find who is currently calling this specific callback
+          current_caller = User.find_by(
+            current_target_type: 'callback', 
+            current_target_id: callback.id,
+            call_status: ['calling', 'on_call']
+          )
+          
+          # Show either the active caller or the callback creator
+          display_user = current_caller || callback.user
+          is_active_call = current_caller.present?
+        %>
+        
+        <div class="cb-agent-avatar" data-callback-id="<%= callback.id %>">
+          <%= display_user.email.first.upcase %>
           <div class="cb-call-status-indicator" 
-               data-user-id="<%= callback.user.id %>"
-               data-call-status="<%= callback.user.call_status %>">
-            <i class="fas fa-circle cb-status-icon cb-status-<%= callback.user.call_status %>"></i>
+               data-user-id="<%= display_user.id %>"
+               data-call-status="<%= display_user.call_status %>"
+               data-target-type="<%= display_user.current_target_type %>"
+               data-target-id="<%= display_user.current_target_id %>"
+               data-callback-id="<%= callback.id %>">
+            <i class="fas fa-circle cb-status-icon cb-status-<%= display_user.call_status %>"></i>
           </div>
         </div>
         <div class="cb-agent-details">
-          <span class="cb-agent-name"><%= callback.user.email.split('@').first.humanize %></span>
+          <span class="cb-agent-name" data-callback-id="<%= callback.id %>"><%= display_user.email.split('@').first.humanize %></span>
           <span class="cb-call-status-text" 
-                data-user-id="<%= callback.user.id %>"
-                data-call-status="<%= callback.user.call_status %>">
-            <%= callback.user.call_status.humanize %>
+                data-user-id="<%= display_user.id %>"
+                data-call-status="<%= display_user.call_status %>"
+                data-target-type="<%= display_user.current_target_type %>"
+                data-target-id="<%= display_user.current_target_id %>"
+                data-callback-id="<%= callback.id %>">
+            <%= 
+              if is_active_call
+                case display_user.call_status
+                when 'calling'
+                  "Calling this customer"
+                when 'on_call'
+                  "On call with this customer"
+                else
+                  "Idle"
+                end
+              else
+                "Idle"
+              end
+            %>
           </span>
         </div>
       </div>

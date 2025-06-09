@@ -1,6 +1,44 @@
 /* AutoXpress Orders - Modern Design */
 @use 'unified_modals' as *;
 
+/* Order Agent Status - Compact version for order cards */
+.order-agent-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+}
+
+.order-agent-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6b7280, #4b5563);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  position: relative;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  border: 1px solid white;
+}
+
+.order-agent-avatar .cb-call-status-indicator {
+  bottom: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  border: 1px solid white;
+}
+
+.order-agent-avatar .cb-status-icon {
+  font-size: 5px;
+  width: 6px;
+  height: 6px;
+}
+
 /* ================================
    MODERN ORDER CREATION MODAL
    Brand Colors: White & Red

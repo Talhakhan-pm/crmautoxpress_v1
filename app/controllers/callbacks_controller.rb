@@ -144,6 +144,12 @@ class CallbacksController < ApplicationController
     result = DialpadService.initiate_call(current_user.dialpad_user_id, @callback.phone_number)
     
     if result[:success]
+      # Track which callback this agent is calling
+      current_user.update!(
+        current_target_type: 'callback',
+        current_target_id: @callback.id
+      )
+      
       # Track successful call initiation
       @callback.create_activity(
         action: 'call_initiated',

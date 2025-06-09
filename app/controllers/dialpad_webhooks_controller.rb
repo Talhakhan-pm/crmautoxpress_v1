@@ -113,11 +113,13 @@ class DialpadWebhooksController < ApplicationController
     # Calculate call duration
     duration = user.call_started_at ? Time.current - user.call_started_at : nil
     
-    # Reset user call status
+    # Reset user call status and clear call target
     user.update!(
       call_status: 'idle',
       current_call_id: nil,
-      call_started_at: nil
+      call_started_at: nil,
+      current_target_type: nil,
+      current_target_id: nil
     )
     
     # Log call completion
@@ -130,11 +132,13 @@ class DialpadWebhooksController < ApplicationController
   def handle_call_failed(user, call_id, call_data)
     Rails.logger.info "Call failed for user #{user.email}"
     
-    # Reset user call status
+    # Reset user call status and clear call target
     user.update!(
       call_status: 'idle',
       current_call_id: nil,
-      call_started_at: nil
+      call_started_at: nil,
+      current_target_type: nil,
+      current_target_id: nil
     )
     
     # Broadcast the status change
@@ -149,10 +153,13 @@ class DialpadWebhooksController < ApplicationController
       user_email: user.email,
       call_status: user.call_status,
       current_call_id: user.current_call_id,
-      call_started_at: user.call_started_at
+      call_started_at: user.call_started_at,
+      current_target_type: user.current_target_type,
+      current_target_id: user.current_target_id
     })
     
     Rails.logger.info "Broadcasted call status update for user #{user.email}: #{user.call_status}"
+    Rails.logger.info "Target: #{user.current_target_type}##{user.current_target_id}" if user.current_target_type
   end
   
   def store_call_analytics(user, call_data)
