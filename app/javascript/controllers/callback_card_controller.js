@@ -5,6 +5,62 @@ export default class extends Controller {
 
   connect() {
     console.log('Callback card controller connected')
+    this.setupCallStatusSubscription()
+  }
+
+  setupCallStatusSubscription() {
+    // Subscribe to call status updates for all agents via callback_dashboard channel
+    if (window.callStatusSubscription) {
+      return // Already subscribed
+    }
+
+    const updateAgentCallStatus = (data) => {
+      console.log('Updating agent call status for user:', data.user_id, 'to:', data.call_status)
+      
+      // Find all status indicators for this user
+      const indicators = document.querySelectorAll(`[data-user-id="${data.user_id}"].cb-call-status-indicator`)
+      const statusTexts = document.querySelectorAll(`[data-user-id="${data.user_id}"].cb-call-status-text`)
+      
+      // Update status indicators
+      indicators.forEach(indicator => {
+        indicator.dataset.callStatus = data.call_status
+        const icon = indicator.querySelector('.cb-status-icon')
+        if (icon) {
+          icon.className = `fas fa-circle cb-status-icon cb-status-${data.call_status}`
+        }
+      })
+      
+      // Update status text elements
+      statusTexts.forEach(statusText => {
+        statusText.dataset.callStatus = data.call_status
+        const formattedStatus = data.call_status.charAt(0).toUpperCase() + 
+                               data.call_status.slice(1).replace('_', ' ')
+        statusText.textContent = formattedStatus
+      })
+    }
+
+    // Create ActionCable subscription to callback_dashboard channel
+    if (typeof window.consumer === 'undefined') {
+      console.error('ActionCable consumer not available')
+      return
+    }
+    
+    window.callStatusSubscription = window.consumer.subscriptions.create("CallbackDashboardChannel", {
+      connected() {
+        console.log('✅ Connected to callback dashboard call status updates')
+      },
+
+      disconnected() {
+        console.log('❌ Disconnected from callback dashboard call status updates')
+      },
+
+      received(data) {
+        console.log('📡 Received callback dashboard update:', data)
+        if (data.type === 'call_status_update') {
+          updateAgentCallStatus(data)
+        }
+      }
+    })
   }
 
   toggleComposer(event) {

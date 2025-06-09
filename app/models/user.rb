@@ -9,6 +9,13 @@ class User < ApplicationRecord
   has_many :communications, dependent: :destroy
   has_many :notifications, dependent: :destroy
 
+  # Call status tracking
+  enum call_status: {
+    idle: 0,
+    calling: 1,
+    on_call: 2
+  }
+
   # Dialpad integration
   # validates :dialpad_user_id, presence: true, if: :dialpad_enabled?
   

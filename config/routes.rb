@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  # Dialpad webhook endpoint
+  post 'dialpad_webhooks', to: 'dialpad_webhooks#create'
+  
   # Email actions
   post 'email_actions/send_order_email', to: 'email_actions#send_order_email'
   # Notification routes

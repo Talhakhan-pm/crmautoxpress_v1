@@ -21,8 +21,20 @@
       <div class="cb-agent-info">
         <div class="cb-agent-avatar">
           <%= callback.user.email.first.upcase %>
+          <div class="cb-call-status-indicator" 
+               data-user-id="<%= callback.user.id %>"
+               data-call-status="<%= callback.user.call_status %>">
+            <i class="fas fa-circle cb-status-icon cb-status-<%= callback.user.call_status %>"></i>
+          </div>
         </div>
-        <span class="cb-agent-name"><%= callback.user.email.split('@').first.humanize %></span>
+        <div class="cb-agent-details">
+          <span class="cb-agent-name"><%= callback.user.email.split('@').first.humanize %></span>
+          <span class="cb-call-status-text" 
+                data-user-id="<%= callback.user.id %>"
+                data-call-status="<%= callback.user.call_status %>">
+            <%= callback.user.call_status.humanize %>
+          </span>
+        </div>
       </div>
       
       <div class="cb-card-time">
