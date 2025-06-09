@@ -125,6 +125,13 @@
   transition: all 0.3s ease;
   overflow: hidden;
   position: relative;
+  
+  // Smooth transitions for Turbo Stream updates
+  &.card-updating {
+    transform: scale(1.02);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    border-color: rgba(220, 38, 38, 0.2);
+  }
 
   &:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -257,6 +264,7 @@
   position: relative;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border: 2px solid white;
+  transition: all 0.3s ease;
 }
 
 .cb-call-status-indicator {
@@ -329,6 +337,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 80px;
+  transition: all 0.3s ease;
 }
 
 .cb-call-status-text {

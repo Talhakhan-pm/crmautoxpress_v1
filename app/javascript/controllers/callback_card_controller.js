@@ -9,200 +9,44 @@ export default class extends Controller {
   }
 
   setupCallStatusSubscription() {
-    // Subscribe to call status updates for all agents via callback_dashboard channel
+    // Subscribe to Turbo Streams for smooth card updates
     if (window.callStatusSubscription) {
       return // Already subscribed
     }
 
-    const updateUserElements = (data) => {
-      // Find all status indicators for this specific user
-      const indicators = document.querySelectorAll(`[data-user-id="${data.user_id}"].cb-call-status-indicator`)
-      const statusTexts = document.querySelectorAll(`[data-user-id="${data.user_id}"].cb-call-status-text`)
-      
-      // Update each indicator and status text based on whether this card matches the target
-      indicators.forEach(indicator => {
-        const callbackId = indicator.dataset.callbackId
-        const orderId = indicator.dataset.orderId
-        const isTargetCard = (data.current_target_type === 'callback' && data.current_target_id == callbackId) ||
-                            (data.current_target_type === 'order' && data.current_target_id == orderId)
-        
-        // Update data attributes
-        indicator.dataset.callStatus = data.call_status
-        indicator.dataset.targetType = data.current_target_type
-        indicator.dataset.targetId = data.current_target_id
-        
-        // Update icon based on whether this card is the target
-        const icon = indicator.querySelector('.cb-status-icon')
-        if (icon) {
-          if (isTargetCard && (data.call_status === 'calling' || data.call_status === 'on_call')) {
-            icon.className = `fas fa-circle cb-status-icon cb-status-${data.call_status}`
-          } else {
-            icon.className = `fas fa-circle cb-status-icon cb-status-idle`
-          }
-        }
-      })
-      
-      // Update status text elements
-      statusTexts.forEach(statusText => {
-        const callbackId = statusText.dataset.callbackId
-        const orderId = statusText.dataset.orderId
-        const isTargetCard = (data.current_target_type === 'callback' && data.current_target_id == callbackId) ||
-                            (data.current_target_type === 'order' && data.current_target_id == orderId)
-        
-        // Update data attributes
-        statusText.dataset.callStatus = data.call_status
-        statusText.dataset.targetType = data.current_target_type
-        statusText.dataset.targetId = data.current_target_id
-        
-        // Remove existing status classes
-        statusText.classList.remove('status-idle', 'status-calling-target', 'status-on-call-target')
-        
-        // Update text and classes based on whether this card is the target
-        if (isTargetCard && data.call_status === 'calling') {
-          statusText.textContent = 'Calling this customer'
-          statusText.classList.add('status-calling-target')
-        } else if (isTargetCard && data.call_status === 'on_call') {
-          statusText.textContent = 'On call with this customer'
-          statusText.classList.add('status-on-call-target')
-        } else {
-          statusText.textContent = 'Idle'
-          statusText.classList.add('status-idle')
-        }
-      })
-    }
-
-    const updateTargetCard = (data) => {
-      console.log('🎯 Updating target card for:', data.current_target_type, data.current_target_id)
-      
-      // Handle both call start and call end scenarios
-      if (data.current_target_type && data.current_target_id) {
-        // CALL START: Show the caller on the target card
-        updateCardForCaller(data)
-      } else if (data.call_status === 'idle') {
-        // CALL END: Need to refresh the page or revert cards
-        console.log('🔄 Call ended - should refresh cards to show original creators')
-        // For now, let's just trigger a page refresh for the affected cards
-        // In production, you might want to store original user info and revert
-        setTimeout(() => {
-          if (window.Turbo) {
-            window.location.reload()
-          }
-        }, 1000)
-      }
-    }
-
-    const updateCardForCaller = (data) => {
-      let targetCard
-      if (data.current_target_type === 'callback') {
-        targetCard = document.querySelector(`[data-callback-id="${data.current_target_id}"].cb-agent-avatar, [data-callback-id="${data.current_target_id}"].cb-call-status-indicator`)
-      } else if (data.current_target_type === 'order') {
-        targetCard = document.querySelector(`[data-order-id="${data.current_target_id}"].order-agent-avatar, [data-order-id="${data.current_target_id}"].cb-call-status-indicator`)
-      }
-      
-      console.log('🔍 Found target card:', targetCard)
-      
-      if (targetCard) {
-        // Find the parent container with agent info
-        const agentContainer = targetCard.closest('.cb-agent-info') || targetCard.closest('.order-agent-status')
-        console.log('📦 Agent container:', agentContainer)
-        
-        if (agentContainer) {
-          const avatar = agentContainer.querySelector('.cb-agent-avatar, .order-agent-avatar')
-          const agentName = agentContainer.querySelector('.cb-agent-name')
-          const statusText = agentContainer.querySelector('.cb-call-status-text')
-          
-          console.log('🎭 Elements found - Avatar:', !!avatar, 'Name:', !!agentName, 'Status:', !!statusText)
-          
-          if (avatar && agentName && statusText) {
-            // Get user's first letter from email
-            const userEmail = data.user_email || 'Unknown'
-            const firstLetter = userEmail.charAt(0).toUpperCase()
-            const userName = userEmail.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-            
-            console.log('👤 Updating to show:', firstLetter, userName)
-            
-            // Update avatar letter (find the text node in avatar)
-            const avatarTextNode = Array.from(avatar.childNodes).find(node => node.nodeType === Node.TEXT_NODE)
-            if (avatarTextNode) {
-              avatarTextNode.textContent = firstLetter
-            } else {
-              // If no text node, create one
-              avatar.insertBefore(document.createTextNode(firstLetter), avatar.firstChild)
-            }
-            
-            // Update agent name
-            agentName.textContent = userName
-            
-            // Update status text
-            if (data.call_status === 'calling') {
-              statusText.textContent = 'Calling this customer'
-              statusText.className = 'cb-call-status-text status-calling-target'
-            } else if (data.call_status === 'on_call') {
-              statusText.textContent = 'On call with this customer'
-              statusText.className = 'cb-call-status-text status-on-call-target'
-            }
-            
-            // Update all data attributes
-            const indicator = avatar.querySelector('.cb-call-status-indicator')
-            if (indicator) {
-              indicator.dataset.userId = data.user_id
-              indicator.dataset.callStatus = data.call_status
-              indicator.dataset.targetType = data.current_target_type
-              indicator.dataset.targetId = data.current_target_id
-              
-              // Update status icon
-              const icon = indicator.querySelector('.cb-status-icon')
-              if (icon) {
-                icon.className = `fas fa-circle cb-status-icon cb-status-${data.call_status}`
-              }
-            }
-            
-            if (statusText) {
-              statusText.dataset.userId = data.user_id
-              statusText.dataset.callStatus = data.call_status
-              statusText.dataset.targetType = data.current_target_type
-              statusText.dataset.targetId = data.current_target_id
-            }
-            
-            console.log('✅ Updated target card successfully')
-          }
-        }
-      } else {
-        console.log('❌ Target card not found for:', data.current_target_type, data.current_target_id)
-      }
-    }
-
-    const updateAgentCallStatus = (data) => {
-      console.log('Updating agent call status for user:', data.user_id, 'to:', data.call_status)
-      console.log('Target:', data.current_target_type, data.current_target_id)
-      
-      // Handle both old user's elements and the target card elements
-      updateUserElements(data)
-      updateTargetCard(data)
-    }
-
-    // Create ActionCable subscription to callback_dashboard channel
-    if (typeof window.consumer === 'undefined') {
-      console.error('ActionCable consumer not available')
-      return
-    }
+    console.log('🔌 Setting up Turbo Streams subscription for call status updates')
     
-    window.callStatusSubscription = window.consumer.subscriptions.create("CallbackDashboardChannel", {
-      connected() {
-        console.log('✅ Connected to callback dashboard call status updates')
-      },
+    // Subscribe to the callback_dashboard stream for Turbo Stream updates
+    window.callStatusSubscription = window.consumer.subscriptions.create(
+      { channel: "Turbo::StreamsChannel", signed_stream_name: "callback_dashboard" },
+      {
+        connected() {
+          console.log('✅ Connected to callback dashboard Turbo Streams')
+        },
 
-      disconnected() {
-        console.log('❌ Disconnected from callback dashboard call status updates')
-      },
+        disconnected() {
+          console.log('❌ Disconnected from callback dashboard Turbo Streams')
+        },
 
-      received(data) {
-        console.log('📡 Received callback dashboard update:', data)
-        if (data.type === 'call_status_update') {
-          updateAgentCallStatus(data)
+        received(data) {
+          console.log('📡 Received Turbo Stream update:', data)
+          // Turbo automatically handles the HTML replacement
+          // We just need to add smooth transitions
+          this.handleCardUpdate()
+        },
+
+        handleCardUpdate() {
+          // Add smooth transition classes when cards are updated
+          const updatedCards = document.querySelectorAll('.cb-card')
+          updatedCards.forEach(card => {
+            card.classList.add('card-updating')
+            setTimeout(() => {
+              card.classList.remove('card-updating')
+            }, 300)
+          })
         }
       }
-    })
+    )
   }
 
   toggleComposer(event) {

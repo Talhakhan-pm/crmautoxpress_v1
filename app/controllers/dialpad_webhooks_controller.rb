@@ -1,4 +1,6 @@
 class DialpadWebhooksController < ApplicationController
+  include ActionView::RecordIdentifier
+  
   # Skip CSRF protection for webhook endpoints
   skip_before_action :verify_authenticity_token
   skip_before_action :authenticate_user!
@@ -146,20 +148,69 @@ class DialpadWebhooksController < ApplicationController
   end
   
   def broadcast_call_status_update(user)
-    # Broadcast to all callback dashboard viewers
-    ActionCable.server.broadcast("callback_dashboard", {
-      type: 'call_status_update',
-      user_id: user.id,
-      user_email: user.email,
-      call_status: user.call_status,
-      current_call_id: user.current_call_id,
-      call_started_at: user.call_started_at,
-      current_target_type: user.current_target_type,
-      current_target_id: user.current_target_id
-    })
-    
-    Rails.logger.info "Broadcasted call status update for user #{user.email}: #{user.call_status}"
+    Rails.logger.info "Broadcasting call status update for user #{user.email}: #{user.call_status}"
     Rails.logger.info "Target: #{user.current_target_type}##{user.current_target_id}" if user.current_target_type
+    
+    # If user is calling/on a specific target, update that target's card
+    if user.current_target_type && user.current_target_id
+      if user.current_target_type == 'callback'
+        callback = AgentCallback.find_by(id: user.current_target_id)
+        if callback
+          broadcast_callback_card_update(callback)
+        end
+      elsif user.current_target_type == 'order'
+        order = Order.find_by(id: user.current_target_id)
+        if order
+          broadcast_order_card_update(order)
+        end
+      end
+    else
+      # Call ended - need to update all cards that might have been showing this user
+      broadcast_all_cards_refresh(user)
+    end
+  end
+  
+  private
+  
+  def broadcast_callback_card_update(callback)
+    Rails.logger.info "Broadcasting callback card update for callback #{callback.id}"
+    
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "callback_dashboard",
+      target: dom_id(callback, :card),
+      partial: "callbacks/dashboard_card",
+      locals: { callback: callback }
+    )
+  end
+  
+  def broadcast_order_card_update(order)
+    Rails.logger.info "Broadcasting order card update for order #{order.id}"
+    
+    # Note: Orders might be on different pages, so we'll use a more general approach
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "orders_dashboard", # You can create this channel if needed
+      target: dom_id(order),
+      partial: "orders/order",
+      locals: { order: order }
+    )
+  end
+  
+  def broadcast_all_cards_refresh(user)
+    Rails.logger.info "Broadcasting refresh for all cards that might show user #{user.email}"
+    
+    # Find all callbacks and orders that might be affected
+    all_callbacks = AgentCallback.includes(:user)
+    all_orders = Order.includes(:agent_callback)
+    
+    # Broadcast updates for callback cards
+    all_callbacks.each do |callback|
+      broadcast_callback_card_update(callback)
+    end
+    
+    # Broadcast updates for order cards (if on orders page)
+    all_orders.each do |order|
+      broadcast_order_card_update(order)
+    end
   end
   
   def store_call_analytics(user, call_data)
