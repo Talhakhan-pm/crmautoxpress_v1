@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_09_124110) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_09_144808) do
   create_table "activities", force: :cascade do |t|
     t.string "trackable_type", null: false
     t.integer "trackable_id", null: false
@@ -44,7 +44,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_09_124110) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "user_id"
+    t.integer "communications_count", default: 0
     t.index ["car_make_model"], name: "index_agent_callbacks_on_car_make_model"
+    t.index ["communications_count"], name: "index_agent_callbacks_on_communications_count"
     t.index ["created_at", "status"], name: "index_agent_callbacks_on_created_at_and_status"
     t.index ["status", "follow_up_date"], name: "index_agent_callbacks_on_status_and_follow_up_date"
     t.index ["user_id", "created_at"], name: "index_agent_callbacks_on_user_id_and_created_at"
@@ -321,8 +323,10 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_09_124110) do
     t.index ["call_status"], name: "index_users_on_call_status"
     t.index ["current_call_id"], name: "index_users_on_current_call_id"
     t.index ["current_target_id"], name: "index_users_on_current_target_id"
+    t.index ["current_target_type", "current_target_id", "call_status"], name: "index_users_on_target_and_call_status"
     t.index ["current_target_type", "current_target_id"], name: "index_users_on_current_target"
     t.index ["current_target_type"], name: "index_users_on_current_target_type"
+    t.index ["dialpad_user_id"], name: "index_users_on_dialpad_user_id", unique: true, where: "dialpad_user_id IS NOT NULL"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end

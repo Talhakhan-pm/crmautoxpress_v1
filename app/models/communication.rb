@@ -1,5 +1,5 @@
 class Communication < ApplicationRecord
-  belongs_to :agent_callback
+  belongs_to :agent_callback, counter_cache: true, touch: true
   belongs_to :user
   belongs_to :parent_communication, class_name: 'Communication', optional: true
   has_many :replies, class_name: 'Communication', foreign_key: 'parent_communication_id', dependent: :destroy

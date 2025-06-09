@@ -75,121 +75,127 @@
     </div>
   </div>
 
-  <!-- Card Body - Customer Info -->
-  <div class="cb-card-body">
-    <div class="cb-customer-info">
-      <h3 class="cb-customer-name">
-        <%= callback.customer_name %>
-        <% if callback.communications_count > 0 %>
-          <span class="cb-message-badge">
-            <i class="fas fa-comment"></i>
-            <%= callback.communications_count %>
-          </span>
-        <% end %>
-      </h3>
-      
-      <div class="cb-customer-details">
-        <div class="cb-phone">
-          <i class="fas fa-phone"></i>
-          <%= callback.phone_number %>
-        </div>
+  <!-- Card Body - Customer Info (Fragment Cached) -->
+  <% cache callback, expires_in: 1.hour do %>
+    <div class="cb-card-body">
+      <div class="cb-customer-info">
+        <h3 class="cb-customer-name">
+          <%= callback.customer_name %>
+          <% if callback.communications_count > 0 %>
+            <span class="cb-message-badge">
+              <i class="fas fa-comment"></i>
+              <%= callback.communications_count %>
+            </span>
+          <% end %>
+        </h3>
         
-        <div class="cb-vehicle">
-          <i class="fas fa-car"></i>
-          <%= callback.year %> <%= callback.car_make_model %>
-        </div>
-        
-        <div class="cb-product">
-          <i class="fas fa-cog"></i>
-          <%= callback.product %>
+        <div class="cb-customer-details">
+          <div class="cb-phone">
+            <i class="fas fa-phone"></i>
+            <%= callback.phone_number %>
+          </div>
+          
+          <div class="cb-vehicle">
+            <i class="fas fa-car"></i>
+            <%= callback.year %> <%= callback.car_make_model %>
+          </div>
+          
+          <div class="cb-product">
+            <i class="fas fa-cog"></i>
+            <%= callback.product %>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  <% end %>
 
-  <!-- Communication Preview -->
-  <div class="cb-card-communication">
-    <% if callback.latest_communication %>
-      <div class="cb-communication-preview">
-        <div class="cb-message-header">
-          <i class="fas fa-comment"></i>
-          <span class="cb-message-author">
-            <%= callback.latest_communication.author_name %>:
-          </span>
-          <span class="cb-message-time">
-            <%= time_ago_in_words(callback.latest_communication.created_at) %> ago
-          </span>
-        </div>
-        
-        <div class="cb-message-content">
-          <%= truncate(callback.latest_communication.content, length: 100) %>
-        </div>
-        
-        <% if callback.communications_count > 1 %>
-          <div class="cb-message-count">
-            <i class="fas fa-comments"></i>
-            <%= callback.communications_count %> messages
+  <!-- Communication Preview (Fragment Cached) -->
+  <% cache [callback, callback.latest_communication, callback.communications_count], expires_in: 15.minutes do %>
+    <div class="cb-card-communication">
+      <% if callback.latest_communication %>
+        <div class="cb-communication-preview">
+          <div class="cb-message-header">
+            <i class="fas fa-comment"></i>
+            <span class="cb-message-author">
+              <%= callback.latest_communication.author_name %>:
+            </span>
+            <span class="cb-message-time">
+              <%= time_ago_in_words(callback.latest_communication.created_at) %> ago
+            </span>
           </div>
-        <% end %>
-      </div>
-    <% else %>
-      <div class="cb-no-communication">
-        <i class="fas fa-comment-slash"></i>
-        <span>No team messages yet</span>
-      </div>
-    <% end %>
-
-    <!-- Team Members -->
-    <% if callback.team_members.any? %>
-      <div class="cb-team-members">
-        <div class="cb-team-label">Team:</div>
-        <div class="cb-team-avatars">
-          <% callback.team_members.each do |member| %>
-            <div class="cb-team-avatar" title="<%= member.email %>">
-              <%= member.email.first.upcase %>
+          
+          <div class="cb-message-content">
+            <%= truncate(callback.latest_communication.content, length: 100) %>
+          </div>
+          
+          <% if callback.communications_count > 1 %>
+            <div class="cb-message-count">
+              <i class="fas fa-comments"></i>
+              <%= callback.communications_count %> messages
             </div>
           <% end %>
         </div>
-      </div>
-    <% end %>
-  </div>
-
-  <!-- Quick Actions -->
-  <div class="cb-card-actions" data-callback-card-target="actions">
-    <div class="cb-primary-actions">
-      <%= link_to callback_path(callback), class: "cb-action-btn cb-action-view", 
-                  data: { turbo_frame: "main_content" }, title: "View Details" do %>
-        <i class="fas fa-eye"></i>
-        View
+      <% else %>
+        <div class="cb-no-communication">
+          <i class="fas fa-comment-slash"></i>
+          <span>No team messages yet</span>
+        </div>
       <% end %>
-      
-      <button class="cb-action-btn cb-action-message" 
-              data-action="click->callback-card#toggleComposer"
-              title="Quick Message">
-        <i class="fas fa-comment"></i>
-        Message
-      </button>
-      
-      <button class="cb-action-btn cb-action-call" 
-              title="Call Customer"
-              data-phone="<%= callback.phone_number %>"
-              data-callback-id="<%= callback.id %>"
-              data-action="click->callback-card#makeCall">
-        <i class="fas fa-phone"></i>
-        Call
-      </button>
-      
-      <% unless callback.status == 'sale' %>
-        <%= link_to new_order_path(callback_id: callback.id), 
-                    class: "cb-action-btn cb-action-convert", 
-                    data: { turbo_frame: "_top" }, 
-                    title: "Convert to Order" do %>
-          <i class="fas fa-shopping-cart"></i>
-          Convert
-        <% end %>
+
+      <!-- Team Members -->
+      <% if callback.team_members.any? %>
+        <div class="cb-team-members">
+          <div class="cb-team-label">Team:</div>
+          <div class="cb-team-avatars">
+            <% callback.team_members.each do |member| %>
+              <div class="cb-team-avatar" title="<%= member.email %>">
+                <%= member.email.first.upcase %>
+              </div>
+            <% end %>
+          </div>
+        </div>
       <% end %>
     </div>
-  </div>
+  <% end %>
+
+  <!-- Quick Actions (Fragment Cached) -->
+  <% cache [callback, callback.status], expires_in: 2.hours do %>
+    <div class="cb-card-actions" data-callback-card-target="actions">
+      <div class="cb-primary-actions">
+        <%= link_to callback_path(callback), class: "cb-action-btn cb-action-view", 
+                    data: { turbo_frame: "main_content" }, title: "View Details" do %>
+          <i class="fas fa-eye"></i>
+          View
+        <% end %>
+        
+        <button class="cb-action-btn cb-action-message" 
+                data-action="click->callback-card#toggleComposer"
+                title="Quick Message">
+          <i class="fas fa-comment"></i>
+          Message
+        </button>
+        
+        <button class="cb-action-btn cb-action-call" 
+                title="Call Customer"
+                data-phone="<%= callback.phone_number %>"
+                data-callback-id="<%= callback.id %>"
+                data-action="click->callback-card#makeCall">
+          <i class="fas fa-phone"></i>
+          Call
+        </button>
+        
+        <% unless callback.status == 'sale' %>
+          <%= link_to new_order_path(callback_id: callback.id), 
+                      class: "cb-action-btn cb-action-convert", 
+                      data: { turbo_frame: "_top" }, 
+                      title: "Convert to Order" do %>
+            <i class="fas fa-shopping-cart"></i>
+            Convert
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
 
   <!-- Inline Message Composer (Hidden by default) -->
   <div class="cb-quick-composer" data-callback-card-target="composer" style="display: none;">

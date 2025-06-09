@@ -115,6 +115,10 @@ class DialpadWebhooksController < ApplicationController
     # Calculate call duration
     duration = user.call_started_at ? Time.current - user.call_started_at : nil
     
+    # PERFORMANCE FIX: Capture target info BEFORE clearing it
+    previous_target_type = user.current_target_type
+    previous_target_id = user.current_target_id
+    
     # Reset user call status and clear call target
     user.update!(
       call_status: 'idle',
@@ -127,12 +131,19 @@ class DialpadWebhooksController < ApplicationController
     # Log call completion
     Rails.logger.info "Call duration: #{duration&.round(2)} seconds" if duration
     
-    # Broadcast the status change
-    broadcast_call_status_update(user)
+    # Update the specific card that was being called (targeted, not mass broadcast)
+    if previous_target_type && previous_target_id
+      broadcast_specific_target_update(previous_target_type, previous_target_id)
+      Rails.logger.info "Updated specific target: #{previous_target_type}##{previous_target_id}"
+    end
   end
   
   def handle_call_failed(user, call_id, call_data)
     Rails.logger.info "Call failed for user #{user.email}"
+    
+    # PERFORMANCE FIX: Capture target info BEFORE clearing it
+    previous_target_type = user.current_target_type
+    previous_target_id = user.current_target_id
     
     # Reset user call status and clear call target
     user.update!(
@@ -143,30 +154,36 @@ class DialpadWebhooksController < ApplicationController
       current_target_id: nil
     )
     
-    # Broadcast the status change
-    broadcast_call_status_update(user)
+    # Update the specific card that was being called (targeted, not mass broadcast)
+    if previous_target_type && previous_target_id
+      broadcast_specific_target_update(previous_target_type, previous_target_id)
+      Rails.logger.info "Updated specific target after failed call: #{previous_target_type}##{previous_target_id}"
+    end
   end
   
   def broadcast_call_status_update(user)
     Rails.logger.info "Broadcasting call status update for user #{user.email}: #{user.call_status}"
     Rails.logger.info "Target: #{user.current_target_type}##{user.current_target_id}" if user.current_target_type
     
-    # If user is calling/on a specific target, update that target's card
+    # PERFORMANCE OPTIMIZED: Always do targeted updates, never mass broadcasts
     if user.current_target_type && user.current_target_id
-      if user.current_target_type == 'callback'
-        callback = AgentCallback.find_by(id: user.current_target_id)
-        if callback
-          broadcast_callback_card_update(callback)
-        end
-      elsif user.current_target_type == 'order'
-        order = Order.find_by(id: user.current_target_id)
-        if order
-          broadcast_order_card_update(order)
-        end
-      end
+      # User is calling/on a specific target - update that target's card
+      broadcast_specific_target_update(user.current_target_type, user.current_target_id)
     else
-      # Call ended - need to update all cards that might have been showing this user
-      broadcast_all_cards_refresh(user)
+      # Call ended - only update the card that was previously being called
+      # Instead of mass refresh, we'll rely on the card's own cache invalidation
+      Rails.logger.info "Call ended - no mass refresh needed (cached cards will update naturally)"
+    end
+  end
+  
+  def broadcast_specific_target_update(target_type, target_id)
+    case target_type
+    when 'callback'
+      callback = AgentCallback.find_by(id: target_id)
+      broadcast_callback_card_update(callback) if callback
+    when 'order'
+      order = Order.find_by(id: target_id)
+      broadcast_order_card_update(order) if order
     end
   end
   
@@ -195,23 +212,6 @@ class DialpadWebhooksController < ApplicationController
     )
   end
   
-  def broadcast_all_cards_refresh(user)
-    Rails.logger.info "Broadcasting refresh for all cards that might show user #{user.email}"
-    
-    # Find all callbacks and orders that might be affected
-    all_callbacks = AgentCallback.includes(:user)
-    all_orders = Order.includes(:agent_callback)
-    
-    # Broadcast updates for callback cards
-    all_callbacks.each do |callback|
-      broadcast_callback_card_update(callback)
-    end
-    
-    # Broadcast updates for order cards (if on orders page)
-    all_orders.each do |order|
-      broadcast_order_card_update(order)
-    end
-  end
   
   def store_call_analytics(user, call_data)
     # Store rich call data for analytics (implement when needed)
