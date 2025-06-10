@@ -184,6 +184,25 @@
           Call
         </button>
         
+        <!-- Invoice Action -->
+        <% if callback.can_create_invoice? %>
+          <%= link_to new_invoice_path(agent_callback_id: callback.id), 
+                      class: "cb-action-btn cb-action-invoice", 
+                      data: { turbo_frame: "main_content" }, 
+                      title: "Create Invoice" do %>
+            <i class="fas fa-file-invoice"></i>
+            Invoice
+          <% end %>
+        <% elsif callback.has_invoices? %>
+          <%= link_to invoice_path(callback.latest_invoice), 
+                      class: "cb-action-btn cb-action-invoice-sent", 
+                      data: { turbo_frame: "main_content" }, 
+                      title: "View Invoice" do %>
+            <i class="fas fa-file-invoice-dollar"></i>
+            Invoiced
+          <% end %>
+        <% end %>
+        
         <% unless callback.status == 'sale' %>
           <%= link_to new_order_path(callback_id: callback.id), 
                       class: "cb-action-btn cb-action-convert", 

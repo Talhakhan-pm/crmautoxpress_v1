@@ -8,6 +8,7 @@ class Order < ApplicationRecord
   has_one :dispatch, dependent: :destroy
   has_one :refund, dependent: :destroy
   has_many :activities, as: :trackable, dependent: :destroy
+  has_many :source_invoices, as: :source, class_name: 'Invoice', dependent: :destroy
   
   # Replacement order relationships
   belongs_to :original_order, class_name: 'Order', optional: true
@@ -388,6 +389,38 @@ class Order < ApplicationRecord
       Rails.logger.error "Failed to send #{email_type} email for order ##{order_number}: #{e.message}"
       { success: false, error: e.message }
     end
+  end
+  
+  # Invoice-related methods
+  def has_invoices?
+    source_invoices.any?
+  end
+  
+  def paid_invoices
+    source_invoices.paid
+  end
+  
+  def pending_invoices
+    source_invoices.where(status: ['draft', 'sent', 'viewed'])
+  end
+  
+  def latest_invoice
+    source_invoices.order(created_at: :desc).first
+  end
+  
+  def needs_payment?
+    # Order needs payment if no paid invoices exist and order isn't already paid
+    !paid_invoices.any? && order_status != 'delivered'
+  end
+  
+  def can_create_invoice?
+    # Can create invoice if no pending invoices exist and order needs payment
+    !pending_invoices.any? && needs_payment?
+  end
+  
+  def invoice_amount
+    # Use order total_amount for invoice
+    total_amount || product_price || 0
   end
 
   private

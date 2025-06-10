@@ -3,6 +3,7 @@ class AgentCallback < ApplicationRecord
   has_many :activities, as: :trackable, dependent: :destroy
   has_many :communications, dependent: :destroy
   has_many :invoices, dependent: :destroy
+  has_many :source_invoices, as: :source, class_name: 'Invoice', dependent: :destroy
   
   def customer
     @customer ||= Customer.find_by(phone_number: phone_number)
@@ -93,6 +94,32 @@ class AgentCallback < ApplicationRecord
   
   def has_recent_activity?
     latest_communication&.created_at&.> 1.day.ago
+  end
+  
+  # Invoice-related methods
+  def has_invoices?
+    source_invoices.any?
+  end
+  
+  def paid_invoices
+    source_invoices.paid
+  end
+  
+  def pending_invoices
+    source_invoices.where(status: ['draft', 'sent', 'viewed'])
+  end
+  
+  def latest_invoice
+    source_invoices.order(created_at: :desc).first
+  end
+  
+  def ready_for_order_creation?
+    paid_invoices.any? && status != 'sale'
+  end
+  
+  def can_create_invoice?
+    # Can create invoice if no pending invoices exist
+    !pending_invoices.any?
   end
   
   private

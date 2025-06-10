@@ -8,16 +8,25 @@
           <div>
             <%= link_to "All Invoices", invoices_path, class: "btn btn-outline-secondary me-2", data: { turbo_frame: "main_content" } %>
           <% if @invoice.draft? %>
-            <%= link_to "Send Invoice", send_invoice_invoice_path(@invoice), 
-                method: :patch, class: "btn btn-success",
-                data: { confirm: "Send this invoice via PayPal?" } %>
+            <%= button_to "📤 Send Invoice to Customer", send_invoice_invoice_path(@invoice), 
+                method: :patch, class: "btn btn-success btn-lg",
+                data: { confirm: "Send this invoice via PayPal to #{@invoice.customer_email}?" } %>
           <% elsif @invoice.sent? %>
-            <%= link_to "Cancel Invoice", cancel_invoice_invoice_path(@invoice), 
+            <%= button_to "Cancel Invoice", cancel_invoice_invoice_path(@invoice), 
                 method: :patch, class: "btn btn-warning",
                 data: { confirm: "Cancel this invoice?" } %>
           <% end %>
         </div>
       </div>
+      
+      <!-- Draft Status Alert -->
+      <% if @invoice.draft? %>
+        <div class="alert alert-warning">
+          <h5><i class="fas fa-exclamation-triangle"></i> Invoice is in Draft Status</h5>
+          <p class="mb-2">This invoice has been created but <strong>not sent to the customer yet</strong>.</p>
+          <p class="mb-0">Click the <strong>"📤 Send Invoice to Customer"</strong> button above to send it via PayPal.</p>
+        </div>
+      <% end %>
 
       <div class="row">
         <!-- Invoice Details -->
@@ -142,11 +151,69 @@
             </div>
           </div>
 
-          <!-- Related Callback -->
-          <% if @invoice.agent_callback %>
+          <!-- Invoice Type & Source -->
+          <div class="card mb-3">
+            <div class="card-header">
+              <h6>Invoice Type</h6>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <span class="badge bg-light text-dark fs-6">
+                  <%= @invoice.type_display %>
+                </span>
+              </div>
+              <p class="text-muted mb-3"><%= @invoice.type_description %></p>
+              
+              <% if @invoice.source.present? %>
+                <div class="mb-3">
+                  <strong>Source:</strong><br>
+                  <% if @invoice.pre_order_invoice? %>
+                    <%= link_to "Callback CB-#{@invoice.source.id}", @invoice.source, class: "btn btn-sm btn-outline-info", data: { turbo_frame: "main_content" } %>
+                    <div class="mt-2">
+                      <small class="text-muted">
+                        Customer: <%= @invoice.source.customer_name %><br>
+                        Product: <%= @invoice.source.product %><br>
+                        Status: <span class="badge bg-info"><%= @invoice.source.status&.titleize || 'Unknown' %></span>
+                      </small>
+                    </div>
+                  <% elsif @invoice.order_payment_invoice? %>
+                    <%= link_to "Order ##{@invoice.source.order_number}", @invoice.source, class: "btn btn-sm btn-outline-primary", data: { turbo_frame: "main_content" } %>
+                    <div class="mt-2">
+                      <small class="text-muted">
+                        Product: <%= @invoice.source.product_name %><br>
+                        Status: <span class="badge bg-primary"><%= @invoice.source.order_status.titleize %></span><br>
+                        Total: $<%= @invoice.source.total_amount %>
+                      </small>
+                    </div>
+                  <% end %>
+                </div>
+                
+                <!-- Action buttons based on invoice type -->
+                <% if @invoice.paid? %>
+                  <div class="alert alert-success">
+                    <strong>Invoice Paid!</strong>
+                    <% if @invoice.can_create_order? %>
+                      <br>
+                      <%= link_to "Create Order from Payment", 
+                          create_order_from_invoice_invoice_path(@invoice), 
+                          method: :post, 
+                          class: "btn btn-sm btn-success mt-2",
+                          data: { 
+                            confirm: "Create an order from this paid invoice?",
+                            turbo_frame: "_top"
+                          } %>
+                    <% end %>
+                  </div>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Legacy Callback (for backward compatibility) -->
+          <% if @invoice.agent_callback && @invoice.agent_callback != @invoice.source %>
             <div class="card mb-3">
               <div class="card-header">
-                <h6>Related Callback</h6>
+                <h6>Related Callback (Legacy)</h6>
               </div>
               <div class="card-body">
                 <p class="mb-1"><strong><%= @invoice.agent_callback.customer_name %></strong></p>
@@ -155,7 +222,7 @@
                 <p class="mb-1">Status: 
                   <span class="badge bg-info"><%= @invoice.agent_callback.status.titleize %></span>
                 </p>
-                <%= link_to "View Callback", @invoice.agent_callback, class: "btn btn-sm btn-outline-info" %>
+                <%= link_to "View Callback", @invoice.agent_callback, class: "btn btn-sm btn-outline-info", data: { turbo_frame: "main_content" } %>
               </div>
             </div>
           <% end %>

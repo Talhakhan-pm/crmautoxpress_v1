@@ -55,6 +55,7 @@
               <thead>
                 <tr>
                   <th>Invoice #</th>
+                  <th>Type</th>
                   <th>Customer</th>
                   <th>Amount</th>
                   <th>Status</th>
@@ -68,6 +69,20 @@
                   <tr>
                     <td>
                       <%= link_to invoice.invoice_number, invoice_path(invoice), class: "text-decoration-none", data: { turbo_frame: "main_content" } %>
+                    </td>
+                    <td>
+                      <span class="badge bg-light text-dark" title="<%= invoice.type_description %>">
+                        <%= invoice.type_display %>
+                      </span>
+                      <% if invoice.source.present? %>
+                        <br><small class="text-muted">
+                          <% if invoice.pre_order_invoice? %>
+                            CB-<%= invoice.source.id %>
+                          <% elsif invoice.order_payment_invoice? %>
+                            Order #<%= invoice.source.order_number %>
+                          <% end %>
+                        </small>
+                      <% end %>
                     </td>
                     <td>
                       <div>

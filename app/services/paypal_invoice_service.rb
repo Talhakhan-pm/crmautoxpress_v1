@@ -183,21 +183,8 @@ class PaypalInvoiceService
   end
   
   def extract_invoice_url(invoice)
-    # First try to get the customer-facing URL from metadata
-    if invoice.respond_to?(:metadata) && invoice.metadata && invoice.metadata['payer_view_url']
-      return invoice.metadata['payer_view_url']
-    end
-    
-    # Try to access payer_view_url directly
-    if invoice.respond_to?(:payer_view_url) && invoice.payer_view_url
-      return invoice.payer_view_url
-    end
-    
-    # Fallback: construct customer-facing URL from invoice ID
-    if invoice.id
-      "https://www.paypal.com/invoice/p/##{invoice.id}"
-    else
-      nil
-    end
+    # Convert the PayPal response to a hash and grab the payer_view_url
+    invoice_hash = invoice.to_hash
+    invoice_hash.dig('metadata', 'payer_view_url') || "https://www.paypal.com/invoice/p/##{invoice.id}"
   end
 end

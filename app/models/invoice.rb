@@ -1,5 +1,6 @@
 class Invoice < ApplicationRecord
   belongs_to :agent_callback, optional: true
+  belongs_to :source, polymorphic: true, optional: true
   
   enum status: {
     draft: 'draft',
@@ -62,5 +63,65 @@ class Invoice < ApplicationRecord
     ].compact.reject(&:blank?)
     
     address_parts.join(', ')
+  end
+  
+  # Invoice type helpers
+  def invoice_type
+    return 'pre_order' if source_type == 'AgentCallback'
+    return 'order_payment' if source_type == 'Order'
+    'standalone'
+  end
+  
+  def pre_order_invoice?
+    source_type == 'AgentCallback'
+  end
+  
+  def order_payment_invoice?
+    source_type == 'Order'
+  end
+  
+  def standalone_invoice?
+    source_type.blank?
+  end
+  
+  def source_callback
+    source if source_type == 'AgentCallback'
+  end
+  
+  def source_order
+    source if source_type == 'Order'
+  end
+  
+  def can_create_order?
+    pre_order_invoice? && paid? && !order_already_created?
+  end
+  
+  def order_already_created?
+    return false unless pre_order_invoice?
+    # Check if an order was already created from this invoice's callback
+    source_callback&.status == 'sale' || 
+    Order.exists?(agent_callback: source_callback)
+  end
+  
+  def type_display
+    case invoice_type
+    when 'pre_order'
+      '🔄 Pre-Order'
+    when 'order_payment'
+      '📦 Order Payment'
+    else
+      '💰 Standalone'
+    end
+  end
+  
+  def type_description
+    case invoice_type
+    when 'pre_order'
+      'From callback - will create order when paid'
+    when 'order_payment'
+      'Payment for existing order'
+    else
+      'Manual invoice'
+    end
   end
 end

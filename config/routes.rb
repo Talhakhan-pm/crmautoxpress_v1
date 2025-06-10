@@ -140,6 +140,7 @@ Rails.application.routes.draw do
     member do
       patch :send_invoice
       patch :cancel_invoice
+      post :create_order_from_invoice
     end
   end
 

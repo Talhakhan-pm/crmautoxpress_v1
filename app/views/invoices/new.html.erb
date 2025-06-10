@@ -34,6 +34,10 @@
             <!-- Hidden field for agent_callback_id -->
             <% if @agent_callback %>
               <%= form.hidden_field :agent_callback_id, value: @agent_callback.id %>
+              <%= hidden_field_tag :agent_callback_id, @agent_callback.id %>
+            <% end %>
+            <% if @order %>
+              <%= hidden_field_tag :order_id, @order.id %>
             <% end %>
 
             <!-- Essential Fields Only -->

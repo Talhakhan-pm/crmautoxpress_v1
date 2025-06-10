@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_10_210630) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_10_225846) do
   create_table "activities", force: :cascade do |t|
     t.string "trackable_type", null: false
     t.integer "trackable_id", null: false
@@ -158,9 +158,12 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_10_210630) do
     t.text "paypal_response_data"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "source_type"
+    t.integer "source_id"
     t.index ["agent_callback_id"], name: "index_invoices_on_agent_callback_id"
     t.index ["customer_email"], name: "index_invoices_on_customer_email"
     t.index ["paypal_invoice_id"], name: "index_invoices_on_paypal_invoice_id"
+    t.index ["source_type", "source_id"], name: "index_invoices_on_source"
     t.index ["status"], name: "index_invoices_on_status"
   end
 

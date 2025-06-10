@@ -225,6 +225,17 @@
           </div>
         <% end %>
         
+        <!-- Invoice Action -->
+        <% if order.can_create_invoice? %>
+          <%= link_to new_invoice_path(order_id: order.id), class: "action-icon invoice-action", title: "Create Invoice", data: { turbo_frame: "main_content" } do %>
+            <i class="fas fa-file-invoice"></i>
+          <% end %>
+        <% elsif order.has_invoices? %>
+          <%= link_to invoice_path(order.latest_invoice), class: "action-icon invoice-sent", title: "View Invoice", data: { turbo_frame: "main_content" } do %>
+            <i class="fas fa-file-invoice-dollar"></i>
+          <% end %>
+        <% end %>
+        
         <%= link_to order_path(order), class: "action-icon", title: "View Details", data: { turbo_frame: "main_content" } do %>
           <i class="fas fa-eye"></i>
         <% end %>
