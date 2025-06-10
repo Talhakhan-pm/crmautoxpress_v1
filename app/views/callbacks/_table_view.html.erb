@@ -21,7 +21,7 @@
         <% @callbacks.each do |callback| %>
           <tr id="<%= dom_id(callback) %>" data-status="<%= callback.status %>">
             <td><%= callback.created_at.strftime('%Y-%m-%d') %></td>
-            <td><span class="status-badge status-<%= callback.status %>"><%= callback.status.humanize %></span></td>
+            <td><span class="status-badge status-<%= callback.status %>"><%= (callback.status || 'pending').humanize %></span></td>
             <td><%= callback.product %></td>
             <td><%= callback.car_make_model %></td>
             <td><%= callback.year %></td>

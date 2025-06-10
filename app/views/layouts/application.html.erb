@@ -89,10 +89,10 @@
                       <i class="fas fa-link"></i>
                       <span>Links</span>
                   </a>
-                  <a href="#" class="nav-item">
+                  <%= link_to invoices_path, class: "nav-item #{'active' if request.path.start_with?('/invoices')}", "data-turbo-prefetch" => "false", data: { action: "click->navigation#setActive" } do %>
                       <i class="fas fa-file-invoice"></i>
-                      <span>Invoicebook</span>
-                  </a>
+                      <span>PayPal Invoices</span>
+                  <% end %>
               </div>
           </div>
           

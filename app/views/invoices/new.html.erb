@@ -1,0 +1,115 @@
+<div class="container-fluid mt-4">
+  <div class="row">
+    <div class="col-md-6 mx-auto">
+      <div class="card">
+        <div class="card-header">
+          <h3>Create PayPal Invoice</h3>
+          <% if @agent_callback %>
+            <small class="text-muted">For Callback: <%= @agent_callback.customer_name %> - <%= @agent_callback.product %></small>
+          <% end %>
+          <div class="mt-2">
+            <small class="text-info">
+              <i class="fas fa-info-circle"></i>
+              PayPal will collect billing/shipping addresses during checkout
+            </small>
+          </div>
+        </div>
+        <div class="card-body">
+          <%= form_with model: @invoice, local: true, class: "row g-3" do |form| %>
+            <% if @invoice.errors.any? %>
+              <div class="col-12">
+                <div class="alert alert-danger">
+                  <h6>Please fix the following errors:</h6>
+                  <ul class="mb-0">
+                    <% @invoice.errors.full_messages.each do |message| %>
+                      <li><%= message %></li>
+                    <% end %>
+                  </ul>
+                </div>
+              </div>
+            <% end %>
+
+            <!-- Hidden field for agent_callback_id -->
+            <% if @agent_callback %>
+              <%= form.hidden_field :agent_callback_id, value: @agent_callback.id %>
+            <% end %>
+
+            <!-- Essential Fields Only -->
+            <div class="col-12">
+              <h5>Invoice Essentials</h5>
+              <hr>
+            </div>
+            
+            <div class="col-md-6">
+              <%= form.label :customer_name, "Customer Name", class: "form-label" %>
+              <%= form.text_field :customer_name, class: "form-control", required: true, placeholder: "John Doe" %>
+            </div>
+            
+            <div class="col-md-6">
+              <%= form.label :customer_email, "Customer Email", class: "form-label" %>
+              <%= form.email_field :customer_email, class: "form-control", required: true, placeholder: "customer@example.com" %>
+            </div>
+            
+            <div class="col-md-6">
+              <%= form.label :description, "Product/Service", class: "form-label" %>
+              <%= form.text_field :description, class: "form-control", required: true, placeholder: "Brake Pads, Oil Filter, etc." %>
+            </div>
+            
+            <div class="col-md-6">
+              <%= form.label :amount, "Amount ($)", class: "form-label" %>
+              <%= form.number_field :amount, step: 0.01, class: "form-control", placeholder: "0.00", required: true %>
+            </div>
+            
+            <!-- Optional Fields -->
+            <div class="col-12 mt-4">
+              <h6>Optional Details</h6>
+              <hr>
+            </div>
+            
+            <div class="col-12">
+              <%= form.label :memo, "Notes/Instructions", class: "form-label" %>
+              <%= form.text_area :memo, class: "form-control", rows: 2, placeholder: "Any special instructions or notes" %>
+            </div>
+            
+            <div class="col-md-6">
+              <%= form.label :due_date, "Due Date", class: "form-label" %>
+              <%= form.date_field :due_date, class: "form-control", value: 30.days.from_now.strftime('%Y-%m-%d') %>
+            </div>
+            
+            <div class="col-md-6">
+              <%= form.label :customer_phone, "Customer Phone (Optional)", class: "form-label" %>
+              <%= form.telephone_field :customer_phone, class: "form-control", placeholder: "(555) 123-4567" %>
+            </div>
+
+            <!-- Hidden currency field (defaulted to USD) -->
+            <%= form.hidden_field :currency, value: 'USD' %>
+
+            <!-- Info Box -->
+            <div class="col-12">
+              <div class="alert alert-info">
+                <h6><i class="fas fa-info-circle"></i> How it works:</h6>
+                <ol class="mb-0">
+                  <li>You provide basic details above</li>
+                  <li>PayPal creates the invoice and sends it to customer</li>
+                  <li>Customer fills in their billing/shipping info during payment</li>
+                  <li>We capture all their data once they pay</li>
+                </ol>
+              </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="col-12 mt-4">
+              <hr>
+              <div class="d-flex justify-content-between">
+                <%= link_to "Cancel", invoices_path, class: "btn btn-secondary" %>
+                <div>
+                  <%= form.submit "Create & Send Invoice", class: "btn btn-success me-2" %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

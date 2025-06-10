@@ -134,6 +134,14 @@ Rails.application.routes.draw do
   
   # Products routes (view-only catalog, auto-created from callbacks)
   resources :products, only: [:index, :show, :edit, :update]
+  
+  # Invoice routes
+  resources :invoices do
+    member do
+      patch :send_invoice
+      patch :cancel_invoice
+    end
+  end
 
   # Defines the root path route ("/")
   root "dashboard#index"

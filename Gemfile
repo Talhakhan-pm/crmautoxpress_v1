@@ -71,6 +71,7 @@ gem "devise", "~> 4.9"
 gem "geocoder", "~> 1.8"
 gem "kaminari", "~> 1.2"
 gem "httparty", "~> 0.21"
+gem "paypal-sdk-rest", "~> 1.7"
 
 group :development, :test do
   gem "sqlite3", ">= 1.4"

@@ -8,7 +8,7 @@
   <div class="cb-card-header">
     <div class="cb-card-status">
       <span class="cb-status-badge cb-status-<%= callback.status %>">
-        <%= callback.status.humanize %>
+        <%= (callback.status || 'pending').humanize %>
       </span>
       <% if callback.has_recent_activity? %>
         <span class="cb-activity-indicator">

@@ -1,0 +1,191 @@
+<div class="container-fluid mt-4">
+  <div class="row">
+    <div class="col-md-10 mx-auto">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Invoice <%= @invoice.invoice_number %></h2>
+        <div>
+          <%= link_to "All Invoices", invoices_path, class: "btn btn-outline-secondary me-2" %>
+          <% if @invoice.draft? %>
+            <%= link_to "Send Invoice", send_invoice_invoice_path(@invoice), 
+                method: :patch, class: "btn btn-success",
+                data: { confirm: "Send this invoice via PayPal?" } %>
+          <% elsif @invoice.sent? %>
+            <%= link_to "Cancel Invoice", cancel_invoice_invoice_path(@invoice), 
+                method: :patch, class: "btn btn-warning",
+                data: { confirm: "Cancel this invoice?" } %>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="row">
+        <!-- Invoice Details -->
+        <div class="col-md-8">
+          <div class="card">
+            <div class="card-header d-flex justify-content-between">
+              <h5>Invoice Details</h5>
+              <span class="badge <%= @invoice.status == 'paid' ? 'bg-success' : @invoice.status == 'sent' ? 'bg-warning' : 'bg-secondary' %> fs-6">
+                <%= @invoice.status.titleize %>
+              </span>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <h6>Business Information</h6>
+                  <p class="mb-1"><strong><%= @invoice.business_name %></strong></p>
+                  <p class="mb-3 text-muted"><%= @invoice.business_email %></p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                  <h6>Invoice Information</h6>
+                  <p class="mb-1">Invoice #: <strong><%= @invoice.invoice_number %></strong></p>
+                  <p class="mb-1">Created: <%= @invoice.created_at.strftime('%B %d, %Y') %></p>
+                  <% if @invoice.due_date %>
+                    <p class="mb-1">Due: <%= @invoice.due_date.strftime('%B %d, %Y') %></p>
+                  <% end %>
+                </div>
+              </div>
+
+              <hr>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <h6>Bill To</h6>
+                  <p class="mb-1"><strong><%= @invoice.customer_name %></strong></p>
+                  <p class="mb-1"><%= @invoice.customer_email %></p>
+                  <% if @invoice.customer_phone.present? %>
+                    <p class="mb-1"><%= @invoice.customer_phone %></p>
+                  <% end %>
+                  <% if @invoice.billing_address.present? %>
+                    <p class="mb-3 text-muted"><%= @invoice.billing_address %></p>
+                  <% end %>
+                </div>
+                <% if @invoice.shipping_address.present? %>
+                <div class="col-md-6">
+                  <h6>Ship To</h6>
+                  <p class="mb-3 text-muted"><%= @invoice.shipping_address %></p>
+                </div>
+                <% end %>
+              </div>
+
+              <hr>
+
+              <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Description</th>
+                      <th>Quantity</th>
+                      <th class="text-end">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <strong><%= @invoice.description %></strong>
+                        <% if @invoice.memo.present? %>
+                          <br><small class="text-muted"><%= @invoice.memo %></small>
+                        <% end %>
+                      </td>
+                      <td>1</td>
+                      <td class="text-end"><strong><%= @invoice.formatted_amount %></strong></td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr class="table-active">
+                      <th colspan="2">Total</th>
+                      <th class="text-end"><%= @invoice.formatted_amount %> <%= @invoice.currency %></th>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4">
+          <!-- PayPal Status -->
+          <div class="card mb-3">
+            <div class="card-header">
+              <h6>PayPal Status</h6>
+            </div>
+            <div class="card-body">
+              <% if @invoice.paypal_invoice_url.present? %>
+                <div class="mb-3">
+                  <strong>Invoice URL:</strong><br>
+                  <%= link_to "View on PayPal", @invoice.paypal_invoice_url, 
+                      target: "_blank", class: "btn btn-sm btn-primary" %>
+                </div>
+                
+                <div class="mb-3">
+                  <strong>PayPal ID:</strong><br>
+                  <code><%= @invoice.paypal_invoice_id %></code>
+                </div>
+              <% else %>
+                <p class="text-muted">Not sent to PayPal yet</p>
+              <% end %>
+              
+              <div class="mb-3">
+                <strong>Status:</strong><br>
+                <span class="badge <%= @invoice.status == 'paid' ? 'bg-success' : @invoice.status == 'sent' ? 'bg-warning' : 'bg-secondary' %>">
+                  <%= @invoice.status.titleize %>
+                </span>
+              </div>
+              
+              <% if @invoice.overdue? %>
+                <div class="alert alert-warning">
+                  <strong>Overdue!</strong><br>
+                  Due date was <%= @invoice.due_date.strftime('%B %d, %Y') %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Related Callback -->
+          <% if @invoice.agent_callback %>
+            <div class="card mb-3">
+              <div class="card-header">
+                <h6>Related Callback</h6>
+              </div>
+              <div class="card-body">
+                <p class="mb-1"><strong><%= @invoice.agent_callback.customer_name %></strong></p>
+                <p class="mb-1"><%= @invoice.agent_callback.phone_number %></p>
+                <p class="mb-1">Product: <%= @invoice.agent_callback.product %></p>
+                <p class="mb-1">Status: 
+                  <span class="badge bg-info"><%= @invoice.agent_callback.status.titleize %></span>
+                </p>
+                <%= link_to "View Callback", @invoice.agent_callback, class: "btn btn-sm btn-outline-info" %>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Payment Information -->
+          <% if @invoice.paid? %>
+            <div class="card mb-3">
+              <div class="card-header">
+                <h6>Payment Information</h6>
+              </div>
+              <div class="card-body">
+                <p class="mb-1"><strong>Paid Date:</strong><br><%= @invoice.paid_date&.strftime('%B %d, %Y at %I:%M %p') %></p>
+                <% if @invoice.payment_method.present? %>
+                  <p class="mb-1"><strong>Method:</strong><br><%= @invoice.payment_method.titleize %></p>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Debug Information (for testing) -->
+          <% if Rails.env.development? && @paypal_data %>
+            <div class="card">
+              <div class="card-header">
+                <h6>PayPal Debug Data</h6>
+              </div>
+              <div class="card-body">
+                <pre class="small"><%= JSON.pretty_generate(@paypal_data) rescue @paypal_data.inspect %></pre>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

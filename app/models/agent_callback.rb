@@ -2,6 +2,7 @@ class AgentCallback < ApplicationRecord
   belongs_to :user
   has_many :activities, as: :trackable, dependent: :destroy
   has_many :communications, dependent: :destroy
+  has_many :invoices, dependent: :destroy
   
   def customer
     @customer ||= Customer.find_by(phone_number: phone_number)
