@@ -110,13 +110,13 @@ class PaypalInvoiceService
         business_name: params[:business_name] || 'AutoXpress',
         phone: {
           country_code: "001",
-          national_number: "5555555555"
+          national_number: "2522753786"
         },
         address: {
-          line1: "1234 Main St",
-          city: "Anytown", 
-          state: "NY",
-          postal_code: "12345",
+          line1: "6779 Beadnell Way",
+          city: "San Diego", 
+          state: "CA",
+          postal_code: "92117",
           country_code: "US"
         }
       },
