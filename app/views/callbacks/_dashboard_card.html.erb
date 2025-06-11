@@ -36,7 +36,8 @@
                data-call-status="<%= display_user.call_status %>"
                data-target-type="<%= display_user.current_target_type %>"
                data-target-id="<%= display_user.current_target_id %>"
-               data-callback-id="<%= callback.id %>">
+               data-callback-id="<%= callback.id %>"
+               id="callback_<%= callback.id %>_status_icon">
             <i class="fas fa-circle cb-status-icon cb-status-<%= display_user.call_status %>"></i>
           </div>
         </div>
@@ -47,7 +48,8 @@
                 data-call-status="<%= display_user.call_status %>"
                 data-target-type="<%= display_user.current_target_type %>"
                 data-target-id="<%= display_user.current_target_id %>"
-                data-callback-id="<%= callback.id %>">
+                data-callback-id="<%= callback.id %>"
+                id="callback_<%= callback.id %>_status_text">
             <%= 
               if is_active_call
                 case display_user.call_status

@@ -173,12 +173,25 @@ class DialpadWebhooksController < ApplicationController
     Rails.logger.info "Broadcasting call status update for user #{user.email}: #{user.call_status}"
     Rails.logger.info "Target: #{user.current_target_type}##{user.current_target_id}" if user.current_target_type
     
-    # SIMPLIFIED: Skip card updates during active calls to prevent flashing
-    # The agent status in the header will update via the user's call_status field
-    # Only broadcast card updates after call completion (handled in handle_call_ended)
-    Rails.logger.info "Skipping card broadcast during active call - will update on hangup only"
+    # TARGETED: Update only the status elements without full card replacement to prevent flashing
+    if user.current_target_type && user.current_target_id
+      broadcast_status_only_update(user.current_target_type, user.current_target_id, user)
+    else
+      Rails.logger.info "No target to update - user is idle"
+    end
   end
   
+  def broadcast_status_only_update(target_type, target_id, user)
+    case target_type
+    when 'callback'
+      callback = AgentCallback.find_by(id: target_id)
+      broadcast_callback_status_update(callback, user) if callback
+    when 'order'
+      # Can add order status updates here if needed
+      Rails.logger.info "Status update for order #{target_id} - not implemented yet"
+    end
+  end
+
   def broadcast_specific_target_update(target_type, target_id, show_post_call_actions: false)
     case target_type
     when 'callback'
@@ -192,6 +205,44 @@ class DialpadWebhooksController < ApplicationController
   
   private
   
+  def broadcast_callback_status_update(callback, user)
+    Rails.logger.info "Broadcasting status-only update for callback #{callback.id}"
+    Rails.logger.info "User status: #{user.call_status}"
+    
+    # Determine status text based on user's call status
+    status_text = case user.call_status
+    when 'calling'
+      "Calling this customer"
+    when 'on_call'
+      "On call with this customer"
+    else
+      "Idle"
+    end
+    
+    # Target the specific status text element and update only its content
+    Turbo::StreamsChannel.broadcast_update_to(
+      "callback_dashboard",
+      target: "callback_#{callback.id}_status_text",
+      html: status_text
+    )
+    
+    # Also update the status indicator dot
+    icon_class = case user.call_status
+    when 'calling'
+      "fas fa-circle cb-status-icon cb-status-calling"
+    when 'on_call'
+      "fas fa-circle cb-status-icon cb-status-on_call"
+    else
+      "fas fa-circle cb-status-icon cb-status-idle"
+    end
+    
+    Turbo::StreamsChannel.broadcast_update_to(
+      "callback_dashboard",
+      target: "callback_#{callback.id}_status_icon",
+      html: "<i class=\"#{icon_class}\"></i>"
+    )
+  end
+
   def broadcast_callback_card_update(callback, show_post_call_actions: false)
     Rails.logger.info "Broadcasting callback card update for callback #{callback.id}"
     Rails.logger.info "Show post-call actions: #{show_post_call_actions}"
