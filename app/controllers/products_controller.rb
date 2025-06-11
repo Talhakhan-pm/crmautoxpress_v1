@@ -26,8 +26,8 @@ class ProductsController < ApplicationController
       @products = @products.by_source(params[:source])
     end
     
-    # Track views for loaded products
-    @products.limit(50).each(&:track_view)
+    # Limit products for performance
+    @products = @products.limit(50)
   end
 
   def show

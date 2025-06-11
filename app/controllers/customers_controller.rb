@@ -31,8 +31,8 @@ class CustomersController < ApplicationController
       end
     end
     
-    # Track views for loaded customers
-    @customers.limit(50).each(&:track_view)
+    # Limit customers for performance
+    @customers = @customers.limit(50)
   end
 
   def show

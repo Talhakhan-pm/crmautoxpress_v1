@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_11_022013) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_11_113648) do
   create_table "activities", force: :cascade do |t|
     t.string "trackable_type", null: false
     t.integer "trackable_id", null: false
@@ -24,7 +24,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_11_022013) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "details"
+    t.index ["trackable_type", "trackable_id", "action"], name: "index_activities_on_trackable_action"
     t.index ["trackable_type", "trackable_id", "created_at"], name: "index_activities_on_trackable_and_created_at"
+    t.index ["trackable_type", "trackable_id", "details"], name: "index_activities_on_trackable_details"
     t.index ["trackable_type", "trackable_id"], name: "index_activities_on_trackable"
     t.index ["user_id", "created_at"], name: "index_activities_on_user_id_and_created_at"
     t.index ["user_id"], name: "index_activities_on_user_id"
@@ -94,9 +96,14 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_11_022013) do
     t.integer "status", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_customers_on_created_at"
+    t.index ["email"], name: "index_customers_on_email"
     t.index ["gclid"], name: "index_customers_on_gclid"
     t.index ["name"], name: "index_customers_on_name"
     t.index ["phone_number"], name: "index_customers_on_phone_number"
+    t.index ["source_campaign"], name: "index_customers_on_source_campaign"
+    t.index ["status", "created_at"], name: "index_customers_on_status_created_at"
+    t.index ["status"], name: "index_customers_on_status"
   end
 
   create_table "dispatches", force: :cascade do |t|
@@ -170,6 +177,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_11_022013) do
     t.index ["agent_callback_id"], name: "index_invoices_on_agent_callback_id"
     t.index ["customer_email"], name: "index_invoices_on_customer_email"
     t.index ["paypal_invoice_id"], name: "index_invoices_on_paypal_invoice_id"
+    t.index ["source_type", "source_id", "status"], name: "index_invoices_on_source_status"
     t.index ["source_type", "source_id"], name: "index_invoices_on_source"
     t.index ["status"], name: "index_invoices_on_status"
   end
@@ -350,10 +358,14 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_11_022013) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "source", default: "callback"
+    t.index ["category", "status"], name: "index_products_on_category_status"
     t.index ["category"], name: "index_products_on_category"
+    t.index ["created_at"], name: "index_products_on_created_at"
     t.index ["name"], name: "index_products_on_name"
     t.index ["part_number"], name: "index_products_on_part_number"
+    t.index ["source", "status"], name: "index_products_on_source_status"
     t.index ["source"], name: "index_products_on_source"
+    t.index ["status", "created_at"], name: "index_products_on_status_created_at"
     t.index ["status"], name: "index_products_on_status"
   end
 
@@ -423,6 +435,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_11_022013) do
     t.date "last_quoted_date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["product_id", "created_at"], name: "index_supplier_products_on_product_created"
     t.index ["product_id"], name: "index_supplier_products_on_product_id"
     t.index ["supplier_id", "product_id"], name: "index_supplier_products_on_supplier_id_and_product_id", unique: true
     t.index ["supplier_id"], name: "index_supplier_products_on_supplier_id"
@@ -455,6 +468,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_11_022013) do
     t.index ["current_call_id"], name: "index_users_on_current_call_id"
     t.index ["current_target_id"], name: "index_users_on_current_target_id"
     t.index ["current_target_type", "current_target_id", "call_status"], name: "index_users_on_target_and_call_status"
+    t.index ["current_target_type", "current_target_id", "call_status"], name: "index_users_on_target_call_status"
     t.index ["current_target_type", "current_target_id"], name: "index_users_on_current_target"
     t.index ["current_target_type"], name: "index_users_on_current_target_type"
     t.index ["dialpad_user_id"], name: "index_users_on_dialpad_user_id", unique: true, where: "dialpad_user_id IS NOT NULL"
