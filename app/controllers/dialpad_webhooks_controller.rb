@@ -173,16 +173,10 @@ class DialpadWebhooksController < ApplicationController
     Rails.logger.info "Broadcasting call status update for user #{user.email}: #{user.call_status}"
     Rails.logger.info "Target: #{user.current_target_type}##{user.current_target_id}" if user.current_target_type
     
-    # PERFORMANCE OPTIMIZED: Always do targeted updates, never mass broadcasts
-    if user.current_target_type && user.current_target_id
-      # User is calling/on a specific target - update that target's card WITHOUT affecting post-call dropdown
-      # Don't override post-call actions during active calls - preserve dropdown state set by JavaScript
-      broadcast_specific_target_update(user.current_target_type, user.current_target_id, show_post_call_actions: nil)
-    else
-      # Call ended - only update the card that was previously being called
-      # Instead of mass refresh, we'll rely on the card's own cache invalidation
-      Rails.logger.info "Call ended - no mass refresh needed (cached cards will update naturally)"
-    end
+    # SIMPLIFIED: Skip card updates during active calls to prevent flashing
+    # The agent status in the header will update via the user's call_status field
+    # Only broadcast card updates after call completion (handled in handle_call_ended)
+    Rails.logger.info "Skipping card broadcast during active call - will update on hangup only"
   end
   
   def broadcast_specific_target_update(target_type, target_id, show_post_call_actions: false)

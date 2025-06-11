@@ -161,26 +161,14 @@
       <% end %>
       
       
-      <!-- Combined Post-Call Actions - Hidden by default, shown after call initiation -->
+      <!-- Combined Post-Call Actions - Hidden by default, shown only after call hangup -->
       <%
-        # Handle post-call actions visibility: true (show), false (hide), nil (preserve/let JS handle)
-        post_call_param = local_assigns[:show_post_call_actions]
-        if post_call_param == true
-          dropdown_style = 'display: block;'
-          dropdown_data_show = 'true'
-        elsif post_call_param == false
-          dropdown_style = 'display: none;'
-          dropdown_data_show = 'false'  
-        else
-          # nil = let JavaScript/current state decide, start hidden by default
-          dropdown_style = 'display: none;'
-          dropdown_data_show = 'preserve'
-        end
+        # Simple visibility control: show only if explicitly requested (after hangup)
+        show_actions = local_assigns[:show_post_call_actions] == true
       %>
       <div class="cb-post-call-actions" 
            data-callback-card-target="quickActions" 
-           data-show-state="<%= dropdown_data_show %>"
-           style="<%= dropdown_style %>"
+           style="<%= show_actions ? 'display: block;' : 'display: none;' %>"
            data-callback-id="<%= callback.id %>">
         <div class="cb-post-call-label">
           <i class="fas fa-clock"></i>

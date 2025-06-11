@@ -5,35 +5,6 @@ export default class extends Controller {
 
   connect() {
     console.log('Callback card controller connected')
-    this.handlePostCallActionsState()
-  }
-
-  // Handle post-call actions state based on data attribute after Turbo Stream updates
-  handlePostCallActionsState() {
-    if (this.hasQuickActionsTarget) {
-      const showState = this.quickActionsTarget.dataset.showState
-      console.log('Post-call actions show state:', showState)
-      
-      if (showState === 'true') {
-        // Webhook wants to show dropdown (e.g., after hangup)
-        this.quickActionsTarget.style.display = 'block'
-        console.log('Showing post-call actions from webhook')
-      } else if (showState === 'false') {
-        // Webhook wants to hide dropdown
-        this.quickActionsTarget.style.display = 'none'
-        console.log('Hiding post-call actions from webhook')
-      } else if (showState === 'preserve') {
-        // Check if dropdown was already visible before this update
-        const wasVisible = sessionStorage.getItem(`callback-${this.element.dataset.callbackId}-dropdown-visible`)
-        if (wasVisible === 'true') {
-          this.quickActionsTarget.style.display = 'block'
-          console.log('Preserving visible post-call actions state')
-        } else {
-          this.quickActionsTarget.style.display = 'none'
-          console.log('Preserving hidden post-call actions state')
-        }
-      }
-    }
   }
 
   toggleComposer(event) {
@@ -140,8 +111,7 @@ export default class extends Controller {
       
       if (data.status === 'success') {
         this.showSuccessNotification('Call initiated successfully! Check your Dialpad app.')
-        // Show quick updates and next action after successful call initiation
-        this.showPostCallActions()
+        // Dropdown will appear automatically after call hangup via webhook
       } else {
         this.showErrorNotification(data.message || 'Failed to initiate call')
       }
@@ -184,8 +154,7 @@ export default class extends Controller {
       
       if (data.status === 'success') {
         this.showSuccessNotification('Call initiated successfully! Check your Dialpad app.')
-        // Show quick updates and next action after successful call initiation
-        this.showPostCallActions()
+        // Dropdown will appear automatically after call hangup via webhook
       } else {
         this.showErrorNotification(data.message || 'Failed to initiate call')
       }
@@ -279,41 +248,9 @@ export default class extends Controller {
     }, 5000) // Show for 5 seconds for call notifications
   }
 
-  // Show post-call actions after call initiation
-  showPostCallActions() {
-    console.log('Showing post-call actions')
-    
-    // Show quick actions with smooth animation and enhanced styling
-    if (this.hasQuickActionsTarget) {
-      const quickActions = this.quickActionsTarget
-      const callbackId = this.element.dataset.callbackId
-      
-      // Store visibility state for preservation across Turbo Stream updates
-      sessionStorage.setItem(`callback-${callbackId}-dropdown-visible`, 'true')
-      
-      quickActions.classList.add('post-call-highlight')
-      quickActions.style.display = 'block'
-      quickActions.style.opacity = '0'
-      quickActions.style.transform = 'translateY(-10px)'
-      
-      setTimeout(() => {
-        quickActions.style.transition = 'all 0.3s ease'
-        quickActions.style.opacity = '1'
-        quickActions.style.transform = 'translateY(0)'
-      }, 100)
-    }
-    
-    // The combined form is already shown with quickActions, no separate next action needed
-  }
-
   // Hide post-call actions
   hidePostCallActions() {
     if (this.hasQuickActionsTarget) {
-      const callbackId = this.element.dataset.callbackId
-      
-      // Clear visibility state
-      sessionStorage.removeItem(`callback-${callbackId}-dropdown-visible`)
-      
       this.quickActionsTarget.style.display = 'none'
       // Clear the form
       const form = this.quickActionsTarget.querySelector('form')
