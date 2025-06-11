@@ -129,6 +129,6 @@ class Invoice < ApplicationRecord
   
   def set_business_defaults
     self.business_name ||= 'AutoXpress'
-    self.business_email ||= 'sb-43bps238158546@business.example.com'
+    self.business_email ||= 'khan@autoxpress.us'
   end
 end
