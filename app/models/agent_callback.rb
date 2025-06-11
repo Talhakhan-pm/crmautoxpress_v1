@@ -96,6 +96,23 @@ class AgentCallback < ApplicationRecord
     activities.where(action: ['call_initiated', 'call_failed']).order(created_at: :desc).first
   end
   
+  # Get the last call outcome from quick actions
+  def last_call_outcome
+    last_activity = activities.where(details: ['No answer - quick action', 'Agent marked as called via quick action', 'Customer interested - quick action']).order(created_at: :desc).first
+    return nil unless last_activity
+    
+    case last_activity.details
+    when 'No answer - quick action'
+      'No Answer'
+    when 'Agent marked as called via quick action' 
+      'Called'
+    when 'Customer interested - quick action'
+      'Interested'
+    else
+      nil
+    end
+  end
+  
   # Smart priority calculation
   def calculate_smart_priority
     return 'high' if should_be_high_priority?

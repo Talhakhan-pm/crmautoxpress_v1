@@ -132,6 +132,9 @@
         <div class="cb-call-attempts">
           <i class="fas fa-phone"></i>
           <span>Calls: <strong><%= callback.call_attempts_count %></strong></span>
+          <% if callback.last_call_outcome %>
+            <span class="cb-last-outcome">(<%= callback.last_call_outcome %>)</span>
+          <% end %>
         </div>
         <div class="cb-last-contact">
           <i class="fas fa-clock"></i>
