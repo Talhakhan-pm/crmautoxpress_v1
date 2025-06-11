@@ -131,10 +131,10 @@ class DialpadWebhooksController < ApplicationController
     # Log call completion
     Rails.logger.info "Call duration: #{duration&.round(2)} seconds" if duration
     
-    # Update the specific card that was being called (targeted, not mass broadcast)
+    # Update the specific card that was being called and show post-call actions
     if previous_target_type && previous_target_id
-      broadcast_specific_target_update(previous_target_type, previous_target_id)
-      Rails.logger.info "Updated specific target: #{previous_target_type}##{previous_target_id}"
+      broadcast_specific_target_update(previous_target_type, previous_target_id, show_post_call_actions: true)
+      Rails.logger.info "Updated specific target with post-call actions: #{previous_target_type}##{previous_target_id}"
     end
   end
   
@@ -176,11 +176,11 @@ class DialpadWebhooksController < ApplicationController
     end
   end
   
-  def broadcast_specific_target_update(target_type, target_id)
+  def broadcast_specific_target_update(target_type, target_id, show_post_call_actions: false)
     case target_type
     when 'callback'
       callback = AgentCallback.find_by(id: target_id)
-      broadcast_callback_card_update(callback) if callback
+      broadcast_callback_card_update(callback, show_post_call_actions: show_post_call_actions) if callback
     when 'order'
       order = Order.find_by(id: target_id)
       broadcast_order_card_update(order) if order
@@ -189,14 +189,14 @@ class DialpadWebhooksController < ApplicationController
   
   private
   
-  def broadcast_callback_card_update(callback)
+  def broadcast_callback_card_update(callback, show_post_call_actions: false)
     Rails.logger.info "Broadcasting callback card update for callback #{callback.id}"
     
     Turbo::StreamsChannel.broadcast_replace_to(
       "callback_dashboard",
       target: dom_id(callback, :card),
       partial: "callbacks/dashboard_card",
-      locals: { callback: callback }
+      locals: { callback: callback, show_post_call_actions: show_post_call_actions }
     )
   end
   

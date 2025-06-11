@@ -161,9 +161,13 @@
       
       
       <!-- Combined Post-Call Actions - Hidden by default, shown after call initiation -->
+      <%
+        # Show post-call actions if explicitly requested (e.g., after call hangup)
+        show_actions = local_assigns[:show_post_call_actions] || false
+      %>
       <div class="cb-post-call-actions" 
            data-callback-card-target="quickActions" 
-           style="display: none;"
+           style="<%= show_actions ? 'display: block;' : 'display: none;' %>"
            data-callback-id="<%= callback.id %>">
         <div class="cb-post-call-label">
           <i class="fas fa-clock"></i>
