@@ -21,7 +21,8 @@
       <div class="cb-agent-info">
         <% 
           # OPTIMIZED: Use preloaded current callers hash (eliminates N+1 query)
-          current_caller = @current_callers&.fetch(callback.id, nil)
+          # Check for local variable first (from Turbo Stream broadcasts), then fallback to @current_callers
+          current_caller = local_assigns[:current_caller] || @current_callers&.fetch(callback.id, nil)
           
           # Show either the active caller or the callback creator
           display_user = current_caller || callback.user

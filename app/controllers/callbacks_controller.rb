@@ -246,11 +246,18 @@ class CallbacksController < ApplicationController
         flash.now[:notice] = message
         
         # Real-time card update via Turbo Stream
+        # Query for current caller for proper status display in Turbo Stream updates
+        current_caller = User.find_by(
+          current_target_type: 'callback',
+          current_target_id: @callback.id,
+          call_status: ['calling', 'on_call']
+        )
+        
         render turbo_stream: [
           turbo_stream.replace(
             ActionView::RecordIdentifier.dom_id(@callback, :card),
             partial: "callbacks/dashboard_card",
-            locals: { callback: @callback }
+            locals: { callback: @callback, current_caller: current_caller }
           ),
           turbo_stream.replace(
             "flash-messages",
@@ -276,11 +283,18 @@ class CallbacksController < ApplicationController
     
     respond_to do |format|
       format.turbo_stream do
+        # Query for current caller for proper status display in Turbo Stream updates
+        current_caller = User.find_by(
+          current_target_type: 'callback',
+          current_target_id: @callback.id,
+          call_status: ['calling', 'on_call']
+        )
+        
         render turbo_stream: [
           turbo_stream.replace(
             ActionView::RecordIdentifier.dom_id(@callback, :card),
             partial: "callbacks/dashboard_card",
-            locals: { callback: @callback }
+            locals: { callback: @callback, current_caller: current_caller }
           ),
           turbo_stream.append(
             "flash-messages",
