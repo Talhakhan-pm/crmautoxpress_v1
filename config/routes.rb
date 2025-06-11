@@ -121,6 +121,7 @@ Rails.application.routes.draw do
     end
     member do
       post :track_call
+      patch :quick_action
     end
     resources :communications, only: [:create, :destroy]
   end

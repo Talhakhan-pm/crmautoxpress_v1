@@ -1,5 +1,5 @@
 class CallbacksController < ApplicationController
-  before_action :set_callback, only: [:show, :edit, :update, :destroy, :track_call]
+  before_action :set_callback, only: [:show, :edit, :update, :destroy, :track_call, :quick_action]
 
   def index
     # Dashboard view is default, table view available via ?view=table
@@ -157,6 +157,9 @@ class CallbacksController < ApplicationController
         user: current_user
       )
       
+      # Update Action-Focused Layout data
+      @callback.update_last_contact_date!
+      
       respond_to do |format|
         format.json { 
           render json: { 
@@ -183,6 +186,61 @@ class CallbacksController < ApplicationController
           }, status: :unprocessable_entity 
         }
       end
+    end
+  end
+
+  def quick_action
+    action_type = params[:action_type]
+    
+    case action_type
+    when 'called'
+      @callback.mark_as_called!(current_user)
+      message = "Marked as called"
+    when 'no_answer'
+      @callback.mark_as_no_answer!(current_user)
+      message = "Marked as no answer - follow-up scheduled for tomorrow"
+    when 'interested'
+      @callback.mark_as_interested!
+      message = "Marked as interested - follow-up scheduled"
+    when 'later'
+      @callback.mark_as_later!
+      message = "Scheduled for later follow-up"
+    when 'sale'
+      @callback.mark_as_sale!
+      message = "Converted to SALE! 🎉"
+    when 'not_interested'
+      @callback.mark_as_not_interested!
+      message = "Marked as not interested"
+    else
+      message = "Unknown action"
+    end
+    
+    respond_to do |format|
+      format.turbo_stream do
+        # Real-time card update via Turbo Stream
+        render turbo_stream: [
+          turbo_stream.replace(
+            ActionView::RecordIdentifier.dom_id(@callback, :card),
+            partial: "callbacks/dashboard_card",
+            locals: { callback: @callback }
+          ),
+          turbo_stream.append(
+            "flash-messages",
+            "<div class='alert alert-success alert-dismissible fade show' role='alert'>
+              #{message}
+              <button type='button' class='btn-close' data-bs-dismiss='alert'></button>
+            </div>"
+          )
+        ]
+      end
+      format.json { 
+        render json: { 
+          status: 'success', 
+          message: message,
+          priority: @callback.priority_level,
+          next_action: @callback.next_action
+        } 
+      }
     end
   end
 

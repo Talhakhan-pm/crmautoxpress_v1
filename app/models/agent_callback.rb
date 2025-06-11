@@ -75,6 +75,207 @@ class AgentCallback < ApplicationRecord
     end
   end
   
+  # ============================================================================
+  # ACTION-FOCUSED LAYOUT METHODS
+  # ============================================================================
+  
+  # Call tracking using existing activities
+  def call_attempts_count
+    @call_attempts_count ||= activities.where(action: ['call_initiated', 'call_failed']).count
+  end
+  
+  def successful_call_attempts_count
+    @successful_call_attempts_count ||= activities.where(action: 'call_initiated').count
+  end
+  
+  def failed_call_attempts_count
+    @failed_call_attempts_count ||= activities.where(action: 'call_failed').count
+  end
+  
+  def last_call_attempt
+    activities.where(action: ['call_initiated', 'call_failed']).order(created_at: :desc).first
+  end
+  
+  # Smart priority calculation
+  def calculate_smart_priority
+    return 'high' if should_be_high_priority?
+    return 'low' if should_be_low_priority?
+    'medium'
+  end
+  
+  def auto_update_priority!
+    new_priority = calculate_smart_priority
+    if priority_level != new_priority
+      update_column(:priority_level, new_priority)
+      broadcast_priority_change
+    end
+  end
+  
+  # Smart next action suggestions
+  def suggest_next_action
+    return "Complete sale process" if status == 'sale'
+    return "Create order from paid invoice" if ready_for_order_creation?
+    return "Follow up on sent quote" if has_invoices? && !paid_invoices.any?
+    return "Send pricing quote" if call_attempts_count > 0 && !has_invoices?
+    return "Make initial contact" if call_attempts_count == 0
+    return "Follow up call" if call_attempts_count > 0
+    "Review and update status"
+  end
+  
+  def auto_update_next_action!
+    suggested_action = suggest_next_action
+    if next_action != suggested_action
+      update_column(:next_action, suggested_action)
+    end
+  end
+  
+  # Contact date management
+  def update_last_contact_date!
+    update_column(:last_contact_date, Time.current)
+    auto_update_priority!
+    auto_update_next_action!
+  end
+  
+  # Quick action methods
+  def mark_as_called!(current_user = nil)
+    create_activity(
+      action: 'call_initiated',
+      details: "Agent marked as called via quick action",
+      user: current_user
+    )
+    update_last_contact_date!
+    broadcast_card_update
+  end
+  
+  def mark_as_no_answer!(current_user = nil)
+    create_activity(
+      action: 'call_failed',
+      details: "No answer - quick action",
+      user: current_user
+    )
+    # Auto-set follow-up for tomorrow
+    update!(
+      status: 'follow_up',
+      follow_up_date: 1.day.from_now.to_date,
+      last_contact_date: Time.current,
+      next_action: "Follow up call - no answer yesterday"
+    )
+    auto_update_priority!
+    broadcast_card_update
+  end
+  
+  def mark_as_interested!
+    update!(
+      status: 'follow_up',
+      follow_up_date: 1.day.from_now.to_date,
+      last_contact_date: Time.current,
+      next_action: "Send pricing quote - customer interested"
+    )
+    auto_update_priority!
+    broadcast_card_update
+  end
+  
+  def mark_as_later!
+    update!(
+      status: 'follow_up',
+      follow_up_date: 1.week.from_now.to_date,
+      last_contact_date: Time.current,
+      next_action: "Follow up call - customer asked to call back later"
+    )
+    auto_update_priority!
+    broadcast_card_update
+  end
+  
+  def mark_as_sale!
+    update!(
+      status: 'sale',
+      last_contact_date: Time.current,
+      next_action: "Create order and process sale"
+    )
+    auto_update_priority!
+    broadcast_card_update
+  end
+  
+  def mark_as_not_interested!
+    update!(
+      status: 'not_interested',
+      last_contact_date: Time.current,
+      next_action: "Lead closed - not interested"
+    )
+    auto_update_priority!
+    broadcast_card_update
+  end
+  
+  # Priority level display helpers
+  def priority_badge_class
+    case priority_level
+    when 'high'
+      'badge-danger'
+    when 'low' 
+      'badge-secondary'
+    else
+      'badge-warning'
+    end
+  end
+  
+  def priority_icon
+    case priority_level
+    when 'high'
+      '🔥'
+    when 'low'
+      '📊'
+    else
+      '⚡'
+    end
+  end
+  
+  def priority_display
+    "#{priority_icon} #{(priority_level || 'medium').upcase}"
+  end
+  
+  # Follow-up helpers
+  def follow_up_status
+    return nil unless follow_up_date
+    
+    if follow_up_date < Date.current
+      'overdue'
+    elsif follow_up_date == Date.current
+      'today'
+    elsif follow_up_date == Date.current + 1.day
+      'tomorrow'
+    else
+      'upcoming'
+    end
+  end
+  
+  def follow_up_display
+    return "No follow-up set" unless follow_up_date
+    
+    case follow_up_status
+    when 'overdue'
+      "⚠️ Overdue: #{follow_up_date.strftime('%b %d')}"
+    when 'today'
+      "🎯 Today"
+    when 'tomorrow'
+      "📅 Tomorrow"
+    else
+      "📅 #{follow_up_date.strftime('%b %d')}"
+    end
+  end
+  
+  # Real-time broadcast helpers
+  def broadcast_card_update
+    broadcast_replace_to "callbacks", 
+                        target: ActionView::RecordIdentifier.dom_id(self, :card),
+                        partial: "callbacks/dashboard_card", 
+                        locals: { callback: self }
+  end
+  
+  def broadcast_priority_change
+    # Could add specific priority change broadcasts if needed
+    broadcast_card_update
+  end
+  
   def unread_communications_for(user)
     # Count communications since user last viewed this callback
     last_view = activities.where(user: user, action: 'viewed').order(created_at: :desc).first
@@ -122,6 +323,60 @@ class AgentCallback < ApplicationRecord
     !pending_invoices.any?
   end
   
+  # Smart priority logic
+  def should_be_high_priority?
+    # Overdue follow-ups
+    return true if follow_up_date && follow_up_date < Date.current
+    
+    # Callbacks older than 3 days with no calls
+    return true if created_at < 3.days.ago && call_attempts_count == 0
+    
+    # Multiple call attempts with no sale
+    return true if call_attempts_count >= 3 && status != 'sale'
+    
+    # Has paid invoice but no order created
+    return true if ready_for_order_creation?
+    
+    false
+  end
+  
+  def should_be_low_priority?
+    # Already converted to sale
+    return true if status == 'sale'
+    
+    # Not interested
+    return true if status == 'not_interested'
+    
+    # Already purchased elsewhere
+    return true if status == 'already_purchased'
+    
+    false
+  end
+  
+  # Model-level validations (no database constraints)
+  validates :priority_level, inclusion: { in: ['low', 'medium', 'high'] }, allow_nil: true
+  validates :next_action, length: { maximum: 500 }, allow_blank: true
+  
+  # Auto-update hooks
+  after_create :initialize_action_focused_fields
+  after_update :auto_update_priority_on_status_change, if: :saved_change_to_status?
+  after_update :auto_update_next_action_on_status_change, if: :saved_change_to_status?
+  
+  def auto_update_priority_on_status_change
+    auto_update_priority!
+  end
+  
+  def auto_update_next_action_on_status_change
+    auto_update_next_action!
+  end
+  
+  def initialize_action_focused_fields
+    self.update_columns(
+      priority_level: calculate_smart_priority,
+      next_action: suggest_next_action
+    )
+  end
+
   private
   
   def broadcast_dashboard_metrics

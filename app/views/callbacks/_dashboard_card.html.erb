@@ -109,52 +109,113 @@
     </div>
   <% end %>
 
-  <!-- Communication Preview (Fragment Cached) -->
-  <% cache [callback, callback.latest_communication, callback.communications_count], expires_in: 15.minutes do %>
-    <div class="cb-card-communication">
-      <% if callback.latest_communication %>
-        <div class="cb-communication-preview">
-          <div class="cb-message-header">
-            <i class="fas fa-comment"></i>
-            <span class="cb-message-author">
-              <%= callback.latest_communication.author_name %>:
-            </span>
-            <span class="cb-message-time">
-              <%= time_ago_in_words(callback.latest_communication.created_at) %> ago
-            </span>
-          </div>
+  <!-- Action-Focused Dashboard (Fragment Cached) -->
+  <% cache [callback, callback.priority_level, callback.call_attempts_count, callback.last_contact_date], expires_in: 5.minutes do %>
+    <div class="cb-action-dashboard">
+      <!-- Priority and Follow-up Row -->
+      <div class="cb-action-row cb-priority-row">
+        <div class="cb-follow-up-info">
+          <i class="fas fa-calendar"></i>
+          <span class="cb-follow-up-text">
+            <%= callback.follow_up_display %>
+          </span>
+        </div>
+        <div class="cb-priority-badge">
+          <span class="badge <%= callback.priority_badge_class %> cb-priority-indicator">
+            <%= callback.priority_display %>
+          </span>
+        </div>
+      </div>
+      
+      <!-- Contact Stats Row -->
+      <div class="cb-action-row cb-contact-stats">
+        <div class="cb-call-attempts">
+          <i class="fas fa-phone"></i>
+          <span>Calls: <strong><%= callback.call_attempts_count %></strong></span>
+        </div>
+        <div class="cb-last-contact">
+          <i class="fas fa-clock"></i>
+          <span>
+            <% if callback.last_contact_date %>
+              Last: <%= time_ago_in_words(callback.last_contact_date) %> ago
+            <% else %>
+              No contact yet
+            <% end %>
+          </span>
+        </div>
+      </div>
+      
+      <!-- Next Action Row -->
+      <div class="cb-action-row cb-next-action-row">
+        <div class="cb-next-action">
+          <i class="fas fa-target"></i>
+          <span class="cb-next-action-text">
+            <%= callback.next_action || callback.suggest_next_action %>
+          </span>
+        </div>
+      </div>
+      
+      <!-- Quick Actions Row -->
+      <div class="cb-quick-actions">
+        <div class="cb-quick-actions-label">Quick Updates:</div>
+        <div class="cb-quick-buttons">
+          <%= button_to quick_action_callback_path(callback), 
+                        method: :patch, 
+                        params: { action_type: 'called' },
+                        class: "cb-quick-btn cb-quick-called",
+                        title: "Mark as Called",
+                        remote: true,
+                        data: { 
+                          confirm: "Mark this callback as called?",
+                          turbo_method: :patch
+                        } do %>
+            <i class="fas fa-phone"></i>
+            <span>Called</span>
+          <% end %>
           
-          <div class="cb-message-content">
-            <%= truncate(callback.latest_communication.content, length: 100) %>
-          </div>
+          <%= button_to quick_action_callback_path(callback), 
+                        method: :patch, 
+                        params: { action_type: 'no_answer' },
+                        class: "cb-quick-btn cb-quick-no-answer",
+                        title: "No Answer - Auto-schedule follow-up",
+                        remote: true,
+                        data: { 
+                          confirm: "Mark as no answer? This will schedule follow-up for tomorrow.",
+                          turbo_method: :patch
+                        } do %>
+            <i class="fas fa-phone-slash"></i>
+            <span>No Answer</span>
+          <% end %>
           
-          <% if callback.communications_count > 1 %>
-            <div class="cb-message-count">
-              <i class="fas fa-comments"></i>
-              <%= callback.communications_count %> messages
-            </div>
+          <%= button_to quick_action_callback_path(callback), 
+                        method: :patch, 
+                        params: { action_type: 'interested' },
+                        class: "cb-quick-btn cb-quick-interested",
+                        title: "Customer Interested",
+                        remote: true,
+                        data: { 
+                          confirm: "Mark customer as interested?",
+                          turbo_method: :patch
+                        } do %>
+            <i class="fas fa-thumbs-up"></i>
+            <span>Interested</span>
+          <% end %>
+          
+          <%= button_to quick_action_callback_path(callback), 
+                        method: :patch, 
+                        params: { action_type: 'sale' },
+                        class: "cb-quick-btn cb-quick-sale",
+                        title: "Convert to Sale",
+                        remote: true,
+                        data: { 
+                          confirm: "Mark as SALE? This will close the lead as won.",
+                          turbo_method: :patch
+                        } do %>
+            <i class="fas fa-trophy"></i>
+            <span>Sale</span>
           <% end %>
         </div>
-      <% else %>
-        <div class="cb-no-communication">
-          <i class="fas fa-comment-slash"></i>
-          <span>No team messages yet</span>
-        </div>
-      <% end %>
-
-      <!-- Team Members -->
-      <% if callback.team_members.any? %>
-        <div class="cb-team-members">
-          <div class="cb-team-label">Team:</div>
-          <div class="cb-team-avatars">
-            <% callback.team_members.each do |member| %>
-              <div class="cb-team-avatar" title="<%= member.email %>">
-                <%= member.email.first.upcase %>
-              </div>
-            <% end %>
-          </div>
-        </div>
-      <% end %>
+      </div>
     </div>
   <% end %>
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_11_003204) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_11_022013) do
   create_table "activities", force: :cascade do |t|
     t.string "trackable_type", null: false
     t.integer "trackable_id", null: false
@@ -47,10 +47,17 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_11_003204) do
     t.integer "communications_count", default: 0
     t.bigint "payment_link_id"
     t.integer "payment_amount_cents"
+    t.string "priority_level"
+    t.datetime "last_contact_date"
+    t.string "next_action"
     t.index ["car_make_model"], name: "index_agent_callbacks_on_car_make_model"
     t.index ["communications_count"], name: "index_agent_callbacks_on_communications_count"
     t.index ["created_at", "status"], name: "index_agent_callbacks_on_created_at_and_status"
+    t.index ["last_contact_date", "status"], name: "index_agent_callbacks_on_last_contact_date_and_status"
+    t.index ["last_contact_date"], name: "index_agent_callbacks_on_last_contact_date"
     t.index ["payment_link_id"], name: "index_agent_callbacks_on_payment_link_id"
+    t.index ["priority_level", "follow_up_date"], name: "index_agent_callbacks_on_priority_level_and_follow_up_date"
+    t.index ["priority_level"], name: "index_agent_callbacks_on_priority_level"
     t.index ["status", "follow_up_date"], name: "index_agent_callbacks_on_status_and_follow_up_date"
     t.index ["user_id", "created_at"], name: "index_agent_callbacks_on_user_id_and_created_at"
     t.index ["user_id"], name: "index_agent_callbacks_on_user_id"
