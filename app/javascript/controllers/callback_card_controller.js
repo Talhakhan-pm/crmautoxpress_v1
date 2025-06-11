@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["actions", "composer", "quickActions", "nextAction"]
+  static targets = ["actions", "composer", "quickActions"]
 
   connect() {
     console.log('Callback card controller connected')
@@ -269,21 +269,18 @@ export default class extends Controller {
       }, 100)
     }
     
-    // Show next action with slight delay for staggered effect
-    if (this.hasNextActionTarget) {
-      const nextAction = this.nextActionTarget
-      
-      setTimeout(() => {
-        nextAction.style.display = 'block'
-        nextAction.style.opacity = '0'
-        nextAction.style.transform = 'translateY(-10px)'
-        
-        setTimeout(() => {
-          nextAction.style.transition = 'all 0.3s ease'
-          nextAction.style.opacity = '1'
-          nextAction.style.transform = 'translateY(0)'
-        }, 100)
-      }, 200) // 200ms delay for staggered animation
+    // The combined form is already shown with quickActions, no separate next action needed
+  }
+
+  // Hide post-call actions
+  hidePostCallActions() {
+    if (this.hasQuickActionsTarget) {
+      this.quickActionsTarget.style.display = 'none'
+      // Clear the form
+      const form = this.quickActionsTarget.querySelector('form')
+      if (form) {
+        form.reset()
+      }
     }
   }
 }

@@ -112,20 +112,22 @@
   <!-- Action-Focused Dashboard (Fragment Cached) -->
   <% cache [callback, callback.priority_level, callback.call_attempts_count, callback.last_contact_date], expires_in: 5.minutes do %>
     <div class="cb-action-dashboard">
-      <!-- Priority and Follow-up Row -->
-      <div class="cb-action-row cb-priority-row">
-        <div class="cb-follow-up-info">
-          <i class="fas fa-calendar"></i>
-          <span class="cb-follow-up-text">
-            <%= callback.follow_up_display %>
-          </span>
+      <!-- Priority and Follow-up Row (only for active callbacks) -->
+      <% unless callback.status.in?(['sale', 'not_interested', 'already_purchased']) %>
+        <div class="cb-action-row cb-priority-row">
+          <div class="cb-follow-up-info">
+            <i class="fas fa-calendar"></i>
+            <span class="cb-follow-up-text">
+              <%= callback.follow_up_display %>
+            </span>
+          </div>
+          <div class="cb-priority-badge">
+            <span class="badge <%= callback.priority_badge_class %> cb-priority-indicator">
+              <%= callback.priority_display %>
+            </span>
+          </div>
         </div>
-        <div class="cb-priority-badge">
-          <span class="badge <%= callback.priority_badge_class %> cb-priority-indicator">
-            <%= callback.priority_display %>
-          </span>
-        </div>
-      </div>
+      <% end %>
       
       <!-- Contact Stats Row -->
       <div class="cb-action-row cb-contact-stats">
@@ -148,99 +150,106 @@
         </div>
       </div>
       
-      <!-- Next Action Row - Hidden by default, shown after call initiation -->
-      <div class="cb-action-row cb-next-action-row" 
-           data-callback-card-target="nextAction"
-           style="display: none;"
-           data-callback-id="<%= callback.id %>">
-        <div class="cb-next-action">
-          <i class="fas fa-target"></i>
-          <span class="cb-next-action-text">
-            <%= callback.next_action || callback.suggest_next_action %>
-          </span>
+      <!-- Next Action Row - Shows when next action is set -->
+      <% if callback.next_action.present? %>
+        <div class="cb-action-row cb-next-action-row" 
+             data-callback-id="<%= callback.id %>">
+          <div class="cb-next-action">
+            <i class="fas fa-target"></i>
+            <span class="cb-next-action-text">
+              <%= callback.next_action %>
+            </span>
+          </div>
         </div>
-      </div>
+      <% end %>
       
-      <!-- Quick Actions Row - Hidden by default, shown after call initiation -->
-      <div class="cb-quick-actions" 
+      
+      <!-- Combined Post-Call Actions - Hidden by default, shown after call initiation -->
+      <div class="cb-post-call-actions" 
            data-callback-card-target="quickActions" 
            style="display: none;"
            data-callback-id="<%= callback.id %>">
-        <div class="cb-quick-actions-label">
+        <div class="cb-post-call-label">
           <i class="fas fa-clock"></i>
-          Quick Updates (After Call):
+          Post-Call Update:
         </div>
-        <div class="cb-quick-buttons">
-          <%= button_to quick_action_callback_path(callback), 
-                        method: :patch, 
-                        params: { action_type: 'called' },
-                        class: "cb-quick-btn cb-quick-called",
-                        title: "Mark as Called",
-                        remote: true,
-                        data: { 
-                          confirm: "Mark this callback as called?",
-                          turbo_method: :patch
-                        } do %>
-            <i class="fas fa-phone"></i>
-            <span>Called</span>
-          <% end %>
+        
+        <%= form_with url: quick_action_callback_path(callback), 
+                      method: :patch,
+                      local: false,
+                      class: "cb-post-call-form",
+                      data: { 
+                        turbo_method: :patch,
+                        action: "turbo:submit-end->callback-card#hidePostCallActions"
+                      } do |form| %>
           
-          <%= button_to quick_action_callback_path(callback), 
-                        method: :patch, 
-                        params: { action_type: 'no_answer' },
-                        class: "cb-quick-btn cb-quick-no-answer",
-                        title: "No Answer - Auto-schedule follow-up",
-                        remote: true,
-                        data: { 
-                          confirm: "Mark as no answer? This will schedule follow-up for tomorrow.",
-                          turbo_method: :patch
-                        } do %>
-            <i class="fas fa-phone-slash"></i>
-            <span>No Answer</span>
-          <% end %>
+          <!-- Disposition Selection -->
+          <div class="cb-disposition-section">
+            <label class="cb-disposition-label">What happened on the call?</label>
+            <div class="cb-disposition-buttons">
+              <label class="cb-disposition-option">
+                <%= form.radio_button :action_type, 'called', class: "cb-disposition-radio" %>
+                <span class="cb-disposition-btn cb-quick-called">
+                  <i class="fas fa-phone"></i>
+                  Called
+                </span>
+              </label>
+              
+              <label class="cb-disposition-option">
+                <%= form.radio_button :action_type, 'no_answer', class: "cb-disposition-radio" %>
+                <span class="cb-disposition-btn cb-quick-no-answer">
+                  <i class="fas fa-phone-slash"></i>
+                  No Answer
+                </span>
+              </label>
+              
+              <label class="cb-disposition-option">
+                <%= form.radio_button :action_type, 'interested', class: "cb-disposition-radio" %>
+                <span class="cb-disposition-btn cb-quick-interested">
+                  <i class="fas fa-thumbs-up"></i>
+                  Interested
+                </span>
+              </label>
+              
+              <label class="cb-disposition-option">
+                <%= form.radio_button :action_type, 'later', class: "cb-disposition-radio" %>
+                <span class="cb-disposition-btn cb-quick-call-later">
+                  <i class="fas fa-clock"></i>
+                  Call Later
+                </span>
+              </label>
+              
+              <label class="cb-disposition-option">
+                <%= form.radio_button :action_type, 'sale', class: "cb-disposition-radio" %>
+                <span class="cb-disposition-btn cb-quick-sale">
+                  <i class="fas fa-trophy"></i>
+                  Sale
+                </span>
+              </label>
+            </div>
+          </div>
           
-          <%= button_to quick_action_callback_path(callback), 
-                        method: :patch, 
-                        params: { action_type: 'interested' },
-                        class: "cb-quick-btn cb-quick-interested",
-                        title: "Customer Interested",
-                        remote: true,
-                        data: { 
-                          confirm: "Mark customer as interested?",
-                          turbo_method: :patch
-                        } do %>
-            <i class="fas fa-thumbs-up"></i>
-            <span>Interested</span>
-          <% end %>
+          <!-- Next Action Input -->
+          <div class="cb-next-action-section">
+            <label class="cb-next-action-label">
+              <i class="fas fa-target"></i>
+              Next Action (optional):
+            </label>
+            <%= form.text_field :next_action, 
+                               value: callback.next_action,
+                               class: "cb-next-action-input", 
+                               placeholder: "What should happen next?",
+                               maxlength: 500 %>
+          </div>
           
-          <%= button_to quick_action_callback_path(callback), 
-                        method: :patch, 
-                        params: { action_type: 'later' },
-                        class: "cb-quick-btn cb-quick-call-later",
-                        title: "Call Later - Schedule follow-up",
-                        remote: true,
-                        data: { 
-                          confirm: "Schedule to call back later? This will set follow-up for next week.",
-                          turbo_method: :patch
-                        } do %>
-            <i class="fas fa-clock"></i>
-            <span>Call Later</span>
-          <% end %>
-          
-          <%= button_to quick_action_callback_path(callback), 
-                        method: :patch, 
-                        params: { action_type: 'sale' },
-                        class: "cb-quick-btn cb-quick-sale",
-                        title: "Convert to Sale",
-                        remote: true,
-                        data: { 
-                          confirm: "Mark as SALE? This will close the lead as won.",
-                          turbo_method: :patch
-                        } do %>
-            <i class="fas fa-trophy"></i>
-            <span>Sale</span>
-          <% end %>
-        </div>
+          <!-- Submit Buttons -->
+          <div class="cb-post-call-buttons">
+            <button type="button" class="cb-post-call-cancel" data-action="click->callback-card#hidePostCallActions">
+              Cancel
+            </button>
+            <%= form.submit "Update Callback", class: "cb-post-call-save" %>
+          </div>
+        <% end %>
       </div>
     </div>
   <% end %>

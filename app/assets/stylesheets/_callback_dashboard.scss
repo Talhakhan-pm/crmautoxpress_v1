@@ -757,6 +757,277 @@
   }
 }
 
+// Combined Post-Call Actions
+.cb-post-call-actions {
+  margin-top: 16px;
+  padding: 16px;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border: 1px solid #0ea5e9;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.3s ease;
+  
+  .cb-post-call-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #0369a1;
+    margin-bottom: 16px;
+    
+    i {
+      color: #0ea5e9;
+    }
+  }
+  
+  .cb-disposition-section {
+    margin-bottom: 16px;
+  }
+  
+  .cb-disposition-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 8px;
+  }
+  
+  .cb-disposition-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+  
+  .cb-disposition-option {
+    cursor: pointer;
+    
+    .cb-disposition-radio {
+      display: none;
+    }
+    
+    .cb-disposition-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 8px 6px;
+      border: 2px solid transparent;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+    
+    &:hover .cb-disposition-btn {
+      transform: translateY(-1px);
+    }
+    
+    input:checked + .cb-disposition-btn {
+      border-color: #0ea5e9;
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+      transform: scale(1.02);
+    }
+    
+    // Apply existing button styles to disposition buttons
+    .cb-disposition-btn.cb-quick-called {
+      background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+      color: #059669;
+    }
+    
+    .cb-disposition-btn.cb-quick-no-answer {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      color: #d97706;
+    }
+    
+    .cb-disposition-btn.cb-quick-interested {
+      background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+      color: #1d4ed8;
+    }
+    
+    .cb-disposition-btn.cb-quick-call-later {
+      background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
+      color: #8b5cf6;
+    }
+    
+    .cb-disposition-btn.cb-quick-sale {
+      background: linear-gradient(135deg, #fef2f2, #fecaca);
+      color: #dc2626;
+    }
+  }
+  
+  .cb-next-action-section {
+    margin-bottom: 16px;
+  }
+  
+  .cb-next-action-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 8px;
+    
+    i {
+      color: #64748b;
+    }
+  }
+  
+  .cb-next-action-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 12px;
+    outline: none;
+    transition: border-color 0.2s ease;
+    
+    &:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    &::placeholder {
+      color: #9ca3af;
+    }
+  }
+  
+  .cb-post-call-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+  
+  .cb-post-call-cancel {
+    padding: 8px 16px;
+    border: 1px solid #d1d5db;
+    background: white;
+    color: #6b7280;
+    font-size: 11px;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: #f9fafb;
+      border-color: #9ca3af;
+    }
+  }
+  
+  .cb-post-call-save {
+    padding: 8px 16px;
+    border: none;
+    background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+    }
+  }
+}
+
+// Next Action Input Form
+.cb-next-action-input {
+  margin-top: 12px;
+  padding: 12px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  
+  .cb-next-action-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 8px;
+    
+    i {
+      color: #64748b;
+    }
+  }
+  
+  .cb-next-action-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .cb-next-action-textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 12px;
+    resize: none;
+    outline: none;
+    transition: border-color 0.2s ease;
+    
+    &:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    &::placeholder {
+      color: #9ca3af;
+    }
+  }
+  
+  .cb-next-action-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+  
+  .cb-next-action-cancel {
+    padding: 6px 12px;
+    border: 1px solid #d1d5db;
+    background: white;
+    color: #6b7280;
+    font-size: 11px;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: #f9fafb;
+      border-color: #9ca3af;
+    }
+  }
+  
+  .cb-next-action-save {
+    padding: 6px 12px;
+    border: none;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    }
+  }
+}
+
 // Responsive adjustments for Action-Focused Layout
 @media (max-width: 768px) {
   .cb-action-dashboard {

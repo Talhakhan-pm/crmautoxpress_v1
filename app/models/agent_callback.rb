@@ -128,52 +128,16 @@ class AgentCallback < ApplicationRecord
     end
   end
   
-  # Smart next action suggestions with time-based context
-  def suggest_next_action
-    # Immediate actions based on status
-    return "🎯 Complete sale - create order & process payment" if status == 'sale'
-    return "💰 Create order from paid invoice - ready to proceed" if ready_for_order_creation?
-    return "📋 Follow up on pricing quote sent" if has_invoices? && !paid_invoices.any?
-    
-    # Time-sensitive follow-ups
-    if follow_up_date
-      case follow_up_status
-      when 'overdue'
-        return "⚠️ URGENT: Overdue follow-up call"
-      when 'today'
-        return "📞 Call today as scheduled"
-      when 'tomorrow'
-        return "📅 Prepare for tomorrow's call"
-      end
-    end
-    
-    # Call-attempt based actions
-    case call_attempts_count
-    when 0
-      "📞 Make initial contact call"
-    when 1
-      "🔄 Second attempt - try different time"
-    when 2
-      "📧 Third attempt or send email first"
-    when 3..5
-      "📩 Send quote via email - multiple call attempts"
-    else
-      "📝 Review strategy - many attempts made"
-    end
+  # Simple next action display (manual only)
+  def display_next_action
+    next_action.present? ? next_action : "No next action set"
   end
   
-  def auto_update_next_action!
-    suggested_action = suggest_next_action
-    if next_action != suggested_action
-      update_column(:next_action, suggested_action)
-    end
-  end
   
   # Contact date management
   def update_last_contact_date!
     update_column(:last_contact_date, Time.current)
     auto_update_priority!
-    auto_update_next_action!
   end
   
   # Quick action methods
@@ -207,8 +171,7 @@ class AgentCallback < ApplicationRecord
     update!(
       status: 'follow_up',
       follow_up_date: follow_up_delay.from_now.to_date,
-      last_contact_date: Time.current,
-      next_action: "📞 Call back - no answer (attempt ##{call_attempts_count + 1})"
+      last_contact_date: Time.current
     )
     auto_update_priority!
     broadcast_card_update
@@ -219,7 +182,6 @@ class AgentCallback < ApplicationRecord
       status: 'follow_up',
       follow_up_date: 1.day.from_now.to_date,
       last_contact_date: Time.current,
-      next_action: "💡 Send pricing quote - customer showed interest",
       priority_level: 'high'
     )
     auto_update_priority!
@@ -230,8 +192,7 @@ class AgentCallback < ApplicationRecord
     update!(
       status: 'follow_up',
       follow_up_date: 1.week.from_now.to_date,
-      last_contact_date: Time.current,
-      next_action: "⏰ Call back as requested - customer asked for later contact"
+      last_contact_date: Time.current
     )
     auto_update_priority!
     broadcast_card_update
@@ -240,8 +201,7 @@ class AgentCallback < ApplicationRecord
   def mark_as_sale!
     update!(
       status: 'sale',
-      last_contact_date: Time.current,
-      next_action: "Create order and process sale"
+      last_contact_date: Time.current
     )
     auto_update_priority!
     broadcast_card_update
@@ -250,8 +210,7 @@ class AgentCallback < ApplicationRecord
   def mark_as_not_interested!
     update!(
       status: 'not_interested',
-      last_contact_date: Time.current,
-      next_action: "Lead closed - not interested"
+      last_contact_date: Time.current
     )
     auto_update_priority!
     broadcast_card_update
@@ -411,20 +370,14 @@ class AgentCallback < ApplicationRecord
   # Auto-update hooks
   after_create :initialize_action_focused_fields
   after_update :auto_update_priority_on_status_change, if: :saved_change_to_status?
-  after_update :auto_update_next_action_on_status_change, if: :saved_change_to_status?
   
   def auto_update_priority_on_status_change
     auto_update_priority!
   end
   
-  def auto_update_next_action_on_status_change
-    auto_update_next_action!
-  end
-  
   def initialize_action_focused_fields
     self.update_columns(
-      priority_level: calculate_smart_priority,
-      next_action: suggest_next_action
+      priority_level: calculate_smart_priority
     )
   end
 

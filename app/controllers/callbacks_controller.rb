@@ -191,6 +191,10 @@ class CallbacksController < ApplicationController
 
   def quick_action
     action_type = params[:action_type]
+    next_action = params[:next_action]
+    
+    # Update next action if provided
+    @callback.update!(next_action: next_action) if next_action.present?
     
     case action_type
     when 'called'
@@ -198,7 +202,7 @@ class CallbacksController < ApplicationController
       message = "Marked as called"
     when 'no_answer'
       @callback.mark_as_no_answer!(current_user)
-      message = "Marked as no answer - follow-up scheduled for tomorrow"
+      message = "Marked as no answer - follow-up scheduled"
     when 'interested'
       @callback.mark_as_interested!
       message = "Marked as interested - follow-up scheduled"
@@ -213,6 +217,11 @@ class CallbacksController < ApplicationController
       message = "Marked as not interested"
     else
       message = "Unknown action"
+    end
+    
+    # Add next action info to message if it was updated
+    if next_action.present?
+      message += " and next action updated"
     end
     
     respond_to do |format|
@@ -238,6 +247,38 @@ class CallbacksController < ApplicationController
           status: 'success', 
           message: message,
           priority: @callback.priority_level,
+          next_action: @callback.next_action
+        } 
+      }
+    end
+  end
+
+  def update_next_action
+    next_action = params[:next_action]
+    
+    @callback.update!(next_action: next_action)
+    
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: [
+          turbo_stream.replace(
+            ActionView::RecordIdentifier.dom_id(@callback, :card),
+            partial: "callbacks/dashboard_card",
+            locals: { callback: @callback }
+          ),
+          turbo_stream.append(
+            "flash-messages",
+            "<div class='alert alert-success alert-dismissible fade show' role='alert'>
+              Next action updated successfully!
+              <button type='button' class='btn-close' data-bs-dismiss='alert'></button>
+            </div>"
+          )
+        ]
+      end
+      format.json { 
+        render json: { 
+          status: 'success', 
+          message: 'Next action updated',
           next_action: @callback.next_action
         } 
       }
