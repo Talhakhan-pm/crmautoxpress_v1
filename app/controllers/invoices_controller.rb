@@ -1,5 +1,5 @@
 class InvoicesController < ApplicationController
-  before_action :set_invoice, only: [:show, :edit, :update, :destroy, :send_invoice, :cancel_invoice]
+  before_action :set_invoice, only: [:show, :edit, :update, :destroy, :send_invoice, :cancel_invoice, :check_payment_status]
   
   def index
     @invoices = Invoice.includes(:agent_callback).recent.page(params[:page]).per(20)
@@ -148,6 +148,32 @@ class InvoicesController < ApplicationController
     end
   end
   
+  def check_payment_status
+    return redirect_to @invoice, alert: 'No PayPal invoice ID found' unless @invoice.paypal_invoice_id.present?
+    
+    paypal_service = PaypalInvoiceService.new
+    response = paypal_service.check_payment_status(@invoice.paypal_invoice_id)
+    
+    if response[:success]
+      # Update invoice status based on PayPal response
+      case response[:status]
+      when 'PAID'
+        @invoice.update!(status: 'paid')
+        redirect_to @invoice, notice: '🎉 Invoice has been paid! You can now create an order.'
+      when 'SENT'
+        @invoice.update!(status: 'sent')
+        redirect_to @invoice, notice: 'Invoice is sent but not yet paid.'
+      when 'DRAFT'
+        @invoice.update!(status: 'draft')
+        redirect_to @invoice, notice: 'Invoice is still in draft status.'
+      else
+        redirect_to @invoice, notice: "Invoice status: #{response[:status]}"
+      end
+    else
+      redirect_to @invoice, alert: "Failed to check payment status: #{response[:error]}"
+    end
+  end
+
   def create_order_from_invoice
     return redirect_to @invoice, alert: 'Invoice must be paid to create order' unless @invoice.paid?
     return redirect_to @invoice, alert: 'Can only create orders from callback invoices' unless @invoice.pre_order_invoice?

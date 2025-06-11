@@ -77,6 +77,39 @@ class PaypalInvoiceService
     end
   end
   
+  def check_payment_status(paypal_invoice_id)
+    begin
+      Rails.logger.info "=== CHECKING PAYMENT STATUS ==="
+      Rails.logger.info "PayPal Invoice ID: #{paypal_invoice_id}"
+      
+      # Fetch the latest invoice data from PayPal
+      invoice = Invoice.find(paypal_invoice_id)
+      
+      if invoice
+        invoice_hash = invoice.to_hash
+        Rails.logger.info "PayPal Status: #{invoice_hash['status']}"
+        
+        {
+          success: true,
+          status: invoice_hash['status'],
+          invoice_data: invoice_hash,
+          paid: invoice_hash['status'] == 'PAID'
+        }
+      else
+        {
+          success: false,
+          error: "Invoice not found in PayPal"
+        }
+      end
+    rescue => e
+      Rails.logger.error "Error checking PayPal payment status: #{e.message}"
+      {
+        success: false,
+        error: e.message
+      }
+    end
+  end
+  
   def cancel_invoice(invoice_id)
     begin
       invoice = Invoice.find(invoice_id)

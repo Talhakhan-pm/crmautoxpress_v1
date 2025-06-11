@@ -12,9 +12,15 @@
                 method: :patch, class: "btn btn-success btn-lg",
                 data: { confirm: "Send this invoice via PayPal to #{@invoice.customer_email}?" } %>
           <% elsif @invoice.sent? %>
-            <%= button_to "Cancel Invoice", cancel_invoice_invoice_path(@invoice), 
-                method: :patch, class: "btn btn-warning",
-                data: { confirm: "Cancel this invoice?" } %>
+            <div class="btn-group">
+              <%= button_to "🔄 Check Payment Status", check_payment_status_invoice_path(@invoice), 
+                  method: :patch, class: "btn btn-primary btn-lg" %>
+              <%= button_to "Cancel Invoice", cancel_invoice_invoice_path(@invoice), 
+                  method: :patch, class: "btn btn-warning",
+                  data: { confirm: "Cancel this invoice?" } %>
+            </div>
+          <% elsif @invoice.paid? %>
+            <span class="badge bg-success fs-5">✅ Paid</span>
           <% end %>
         </div>
       </div>
@@ -191,18 +197,25 @@
                 <!-- Action buttons based on invoice type -->
                 <% if @invoice.paid? %>
                   <div class="alert alert-success">
-                    <strong>Invoice Paid!</strong>
+                    <h6><i class="fas fa-check-circle"></i> Invoice Paid!</h6>
                     <% if @invoice.can_create_order? %>
-                      <br>
-                      <%= link_to "Create Order from Payment", 
+                      <p class="mb-2">This invoice has been paid. You can now create an order to fulfill the customer's request.</p>
+                      <%= link_to "🎯 Create Order from Payment", 
                           create_order_from_invoice_invoice_path(@invoice), 
                           method: :post, 
-                          class: "btn btn-sm btn-success mt-2",
+                          class: "btn btn-success btn-lg w-100",
                           data: { 
-                            confirm: "Create an order from this paid invoice?",
+                            confirm: "Create an order from this paid invoice? This will:\n• Create a new order for #{@invoice.customer_name}\n• Mark the callback as 'sale'\n• Start the fulfillment process",
                             turbo_frame: "_top"
                           } %>
+                    <% elsif @invoice.order_already_created? %>
+                      <p class="mb-0"><i class="fas fa-info-circle"></i> Order has already been created from this invoice.</p>
                     <% end %>
+                  </div>
+                <% elsif @invoice.sent? %>
+                  <div class="alert alert-info">
+                    <h6><i class="fas fa-clock"></i> Awaiting Payment</h6>
+                    <p class="mb-2">Invoice has been sent to customer. Click "Check Payment Status" above to see if it has been paid.</p>
                   </div>
                 <% end %>
               <% end %>
