@@ -35,12 +35,17 @@ export default class extends Controller {
         conversionBtn.click()
       }
       
+      // If coming from paid invoice, always use our custom loading
+      if (this.invoiceIdValue) {
+        this.loadCallbackFromInvoice(callbackId)
+        return
+      }
+      
       // Auto-select the callback
       const callbackCard = this.element.querySelector(`[data-callback-id="${callbackId}"]`)
       if (callbackCard) {
         callbackCard.click()
       } else {
-        // If coming from paid invoice, load callback data directly
         this.loadCallbackFromInvoice(callbackId)
       }
     }
@@ -64,13 +69,17 @@ export default class extends Controller {
         if (this.hasCarMakeModelTarget) this.carMakeModelTarget.value = callback.car_make_model || ''
         
         // Pre-populate pricing from invoice if available
-        if (this.hasProductPriceValue && this.hasProductPriceTarget) {
-          this.productPriceTarget.value = this.productPriceValue
+        if (this.productPriceValue && this.hasProductPriceTarget) {
+          const priceValue = parseFloat(this.productPriceValue)
+          this.productPriceTarget.value = priceValue
+          // Trigger input event to ensure other listeners are notified
+          this.productPriceTarget.dispatchEvent(new Event('input', { bubbles: true }))
         }
         
         // Pre-populate customer email from invoice if available
-        if (this.hasCustomerEmailValue && this.hasCustomerEmailTarget) {
+        if (this.customerEmailValue && this.hasCustomerEmailTarget) {
           this.customerEmailTarget.value = this.customerEmailValue
+          this.customerEmailTarget.dispatchEvent(new Event('input', { bubbles: true }))
         }
         
         // Recalculate totals with new pricing
