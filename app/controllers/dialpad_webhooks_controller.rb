@@ -175,8 +175,9 @@ class DialpadWebhooksController < ApplicationController
     
     # PERFORMANCE OPTIMIZED: Always do targeted updates, never mass broadcasts
     if user.current_target_type && user.current_target_id
-      # User is calling/on a specific target - update that target's card (no dropdown during call)
-      broadcast_specific_target_update(user.current_target_type, user.current_target_id, show_post_call_actions: false)
+      # User is calling/on a specific target - update that target's card WITHOUT affecting post-call dropdown
+      # Don't override post-call actions during active calls - preserve dropdown state set by JavaScript
+      broadcast_specific_target_update(user.current_target_type, user.current_target_id, show_post_call_actions: nil)
     else
       # Call ended - only update the card that was previously being called
       # Instead of mass refresh, we'll rely on the card's own cache invalidation
