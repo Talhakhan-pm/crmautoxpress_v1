@@ -20,12 +20,8 @@
     <div class="cb-card-meta">
       <div class="cb-agent-info">
         <% 
-          # Find who is currently calling this specific callback
-          current_caller = User.find_by(
-            current_target_type: 'callback', 
-            current_target_id: callback.id,
-            call_status: ['calling', 'on_call']
-          )
+          # OPTIMIZED: Use preloaded current callers hash (eliminates N+1 query)
+          current_caller = @current_callers&.fetch(callback.id, nil)
           
           # Show either the active caller or the callback creator
           display_user = current_caller || callback.user

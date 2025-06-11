@@ -8,10 +8,18 @@ class CallbacksController < ApplicationController
       @callbacks = AgentCallback.all.order(created_at: :desc)
     else
       # Dashboard view (default) - optimized for collaboration features with stable ordering
-      @callbacks = AgentCallback.includes(:user, communications: :user)
+      @callbacks = AgentCallback.includes(:user, :activities, :source_invoices, communications: :user)
                                 .with_communication_stats
                                 .order(created_at: :desc)  # Stable order based on callback creation time
                                 .limit(20)
+      
+      # CRITICAL: Preload current callers to eliminate N+1 query (was 20 queries per page load)
+      callback_ids = @callbacks.map(&:id)
+      @current_callers = User.where(
+        current_target_type: 'callback',
+        current_target_id: callback_ids,
+        call_status: ['calling', 'on_call']
+      ).index_by(&:current_target_id)
     end
   end
 
@@ -196,36 +204,47 @@ class CallbacksController < ApplicationController
     # Update next action if provided
     @callback.update!(next_action: next_action) if next_action.present?
     
-    case action_type
+    # Handle disposition actions
+    message = case action_type
     when 'called'
       @callback.mark_as_called!(current_user)
-      message = "Marked as called"
+      "Marked as called"
     when 'no_answer'
       @callback.mark_as_no_answer!(current_user)
-      message = "Marked as no answer - follow-up scheduled"
+      "Marked as no answer - follow-up scheduled"
     when 'interested'
       @callback.mark_as_interested!
-      message = "Marked as interested - follow-up scheduled"
+      "Marked as interested - follow-up scheduled"
     when 'later'
       @callback.mark_as_later!
-      message = "Scheduled for later follow-up"
+      "Scheduled for later follow-up"
     when 'sale'
       @callback.mark_as_sale!
-      message = "Converted to SALE! 🎉"
+      "Converted to SALE! 🎉"
     when 'not_interested'
       @callback.mark_as_not_interested!
-      message = "Marked as not interested"
+      "Marked as not interested"
+    when nil, ""
+      # No disposition selected, just next action update
+      if next_action.present?
+        "Next action updated"
+      else
+        "No changes made"
+      end
     else
-      message = "Unknown action"
+      "Invalid action type"
     end
     
-    # Add next action info to message if it was updated
-    if next_action.present?
+    # Add next action info to message if both disposition and next action were updated
+    if action_type.present? && next_action.present?
       message += " and next action updated"
     end
     
     respond_to do |format|
       format.turbo_stream do
+        # Set flash message for proper flash system
+        flash.now[:notice] = message
+        
         # Real-time card update via Turbo Stream
         render turbo_stream: [
           turbo_stream.replace(
@@ -233,12 +252,9 @@ class CallbacksController < ApplicationController
             partial: "callbacks/dashboard_card",
             locals: { callback: @callback }
           ),
-          turbo_stream.append(
+          turbo_stream.replace(
             "flash-messages",
-            "<div class='alert alert-success alert-dismissible fade show' role='alert'>
-              #{message}
-              <button type='button' class='btn-close' data-bs-dismiss='alert'></button>
-            </div>"
+            partial: "shared/flash_messages"
           )
         ]
       end
