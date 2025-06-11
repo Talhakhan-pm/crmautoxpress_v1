@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["actions", "composer"]
+  static targets = ["actions", "composer", "quickActions", "nextAction"]
 
   connect() {
     console.log('Callback card controller connected')
@@ -111,6 +111,8 @@ export default class extends Controller {
       
       if (data.status === 'success') {
         this.showSuccessNotification('Call initiated successfully! Check your Dialpad app.')
+        // Show quick updates and next action after successful call initiation
+        this.showPostCallActions()
       } else {
         this.showErrorNotification(data.message || 'Failed to initiate call')
       }
@@ -153,6 +155,8 @@ export default class extends Controller {
       
       if (data.status === 'success') {
         this.showSuccessNotification('Call initiated successfully! Check your Dialpad app.')
+        // Show quick updates and next action after successful call initiation
+        this.showPostCallActions()
       } else {
         this.showErrorNotification(data.message || 'Failed to initiate call')
       }
@@ -244,5 +248,42 @@ export default class extends Controller {
         }
       }, 300)
     }, 5000) // Show for 5 seconds for call notifications
+  }
+
+  // Show post-call actions after call initiation
+  showPostCallActions() {
+    console.log('Showing post-call actions')
+    
+    // Show quick actions with smooth animation and enhanced styling
+    if (this.hasQuickActionsTarget) {
+      const quickActions = this.quickActionsTarget
+      quickActions.classList.add('post-call-highlight')
+      quickActions.style.display = 'block'
+      quickActions.style.opacity = '0'
+      quickActions.style.transform = 'translateY(-10px)'
+      
+      setTimeout(() => {
+        quickActions.style.transition = 'all 0.3s ease'
+        quickActions.style.opacity = '1'
+        quickActions.style.transform = 'translateY(0)'
+      }, 100)
+    }
+    
+    // Show next action with slight delay for staggered effect
+    if (this.hasNextActionTarget) {
+      const nextAction = this.nextActionTarget
+      
+      setTimeout(() => {
+        nextAction.style.display = 'block'
+        nextAction.style.opacity = '0'
+        nextAction.style.transform = 'translateY(-10px)'
+        
+        setTimeout(() => {
+          nextAction.style.transition = 'all 0.3s ease'
+          nextAction.style.opacity = '1'
+          nextAction.style.transform = 'translateY(0)'
+        }, 100)
+      }, 200) // 200ms delay for staggered animation
+    }
   }
 }

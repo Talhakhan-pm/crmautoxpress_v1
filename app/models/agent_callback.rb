@@ -111,15 +111,38 @@ class AgentCallback < ApplicationRecord
     end
   end
   
-  # Smart next action suggestions
+  # Smart next action suggestions with time-based context
   def suggest_next_action
-    return "Complete sale process" if status == 'sale'
-    return "Create order from paid invoice" if ready_for_order_creation?
-    return "Follow up on sent quote" if has_invoices? && !paid_invoices.any?
-    return "Send pricing quote" if call_attempts_count > 0 && !has_invoices?
-    return "Make initial contact" if call_attempts_count == 0
-    return "Follow up call" if call_attempts_count > 0
-    "Review and update status"
+    # Immediate actions based on status
+    return "🎯 Complete sale - create order & process payment" if status == 'sale'
+    return "💰 Create order from paid invoice - ready to proceed" if ready_for_order_creation?
+    return "📋 Follow up on pricing quote sent" if has_invoices? && !paid_invoices.any?
+    
+    # Time-sensitive follow-ups
+    if follow_up_date
+      case follow_up_status
+      when 'overdue'
+        return "⚠️ URGENT: Overdue follow-up call"
+      when 'today'
+        return "📞 Call today as scheduled"
+      when 'tomorrow'
+        return "📅 Prepare for tomorrow's call"
+      end
+    end
+    
+    # Call-attempt based actions
+    case call_attempts_count
+    when 0
+      "📞 Make initial contact call"
+    when 1
+      "🔄 Second attempt - try different time"
+    when 2
+      "📧 Third attempt or send email first"
+    when 3..5
+      "📩 Send quote via email - multiple call attempts"
+    else
+      "📝 Review strategy - many attempts made"
+    end
   end
   
   def auto_update_next_action!
@@ -153,12 +176,22 @@ class AgentCallback < ApplicationRecord
       details: "No answer - quick action",
       user: current_user
     )
-    # Auto-set follow-up for tomorrow
+    
+    # Smart follow-up timing based on attempt count
+    follow_up_delay = case call_attempts_count
+    when 1
+      4.hours # Try again same day
+    when 2 
+      1.day # Try tomorrow
+    else
+      2.days # Give more space after multiple attempts
+    end
+    
     update!(
       status: 'follow_up',
-      follow_up_date: 1.day.from_now.to_date,
+      follow_up_date: follow_up_delay.from_now.to_date,
       last_contact_date: Time.current,
-      next_action: "Follow up call - no answer yesterday"
+      next_action: "📞 Call back - no answer (attempt ##{call_attempts_count + 1})"
     )
     auto_update_priority!
     broadcast_card_update
@@ -169,7 +202,8 @@ class AgentCallback < ApplicationRecord
       status: 'follow_up',
       follow_up_date: 1.day.from_now.to_date,
       last_contact_date: Time.current,
-      next_action: "Send pricing quote - customer interested"
+      next_action: "💡 Send pricing quote - customer showed interest",
+      priority_level: 'high'
     )
     auto_update_priority!
     broadcast_card_update
@@ -180,7 +214,7 @@ class AgentCallback < ApplicationRecord
       status: 'follow_up',
       follow_up_date: 1.week.from_now.to_date,
       last_contact_date: Time.current,
-      next_action: "Follow up call - customer asked to call back later"
+      next_action: "⏰ Call back as requested - customer asked for later contact"
     )
     auto_update_priority!
     broadcast_card_update

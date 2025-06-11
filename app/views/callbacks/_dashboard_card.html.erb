@@ -145,8 +145,11 @@
         </div>
       </div>
       
-      <!-- Next Action Row -->
-      <div class="cb-action-row cb-next-action-row">
+      <!-- Next Action Row - Hidden by default, shown after call initiation -->
+      <div class="cb-action-row cb-next-action-row" 
+           data-callback-card-target="nextAction"
+           style="display: none;"
+           data-callback-id="<%= callback.id %>">
         <div class="cb-next-action">
           <i class="fas fa-target"></i>
           <span class="cb-next-action-text">
@@ -155,9 +158,15 @@
         </div>
       </div>
       
-      <!-- Quick Actions Row -->
-      <div class="cb-quick-actions">
-        <div class="cb-quick-actions-label">Quick Updates:</div>
+      <!-- Quick Actions Row - Hidden by default, shown after call initiation -->
+      <div class="cb-quick-actions" 
+           data-callback-card-target="quickActions" 
+           style="display: none;"
+           data-callback-id="<%= callback.id %>">
+        <div class="cb-quick-actions-label">
+          <i class="fas fa-clock"></i>
+          Quick Updates (After Call):
+        </div>
         <div class="cb-quick-buttons">
           <%= button_to quick_action_callback_path(callback), 
                         method: :patch, 
@@ -199,6 +208,20 @@
                         } do %>
             <i class="fas fa-thumbs-up"></i>
             <span>Interested</span>
+          <% end %>
+          
+          <%= button_to quick_action_callback_path(callback), 
+                        method: :patch, 
+                        params: { action_type: 'later' },
+                        class: "cb-quick-btn cb-quick-call-later",
+                        title: "Call Later - Schedule follow-up",
+                        remote: true,
+                        data: { 
+                          confirm: "Schedule to call back later? This will set follow-up for next week.",
+                          turbo_method: :patch
+                        } do %>
+            <i class="fas fa-clock"></i>
+            <span>Call Later</span>
           <% end %>
           
           <%= button_to quick_action_callback_path(callback), 

@@ -573,6 +573,18 @@
   margin-top: 16px;
   padding-top: 12px;
   border-top: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+  
+  // Enhanced styling when shown after call
+  &.post-call-highlight {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 1px solid #0ea5e9;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 12px;
+    position: relative;
+    animation: fadeInUp 0.3s ease;
+  }
 }
 
 .cb-quick-actions-label {
@@ -582,6 +594,16 @@
   margin-bottom: 8px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  
+  // Enhanced styling for post-call state
+  .post-call-highlight & {
+    color: #0369a1;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
 }
 
 .cb-quick-buttons {
@@ -671,6 +693,18 @@
     }
   }
   
+  &.cb-quick-call-later {
+    background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
+    color: #8b5cf6;
+    border: 1px solid #c4b5fd;
+    
+    &:hover {
+      background: linear-gradient(135deg, #e9d5ff, #c4b5fd);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+    }
+  }
+
   &.cb-quick-sale {
     background: linear-gradient(135deg, #fef2f2, #fecaca);
     color: #dc2626;
@@ -702,6 +736,17 @@
   }
   50% {
     box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+  }
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
