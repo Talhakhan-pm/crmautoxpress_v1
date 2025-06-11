@@ -139,7 +139,7 @@ class PaypalInvoiceService
   def build_paypal_invoice(params)
     invoice = Invoice.new({
       merchant_info: {
-        email: params[:business_email] || 'khan@autoxpress.us',
+        email: params[:business_email] || 'sb-43bps238158546@business.example.com',
         business_name: params[:business_name] || 'AutoXpress',
         phone: {
           country_code: "001",

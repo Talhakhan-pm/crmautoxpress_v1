@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_10_225846) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_11_003204) do
   create_table "activities", force: :cascade do |t|
     t.string "trackable_type", null: false
     t.integer "trackable_id", null: false
@@ -136,7 +136,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_10_225846) do
     t.text "description"
     t.text "memo"
     t.string "business_name", default: "AutoXpress"
-    t.string "business_email", default: "khan@autoxpress.us"
+    t.string "business_email"
     t.string "customer_name"
     t.string "customer_email"
     t.string "customer_phone"

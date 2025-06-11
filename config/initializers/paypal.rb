@@ -4,9 +4,9 @@ require 'net/http'
 
 # Configure PayPal SDK
 PayPal::SDK.configure(
-  mode: 'live',  # Live mode with your live credentials
-  client_id: 'ASazEK1OfOQQy3MSZ2fZ8VGSItrYduRPm1R9PXvFjOfCGYnemm-PHNGrIUmRQEEKiIPNKet8TjrNJRPn',
-  client_secret: 'EAynyaZ4DLFYNzUtZquOjQATdgeg0n8oJqiMBq5gZjGLCfN_6wCCELiFDdtSmd3uDCN6swrkmf0h50NH',
+  mode: 'sandbox',  # Sandbox mode for testing
+  client_id: 'AUxVEjGjF0pXMSJM9QhcyNPuNbiz-FCI6KTiFUCeAHpYzld3VFNo6Z4zDLnJ8e_yVeDcNn57j3VBAh26',
+  client_secret: 'EEJ8arahLrkNNkAwqbliuxKGeUk_h2W3MpG7TMbRxW1kogJSTLvBcBYEHBw4X6SQw_2N8SO1pebWAa6o',
   ssl_options: {
     verify_mode: OpenSSL::SSL::VERIFY_NONE,
     verify_hostname: false

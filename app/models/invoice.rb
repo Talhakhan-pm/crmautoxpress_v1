@@ -15,6 +15,8 @@ class Invoice < ApplicationRecord
   validates :customer_email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :description, presence: true
   
+  before_validation :set_business_defaults, on: :create
+  
   scope :recent, -> { order(created_at: :desc) }
   scope :pending, -> { where(status: ['draft', 'sent', 'viewed']) }
   
@@ -123,5 +125,10 @@ class Invoice < ApplicationRecord
     else
       'Manual invoice'
     end
+  end
+  
+  def set_business_defaults
+    self.business_name ||= 'AutoXpress'
+    self.business_email ||= 'sb-43bps238158546@business.example.com'
   end
 end
