@@ -199,16 +199,6 @@
                 </div>
               <% end %>
               
-              <!-- Debug info -->
-              <div class="mb-3" style="background: #f8f9fa; padding: 10px; border-radius: 4px;">
-                <small>
-                  <strong>Debug:</strong><br>
-                  Status: <%= @invoice.status %><br>
-                  Paid?: <%= @invoice.paid? %><br>
-                  Standalone?: <%= @invoice.standalone_invoice? %><br>
-                  Can create order?: <%= @invoice.can_create_order? %>
-                </small>
-              </div>
                 
                 <!-- Action buttons based on invoice type -->
                 <% if @invoice.paid? %>
