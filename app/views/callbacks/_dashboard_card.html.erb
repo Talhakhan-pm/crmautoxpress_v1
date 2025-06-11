@@ -7,7 +7,7 @@
   <!-- Card Header -->
   <div class="cb-card-header">
     <div class="cb-card-status">
-      <span class="cb-status-badge cb-status-<%= callback.status %>">
+      <span class="cb-status-badge cb-status-<%= callback.status || 'pending' %>">
         <%= (callback.status || 'pending').humanize %>
       </span>
       <% if callback.has_recent_activity? %>
@@ -198,7 +198,8 @@
             <%= link_to invoice_path(callback.latest_invoice), 
                         class: "cb-action-btn cb-action-invoice-sent", 
                         data: { turbo_frame: "main_content" }, 
-                        title: "View Invoice" do %>
+                        title: "View Invoice",
+                        style: "background-color: #e3f2fd; color: #1976d2; border-color: #1976d2;" do %>
               <i class="fas fa-file-invoice-dollar"></i>
               Invoiced
             <% end %>
