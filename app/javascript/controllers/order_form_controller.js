@@ -10,7 +10,11 @@ export default class extends Controller {
   
   static values = { 
     callbackId: Number,
-    orderType: String 
+    orderType: String,
+    invoiceId: Number,
+    productPrice: Number,
+    customerEmail: String,
+    autoConvert: Boolean
   }
 
   connect() {
@@ -35,8 +39,78 @@ export default class extends Controller {
       const callbackCard = this.element.querySelector(`[data-callback-id="${callbackId}"]`)
       if (callbackCard) {
         callbackCard.click()
+      } else {
+        // If coming from paid invoice, load callback data directly
+        this.loadCallbackFromInvoice(callbackId)
       }
     }
+  }
+  
+  loadCallbackFromInvoice(callbackId) {
+    // Store the callback ID for form submission
+    if (this.hasSelectedCallbackIdTarget) {
+      this.selectedCallbackIdTarget.value = callbackId
+    }
+    
+    // Fetch and populate callback data
+    fetch(`/callbacks/${callbackId}.json`)
+      .then(response => response.json())
+      .then(callback => {
+        // Populate customer data
+        if (this.hasCustomerNameTarget) this.customerNameTarget.value = callback.customer_name || ''
+        if (this.hasCustomerPhoneTarget) this.customerPhoneTarget.value = callback.phone_number || ''
+        if (this.hasProductNameTarget) this.productNameTarget.value = callback.product || ''
+        if (this.hasCarYearTarget) this.carYearTarget.value = callback.year || ''
+        if (this.hasCarMakeModelTarget) this.carMakeModelTarget.value = callback.car_make_model || ''
+        
+        // Pre-populate pricing from invoice if available
+        if (this.hasProductPriceValue && this.hasProductPriceTarget) {
+          this.productPriceTarget.value = this.productPriceValue
+        }
+        
+        // Pre-populate customer email from invoice if available
+        if (this.hasCustomerEmailValue && this.hasCustomerEmailTarget) {
+          this.customerEmailTarget.value = this.customerEmailValue
+        }
+        
+        // Recalculate totals with new pricing
+        this.calculateTotal()
+        
+        // Show success message
+        if (this.invoiceIdValue) {
+          this.showSuccessNotification(`Invoice paid! Order pre-filled for ${callback.customer_name}`)
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching callback:', error)
+        this.showErrorNotification('Failed to load callback data')
+      })
+  }
+  
+  showSuccessNotification(message) {
+    // You can integrate with your existing notification system
+    const notification = document.createElement('div')
+    notification.className = 'alert alert-success alert-dismissible fade show'
+    notification.innerHTML = `
+      ${message}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `
+    document.querySelector('.container-fluid')?.prepend(notification)
+    
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => notification.remove(), 5000)
+  }
+  
+  showErrorNotification(message) {
+    const notification = document.createElement('div')
+    notification.className = 'alert alert-danger alert-dismissible fade show'
+    notification.innerHTML = `
+      ${message}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `
+    document.querySelector('.container-fluid')?.prepend(notification)
+    
+    setTimeout(() => notification.remove(), 5000)
   }
 
   setOrderType(event) {

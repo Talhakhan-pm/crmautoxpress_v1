@@ -200,7 +200,7 @@
                     <h6><i class="fas fa-check-circle"></i> Invoice Paid!</h6>
                     <% if @invoice.can_create_order? %>
                       <p class="mb-2">This invoice has been paid. You can now create an order to fulfill the customer's request.</p>
-                      <%= link_to "🎯 Create Order from Payment", 
+                      <%= button_to "🎯 Create Order from Payment", 
                           create_order_from_invoice_invoice_path(@invoice), 
                           method: :post, 
                           class: "btn btn-success btn-lg w-100",

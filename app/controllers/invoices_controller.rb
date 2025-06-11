@@ -1,5 +1,5 @@
 class InvoicesController < ApplicationController
-  before_action :set_invoice, only: [:show, :edit, :update, :destroy, :send_invoice, :cancel_invoice, :check_payment_status]
+  before_action :set_invoice, only: [:show, :edit, :update, :destroy, :send_invoice, :cancel_invoice, :check_payment_status, :create_order_from_invoice]
   
   def index
     @invoices = Invoice.includes(:agent_callback).recent.page(params[:page]).per(20)
@@ -179,43 +179,15 @@ class InvoicesController < ApplicationController
     return redirect_to @invoice, alert: 'Can only create orders from callback invoices' unless @invoice.pre_order_invoice?
     return redirect_to @invoice, alert: 'Order already exists for this callback' if @invoice.order_already_created?
     
-    begin
-      # Create order from the callback
-      callback = @invoice.source_callback
-      order_attributes = {
-        agent: callback.user,
-        customer_name: callback.customer_name,
-        customer_phone: callback.phone_number,
-        customer_email: @invoice.customer_email,
-        product_name: callback.product,
-        car_year: callback.year,
-        car_make_model: callback.car_make_model,
-        product_price: @invoice.amount,
-        total_amount: @invoice.amount,
-        order_status: 'confirmed',
-        source_channel: 'invoice_payment',
-        notes: "Created from paid invoice #{@invoice.invoice_number}",
-        agent_callback: callback
-      }
-      
-      order = Order.create!(order_attributes)
-      
-      # Update callback status to sale
-      callback.update!(status: 'sale')
-      
-      # Create activity for tracking
-      callback.activities.create!(
-        user: current_user,
-        action: 'order_created_from_invoice',
-        details: "Order ##{order.order_number} created from paid invoice #{@invoice.invoice_number}"
-      )
-      
-      redirect_to order, notice: "Order ##{order.order_number} created successfully from paid invoice!"
-      
-    rescue => e
-      Rails.logger.error "Failed to create order from invoice #{@invoice.id}: #{e.message}"
-      redirect_to @invoice, alert: "Failed to create order: #{e.message}"
-    end
+    # Redirect to your existing order modal with pre-populated parameters
+    callback = @invoice.source_callback
+    redirect_to new_order_path(
+      callback_id: callback.id,
+      invoice_id: @invoice.id,
+      product_price: @invoice.amount,
+      customer_email: @invoice.customer_email,
+      auto_convert: true
+    ), notice: "Invoice paid! Create order for #{callback.customer_name}"
   end
   
   private
