@@ -110,6 +110,7 @@ class DialpadWebhooksController < ApplicationController
   end
   
   def handle_call_ended(user, call_id, call_data)
+    Rails.logger.info "=== CALL ENDED HANDLER ==="
     Rails.logger.info "Call ended for user #{user.email}"
     
     # Calculate call duration
@@ -118,6 +119,8 @@ class DialpadWebhooksController < ApplicationController
     # PERFORMANCE FIX: Capture target info BEFORE clearing it
     previous_target_type = user.current_target_type
     previous_target_id = user.current_target_id
+    
+    Rails.logger.info "Previous target: #{previous_target_type}##{previous_target_id}"
     
     # Reset user call status and clear call target
     user.update!(
@@ -133,8 +136,13 @@ class DialpadWebhooksController < ApplicationController
     
     # Update the specific card that was being called and show post-call actions
     if previous_target_type && previous_target_id
+      Rails.logger.info "=== TRIGGERING POST-CALL DROPDOWN ==="
+      Rails.logger.info "Calling broadcast_specific_target_update with show_post_call_actions: true"
       broadcast_specific_target_update(previous_target_type, previous_target_id, show_post_call_actions: true)
       Rails.logger.info "Updated specific target with post-call actions: #{previous_target_type}##{previous_target_id}"
+    else
+      Rails.logger.warn "=== NO PREVIOUS TARGET FOUND ==="
+      Rails.logger.warn "Cannot show post-call dropdown - no target info"
     end
   end
   
@@ -167,8 +175,8 @@ class DialpadWebhooksController < ApplicationController
     
     # PERFORMANCE OPTIMIZED: Always do targeted updates, never mass broadcasts
     if user.current_target_type && user.current_target_id
-      # User is calling/on a specific target - update that target's card
-      broadcast_specific_target_update(user.current_target_type, user.current_target_id)
+      # User is calling/on a specific target - update that target's card (no dropdown during call)
+      broadcast_specific_target_update(user.current_target_type, user.current_target_id, show_post_call_actions: false)
     else
       # Call ended - only update the card that was previously being called
       # Instead of mass refresh, we'll rely on the card's own cache invalidation
