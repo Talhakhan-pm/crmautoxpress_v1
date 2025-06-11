@@ -8,6 +8,10 @@
      data-order-form-product-price-value="<%= params[:product_price] %>"
      data-order-form-customer-email-value="<%= params[:customer_email] %>"
      data-order-form-auto-convert-value="<%= params[:auto_convert] == 'true' %>"
+     data-order-form-standalone-invoice-value="<%= params[:standalone_invoice] == 'true' %>"
+     data-order-form-customer-name-value="<%= params[:customer_name] %>"
+     data-order-form-customer-phone-value="<%= params[:customer_phone] %>"
+     data-order-form-product-name-value="<%= params[:product_name] %>"
      data-modal-close-url-value="<%= orders_path %>">
   
   <div class="autoxpress-modal-container" data-order-form-target="modal" data-action="click->modal#stopPropagation">

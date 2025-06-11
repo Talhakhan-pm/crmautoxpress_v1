@@ -14,12 +14,17 @@ export default class extends Controller {
     invoiceId: Number,
     productPrice: Number,
     customerEmail: String,
-    autoConvert: Boolean
+    autoConvert: Boolean,
+    standaloneInvoice: Boolean,
+    customerName: String,
+    customerPhone: String,
+    productName: String
   }
 
   connect() {
     this.calculateTotal()
     this.checkForCallback()
+    this.checkForStandaloneInvoice()
     
     // Initialize debounced functions to prevent CPU overload
     this.debouncedCalculateTotal = this.debounce(this.calculateTotal.bind(this), 200)
@@ -120,6 +125,48 @@ export default class extends Controller {
     document.querySelector('.container-fluid')?.prepend(notification)
     
     setTimeout(() => notification.remove(), 5000)
+  }
+  
+  checkForStandaloneInvoice() {
+    if (this.standaloneInvoiceValue && this.invoiceIdValue) {
+      // Keep in direct sale mode (don't switch to conversion)
+      // Pre-populate all available data from standalone invoice
+      this.populateFromStandaloneInvoice()
+    }
+  }
+  
+  populateFromStandaloneInvoice() {
+    // Pre-populate customer data
+    if (this.customerNameValue && this.hasCustomerNameTarget) {
+      this.customerNameTarget.value = this.customerNameValue
+    }
+    
+    if (this.customerEmailValue && this.hasCustomerEmailTarget) {
+      this.customerEmailTarget.value = this.customerEmailValue
+      this.customerEmailTarget.dispatchEvent(new Event('input', { bubbles: true }))
+    }
+    
+    if (this.customerPhoneValue && this.hasCustomerPhoneTarget) {
+      this.customerPhoneTarget.value = this.customerPhoneValue
+    }
+    
+    // Pre-populate product data
+    if (this.productNameValue && this.hasProductNameTarget) {
+      this.productNameTarget.value = this.productNameValue
+    }
+    
+    // Pre-populate pricing
+    if (this.productPriceValue && this.hasProductPriceTarget) {
+      const priceValue = parseFloat(this.productPriceValue)
+      this.productPriceTarget.value = priceValue
+      this.productPriceTarget.dispatchEvent(new Event('input', { bubbles: true }))
+    }
+    
+    // Recalculate totals
+    this.calculateTotal()
+    
+    // Show success message
+    this.showSuccessNotification(`Standalone invoice paid! Order form pre-filled with invoice data.`)
   }
 
   setOrderType(event) {

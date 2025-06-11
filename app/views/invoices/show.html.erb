@@ -193,6 +193,22 @@
                     </div>
                   <% end %>
                 </div>
+              <% else %>
+                <div class="mb-3">
+                  <small class="text-muted">No source - standalone invoice</small>
+                </div>
+              <% end %>
+              
+              <!-- Debug info -->
+              <div class="mb-3" style="background: #f8f9fa; padding: 10px; border-radius: 4px;">
+                <small>
+                  <strong>Debug:</strong><br>
+                  Status: <%= @invoice.status %><br>
+                  Paid?: <%= @invoice.paid? %><br>
+                  Standalone?: <%= @invoice.standalone_invoice? %><br>
+                  Can create order?: <%= @invoice.can_create_order? %>
+                </small>
+              </div>
                 
                 <!-- Action buttons based on invoice type -->
                 <% if @invoice.paid? %>
@@ -210,6 +226,22 @@
                           } %>
                     <% elsif @invoice.order_already_created? %>
                       <p class="mb-0"><i class="fas fa-info-circle"></i> Order has already been created from this invoice.</p>
+                    <% elsif @invoice.standalone_invoice? %>
+                      <p class="mb-2">This standalone invoice has been paid. You can create an order to fulfill this sale.</p>
+                      <%= link_to "📦 Create Order from Standalone Invoice", 
+                          new_order_path(
+                            invoice_id: @invoice.id,
+                            customer_name: @invoice.customer_name,
+                            customer_email: @invoice.customer_email,
+                            customer_phone: @invoice.customer_phone,
+                            product_name: @invoice.description,
+                            product_price: @invoice.amount,
+                            standalone_invoice: true
+                          ), 
+                          class: "btn btn-primary btn-lg w-100",
+                          data: { 
+                            turbo_frame: "_top"
+                          } %>
                     <% end %>
                   </div>
                 <% elsif @invoice.sent? %>
@@ -218,7 +250,6 @@
                     <p class="mb-2">Invoice has been sent to customer. Click "Check Payment Status" above to see if it has been paid.</p>
                   </div>
                 <% end %>
-              <% end %>
             </div>
           </div>
 
