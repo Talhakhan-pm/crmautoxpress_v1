@@ -191,6 +191,7 @@ class DialpadWebhooksController < ApplicationController
   
   def broadcast_callback_card_update(callback, show_post_call_actions: false)
     Rails.logger.info "Broadcasting callback card update for callback #{callback.id}"
+    Rails.logger.info "Show post-call actions: #{show_post_call_actions}"
     
     # Query for current caller for this specific callback to provide proper status display
     current_caller = User.find_by(
