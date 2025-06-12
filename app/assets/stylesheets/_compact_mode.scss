@@ -1274,4 +1274,732 @@
             margin-top: 6px;
         }
     }
+
+    /* ================================
+       ORDER MODALS COMPACT MODE
+       ================================ */
+    
+    /* AutoXpress Order Creation Modal - Compact */
+    .autoxpress-modal-container {
+        max-width: 1000px;
+        max-height: 85vh;
+        border-radius: 8px;
+    }
+
+    .order-header {
+        padding: 16px 20px;
+        
+        .header-content {
+            gap: 20px;
+        }
+        
+        .header-title {
+            gap: 12px;
+            
+            .title-icon {
+                width: 36px;
+                height: 36px;
+                border-radius: 8px;
+                font-size: 16px;
+            }
+            
+            .title-text {
+                h1 {
+                    font-size: 18px;
+                    margin: 0;
+                    line-height: 1.2;
+                }
+                
+                p {
+                    margin: 2px 0 0 0;
+                    font-size: 11px;
+                }
+            }
+        }
+        
+        .order-type-switcher {
+            border-radius: 6px;
+            padding: 3px;
+            
+            .type-btn {
+                padding: 6px 12px;
+                border-radius: 4px;
+                font-size: 11px;
+                gap: 4px;
+                
+                i {
+                    font-size: 10px;
+                }
+            }
+        }
+        
+        .close-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+    }
+
+    .order-form-body {
+        max-height: calc(85vh - 100px);
+        
+        .order-form-grid {
+            padding: 16px;
+            gap: 16px;
+        }
+        
+        .form-column-left,
+        .form-column-right {
+            gap: 14px;
+        }
+    }
+
+    /* Info Cards - Compact */
+    .info-card {
+        border-radius: 8px;
+        
+        .card-header {
+            padding: 10px 14px;
+            
+            i {
+                font-size: 12px;
+                width: 16px;
+            }
+            
+            h3 {
+                font-size: 12px;
+                margin: 0;
+                font-weight: 600;
+            }
+        }
+        
+        .card-body {
+            padding: 12px 14px;
+        }
+    }
+
+    /* Input Groups - Compact */
+    .input-row {
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .input-group {
+        gap: 4px;
+        
+        .input-label {
+            font-size: 10px;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .input-field,
+        .input-select {
+            padding: 8px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .textarea-compact {
+            min-height: 40px;
+            resize: vertical;
+        }
+    }
+
+    .input-with-icon {
+        .input-icon {
+            left: 10px;
+            font-size: 11px;
+        }
+        
+        .price-input {
+            padding-left: 22px;
+        }
+    }
+
+    /* Pricing Grid - Compact */
+    .pricing-grid {
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    /* Total Summary - Compact */
+    .total-summary {
+        padding: 10px;
+        border-radius: 6px;
+        margin-top: 12px;
+        
+        .total-label {
+            font-size: 10px;
+            margin-bottom: 3px;
+        }
+        
+        .total-amount {
+            font-size: 18px;
+            font-weight: 700;
+        }
+    }
+
+    /* Callback Selection - Compact */
+    .callback-selection-section {
+        margin-bottom: 16px;
+        
+        .callback-search-input {
+            padding: 8px 10px;
+            font-size: 11px;
+            border-radius: 4px;
+        }
+        
+        .callbacks-grid {
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 8px;
+            max-height: 200px;
+        }
+        
+        .callback-item {
+            padding: 10px;
+            border-radius: 6px;
+            gap: 8px;
+            
+            .callback-item-header {
+                gap: 6px;
+                
+                .callback-customer-name {
+                    font-size: 11px;
+                    font-weight: 600;
+                }
+                
+                .callback-status-badge {
+                    padding: 3px 6px;
+                    font-size: 8px;
+                    border-radius: 4px;
+                }
+            }
+            
+            .callback-item-body {
+                gap: 4px;
+                
+                .order-callback-detail {
+                    font-size: 10px;
+                    gap: 6px;
+                    
+                    i {
+                        width: 10px;
+                        font-size: 9px;
+                    }
+                }
+            }
+        }
+    }
+
+    /* Order Actions - Compact */
+    .order-actions {
+        padding: 14px 16px;
+        gap: 10px;
+        
+        .primary-actions {
+            gap: 8px;
+        }
+        
+        .order-action-btn,
+        .action-btn {
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            gap: 6px;
+            min-width: 90px;
+            
+            i {
+                font-size: 10px;
+            }
+        }
+    }
+
+    /* ================================
+       UNIFIED ORDER MODALS - COMPACT (Show Modal)
+       ================================ */
+    
+    /* Unified Modal Container - Compact */
+    .unified-modal {
+        padding: 8px;
+        
+        &.theme-red,
+        &.theme-blue {
+            .unified-modal-content {
+                max-width: 1000px;
+                max-height: 88vh;
+                border-radius: 8px;
+            }
+        }
+    }
+
+    /* Unified Modal Header - Compact */
+    .unified-modal-header {
+        padding: 14px 18px;
+        position: relative;
+        
+        &.theme-red,
+        &.theme-blue {
+            .unified-modal-close {
+                position: absolute;
+                top: 14px;
+                right: 18px;
+                width: 30px;
+                height: 30px;
+                border-radius: 6px;
+                font-size: 13px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                
+                i {
+                    font-size: 12px;
+                }
+            }
+        }
+        
+        .unified-modal-header-content {
+            padding-right: 50px;
+            
+            .unified-modal-title {
+                font-size: 17px;
+                margin: 0 0 5px 0;
+                gap: 8px;
+                display: flex;
+                align-items: center;
+                
+                .modal-icon {
+                    font-size: 15px;
+                    width: 20px;
+                    text-align: center;
+                }
+            }
+            
+            .unified-modal-subtitle {
+                font-size: 10px;
+                margin: 0;
+                opacity: 0.9;
+            }
+        }
+        
+        /* Timeline in Header - Aggressive Compact */
+        .unified-timeline {
+            margin-top: 10px;
+            position: relative;
+            
+            .unified-timeline-line {
+                height: 2px;
+                background: rgba(255, 255, 255, 0.2);
+                position: absolute;
+                top: 11px;
+                left: 0;
+                right: 0;
+                border-radius: 1px;
+            }
+            
+            .unified-timeline-progress {
+                height: 2px;
+                background: rgba(255, 255, 255, 0.8);
+                position: absolute;
+                top: 11px;
+                left: 0;
+                border-radius: 1px;
+                transition: width 0.3s ease;
+            }
+            
+            .unified-timeline-item {
+                position: relative;
+                z-index: 2;
+                
+                .unified-timeline-marker {
+                    width: 22px;
+                    height: 22px;
+                    border-radius: 50%;
+                    font-size: 9px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: rgba(255, 255, 255, 0.2);
+                    border: 2px solid rgba(255, 255, 255, 0.3);
+                    transition: all 0.2s ease;
+                    
+                    i {
+                        font-size: 8px;
+                    }
+                }
+                
+                &.active .unified-timeline-marker {
+                    background: rgba(255, 255, 255, 1);
+                    color: var(--color-brand-red);
+                    border-color: rgba(255, 255, 255, 1);
+                    box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+                }
+                
+                &.completed .unified-timeline-marker {
+                    background: rgba(255, 255, 255, 0.9);
+                    color: var(--color-brand-red);
+                    border-color: rgba(255, 255, 255, 0.9);
+                }
+                
+                .unified-timeline-label {
+                    font-size: 8px;
+                    margin-top: 3px;
+                    font-weight: 500;
+                    text-align: center;
+                    white-space: nowrap;
+                    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+                }
+                
+                .unified-timeline-date {
+                    font-size: 6px;
+                    margin-top: 1px;
+                    text-align: center;
+                    opacity: 0.8;
+                    font-weight: 400;
+                }
+            }
+        }
+    }
+
+    .unified-modal-body {
+        padding: 16px 20px;
+        max-height: calc(90vh - 140px);
+        
+        /* Action Buttons Section - Compact */
+        .action-buttons-grid {
+            gap: 8px !important;
+            
+            .btn {
+                padding: 6px 10px;
+                font-size: 10px;
+                border-radius: 4px;
+                gap: 4px;
+                
+                i {
+                    font-size: 9px;
+                }
+            }
+            
+            .email-actions {
+                gap: 6px !important;
+                
+                .btn-sm {
+                    padding: 4px 8px;
+                    font-size: 9px;
+                    
+                    i {
+                        font-size: 8px;
+                    }
+                }
+            }
+            
+            .email-warning {
+                padding: 6px 8px;
+                border-radius: 4px;
+                font-size: 10px;
+                
+                i {
+                    font-size: 9px;
+                }
+            }
+            
+            .status-info {
+                gap: 6px !important;
+                
+                .badge {
+                    padding: 3px 6px;
+                    font-size: 8px;
+                    border-radius: 4px;
+                }
+            }
+        }
+        
+        .tracking-info {
+            margin-top: 10px !important;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            
+            i {
+                font-size: 9px;
+            }
+            
+            .delivery-estimate {
+                margin-left: 10px !important;
+                font-size: 9px;
+            }
+        }
+    }
+
+    /* Order Details Grid - Compact */
+    .order-details-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 16px !important;
+    }
+
+    /* Unified Form Sections - Compact */
+    .unified-form-section {
+        margin-bottom: 16px;
+        
+        .unified-section-header {
+            margin-bottom: 10px;
+            
+            .section-title {
+                font-size: 12px;
+                margin: 0;
+                font-weight: 600;
+                gap: 6px;
+                
+                i {
+                    font-size: 11px;
+                }
+            }
+            
+            .btn-sm {
+                padding: 4px 8px;
+                font-size: 9px;
+                border-radius: 3px;
+                
+                i {
+                    font-size: 8px;
+                }
+            }
+        }
+        
+        .form-group {
+            margin-bottom: 10px;
+            
+            .form-label {
+                font-size: 10px;
+                font-weight: 600;
+                margin-bottom: 3px;
+            }
+            
+            .form-control-plaintext {
+                padding: 6px 0;
+                font-size: 11px;
+                line-height: 1.4;
+                
+                a {
+                    font-size: 11px;
+                    gap: 4px;
+                    
+                    i {
+                        font-size: 9px;
+                    }
+                }
+            }
+        }
+        
+        .row {
+            .col-md-6 {
+                .form-group {
+                    margin-bottom: 8px;
+                }
+            }
+        }
+    }
+
+    /* Product Info - Compact */
+    .product-info {
+        padding: 12px !important;
+        
+        h4 {
+            font-size: 14px !important;
+            margin-bottom: 8px !important;
+        }
+        
+        div {
+            font-size: 11px !important;
+            margin-bottom: 10px !important;
+            gap: 6px !important;
+            
+            i {
+                font-size: 10px;
+            }
+        }
+        
+        .btn-sm {
+            padding: 4px 8px;
+            font-size: 9px;
+            margin-top: 8px !important;
+            
+            i {
+                font-size: 8px;
+            }
+        }
+    }
+
+    /* Financial Breakdown - Compact */
+    .financial-breakdown {
+        .d-flex {
+            padding: 6px 0;
+            
+            span {
+                font-size: 11px;
+                
+                &.fw-semibold {
+                    font-size: 11px;
+                }
+                
+                &.fw-bold {
+                    font-size: 12px;
+                    
+                    &.fs-4 {
+                        font-size: 14px !important;
+                    }
+                }
+            }
+        }
+        
+        .py-3 {
+            padding: 8px 0 !important;
+        }
+        
+        .px-3 {
+            padding: 6px 8px !important;
+            
+            .fw-semibold,
+            .fw-bold {
+                font-size: 10px;
+            }
+        }
+    }
+
+    /* Notes Container - Compact */
+    .notes-container {
+        .form-group {
+            margin-bottom: 8px;
+            
+            .form-label {
+                font-size: 8px;
+                margin-bottom: 3px;
+                
+                i {
+                    font-size: 7px;
+                }
+            }
+            
+            .p-3 {
+                padding: 8px !important;
+                font-size: 10px;
+                line-height: 1.4;
+            }
+        }
+        
+        .metadata-grid {
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)) !important;
+            gap: 10px !important;
+            margin-top: 12px !important;
+            padding-top: 12px !important;
+            
+            .text-start {
+                .small {
+                    font-size: 8px;
+                    margin-bottom: 2px !important;
+                }
+                
+                .fw-semibold {
+                    font-size: 10px;
+                    
+                    i {
+                        font-size: 9px;
+                    }
+                }
+            }
+        }
+    }
+
+    /* Timeline Stats - Compact */
+    .timeline-stats {
+        padding: 10px !important;
+        border-radius: 6px;
+        margin-bottom: 12px !important;
+        
+        .text-center {
+            .fw-bold {
+                font-size: 16px !important;
+                
+                &.fs-4 {
+                    font-size: 14px !important;
+                }
+            }
+            
+            .small {
+                font-size: 8px;
+            }
+        }
+    }
+
+    /* Timeline Container - Compact */
+    .timeline-container {
+        .text-center {
+            padding: 20px 12px !important;
+            
+            i {
+                font-size: 32px !important;
+                margin-bottom: 8px !important;
+            }
+            
+            h5 {
+                font-size: 14px;
+            }
+            
+            p {
+                font-size: 11px;
+                margin-bottom: 0 !important;
+            }
+        }
+    }
+
+    /* Unified Form Grid - Compact */
+    .unified-form-grid {
+        gap: 10px;
+        
+        .unified-form-group {
+            .form-label {
+                font-size: 10px;
+                font-weight: 600;
+                margin-bottom: 3px;
+            }
+            
+            .form-input {
+                padding: 6px 8px;
+                border-radius: 4px;
+                font-size: 11px;
+                border: 1px solid #e5e7eb;
+            }
+            
+            &.full-width {
+                grid-column: 1 / -1;
+                
+                .form-input {
+                    min-height: 50px;
+                    resize: vertical;
+                }
+            }
+        }
+    }
+
+    /* Mobile Responsive Adjustments for Orders */
+    @media (max-width: 1200px) {
+        .order-details-grid {
+            grid-template-columns: 1fr !important;
+        }
+        
+        .order-form-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .autoxpress-modal-container {
+            max-width: 700px;
+        }
+        
+        .pricing-grid {
+            grid-template-columns: 1fr;
+        }
+    }
 }

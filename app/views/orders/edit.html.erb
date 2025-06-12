@@ -1,202 +1,263 @@
 <%= turbo_frame_tag "main_content" do %>
-<!-- Unified Order Edit Modal -->
-<div id="order-edit-modal" class="unified-modal theme-blue active" data-controller="order-form modal" data-modal-theme-value="blue" data-modal-close-url-value="<%= orders_path %>">
-  <div class="unified-modal-content" data-order-form-target="modal" data-action="click->modal#stopPropagation">
-    <!-- Unified Modal Header -->
-    <div class="unified-modal-header theme-blue">
-      <div class="unified-modal-header-content">
-        <h2 class="unified-modal-title">
-          <div class="modal-icon">
+<!-- AutoXpress Order Edit Modal -->
+<div id="order-edit-modal" 
+     class="autoxpress-modal active" 
+     data-controller="order-form modal"
+     data-modal-close-url-value="<%= orders_path %>">
+  
+  <div class="autoxpress-modal-container" data-order-form-target="modal" data-action="click->modal#stopPropagation">
+    <!-- Modern Header -->
+    <div class="order-header">
+      <div class="header-content">
+        <div class="header-title">
+          <div class="title-icon">
             <i class="fas fa-edit"></i>
           </div>
-          Edit Order #<%= @order.order_number %>
-        </h2>
-        <p class="unified-modal-subtitle">Update order details and tracking information</p>
+          <div class="title-text">
+            <h1>Edit Order #<%= @order.order_number %></h1>
+            <p>Update order details and tracking information</p>
+          </div>
+        </div>
+        
+        <!-- Order Status Indicator -->
+        <div class="order-type-switcher">
+          <div class="type-btn active">
+            <i class="fas fa-clipboard-check"></i>
+            <span><%= @order.order_status.humanize %></span>
+          </div>
+        </div>
       </div>
       
-      <button type="button" data-action="click->modal#closeModal" class="unified-modal-close">
+      <button type="button" 
+              data-action="click->modal#closeModal" 
+              class="close-btn">
         <i class="fas fa-times"></i>
       </button>
     </div>
 
-    <!-- Unified Modal Body -->
-    <div class="unified-modal-body">
-      <%= form_with model: @order, local: false, data: { turbo_frame: "main_content" }, class: "order-edit-form" do |form| %>
+    <!-- Modern Form Body -->
+    <div class="order-form-body">
+      <%= form_with model: @order, 
+                    local: false, 
+                    class: "autoxpress-order-form", 
+                    data: { 
+                      order_form_target: "form",
+                      action: "submit->order-form#submitForm turbo:submit-end->order-form#handleSubmitEnd turbo:fetch-request-error->order-form#handleFetchError"
+                    } do |form| %>
         
-        <!-- Customer Information Section -->
-        <div class="unified-form-section">
-          <div class="unified-section-header">
-            <h3 class="section-title">
-              <i class="fas fa-user"></i>
-              Customer Information
-            </h3>
+        <!-- Two-Column Layout for Main Form -->
+        <div class="order-form-grid">
+          <!-- Left Column -->
+          <div class="form-column-left">
+            <!-- Customer Info Card -->
+            <div class="info-card customer-card">
+              <div class="card-header">
+                <i class="fas fa-user"></i>
+                <h3>Customer Information</h3>
+              </div>
+              <div class="card-body">
+                <div class="input-row">
+                  <div class="input-group">
+                    <%= form.label :customer_name, "Full Name", class: "input-label required" %>
+                    <%= form.text_field :customer_name, 
+                                        class: "input-field", 
+                                        placeholder: "John Smith", 
+                                        required: true,
+                                        data: { order_form_target: "customerName" } %>
+                  </div>
+                  <div class="input-group">
+                    <%= form.label :customer_phone, "Phone", class: "input-label required" %>
+                    <%= form.telephone_field :customer_phone, 
+                                             class: "input-field", 
+                                             placeholder: "(555) 123-4567", 
+                                             required: true,
+                                             data: { order_form_target: "customerPhone" } %>
+                  </div>
+                </div>
+                <div class="input-group">
+                  <%= form.label :customer_email, "Email", class: "input-label" %>
+                  <%= form.email_field :customer_email, 
+                                       class: "input-field", 
+                                       placeholder: "john@example.com",
+                                       data: { order_form_target: "customerEmail" } %>
+                </div>
+                <div class="input-group">
+                  <%= form.label :customer_address, "Address", class: "input-label" %>
+                  <%= form.text_field :customer_address, 
+                                      class: "input-field", 
+                                      placeholder: "123 Main St, City, State 12345",
+                                      data: { order_form_target: "customerAddress" } %>
+                </div>
+              </div>
+            </div>
+
+            <!-- Vehicle Info Card -->
+            <div class="info-card vehicle-card">
+              <div class="card-header">
+                <i class="fas fa-car"></i>
+                <h3>Vehicle Information</h3>
+              </div>
+              <div class="card-body">
+                <div class="input-row vehicle-row">
+                  <div class="input-group input-small">
+                    <%= form.label :car_year, "Year", class: "input-label" %>
+                    <%= form.number_field :car_year, 
+                                          class: "input-field", 
+                                          placeholder: "", 
+                                          min: 1940, 
+                                          max: Date.current.year + 2,
+                                          data: { order_form_target: "carYear" } %>
+                  </div>
+                  <div class="input-group input-large">
+                    <%= form.label :car_make_model, "Make & Model", class: "input-label" %>
+                    <%= form.text_field :car_make_model, 
+                                        class: "input-field", 
+                                        placeholder: "Toyota Camry",
+                                        data: { order_form_target: "carMakeModel" } %>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          
-          <div class="unified-form-grid">
-            <div class="unified-form-group">
-              <%= form.label :customer_name, "Customer Name", class: "form-label" %>
-              <%= form.text_field :customer_name, class: "form-input" %>
+
+          <!-- Right Column -->
+          <div class="form-column-right">
+            <!-- Product & Pricing Card -->
+            <div class="info-card product-card">
+              <div class="card-header">
+                <i class="fas fa-cog"></i>
+                <h3>Product & Pricing</h3>
+              </div>
+              <div class="card-body">
+                <div class="input-group">
+                  <%= form.label :product_name, "Product/Part Name", class: "input-label required" %>
+                  <%= form.text_field :product_name, 
+                                      class: "input-field", 
+                                      placeholder: "Brake pads, engine oil, etc...", 
+                                      required: true,
+                                      data: { order_form_target: "productName" } %>
+                </div>
+                <div class="pricing-grid">
+                  <div class="input-group">
+                    <%= form.label :product_price, "Price", class: "input-label required" %>
+                    <div class="input-with-icon">
+                      <span class="input-icon">$</span>
+                      <%= form.number_field :product_price, 
+                                            class: "input-field price-input", 
+                                            step: 0.01, 
+                                            placeholder: "299.99", 
+                                            required: true,
+                                            data: { 
+                                              order_form_target: "productPrice",
+                                              action: "input->order-form#calculateTotal"
+                                            } %>
+                    </div>
+                  </div>
+                  <div class="input-group">
+                    <%= form.label :tax_amount, "Tax", class: "input-label" %>
+                    <div class="input-with-icon">
+                      <span class="input-icon">$</span>
+                      <%= form.number_field :tax_amount, 
+                                            class: "input-field price-input", 
+                                            step: 0.01, 
+                                            placeholder: "24.00",
+                                            data: { 
+                                              order_form_target: "taxAmount",
+                                              action: "input->order-form#calculateTotal"
+                                            } %>
+                    </div>
+                  </div>
+                  <div class="input-group">
+                    <%= form.label :shipping_cost, "Shipping", class: "input-label" %>
+                    <div class="input-with-icon">
+                      <span class="input-icon">$</span>
+                      <%= form.number_field :shipping_cost, 
+                                            class: "input-field price-input", 
+                                            step: 0.01, 
+                                            placeholder: "15.00",
+                                            data: { 
+                                              order_form_target: "shippingCost",
+                                              action: "input->order-form#calculateTotal"
+                                            } %>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Total Display -->
+                <div class="total-summary">
+                  <div class="total-label">Total Amount</div>
+                  <div class="total-amount" data-order-form-target="totalDisplay">$<%= number_with_delimiter(@order.total_amount) %></div>
+                  <%= form.hidden_field :total_amount, data: { order_form_target: "totalAmount" } %>
+                </div>
+              </div>
             </div>
-            
-            <div class="unified-form-group">
-              <%= form.label :customer_phone, "Phone Number", class: "form-label" %>
-              <%= form.telephone_field :customer_phone, class: "form-input" %>
-            </div>
-            
-            <div class="unified-form-group">
-              <%= form.label :customer_email, "Email", class: "form-label" %>
-              <%= form.email_field :customer_email, class: "form-input" %>
-            </div>
-            
-            <div class="unified-form-group full-width">
-              <%= form.label :customer_address, "Address", class: "form-label" %>
-              <%= form.text_area :customer_address, class: "form-input", rows: 2 %>
+
+            <!-- Order Settings Card -->
+            <div class="info-card settings-card">
+              <div class="card-header">
+                <i class="fas fa-cogs"></i>
+                <h3>Order Settings</h3>
+              </div>
+              <div class="card-body">
+                <div class="input-row">
+                  <div class="input-group">
+                    <%= form.label :priority, "Priority", class: "input-label" %>
+                    <%= form.select :priority, 
+                        options_for_select([
+                          ['Standard', 'standard'],
+                          ['High', 'high'],
+                          ['Rush', 'rush'],
+                          ['Urgent', 'urgent']
+                        ], @order.priority),
+                        {},
+                        { class: "input-select" } %>
+                  </div>
+                  <div class="input-group">
+                    <%= form.label :source_channel, "Source", class: "input-label" %>
+                    <%= form.select :source_channel,
+                        options_for_select([
+                          ['Phone', 'phone'],
+                          ['Website', 'web'],
+                          ['Email', 'email'],
+                          ['Walk-in', 'walk_in']
+                        ], @order.source_channel),
+                        {},
+                        { class: "input-select" } %>
+                  </div>
+                </div>
+                <div class="input-group">
+                  <%= form.label :warranty_period_days, "Warranty (Days)", class: "input-label" %>
+                  <%= form.number_field :warranty_period_days, 
+                                        class: "input-field", 
+                                        placeholder: "365", 
+                                        min: 0 %>
+                </div>
+                <div class="input-group">
+                  <%= form.label :comments, "Order Notes", class: "input-label" %>
+                  <%= form.text_area :comments, 
+                                     class: "input-field textarea-compact", 
+                                     rows: 2, 
+                                     placeholder: "Special instructions or notes..." %>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-
-        <!-- Product Information Section -->
-        <div class="unified-form-section">
-          <div class="unified-section-header">
-            <h3 class="section-title">
-              <i class="fas fa-box"></i>
-              Product Details
-            </h3>
-          </div>
-          
-          <div class="unified-form-grid">
-            <div class="unified-form-group full-width">
-              <%= form.label :product_name, "Product Name", class: "form-label" %>
-              <%= form.text_field :product_name, class: "form-input" %>
-            </div>
-            
-            <div class="unified-form-group">
-              <%= form.label :car_make_model, "Vehicle Make/Model", class: "form-label" %>
-              <%= form.text_field :car_make_model, class: "form-input" %>
-            </div>
-            
-            <div class="unified-form-group">
-              <%= form.label :car_year, "Vehicle Year", class: "form-label" %>
-              <%= form.number_field :car_year, class: "form-input" %>
-            </div>
-          </div>
-        </div>
-
-        <!-- Pricing Section -->
-        <div class="unified-form-section">
-          <div class="unified-section-header">
-            <h3 class="section-title">
-              <i class="fas fa-dollar-sign"></i>
-              Pricing Information
-            </h3>
-          </div>
-          
-          <div class="unified-form-grid">
-            <div class="unified-form-group">
-              <%= form.label :product_price, "Product Price", class: "form-label" %>
-              <%= form.number_field :product_price, step: 0.01, class: "form-input", data: { order_form_target: "productPrice", action: "input->order-form#calculateTotal" } %>
-            </div>
-            
-            <div class="unified-form-group">
-              <%= form.label :tax_amount, "Tax Amount", class: "form-label" %>
-              <%= form.number_field :tax_amount, step: 0.01, class: "form-input", data: { order_form_target: "taxAmount", action: "input->order-form#calculateTotal" } %>
-            </div>
-            
-            <div class="unified-form-group">
-              <%= form.label :shipping_cost, "Shipping Cost", class: "form-label" %>
-              <%= form.number_field :shipping_cost, step: 0.01, class: "form-input", data: { order_form_target: "shippingCost", action: "input->order-form#calculateTotal" } %>
-            </div>
-            
-            <div class="unified-form-group total-display">
-              <div class="total-label">Total Amount</div>
-              <div class="total-amount" data-order-form-target="totalDisplay">$<%= number_with_delimiter(@order.total_amount) %></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Order Status Section -->
-        <div class="unified-form-section">
-          <div class="unified-section-header">
-            <h3 class="section-title">
-              <i class="fas fa-clipboard-check"></i>
-              Order Status
-            </h3>
-          </div>
-          
-          <div class="unified-form-grid">
-            <div class="unified-form-group">
-              <%= form.label :order_status, "Order Status", class: "form-label" %>
-              <%= form.select :order_status, 
-                  options_for_select([
-                    ['Pending', 'pending'],
-                    ['Confirmed', 'confirmed'],
-                    ['Processing', 'processing'],
-                    ['Shipped', 'shipped'],
-                    ['Delivered', 'delivered'],
-                    ['Cancelled', 'cancelled']
-                  ], @order.order_status), 
-                  {}, { class: "form-select" } %>
-            </div>
-            
-            <div class="unified-form-group">
-              <%= form.label :priority, "Priority", class: "form-label" %>
-              <%= form.select :priority, 
-                  options_for_select([
-                    ['Low', 'low'],
-                    ['Standard', 'standard'],
-                    ['High', 'high'],
-                    ['Rush', 'rush'],
-                    ['Urgent', 'urgent']
-                  ], @order.priority), 
-                  {}, { class: "form-select" } %>
-            </div>
-            
-            <div class="unified-form-group">
-              <%= form.label :tracking_number, "Tracking Number", class: "form-label" %>
-              <%= form.text_field :tracking_number, class: "form-input" %>
-            </div>
-            
-            <div class="unified-form-group">
-              <%= form.label :estimated_delivery, "Estimated Delivery", class: "form-label" %>
-              <%= form.date_field :estimated_delivery, class: "form-input" %>
-            </div>
-          </div>
-        </div>
-
-        <!-- Notes Section -->
-        <div class="unified-form-section">
-          <div class="unified-section-header">
-            <h3 class="section-title">
-              <i class="fas fa-sticky-note"></i>
-              Additional Information
-            </h3>
-          </div>
-          
-          <div class="unified-form-grid">
-            <div class="unified-form-group full-width">
-              <%= form.label :comments, "Customer Comments", class: "form-label" %>
-              <%= form.text_area :comments, class: "form-input", rows: 3 %>
-            </div>
-            
-            <div class="unified-form-group full-width">
-              <%= form.label :internal_notes, "Internal Notes", class: "form-label" %>
-              <%= form.text_area :internal_notes, class: "form-input", rows: 3 %>
-            </div>
-          </div>
-        </div>
-
-        <!-- Unified Form Actions -->
-        <div class="unified-form-actions">
-          <button type="button" data-action="click->modal#closeModal" class="ax-btn ax-btn--secondary">
+        
+        <!-- Action Bar -->
+        <div class="order-actions">
+          <button type="button" 
+                  data-action="click->modal#closeModal" 
+                  class="action-btn secondary">
             <i class="fas fa-times"></i>
-            Cancel
+            <span>Cancel</span>
           </button>
           
           <div class="primary-actions">
-            <%= form.submit "Update Order", class: "ax-btn ax-btn--primary" do %>
+            <button type="submit" name="action" value="update_order" class="action-btn primary">
               <i class="fas fa-check"></i>
-              Update Order
-            <% end %>
+              <span>Update Order</span>
+            </button>
           </div>
         </div>
       <% end %>
