@@ -1830,6 +1830,535 @@ body {
     /* Add bottom padding for user profile */
 }
 
+/* COMPACT MODE: Media queries for 1366x768 and smaller screens */
+@media (max-width: 1366px) {
+    /* Compact base font size */
+    body {
+        font-size: 12px;
+        line-height: 1.4;
+    }
+
+    /* Compact Sidebar */
+    .sidebar {
+        width: 200px;
+    }
+
+    .sidebar-header {
+        padding: 16px 14px;
+    }
+
+    .logo {
+        gap: 8px;
+        font-size: 16px;
+    }
+
+    .logo i {
+        font-size: 18px;
+    }
+
+    .nav-menu {
+        padding: 14px 0 100px 0;
+    }
+
+    .nav-section {
+        margin-bottom: 22px;
+    }
+
+    .nav-section-title {
+        padding: 0 14px 6px;
+        font-size: 10px;
+    }
+
+    .nav-item {
+        gap: 8px;
+        padding: 8px 14px;
+        font-size: 12px;
+    }
+
+    .nav-item:hover {
+        padding-left: 11px;
+    }
+
+    .nav-item.active {
+        padding-left: 11px;
+    }
+
+    .nav-item.active::before {
+        right: 14px;
+        width: 4px;
+        height: 4px;
+    }
+
+    .nav-item i {
+        width: 14px;
+        font-size: 13px;
+    }
+
+    /* Compact Main Content */
+    .main-content {
+        margin-left: 200px;
+    }
+
+    .main-header {
+        padding: 14px 20px;
+    }
+
+    .header-left h1 {
+        font-size: 18px;
+        margin-bottom: 2px;
+    }
+
+    .breadcrumb {
+        font-size: 11px;
+    }
+
+    .header-actions {
+        gap: 8px;
+    }
+
+    /* Compact Buttons */
+    .btn {
+        padding: 6px 10px;
+        border-radius: 5px;
+        font-size: 11px;
+        gap: 5px;
+    }
+
+    /* Compact Toolbar */
+    .toolbar {
+        padding: 10px 20px;
+        gap: 10px;
+    }
+
+    .toolbar-left {
+        gap: 10px;
+    }
+
+    .search-box {
+        width: 220px;
+    }
+
+    .search-box input {
+        padding: 6px 10px 6px 28px;
+        border-radius: 5px;
+        font-size: 11px;
+    }
+
+    .search-box i {
+        left: 8px;
+        font-size: 11px;
+    }
+
+    .filter-group {
+        gap: 6px;
+    }
+
+    .filter-btn {
+        padding: 5px 8px;
+        border-radius: 4px;
+        font-size: 10px;
+    }
+
+    /* Compact Tables */
+    .table-container {
+        margin: 0 20px 20px;
+        border-radius: 8px;
+    }
+
+    .data-table {
+        font-size: 11px;
+    }
+
+    .data-table th {
+        padding: 10px 14px;
+        font-size: 10px;
+    }
+
+    .data-table td {
+        padding: 10px 14px;
+    }
+
+    .action-btn {
+        padding: 3px 5px;
+        font-size: 10px;
+    }
+
+    /* Compact Pagination */
+    .pagination {
+        padding: 14px 20px;
+    }
+
+    .pagination-info {
+        font-size: 11px;
+    }
+
+    /* Compact Cards */
+    .content-card {
+        margin: 16px;
+        padding: 20px;
+        border-radius: 8px;
+    }
+
+    .text-muted {
+        font-size: 10px;
+        margin-top: 2px;
+    }
+
+    /* Compact Dashboard Activity Feed */
+    .dashboard-activity-feed {
+        padding: 12px 0;
+    }
+
+    .dashboard-activity-item {
+        gap: 10px;
+        padding: 12px 16px;
+    }
+
+    .dashboard-activity-avatar {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+
+    .activity-text {
+        font-size: 12px;
+        margin-bottom: 3px;
+    }
+
+    .activity-time {
+        font-size: 10px;
+    }
+
+    /* Compact Timeline */
+    .timeline-container::before {
+        left: 20px;
+    }
+
+    .timeline-item {
+        margin-bottom: 12px;
+        gap: 12px;
+        padding: 0 20px;
+    }
+
+    .timeline-avatar {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+
+    .timeline-card {
+        border-radius: 8px;
+    }
+
+    .timeline-header {
+        padding: 12px 16px;
+        gap: 12px;
+    }
+
+    .timeline-user .user-avatar {
+        width: 30px;
+        height: 30px;
+        font-size: 12px;
+    }
+
+    .timeline-user .user-name {
+        font-size: 12px;
+    }
+
+    .user-email {
+        font-size: 10px;
+    }
+
+    .timeline-time {
+        font-size: 10px;
+    }
+
+    .action-badge {
+        padding: 3px 8px;
+        font-size: 9px;
+    }
+
+    .timeline-body {
+        padding: 12px 16px;
+    }
+
+    .activity-description {
+        font-size: 12px;
+        margin-bottom: 8px;
+    }
+
+    .timeline-changes {
+        padding: 8px;
+        border-radius: 6px;
+        margin-top: 6px;
+    }
+
+    .change-label {
+        font-size: 9px;
+    }
+
+    .timeline-changes .change-from,
+    .timeline-changes .change-to {
+        padding: 2px 6px;
+        font-size: 10px;
+        border-radius: 4px;
+    }
+
+    /* Compact Performance Metrics */
+    .metrics-grid {
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .metric-card {
+        padding: 16px;
+        gap: 12px;
+    }
+
+    .metric-value {
+        font-size: 20px;
+    }
+
+    .metric-label {
+        font-size: 12px;
+        margin-bottom: 6px;
+    }
+
+    .metric-change {
+        font-size: 10px;
+        padding: 3px 6px;
+        border-radius: 4px;
+    }
+
+    /* Compact Agent Performance */
+    .performance-section .section-title {
+        font-size: 16px;
+        margin-bottom: 16px;
+        gap: 8px;
+    }
+
+    .agent-list {
+        gap: 8px;
+    }
+
+    .agent-row {
+        grid-template-columns: 160px 1fr auto;
+        padding: 12px;
+        gap: 16px;
+        border-radius: 6px;
+    }
+
+    .agent-info {
+        gap: 8px;
+    }
+
+    .agent-avatar {
+        width: 28px;
+        height: 28px;
+        font-size: 11px;
+    }
+
+    .agent-name {
+        font-size: 12px;
+    }
+
+    .agent-stats {
+        gap: 16px;
+        font-size: 12px;
+    }
+
+    .stat-value {
+        font-size: 14px;
+    }
+
+    .stat-label {
+        font-size: 10px;
+    }
+
+    .view-details {
+        font-size: 12px;
+    }
+
+    /* Compact Field Groups */
+    .field-group {
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .field-label {
+        font-size: 10px;
+        margin-bottom: 3px;
+    }
+
+    .field-value {
+        font-size: 12px;
+        padding: 6px 0;
+    }
+
+    /* Compact Tab Container */
+    .tab-container {
+        margin-bottom: 16px;
+    }
+
+    .tab-item {
+        padding: 8px 16px;
+        font-size: 12px;
+    }
+
+    /* Compact Activity Panel */
+    .activity-panel {
+        max-height: calc(100vh - 100px);
+    }
+
+    .activity-header {
+        padding: 16px 20px;
+    }
+
+    .activity-title {
+        font-size: 14px;
+        gap: 6px;
+    }
+
+    .activity-count {
+        padding: 2px 6px;
+        font-size: 10px;
+    }
+
+    .activity-filters {
+        padding: 12px 20px;
+        gap: 6px;
+    }
+
+    .filter-chip {
+        padding: 4px 8px;
+        font-size: 10px;
+    }
+
+    .activity-list {
+        padding: 12px 0;
+    }
+
+    .activity-item {
+        padding: 12px 20px;
+    }
+
+    .activity-content {
+        margin-left: 20px;
+    }
+
+    .activity-main {
+        margin-bottom: 6px;
+    }
+
+    .activity-text {
+        font-size: 12px;
+    }
+
+    .activity-time {
+        font-size: 10px;
+        margin-left: 12px;
+    }
+
+    .activity-details {
+        font-size: 10px;
+        padding: 6px 8px;
+        border-radius: 4px;
+        margin-top: 6px;
+    }
+
+    .activity-user {
+        gap: 6px;
+        margin-top: 6px;
+    }
+
+    .user-avatar {
+        width: 16px;
+        height: 16px;
+        font-size: 8px;
+    }
+
+    .user-name {
+        font-size: 10px;
+    }
+
+    /* Compact Content Container */
+    .content-container {
+        padding: 20px;
+        gap: 20px;
+        grid-template-columns: 1fr 320px;
+        height: calc(100vh - 70px);
+    }
+
+    .callback-detail {
+        border-radius: 8px;
+    }
+
+    .callback-header {
+        padding: 16px;
+    }
+
+    .callback-title {
+        font-size: 16px;
+    }
+
+    .callback-content {
+        padding: 16px;
+    }
+
+    /* Compact User Profile */
+    .user-profile {
+        padding: 16px;
+    }
+
+    .user-info {
+        gap: 8px;
+    }
+
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+
+    .user-name {
+        font-size: 12px;
+    }
+
+    .user-status {
+        gap: 4px;
+        font-size: 10px;
+    }
+
+    .logout-btn {
+        width: 30px;
+        height: 30px;
+        border-radius: 6px;
+    }
+
+    .logout-btn i {
+        font-size: 12px;
+    }
+
+    /* Compact Form Elements */
+    .field .form-input,
+    .field .form-select,
+    .field .form-textarea {
+        padding: 6px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+    }
+
+    .field .form-textarea {
+        min-height: 60px;
+    }
+
+    .field .form-select {
+        padding-right: 24px;
+        background-size: 12px 10px;
+        background-position: right 6px center;
+    }
+}
+
 
 /* Edit page form field styles */
 .field .form-input,

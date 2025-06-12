@@ -1269,3 +1269,451 @@
     flex: 1 1 calc(50% - 4px);
   }
 }
+
+/* COMPACT MODE: Media queries for 1366x768 and smaller screens */
+@media (max-width: 1366px) {
+  // View Toggle - Compact
+  .cb-toggle-btn {
+    padding: 6px 12px;
+    font-size: 11px;
+    gap: 4px;
+  }
+
+  // Dashboard Filters - Compact  
+  .cb-dashboard-filters {
+    padding: 12px 20px;
+    gap: 16px;
+  }
+
+  .cb-filter-group {
+    gap: 6px;
+  }
+
+  .cb-filter-btn {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+  }
+
+  .cb-search-container {
+    width: 220px;
+  }
+
+  .cb-search-input {
+    padding: 6px 8px 6px 28px;
+    border-radius: 4px;
+    font-size: 11px;
+  }
+
+  // Dashboard Grid Container - Compact
+  .cb-dashboard-container {
+    padding: 16px 20px;
+    min-height: calc(100vh - 160px);
+  }
+
+  .cb-dashboard-grid {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  // Individual Callback Card - Compact
+  .cb-card {
+    border-radius: 8px;
+  }
+
+  // Card Header - Compact
+  .cb-card-header {
+    padding: 12px 16px 8px;
+  }
+
+  .cb-status-badge {
+    padding: 3px 8px;
+    font-size: 9px;
+  }
+
+  .cb-card-meta {
+    font-size: 10px;
+  }
+
+  .cb-agent-info {
+    gap: 6px;
+    margin-bottom: 3px;
+  }
+
+  .cb-agent-avatar {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+    border: 1px solid white;
+  }
+
+  .cb-call-status-indicator {
+    bottom: -2px;
+    right: -2px;
+    width: 10px;
+    height: 10px;
+    border: 1px solid white;
+  }
+
+  .cb-status-icon {
+    font-size: 6px;
+    
+    &.cb-status-idle, &.cb-status-calling, &.cb-status-on_call {
+      width: 6px;
+      height: 6px;
+    }
+  }
+
+  .cb-agent-details {
+    gap: 1px;
+  }
+
+  .cb-agent-name {
+    font-size: 10px;
+    max-width: 70px;
+  }
+
+  .cb-call-status-text {
+    font-size: 8px;
+    padding: 1px 4px;
+  }
+
+  .cb-card-time {
+    font-size: 9px;
+  }
+
+  // Card Body - Customer Info - Compact
+  .cb-card-body {
+    padding: 12px 16px;
+  }
+
+  .cb-customer-name {
+    font-size: 15px;
+    margin: 0 0 8px 0;
+    gap: 6px;
+  }
+
+  .cb-message-badge {
+    padding: 1px 6px;
+    font-size: 9px;
+    gap: 3px;
+  }
+
+  .cb-customer-details {
+    gap: 6px;
+  }
+
+  .cb-phone, .cb-vehicle, .cb-product {
+    font-size: 11px;
+    gap: 6px;
+
+    i {
+      width: 12px;
+      font-size: 10px;
+    }
+  }
+
+  // =============================================================================
+  // ACTION-FOCUSED DASHBOARD STYLES - COMPACT
+  // =============================================================================
+
+  .cb-action-dashboard {
+    padding: 12px 16px;
+    font-size: 11px;
+  }
+
+  // Action Row Base Style - Compact
+  .cb-action-row {
+    margin-bottom: 8px;
+  }
+
+  // Priority and Follow-up Row - Compact
+  .cb-priority-row {
+    padding-bottom: 6px;
+    margin-bottom: 8px;
+  }
+
+  .cb-follow-up-info {
+    gap: 4px;
+    font-size: 11px;
+    
+    i {
+      width: 12px;
+      font-size: 10px;
+    }
+  }
+
+  .cb-follow-up-text {
+    font-size: 10px;
+  }
+
+  .cb-priority-badge {
+    .cb-priority-indicator {
+      font-size: 8px;
+      padding: 3px 6px;
+    }
+  }
+
+  // Contact Stats Row - Compact
+  .cb-contact-stats {
+    .cb-call-attempts, .cb-last-contact {
+      gap: 4px;
+      font-size: 11px;
+      
+      i {
+        width: 12px;
+        font-size: 10px;
+      }
+      
+      .cb-last-outcome {
+        font-size: 8px;
+      }
+    }
+  }
+
+  // Next Action Row - Compact
+  .cb-next-action-row {
+    padding: 6px 8px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+  }
+
+  .cb-next-action {
+    gap: 6px;
+    
+    i {
+      font-size: 10px;
+    }
+  }
+
+  .cb-next-action-text {
+    font-size: 10px;
+  }
+
+  // Quick Actions Section - Compact
+  .cb-quick-actions {
+    margin-top: 12px;
+    padding-top: 8px;
+    
+    &.post-call-highlight {
+      padding: 8px;
+      margin-top: 8px;
+      border-radius: 6px;
+    }
+  }
+
+  .cb-quick-actions-label {
+    font-size: 9px;
+    margin-bottom: 6px;
+    gap: 4px;
+    
+    .post-call-highlight & {
+      margin-bottom: 8px;
+    }
+  }
+
+  .cb-quick-buttons {
+    gap: 4px;
+  }
+
+  .cb-quick-btn {
+    padding: 4px 6px;
+    border-radius: 4px;
+    font-size: 8px;
+    gap: 3px;
+    
+    i {
+      font-size: 7px;
+    }
+    
+    span {
+      font-size: 7px;
+    }
+  }
+
+  // Combined Post-Call Actions - Compact
+  .cb-post-call-actions {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 6px;
+    
+    .cb-post-call-label {
+      gap: 4px;
+      font-size: 10px;
+      margin-bottom: 12px;
+      
+      i {
+        font-size: 9px;
+      }
+    }
+    
+    .cb-disposition-section {
+      margin-bottom: 12px;
+    }
+    
+    .cb-disposition-label {
+      font-size: 9px;
+      margin-bottom: 6px;
+    }
+    
+    .cb-disposition-buttons {
+      gap: 4px;
+    }
+    
+    .cb-disposition-option {
+      .cb-disposition-btn {
+        gap: 3px;
+        padding: 6px 4px;
+        font-size: 8px;
+        border-radius: 4px;
+      }
+    }
+    
+    .cb-next-action-section {
+      margin-bottom: 12px;
+    }
+    
+    .cb-next-action-label {
+      gap: 4px;
+      font-size: 9px;
+      margin-bottom: 6px;
+      
+      i {
+        font-size: 8px;
+      }
+    }
+    
+    .cb-next-action-input {
+      padding: 6px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+    }
+    
+    .cb-post-call-buttons {
+      gap: 6px;
+    }
+    
+    .cb-post-call-cancel {
+      padding: 6px 12px;
+      font-size: 9px;
+      border-radius: 4px;
+    }
+    
+    .cb-post-call-save {
+      padding: 6px 12px;
+      font-size: 9px;
+      border-radius: 4px;
+    }
+  }
+
+  // Next Action Input Form - Compact
+  .cb-next-action-input {
+    margin-top: 8px;
+    padding: 8px;
+    border-radius: 6px;
+    
+    .cb-next-action-label {
+      gap: 4px;
+      font-size: 9px;
+      margin-bottom: 6px;
+      
+      i {
+        font-size: 8px;
+      }
+    }
+    
+    .cb-next-action-field {
+      gap: 6px;
+    }
+    
+    .cb-next-action-textarea {
+      padding: 6px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+    }
+    
+    .cb-next-action-buttons {
+      gap: 6px;
+    }
+    
+    .cb-next-action-cancel {
+      padding: 4px 8px;
+      font-size: 9px;
+      border-radius: 4px;
+    }
+    
+    .cb-next-action-save {
+      padding: 4px 8px;
+      font-size: 9px;
+      border-radius: 4px;
+    }
+  }
+
+  // Card Actions - Compact
+  .cb-card-actions {
+    padding: 8px 16px 12px;
+  }
+
+  .cb-primary-actions {
+    gap: 6px;
+  }
+
+  .cb-action-btn {
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    gap: 3px;
+  }
+
+  // Inline Message Composer - Compact
+  .cb-quick-composer {
+    padding: 12px 16px;
+  }
+
+  .cb-composer-form {
+    gap: 8px;
+  }
+
+  .cb-composer-textarea {
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    min-height: 50px;
+  }
+
+  .cb-composer-actions {
+    gap: 6px;
+  }
+
+  .cb-composer-cancel, .cb-composer-send {
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 10px;
+  }
+
+  // Empty State - Compact
+  .cb-empty-state {
+    padding: 40px 16px;
+
+    i {
+      font-size: 36px;
+      margin-bottom: 12px;
+    }
+
+    h3 {
+      font-size: 16px;
+      margin-bottom: 6px;
+    }
+
+    p {
+      margin-bottom: 16px;
+      font-size: 12px;
+    }
+  }
+
+  // Responsive Design Adjustments for Compact Mode
+  .cb-dashboard-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+}
