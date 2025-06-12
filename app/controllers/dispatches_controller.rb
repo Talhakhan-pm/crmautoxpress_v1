@@ -616,7 +616,7 @@ class DispatchesController < ApplicationController
   def order_params
     params.require(:order).permit(
       :supplier_id, :supplier_name, :supplier_order_number, :supplier_cost,
-      :supplier_shipping_cost, :supplier_tax, :supplier_shipment_proof
+      :supplier_shipping_cost, :supplier_tax, :supplier_shipment_proof, :product_link
     )
   end
 

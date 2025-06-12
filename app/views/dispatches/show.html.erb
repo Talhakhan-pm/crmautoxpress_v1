@@ -329,6 +329,26 @@
               <span class="info-value"><%= @dispatch.order.comments %></span>
             </div>
           <% end %>
+          <% if @dispatch.order.product_link.present? %>
+            <div class="info-row">
+              <span class="info-label">Product Link</span>
+              <span class="info-value" data-controller="product-link-copy">
+                <%= link_to @dispatch.order.product_link, target: "_blank", style: "color: #3b82f6; text-decoration: none; margin-right: 8px;" do %>
+                  <%= truncate(@dispatch.order.product_link, length: 35) %>
+                <% end %>
+                <button type="button" 
+                        data-action="click->product-link-copy#copyLink"
+                        data-product-link-copy-url-value="<%= @dispatch.order.product_link %>"
+                        title="Copy link"
+                        style="background: none; border: none; color: #6b7280; cursor: pointer; padding: 2px;">
+                  <i class="fas fa-copy" data-product-link-copy-target="icon"></i>
+                </button>
+                <div data-product-link-copy-target="toast" style="position: absolute; top: -25px; right: 0; background: #1f2937; color: white; padding: 3px 6px; border-radius: 3px; font-size: 11px; opacity: 0; pointer-events: none; z-index: 10;">
+                  Copied!
+                </div>
+              </span>
+            </div>
+          <% end %>
         </div>
       </div>
 

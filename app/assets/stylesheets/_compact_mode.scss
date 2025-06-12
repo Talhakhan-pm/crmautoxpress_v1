@@ -3784,4 +3784,218 @@
         padding: 8px 10px !important;
         font-size: 11px !important;
     }
+
+    /* ================================
+       INNOVATIVE PRODUCT LINK STYLING
+       ================================ */
+    
+    /* Product Link Input Field */
+    .product-link-input {
+        position: relative;
+        transition: all 0.3s ease;
+        
+        &:focus {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+            border-color: #3b82f6 !important;
+        }
+        
+        &.valid {
+            border-color: #10b981 !important;
+            background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%) !important;
+        }
+        
+        &.invalid {
+            border-color: #ef4444 !important;
+            background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%) !important;
+        }
+    }
+    
+    /* Live Preview Card */
+    .product-link-preview {
+        margin-top: 8px;
+        animation: slideDown 0.3s ease-out;
+    }
+    
+    .link-preview-card {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        border: 1px solid #93c5fd;
+        border-radius: 6px;
+        font-size: 11px;
+        color: #1e40af;
+        transition: all 0.2s ease;
+        
+        &:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+        
+        i {
+            font-size: 10px;
+            color: #3b82f6;
+        }
+        
+        .preview-text {
+            flex: 1;
+            font-weight: 500;
+        }
+        
+        .preview-test-btn {
+            padding: 4px 8px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 4px;
+            font-size: 9px;
+            color: #1e40af;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            
+            &:hover {
+                background: rgba(255, 255, 255, 1);
+                border-color: #3b82f6;
+                box-shadow: 0 2px 6px rgba(59, 130, 246, 0.2);
+            }
+            
+            i {
+                font-size: 8px;
+            }
+        }
+    }
+    
+    /* Dispatch Product Link Display */
+    .product-link-display {
+        margin-top: 6px;
+        padding-top: 6px;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .dispatch-product-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 8px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: none;
+        font-size: 9px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        
+        &:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+            border-color: rgba(255, 255, 255, 0.4);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        i {
+            font-size: 8px;
+            color: rgba(255, 255, 255, 0.7);
+            transition: color 0.3s ease;
+        }
+        
+        &:hover i {
+            color: rgba(255, 255, 255, 1);
+        }
+    }
+    
+    /* Multiple URLs Support */
+    .product-link-input.multiple-urls {
+        min-height: 60px;
+        resize: vertical;
+        font-family: monospace;
+        font-size: 10px;
+        line-height: 1.4;
+    }
+    
+    .url-list-display {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin-top: 6px;
+    }
+    
+    .individual-url-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 6px;
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        border-radius: 3px;
+        color: #1e40af;
+        text-decoration: none;
+        font-size: 8px;
+        transition: all 0.2s ease;
+        max-width: 200px;
+        
+        &:hover {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: rgba(59, 130, 246, 0.4);
+            transform: translateX(2px);
+        }
+        
+        i {
+            font-size: 7px;
+        }
+        
+        .url-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
+        }
+    }
+    
+    /* Animation for preview appearance */
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Compact Mode Adjustments */
+    @media (max-width: 1366px) {
+        .link-preview-card {
+            padding: 6px 8px;
+            font-size: 10px;
+            
+            .preview-test-btn {
+                padding: 3px 6px;
+                font-size: 8px;
+            }
+        }
+        
+        .dispatch-product-link {
+            padding: 3px 6px;
+            font-size: 8px;
+            
+            i {
+                font-size: 7px;
+            }
+        }
+        
+        .individual-url-link {
+            font-size: 7px;
+            padding: 2px 4px;
+            
+            .url-text {
+                max-width: 120px;
+            }
+        }
+    }
 }

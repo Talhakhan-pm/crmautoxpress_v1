@@ -248,11 +248,27 @@
               </div>
             <% end %>
             <% if @order.product_link.present? %>
-              <div style="margin-top: 12px;">
-                <a href="<%= @order.product_link %>" target="_blank" class="btn btn-outline-primary btn-sm">
-                  <i class="fas fa-external-link-alt"></i>
-                  View Product Details
+              <div class="product-link-showcase" style="margin-top: 16px;" data-controller="product-link-copy">
+                <a href="<%= @order.product_link %>" target="_blank" class="order-show-product-link" onclick="event.stopPropagation();">
+                  <div class="link-icon">
+                    <i class="fas fa-external-link-alt"></i>
+                  </div>
+                  <div class="link-content">
+                    <span class="link-title">View Product Details</span>
+                    <span class="link-url"><%= truncate(@order.product_link, length: 50) %></span>
+                  </div>
+                  <button type="button" 
+                          class="copy-btn" 
+                          data-action="click->product-link-copy#copyLink" 
+                          data-product-link-copy-url-value="<%= @order.product_link %>"
+                          onclick="event.preventDefault(); event.stopPropagation();"
+                          title="Copy link">
+                    <i class="fas fa-copy" data-product-link-copy-target="icon"></i>
+                  </button>
                 </a>
+                <div class="copy-toast" data-product-link-copy-target="toast">
+                  Link copied to clipboard!
+                </div>
               </div>
             <% end %>
           </div>

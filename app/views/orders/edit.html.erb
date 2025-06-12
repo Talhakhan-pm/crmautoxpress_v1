@@ -137,6 +137,26 @@
                                       required: true,
                                       data: { order_form_target: "productName" } %>
                 </div>
+                
+                <div class="input-group">
+                  <%= form.label :product_link, "Product URL", class: "input-label" %>
+                  <%= form.url_field :product_link, 
+                                     class: "input-field product-link-input", 
+                                     placeholder: "https://example.com/product-page",
+                                     data: { 
+                                       controller: "product-link",
+                                       action: "input->product-link#validateUrl blur->product-link#previewLink"
+                                     } %>
+                  <div class="product-link-preview" data-product-link-target="preview" style="display: none;">
+                    <div class="link-preview-card">
+                      <i class="fas fa-external-link-alt"></i>
+                      <span class="preview-text">Valid product link detected</span>
+                      <button type="button" class="preview-test-btn" data-action="click->product-link#testLink">
+                        <i class="fas fa-eye"></i> Test Link
+                      </button>
+                    </div>
+                  </div>
+                </div>
                 <div class="pricing-grid">
                   <div class="input-group">
                     <%= form.label :product_price, "Price", class: "input-label required" %>

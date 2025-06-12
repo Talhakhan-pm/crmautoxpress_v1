@@ -105,9 +105,8 @@ class OrdersController < ApplicationController
       respond_to do |format|
         format.html { redirect_to @order, notice: 'Order was successfully updated.' }
         format.turbo_stream { 
-          # Always redirect to orders index after successful update
-          # This ensures clean navigation whether from modal or regular form
-          redirect_to orders_path, notice: 'Order was successfully updated.'
+          # Use turbo stream to navigate to orders index after successful update
+          render turbo_stream: turbo_stream.action(:redirect, orders_path)
         }
       end
     else

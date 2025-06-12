@@ -96,7 +96,17 @@
                     </div>
                     <div class="info-item">
                       <div class="info-label">Product</div>
-                      <div class="info-value" style="text-align: left;"><%= @dispatch.product_name %></div>
+                      <div class="info-value" style="text-align: left;">
+                        <%= @dispatch.product_name %>
+                        <% if @dispatch.order.product_link.present? %>
+                          <div class="product-link-display">
+                            <%= link_to @dispatch.order.product_link, target: "_blank", class: "dispatch-product-link" do %>
+                              <i class="fas fa-external-link-alt"></i>
+                              <span>View Product Details</span>
+                            <% end %>
+                          </div>
+                        <% end %>
+                      </div>
                     </div>
                     <div class="info-item">
                       <div class="info-label">Vehicle</div>
@@ -277,6 +287,27 @@
                             placeholder: "Supplier's order number",
                             value: @dispatch.order.supplier_order_number,
                             data: { dispatch_form_target: "supplierOrderNumber" } %>
+                      </div>
+                      
+                      <div class="unified-form-group">
+                        <%= order_form.label :product_link, "Product URL", class: "form-label" %>
+                        <%= order_form.url_field :product_link, 
+                            class: "form-input product-link-input", 
+                            placeholder: "https://example.com/product-page",
+                            value: @dispatch.order.product_link,
+                            data: { 
+                              controller: "product-link",
+                              action: "input->product-link#validateUrl blur->product-link#previewLink"
+                            } %>
+                        <div class="product-link-preview" data-product-link-target="preview" style="display: none;">
+                          <div class="link-preview-card">
+                            <i class="fas fa-external-link-alt"></i>
+                            <span class="preview-text">Valid product link detected</span>
+                            <button type="button" class="preview-test-btn" data-action="click->product-link#testLink">
+                              <i class="fas fa-eye"></i> Test Link
+                            </button>
+                          </div>
+                        </div>
                       </div>
                       
                       <div class="unified-form-group">
