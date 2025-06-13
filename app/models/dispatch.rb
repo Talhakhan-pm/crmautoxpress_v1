@@ -179,11 +179,12 @@ class Dispatch < ApplicationRecord
       # Update order status based on dispatch status (unless blocked by active refund processing)
       unless order.refund.present? && order.refund.refund_stage.in?(['pending_refund', 'processing_refund'])
         case dispatch_status
-        when 'pending', 'assigned'
-          # Allow backward transitions: if dispatch is moved back to pending/assigned, update order accordingly
-          if order.processing? && old_status == 'processing'
-            order.update!(order_status: 'confirmed')
-          end
+        when 'pending'
+          # Dispatch moved to pending - order should be pending too
+          order.update!(order_status: 'pending') unless order.pending?
+        when 'assigned'
+          # Dispatch assigned - order should be confirmed
+          order.update!(order_status: 'confirmed') unless order.confirmed?
         when 'processing'
           order.update!(order_status: 'processing') if order.confirmed?
         when 'shipped'
