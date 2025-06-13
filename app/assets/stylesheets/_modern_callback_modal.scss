@@ -1,0 +1,482 @@
+// Modern Minimalistic Callback Modal
+// Clean, contemporary design focused on usability and performance
+
+// ============================================
+// MODAL OVERLAY & BACKDROP
+// ============================================
+
+.mcm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  
+  &.mcm-active {
+    opacity: 1;
+  }
+}
+
+// ============================================
+// MODAL CONTAINER
+// ============================================
+
+.mcm-container {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow: hidden;
+  transform: scale(0.95) translateY(20px);
+  transition: transform 0.2s ease;
+  
+  .mcm-overlay.mcm-active & {
+    transform: scale(1) translateY(0);
+  }
+}
+
+// ============================================
+// MODAL HEADER
+// ============================================
+
+.mcm-header {
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  position: relative;
+}
+
+.mcm-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  
+  .mcm-icon {
+    width: 24px;
+    height: 24px;
+    color: #dc2626;
+    flex-shrink: 0;
+  }
+}
+
+.mcm-subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin: 4px 0 0 36px;
+}
+
+.mcm-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #f8fafc;
+  border-radius: 8px;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  
+  &:hover {
+    background: #f1f5f9;
+    color: #475569;
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+// ============================================
+// MODAL BODY
+// ============================================
+
+.mcm-body {
+  padding: 24px;
+  overflow-y: auto;
+  max-height: calc(90vh - 140px);
+}
+
+// ============================================
+// FORM STRUCTURE
+// ============================================
+
+.mcm-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.mcm-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mcm-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+// ============================================
+// FORM FIELDS
+// ============================================
+
+.mcm-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mcm-field-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+}
+
+.mcm-input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.mcm-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px 0 44px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 15px;
+  color: #1e293b;
+  background: white;
+  transition: all 0.15s ease;
+  
+  &::placeholder {
+    color: #94a3b8;
+    font-weight: 400;
+  }
+  
+  &:focus {
+    outline: none;
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
+  }
+  
+  &:hover:not(:focus) {
+    border-color: #cbd5e1;
+  }
+}
+
+.mcm-input-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: #64748b;
+  z-index: 1;
+  pointer-events: none;
+}
+
+// ============================================
+// STATUS SELECTION
+// ============================================
+
+.mcm-status-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.mcm-status-option {
+  position: relative;
+  cursor: pointer;
+  
+  input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+.mcm-status-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  background: white;
+  transition: all 0.15s ease;
+  text-align: center;
+  
+  &:hover {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+  }
+  
+  .mcm-status-icon {
+    width: 20px;
+    height: 20px;
+    color: #64748b;
+    transition: color 0.15s ease;
+  }
+  
+  .mcm-status-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #475569;
+    margin: 0;
+  }
+}
+
+.mcm-status-option input:checked + .mcm-status-card {
+  border-color: #dc2626;
+  background: #fef2f2;
+  
+  .mcm-status-icon {
+    color: #dc2626;
+  }
+  
+  .mcm-status-label {
+    color: #dc2626;
+  }
+}
+
+// ============================================
+// DATE SELECTION
+// ============================================
+
+.mcm-date-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mcm-date-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.mcm-date-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 8px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  background: white;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  
+  &:hover {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+  }
+  
+  &.mcm-active {
+    border-color: #dc2626;
+    background: #fef2f2;
+    color: #dc2626;
+  }
+  
+  .mcm-date-icon {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.mcm-date-input {
+  height: 48px;
+  padding: 0 16px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 15px;
+  color: #1e293b;
+  background: white;
+  transition: all 0.15s ease;
+  
+  &:focus {
+    outline: none;
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
+  }
+}
+
+// ============================================
+// ACTIONS
+// ============================================
+
+.mcm-actions {
+  display: flex;
+  gap: 12px;
+  padding: 20px 24px 24px;
+  border-top: 1px solid #f1f5f9;
+  background: #fafbfc;
+}
+
+.mcm-btn {
+  height: 44px;
+  padding: 0 20px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.mcm-btn-cancel {
+  flex: 1;
+  background: white;
+  color: #64748b;
+  border: 1.5px solid #e2e8f0;
+  
+  &:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #475569;
+  }
+}
+
+.mcm-btn-save {
+  flex: 2;
+  background: #dc2626;
+  color: white;
+  
+  &:hover {
+    background: #b91c1c;
+  }
+  
+  &:disabled {
+    background: #e2e8f0;
+    color: #94a3b8;
+    cursor: not-allowed;
+  }
+}
+
+// ============================================
+// RESPONSIVE DESIGN
+// ============================================
+
+@media (max-width: 640px) {
+  .mcm-container {
+    margin: 16px;
+    max-width: calc(100% - 32px);
+  }
+  
+  .mcm-header,
+  .mcm-body,
+  .mcm-actions {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  
+  .mcm-field-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .mcm-status-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .mcm-date-buttons {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .mcm-actions {
+    flex-direction: column;
+  }
+}
+
+// ============================================
+// ANIMATIONS
+// ============================================
+
+@keyframes mcm-fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes mcm-fadeOut {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95) translateY(20px);
+  }
+}
+
+// ============================================
+// UTILITY CLASSES
+// ============================================
+
+.mcm-hidden {
+  display: none !important;
+}
+
+.mcm-invisible {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mcm-loading {
+  position: relative;
+  pointer-events: none;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

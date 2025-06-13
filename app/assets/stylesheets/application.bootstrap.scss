@@ -43,8 +43,8 @@
 // Import compact mode for 1366x768 screens - MOVED AFTER ALL MAIN STYLES
 @use 'compact_mode';
 
-// Import swift callback form styles
-@use 'swift_callback_form';
+// Import modern callback modal styles
+@use 'modern_callback_modal';
 
 /* Error alerts for validation */
 .alert {

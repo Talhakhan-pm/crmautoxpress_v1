@@ -1,34 +1,33 @@
 <%= turbo_frame_tag "main_content", data: { turbo_action: "advance" } do %>
   <main class="main-content">
-    <!-- Smart Callback Creation Modal -->
-    <div id="callback-modal" 
-         class="callback-modal active" 
+    <!-- Modern Callback Modal -->
+    <div class="mcm-overlay mcm-active" 
          data-controller="modal callback-form"
          data-modal-close-url-value="<%= callbacks_path %>"
          data-action="click->modal#closeModal">
       
-      <div class="modal-overlay" 
-           title="Click to close"></div>
-      
-      <div class="callback-modal-content" data-callback-form-target="modal" data-action="click->modal#stopPropagation">
-        <!-- Modal Header -->
-        <div class="modal-header">
-          <div class="header-content">
-            <div class="modal-title-section">
-              <h2 class="modal-title">
-                <i class="fas fa-phone-alt modal-icon"></i>
-                Create New Callback
-              </h2>
-              <p class="modal-subtitle">Capture lead information and schedule follow-ups</p>
-            </div>
-            <button type="button" data-action="click->modal#closeModal" class="close-btn">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
+      <div class="mcm-container" 
+           data-callback-form-target="modal" 
+           data-action="click->modal#stopPropagation">
+        
+        <!-- Header -->
+        <div class="mcm-header">
+          <h2 class="mcm-title">
+            <i class="fas fa-phone-alt mcm-icon"></i>
+            Create New Callback
+          </h2>
+          <p class="mcm-subtitle">Capture lead information and schedule follow-ups</p>
+          
+          <button type="button" 
+                  class="mcm-close" 
+                  data-action="click->modal#closeModal"
+                  aria-label="Close modal">
+            <i class="fas fa-times"></i>
+          </button>
         </div>
 
-        <!-- Modal Body -->
-        <div class="modal-body">
+        <!-- Body -->
+        <div class="mcm-body">
           <%= render 'form', callback: @callback %>
         </div>
       </div>

@@ -2,7 +2,8 @@
               url: callback.persisted? ? callback_path(callback) : callbacks_path,
               method: callback.persisted? ? :patch : :post,
               local: false, 
-              class: "swift-form", 
+              class: "mcm-form",
+              id: callback.persisted? ? "edit_callback_#{callback.id}" : "new_callback",
               data: { 
                 controller: "callback-form",
                 callback_form_target: "form",
@@ -10,146 +11,168 @@
                 action: "turbo:submit-start->callback-form#handleSubmit turbo:submit-end->callback-form#handleSuccess"
               } do |form| %>
 
-  <!-- Priority Fields -->
-  <div class="swift-field-group">
-    <div class="swift-field">
-      <i class="swift-icon fas fa-phone"></i>
-      <%= form.telephone_field :phone_number, 
-                               class: "swift-input", 
-                               placeholder: "Phone Number",
-                               autofocus: true,
-                               data: { 
-                                 callback_form_target: "phoneNumber",
-                                 action: "input->callback-form#formatPhone"
-                               } %>
+  <!-- Contact Information -->
+  <div class="mcm-section">
+    <div class="mcm-field">
+      <div class="mcm-input-group">
+        <i class="mcm-input-icon fas fa-phone"></i>
+        <%= form.telephone_field :phone_number, 
+                                 class: "mcm-input", 
+                                 placeholder: "Phone Number",
+                                 autofocus: true,
+                                 data: { 
+                                   callback_form_target: "phoneNumber",
+                                   action: "input->callback-form#formatPhone"
+                                 } %>
+      </div>
     </div>
 
-    <div class="swift-field">
-      <i class="swift-icon fas fa-user"></i>
-      <%= form.text_field :customer_name, 
-                          class: "swift-input", 
-                          placeholder: "Customer Name" %>
+    <div class="mcm-field">
+      <div class="mcm-input-group">
+        <i class="mcm-input-icon fas fa-user"></i>
+        <%= form.text_field :customer_name, 
+                            class: "mcm-input", 
+                            placeholder: "Customer Name" %>
+      </div>
     </div>
 
-    <div class="swift-field">
-      <i class="swift-icon fas fa-cog"></i>
-      <%= form.text_field :product, 
-                         class: "swift-input", 
-                         placeholder: "Part Name" %>
+    <div class="mcm-field">
+      <div class="mcm-input-group">
+        <i class="mcm-input-icon fas fa-cog"></i>
+        <%= form.text_field :product, 
+                           class: "mcm-input", 
+                           placeholder: "Part Name" %>
+      </div>
     </div>
   </div>
 
-  <!-- Vehicle Info -->
-  <div class="swift-field-row">
-    <div class="swift-field swift-field-wide">
-      <i class="swift-icon fas fa-car"></i>
-      <%= form.text_field :car_make_model, 
-                          class: "swift-input", 
-                          placeholder: "Make & Model" %>
+  <!-- Vehicle Information -->
+  <div class="mcm-section">
+    <div class="mcm-field-row">
+      <div class="mcm-field">
+        <div class="mcm-input-group">
+          <i class="mcm-input-icon fas fa-car"></i>
+          <%= form.text_field :car_make_model, 
+                              class: "mcm-input", 
+                              placeholder: "Make & Model" %>
+        </div>
+      </div>
+      
+      <div class="mcm-field">
+        <div class="mcm-input-group">
+          <i class="mcm-input-icon fas fa-calendar"></i>
+          <%= form.number_field :year, 
+                                class: "mcm-input", 
+                                placeholder: "Year" %>
+        </div>
+      </div>
     </div>
-    
-    <div class="swift-field swift-field-narrow">
-      <i class="swift-icon fas fa-calendar"></i>
-      <%= form.number_field :year, 
-                            class: "swift-input", 
-                            placeholder: "Year" %>
-    </div>
-  </div>
 
-  <div class="swift-field">
-    <i class="swift-icon fas fa-map-marker-alt"></i>
-    <%= form.text_field :zip_code, 
-                        class: "swift-input", 
-                        placeholder: "ZIP Code" %>
+    <div class="mcm-field">
+      <div class="mcm-input-group">
+        <i class="mcm-input-icon fas fa-map-marker-alt"></i>
+        <%= form.text_field :zip_code, 
+                            class: "mcm-input", 
+                            placeholder: "ZIP Code" %>
+      </div>
+    </div>
   </div>
 
   <!-- Status Selection -->
-  <div class="swift-status-section">
-    <div class="swift-status-grid">
-      <label class="swift-status <%= 'swift-status-active' if (callback.status || 'pending') == 'pending' %>">
+  <div class="mcm-section">
+    <div class="mcm-status-grid">
+      <label class="mcm-status-option">
         <%= form.radio_button :status, 'pending', 
-                              class: "swift-radio",
                               checked: (callback.status || 'pending') == 'pending',
                               data: { action: "change->callback-form#updateStatus" } %>
-        <i class="fas fa-clock"></i>
-        <span>Pending</span>
+        <div class="mcm-status-card">
+          <i class="mcm-status-icon fas fa-clock"></i>
+          <span class="mcm-status-label">Pending</span>
+        </div>
       </label>
       
-      <label class="swift-status <%= 'swift-status-active' if callback.status == 'follow_up' %>">
+      <label class="mcm-status-option">
         <%= form.radio_button :status, 'follow_up', 
-                              class: "swift-radio",
                               data: { action: "change->callback-form#updateStatus" } %>
-        <i class="fas fa-phone"></i>
-        <span>Follow Up</span>
+        <div class="mcm-status-card">
+          <i class="mcm-status-icon fas fa-phone"></i>
+          <span class="mcm-status-label">Follow Up</span>
+        </div>
       </label>
       
-      <label class="swift-status <%= 'swift-status-active' if callback.status == 'payment_link' %>">
+      <label class="mcm-status-option">
         <%= form.radio_button :status, 'payment_link', 
-                              class: "swift-radio",
                               data: { action: "change->callback-form#updateStatus" } %>
-        <i class="fas fa-credit-card"></i>
-        <span>Payment Link</span>
+        <div class="mcm-status-card">
+          <i class="mcm-status-icon fas fa-credit-card"></i>
+          <span class="mcm-status-label">Payment Link</span>
+        </div>
       </label>
       
-      <label class="swift-status <%= 'swift-status-active' if callback.status == 'not_interested' %>">
+      <label class="mcm-status-option">
         <%= form.radio_button :status, 'not_interested', 
-                              class: "swift-radio",
                               data: { action: "change->callback-form#updateStatus" } %>
-        <i class="fas fa-times"></i>
-        <span>Not Interested</span>
+        <div class="mcm-status-card">
+          <i class="mcm-status-icon fas fa-times"></i>
+          <span class="mcm-status-label">Not Interested</span>
+        </div>
       </label>
     </div>
   </div>
 
-  <!-- Follow-up Dates -->
-  <div class="swift-followup-section" data-callback-form-target="followupSection">
-    <div class="swift-date-grid">
-      <button type="button" class="swift-date-btn" 
-              data-action="click->callback-form#setFollowupDate" 
-              data-days="0">
-        <i class="fas fa-sun"></i>
-        <span>Today</span>
-      </button>
+  <!-- Follow-up Date -->
+  <div class="mcm-section" data-callback-form-target="followupSection">
+    <div class="mcm-date-section">
+      <div class="mcm-date-buttons">
+        <button type="button" class="mcm-date-btn" 
+                data-action="click->callback-form#setFollowupDate" 
+                data-days="0">
+          <i class="mcm-date-icon fas fa-sun"></i>
+          <span>Today</span>
+        </button>
+        
+        <button type="button" class="mcm-date-btn" 
+                data-action="click->callback-form#setFollowupDate" 
+                data-days="1">
+          <i class="mcm-date-icon fas fa-arrow-right"></i>
+          <span>Tomorrow</span>
+        </button>
+        
+        <button type="button" class="mcm-date-btn" 
+                data-action="click->callback-form#setFollowupDate" 
+                data-days="7">
+          <i class="mcm-date-icon fas fa-calendar-week"></i>
+          <span>Next Week</span>
+        </button>
+        
+        <button type="button" class="mcm-date-btn" 
+                data-action="click->callback-form#showCustomDate">
+          <i class="mcm-date-icon fas fa-calendar-alt"></i>
+          <span>Custom</span>
+        </button>
+      </div>
       
-      <button type="button" class="swift-date-btn" 
-              data-action="click->callback-form#setFollowupDate" 
-              data-days="1">
-        <i class="fas fa-arrow-right"></i>
-        <span>Tomorrow</span>
-      </button>
-      
-      <button type="button" class="swift-date-btn" 
-              data-action="click->callback-form#setFollowupDate" 
-              data-days="7">
-        <i class="fas fa-calendar-week"></i>
-        <span>Next Week</span>
-      </button>
-      
-      <button type="button" class="swift-date-btn swift-date-custom" 
-              data-action="click->callback-form#showCustomDate">
-        <i class="fas fa-calendar-alt"></i>
-        <span>Custom</span>
-      </button>
+      <%= form.date_field :follow_up_date, 
+                          class: "mcm-date-input", 
+                          value: callback.follow_up_date || (Date.current + 1.day),
+                          data: { callback_form_target: "followupDateInput" } %>
     </div>
-    
-    <%= form.date_field :follow_up_date, 
-                        class: "swift-date-input", 
-                        value: callback.follow_up_date || (Date.current + 1.day),
-                        data: { callback_form_target: "followupDateInput" } %>
   </div>
 
   <!-- Hidden Fields -->
   <% unless callback.persisted? %>
     <%= form.hidden_field :agent, value: current_user.email %>
   <% end %>
-
-  <!-- Actions -->
-  <div class="swift-actions">
-    <%= link_to "Cancel", callbacks_path, class: "swift-btn swift-btn-cancel", 
-        data: { turbo_frame: turbo_frame_request? ? "main_content" : "_top" } %>
-    
-    <%= form.submit callback.persisted? ? "Update" : "Save", 
-        class: "swift-btn swift-btn-save", 
-        data: { callback_form_target: "submitBtn" } %>
-  </div>
 <% end %>
+
+<!-- Actions -->
+<div class="mcm-actions">
+  <%= link_to "Cancel", callbacks_path, class: "mcm-btn mcm-btn-cancel", 
+      data: { turbo_frame: turbo_frame_request? ? "main_content" : "_top" } %>
+  
+  <%= button_tag callback.persisted? ? "Update" : "Save", 
+      type: "submit", 
+      form: callback.persisted? ? "edit_callback_#{callback.id}" : "new_callback",
+      class: "mcm-btn mcm-btn-save", 
+      data: { callback_form_target: "submitBtn" } %>
+</div>
