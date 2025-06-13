@@ -654,6 +654,8 @@ class Order < ApplicationRecord
     
     # Skip sync if we're already in a sync operation to prevent circular calls
     return if @syncing_with_dispatch
+    # ALSO skip if dispatch is already syncing with order to prevent circular updates
+    return if dispatch.instance_variable_get(:@syncing_with_order)
     @syncing_with_dispatch = true
 
     begin
